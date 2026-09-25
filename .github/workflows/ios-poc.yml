@@ -1,0 +1,117 @@
+name: iOS Engine PoC
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-ios-poc:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Expand PoC source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import base64
+          from pathlib import Path
+          src = Path("artifacts/shogi-ai-coach-poc-v0.1.zip.b64").read_text().strip()
+          Path(".ci-poc.zip").write_bytes(base64.b64decode(src))
+          PY
+          unzip -q .ci-poc.zip -d .ci-unpack
+          rsync -a .ci-unpack/shogi-ai-coach-poc/ ./
+          rm -rf .ci-unpack .ci-poc.zip
+          cp ci/Project.yml Project.yml
+          cp ci/Podfile Podfile
+
+      - name: Select Xcode and show environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -version
+          swift --version
+          uname -m
+
+      - name: Core regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          swift test 2>&1 | tee swift-test.log
+
+      - name: Install build tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew install xcodegen p7zip cocoapods
+          xcodegen --version
+          pod --version
+
+      - name: Fetch pinned YaneuraOu and NNUE
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x scripts/fetch_yaneuraou.sh scripts/fetch_eval.sh
+          ./scripts/fetch_yaneuraou.sh
+          ./scripts/fetch_eval.sh
+          test -s iOS/ShogiCoachPoC/eval/nn.bin
+          echo "YaneuraOu=$(git -C native/third_party/YaneuraOu rev-parse HEAD)"
+          echo "NNUE bytes=$(stat -f%z iOS/ShogiCoachPoC/eval/nn.bin)"
+          shasum -a 256 iOS/ShogiCoachPoC/eval/nn.bin
+
+      - name: Generate Xcode project
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodegen generate
+          pod install
+          test -d ShogiCoachPoC.xcworkspace
+
+      - name: Build unsigned iPhone app
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -workspace ShogiCoachPoC.xcworkspace \
+            -scheme ShogiCoachPoC \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build/DerivedData \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            build 2>&1 | tee xcodebuild.log
+
+      - name: Verify and package IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP='build/DerivedData/Build/Products/Release-iphoneos/ShogiCoachPoC.app'
+          test -d "$APP"
+          test -x "$APP/ShogiCoachPoC"
+          test -f "$APP/eval/nn.bin"
+          mkdir -p ipa/Payload
+          cp -R "$APP" ipa/Payload/
+          (cd ipa && zip -qry ../ShogiCoachPoC-unsigned.ipa Payload)
+          shasum -a 256 ShogiCoachPoC-unsigned.ipa | tee ipa-sha256.txt
+          du -h ShogiCoachPoC-unsigned.ipa
+
+      - name: Upload IPA and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ShogiCoachPoC-iPhone-PoC
+          path: |
+            ShogiCoachPoC-unsigned.ipa
+            ipa-sha256.txt
+            swift-test.log
+            xcodebuild.log
+          if-no-files-found: ignore
+          retention-days: 7
