@@ -1,0 +1,46 @@
+name: ShogiCoachPoC
+options:
+  bundleIdPrefix: com.inari1234
+  deploymentTarget:
+    iOS: "16.0"
+packages:
+  ShogiCoachCore:
+    path: .
+targets:
+  ShogiCoachPoC:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: iOS/ShogiCoachPoC
+        excludes:
+          - eval
+    resources:
+      - path: iOS/ShogiCoachPoC/eval
+        type: folder
+    dependencies:
+      - package: ShogiCoachCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.inari1234.shogicoachpoc
+        PRODUCT_NAME: ShogiCoachPoC
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Shogi Coach PoC
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        SWIFT_VERSION: "5.9"
+        SWIFT_OBJC_BRIDGING_HEADER: "$(SRCROOT)/iOS/ShogiCoachPoC/ShogiCoachPoC-Bridging-Header.h"
+        TARGETED_DEVICE_FAMILY: "1"
+        IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+        CODE_SIGN_STYLE: Automatic
+        DEAD_CODE_STRIPPING: NO
+schemes:
+  ShogiCoachPoC:
+    build:
+      targets:
+        ShogiCoachPoC: all
+    run:
+      config: Debug
+    archive:
+      config: Release
