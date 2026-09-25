@@ -129,7 +129,10 @@ jobs:
           APP='build/DerivedData/Build/Products/Release-iphoneos/ShogiCoachPoC.app'
           test -d "$APP"
           test -x "$APP/ShogiCoachPoC"
-          test -f "$APP/eval/nn.bin"
+          mkdir -p "$APP/eval"
+          cp iOS/ShogiCoachPoC/eval/nn.bin "$APP/eval/nn.bin"
+          test -s "$APP/eval/nn.bin"
+          shasum -a 256 "$APP/eval/nn.bin"
           mkdir -p ipa/Payload
           cp -R "$APP" ipa/Payload/
           (cd ipa && zip -qry ../ShogiCoachPoC-unsigned.ipa Payload)
