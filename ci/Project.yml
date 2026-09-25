@@ -35,6 +35,7 @@ targets:
         IPHONEOS_DEPLOYMENT_TARGET: "16.0"
         CODE_SIGN_STYLE: Automatic
         DEAD_CODE_STRIPPING: NO
+        OTHER_LDFLAGS: "$(inherited) -lc++"
 schemes:
   ShogiCoachPoC:
     build:
