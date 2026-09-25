@@ -21,8 +21,8 @@ jobs:
           python3 - <<'PY'
           import base64
           from pathlib import Path
-          src = Path("artifacts/shogi-ai-coach-poc-v0.1.zip.b64").read_text().strip()
-          Path(".ci-poc.zip").write_bytes(base64.b64decode(src))
+          parts = [Path(f"artifacts/poc.part.{i:02d}").read_text() for i in range(4)]
+          Path(".ci-poc.zip").write_bytes(base64.b64decode("".join(parts)))
           PY
           unzip -q .ci-poc.zip -d .ci-unpack
           rsync -a .ci-unpack/shogi-ai-coach-poc/ ./
