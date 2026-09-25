@@ -44,24 +44,23 @@ jobs:
           p.write_text(text)
           e = Path("iOS/ShogiCoachPoC/EngineProbe.swift")
           es = e.read_text()
-          old = """        try await withCheckedThrowingContinuation { continuation in
-            connection.send(content: data, completion: .contentProcessed { error in
-                if let error { continuation.resume(throwing: error) }
-                else { continuation.resume() }
-            })
-        }"""
-          new = """        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            connection.send(content: data, completion: .contentProcessed { error in
-                if let error { continuation.resume(throwing: error) }
-                else { continuation.resume(returning: ()) }
-            })
-        }"""
-          if old not in es:
-              raise SystemExit("EngineProbe send continuation target not found")
-          es = es.replace(old, new, 1)
+          send_start = es.index("    func send(_ line: String) async throws {")
+          send_end = es.index("    func readUntil(", send_start)
+          send_block = es[send_start:send_end]
+          send_block = send_block.replace(
+              "withCheckedThrowingContinuation { continuation in",
+              "withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in",
+              1
+          )
+          send_block = send_block.replace(
+              "else { continuation.resume() }",
+              "else { continuation.resume(returning: ()) }",
+              1
+          )
+          es = es[:send_start] + send_block + es[send_end:]
           e.write_text(es)
-          if es.count("CheckedContinuation<Void, Error>") != 1:
-              raise SystemExit("Unexpected EngineProbe continuation patch count")
+          if send_block.count("CheckedContinuation<Void, Error>") != 1:
+              raise SystemExit("EngineProbe send continuation patch failed")
           PY
 
       - name: Select Xcode and show environment
