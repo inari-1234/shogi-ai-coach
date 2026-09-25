@@ -31,6 +31,18 @@ jobs:
           rm -rf .ci-unpack .ci-poc.zip
           cp ci/Project.yml Project.yml
           cp ci/Podfile Podfile
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("native/yaneuraou_engine.podspec")
+          text = p.read_text()
+          if "s.homepage" not in text:
+              text = text.replace(
+                  "  s.summary = 'YaneuraOu V9.00 NNUE engine bridge for the Shogi Coach PoC'\n",
+                  "  s.summary = 'YaneuraOu V9.00 NNUE engine bridge for the Shogi Coach PoC'\n"
+                  "  s.homepage = 'https://github.com/inari-1234/shogi-ai-coach'\n"
+              )
+          p.write_text(text)
+          PY
 
       - name: Select Xcode and show environment
         shell: bash
