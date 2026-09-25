@@ -42,6 +42,13 @@ jobs:
                   "  s.homepage = 'https://github.com/inari-1234/shogi-ai-coach'\n"
               )
           p.write_text(text)
+          e = Path("iOS/ShogiCoachPoC/EngineProbe.swift")
+          es = e.read_text()
+          es = es.replace(
+              "try await withCheckedThrowingContinuation { continuation in\\n            connection.send(content: data, completion: .contentProcessed { error in\\n                if let error { continuation.resume(throwing: error) }\\n                else { continuation.resume() }",
+              "try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in\\n            connection.send(content: data, completion: .contentProcessed { error in\\n                if let error { continuation.resume(throwing: error) }\\n                else { continuation.resume(returning: ()) }"
+          )
+          e.write_text(es)
           PY
 
       - name: Select Xcode and show environment
