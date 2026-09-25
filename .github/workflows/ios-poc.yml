@@ -44,17 +44,24 @@ jobs:
           p.write_text(text)
           e = Path("iOS/ShogiCoachPoC/EngineProbe.swift")
           es = e.read_text()
-          es = es.replace(
-              "try await withCheckedThrowingContinuation { continuation in",
-              "try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in"
-          )
-          es = es.replace(
-              "else { continuation.resume() }",
-              "else { continuation.resume(returning: ()) }"
-          )
+          old = """        try await withCheckedThrowingContinuation { continuation in
+            connection.send(content: data, completion: .contentProcessed { error in
+                if let error { continuation.resume(throwing: error) }
+                else { continuation.resume() }
+            })
+        }"""
+          new = """        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            connection.send(content: data, completion: .contentProcessed { error in
+                if let error { continuation.resume(throwing: error) }
+                else { continuation.resume(returning: ()) }
+            })
+        }"""
+          if old not in es:
+              raise SystemExit("EngineProbe send continuation target not found")
+          es = es.replace(old, new, 1)
           e.write_text(es)
-          if "CheckedContinuation<Void, Error>" not in es or "resume(returning: ())" not in es:
-              raise SystemExit("EngineProbe continuation patch did not apply")
+          if es.count("CheckedContinuation<Void, Error>") != 1:
+              raise SystemExit("Unexpected EngineProbe continuation patch count")
           PY
 
       - name: Select Xcode and show environment
