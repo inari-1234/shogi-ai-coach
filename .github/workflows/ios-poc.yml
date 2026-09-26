@@ -65,55 +65,12 @@ jobs:
           app_text = app.read_text()
           app_text = app_text.replace(
               "        WindowGroup { ContentView() }",
-              """        WindowGroup {
-            ContentView()
-                .task { await SimulatorCIProbe.runIfRequested() }
-        }"""
+              "        WindowGroup { ContentView().task { await SimulatorCIProbe.runIfRequested() } }"
           )
-          app_text += """
-#if targetEnvironment(simulator)
-import Darwin
-
-@MainActor
-enum SimulatorCIProbe {
-    static func runIfRequested() async {
-        guard ProcessInfo.processInfo.arguments.contains("--ci-smoke") else { return }
-
-        let probe = EngineProbe()
-        await probe.runDefaultProbe()
-        let defaultStatus = probe.status
-        let defaultResult = probe.resultText
-
-        await probe.runTenProbe()
-        let tenStatus = probe.status
-        let tenResult = probe.resultText
-
-        let report = [
-            "default_status=\\(defaultStatus)",
-            "default_result_begin",
-            defaultResult,
-            "default_result_end",
-            "ten_status=\\(tenStatus)",
-            "ten_result_begin",
-            tenResult,
-            "ten_result_end"
-        ].joined(separator: "\\n")
-
-        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("ci-probe.txt")
-        try? report.write(to: url, atomically: true, encoding: .utf8)
-        print("SHOGI_CI_REPORT_WRITTEN")
-        fflush(stdout)
-        exit(0)
-    }
-}
-#else
-enum SimulatorCIProbe {
-    static func runIfRequested() async {}
-}
-#endif
-"""
           app.write_text(app_text)
+          Path("iOS/ShogiCoachPoC/SimulatorCIProbe.swift").write_text(
+              Path("ci/SimulatorCIProbe.swift").read_text()
+          )
           PY
 
       - name: Select Xcode and show environment
@@ -223,7 +180,7 @@ enum SimulatorCIProbe {
           UDID=$(python3 - <<'PY'
           import json
           data = json.load(open("simulator-devices.json"))
-          for runtime, devices in data["devices"].items():
+          for devices in data["devices"].values():
               for device in devices:
                   if device.get("isAvailable") and "iPhone" in device.get("name", ""):
                       print(device["udid"])
@@ -249,48 +206,12 @@ enum SimulatorCIProbe {
           cp "$REPORT" simulator-result.txt
           cat simulator-result.txt
 
-          grep -q '^default_status=PASS候補        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ShogiCoachPoC-iPhone-PoC
-          path: |
-            ShogiCoachPoC-unsigned.ipa
-            ipa-sha256.txt
-            swift-test.log
-            xcodebuild.log
-            simulator-build.log
-            simulator-run.log
-            simulator-result.txt
-          if-no-files-found: ignore
-          retention-days: 7
- simulator-result.txt
-          grep -q '^bestmove:' simulator-result.txt
-          grep -q '^score:' simulator-result.txt
-          grep -q '^pv:' simulator-result.txt
-          grep -q '^ten_status=実機PASS候補        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ShogiCoachPoC-iPhone-PoC
-          path: |
-            ShogiCoachPoC-unsigned.ipa
-            ipa-sha256.txt
-            swift-test.log
-            xcodebuild.log
-          if-no-files-found: ignore
-          retention-days: 7
- simulator-result.txt
-          grep -q '^10/10 completed        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ShogiCoachPoC-iPhone-PoC
-          path: |
-            ShogiCoachPoC-unsigned.ipa
-            ipa-sha256.txt
-            swift-test.log
-            xcodebuild.log
-          if-no-files-found: ignore
-          retention-days: 7
- simulator-result.txt
+          grep -Fq "default_status=PASS候補" simulator-result.txt
+          grep -Fq "bestmove:" simulator-result.txt
+          grep -Fq "score:" simulator-result.txt
+          grep -Fq "pv:" simulator-result.txt
+          grep -Fq "ten_status=実機PASS候補" simulator-result.txt
+          grep -Fq "10/10 completed" simulator-result.txt
 
           xcrun simctl shutdown "$UDID" 2>/dev/null || true
 
@@ -304,5 +225,8 @@ enum SimulatorCIProbe {
             ipa-sha256.txt
             swift-test.log
             xcodebuild.log
+            simulator-build.log
+            simulator-run.log
+            simulator-result.txt
           if-no-files-found: ignore
           retention-days: 7
