@@ -194,15 +194,19 @@ jobs:
           xcrun simctl bootstatus "$UDID" -b
           xcrun simctl install "$UDID" "$APP"
 
-          set +e
-          xcrun simctl launch --console "$UDID" com.inari1234.shogicoachpoc --ci-smoke 2>&1 | tee simulator-run.log
-          LAUNCH_RC=${PIPESTATUS[0]}
-          set -e
-          echo "simctl launch rc=$LAUNCH_RC"
+          xcrun simctl launch "$UDID" com.inari1234.shogicoachpoc --ci-smoke 2>&1 | tee simulator-run.log
 
           CONTAINER=$(xcrun simctl get_app_container "$UDID" com.inari1234.shogicoachpoc data)
           REPORT="$CONTAINER/Documents/ci-probe.txt"
-          test -s "$REPORT"
+          FOUND=0
+          for _ in $(seq 1 90); do
+            if [ -s "$REPORT" ]; then
+              FOUND=1
+              break
+            fi
+            sleep 2
+          done
+          test "$FOUND" -eq 1
           cp "$REPORT" simulator-result.txt
           cat simulator-result.txt
 
