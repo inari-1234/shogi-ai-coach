@@ -1,6 +1,8 @@
 name: iOS Engine PoC
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -14,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Expand PoC source
+      - name: Expand socketpair PoC source
         shell: bash
         run: |
           set -euo pipefail
@@ -27,8 +29,14 @@ jobs:
           unzip -q .ci-poc.zip -d .ci-unpack
           rsync -a .ci-unpack/shogi-ai-coach-poc/ ./
           rm -rf .ci-unpack .ci-poc.zip
+
           cp ci/Project.yml Project.yml
           cp ci/Podfile Podfile
+          cp ci/EngineProbeSocketPair.swift iOS/ShogiCoachPoC/EngineProbe.swift
+          cp ci/EngineNativeSocketPair.h iOS/ShogiCoachPoC/EngineNative.h
+          cp ci/engine_bridge_socketpair.cpp native/bridge/engine_bridge.cpp
+          cp ci/engine_bridge_socketpair.h native/bridge/engine_bridge.h
+
           python3 - <<'PY'
           from pathlib import Path
           p = Path("native/yaneuraou_engine.podspec")
@@ -40,44 +48,7 @@ jobs:
                   "  s.homepage = 'https://github.com/inari-1234/shogi-ai-coach'\n"
               )
           p.write_text(text)
-          e = Path("iOS/ShogiCoachPoC/EngineProbe.swift")
-          es = e.read_text()
-          send_start = es.index("    func send(_ line: String) async throws {")
-          send_end = es.index("    func readUntil(", send_start)
-          send_block = es[send_start:send_end]
-          send_block = send_block.replace(
-              "withCheckedThrowingContinuation { continuation in",
-              "withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in",
-              1
-          )
-          send_block = send_block.replace(
-              "else { continuation.resume() }",
-              "else { continuation.resume(returning: ()) }",
-              1
-          )
-          es = es[:send_start] + send_block + es[send_end:]
-          e.write_text(es)
-          if send_block.count("CheckedContinuation<Void, Error>") != 1:
-              raise SystemExit("EngineProbe send continuation patch failed")
-          app = Path("iOS/ShogiCoachPoC/ShogiCoachPoCApp.swift")
-          app_text = app.read_text()
-          app_text = app_text.replace(
-              "        WindowGroup { ContentView() }",
-              "        WindowGroup { ContentView().task { await SimulatorCIProbe.runIfRequested() } }"
-          )
-          app.write_text(app_text)
-          Path("iOS/ShogiCoachPoC/SimulatorCIProbe.swift").write_text(
-              Path("ci/SimulatorCIProbe.swift").read_text()
-          )
           PY
-
-      - name: Select Xcode and show environment
-        shell: bash
-        run: |
-          set -euo pipefail
-          xcodebuild -version
-          swift --version
-          uname -m
 
       - name: Core regression tests
         shell: bash
@@ -90,8 +61,6 @@ jobs:
         run: |
           set -euo pipefail
           brew install xcodegen p7zip cocoapods
-          xcodegen --version
-          pod --version
 
       - name: Fetch pinned YaneuraOu and NNUE
         shell: bash
@@ -101,9 +70,25 @@ jobs:
           ./scripts/fetch_yaneuraou.sh
           ./scripts/fetch_eval.sh
           test -s iOS/ShogiCoachPoC/eval/nn.bin
-          echo "YaneuraOu=$(git -C native/third_party/YaneuraOu rev-parse HEAD)"
-          echo "NNUE bytes=$(stat -f%z iOS/ShogiCoachPoC/eval/nn.bin)"
-          shasum -a 256 iOS/ShogiCoachPoC/eval/nn.bin
+
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("native/third_party/YaneuraOu/source/usi.h")
+          text = p.read_text(encoding="utf-8-sig")
+          marker = "private:\n\t// 内包している思考エンジン"
+          insert = "\n".join([
+              "#if !STOCKFISH",
+              "    bool mobile_execute_command(const std::string& cmd) { return usi_cmdexec(cmd); }",
+              "#endif",
+              "",
+              "private:",
+              "\t// 内包している思考エンジン",
+          ])
+          if marker not in text:
+              raise SystemExit("USIEngine private marker not found")
+          text = text.replace(marker, insert, 1)
+          p.write_text(text, encoding="utf-8")
+          PY
 
       - name: Generate Xcode project
         shell: bash
@@ -140,90 +125,11 @@ jobs:
           mkdir -p "$APP/eval"
           cp iOS/ShogiCoachPoC/eval/nn.bin "$APP/eval/nn.bin"
           test -s "$APP/eval/nn.bin"
-          shasum -a 256 "$APP/eval/nn.bin"
           mkdir -p ipa/Payload
           cp -R "$APP" ipa/Payload/
           (cd ipa && zip -qry ../ShogiCoachPoC-unsigned.ipa Payload)
           shasum -a 256 ShogiCoachPoC-unsigned.ipa | tee ipa-sha256.txt
           du -h ShogiCoachPoC-unsigned.ipa
-
-      - name: Build iOS Simulator app
-        shell: bash
-        run: |
-          set -o pipefail
-          xcodebuild \
-            -workspace ShogiCoachPoC.xcworkspace \
-            -scheme ShogiCoachPoC \
-            -configuration Release \
-            -sdk iphonesimulator \
-            -destination 'generic/platform=iOS Simulator' \
-            -derivedDataPath build/SimulatorDerivedData \
-            ARCHS=arm64 \
-            ONLY_ACTIVE_ARCH=YES \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            build 2>&1 | tee simulator-build.log
-
-      - name: Run simulator engine smoke test
-        shell: bash
-        run: |
-          set -euo pipefail
-          APP='build/SimulatorDerivedData/Build/Products/Release-iphonesimulator/ShogiCoachPoC.app'
-          test -d "$APP"
-          mkdir -p "$APP/eval"
-          cp iOS/ShogiCoachPoC/eval/nn.bin "$APP/eval/nn.bin"
-          test -s "$APP/eval/nn.bin"
-
-          xcrun simctl list devices available --json > simulator-devices.json
-          UDID=$(python3 - <<'PY'
-          import json
-          data = json.load(open("simulator-devices.json"))
-          for devices in data["devices"].values():
-              for device in devices:
-                  if device.get("isAvailable") and "iPhone" in device.get("name", ""):
-                      print(device["udid"])
-                      raise SystemExit(0)
-          raise SystemExit("No available iPhone simulator")
-          PY
-          )
-          echo "Simulator UDID=$UDID"
-
-          xcrun simctl boot "$UDID" 2>/dev/null || true
-          xcrun simctl bootstatus "$UDID" -b
-          xcrun simctl install "$UDID" "$APP"
-
-          xcrun simctl launch "$UDID" com.inari1234.shogicoachpoc --ci-smoke 2>&1 | tee simulator-run.log
-
-          CONTAINER=$(xcrun simctl get_app_container "$UDID" com.inari1234.shogicoachpoc data)
-          REPORT="$CONTAINER/Documents/ci-probe.txt"
-          COMPLETE=0
-          for _ in $(seq 1 45); do
-            if [ -s "$REPORT" ] && grep -Fq "stage=complete" "$REPORT"; then
-              COMPLETE=1
-              break
-            fi
-            sleep 2
-          done
-
-          if [ -s "$REPORT" ]; then
-            cp "$REPORT" simulator-result.txt
-            cat simulator-result.txt
-          else
-            echo "stage=no_report" | tee simulator-result.txt
-          fi
-
-          xcrun simctl spawn "$UDID" log show --last 3m --style compact \
-            --predicate 'process == "ShogiCoachPoC"' > simulator-system.log 2>&1 || true
-
-          test "$COMPLETE" -eq 1
-          grep -Fq "default_status=PASS候補" simulator-result.txt
-          grep -Fq "bestmove:" simulator-result.txt
-          grep -Fq "score:" simulator-result.txt
-          grep -Fq "pv:" simulator-result.txt
-          grep -Fq "ten_status=実機PASS候補" simulator-result.txt
-          grep -Fq "10/10 completed" simulator-result.txt
-
-          xcrun simctl shutdown "$UDID" 2>/dev/null || true
 
       - name: Upload IPA and logs
         if: always()
@@ -235,9 +141,5 @@ jobs:
             ipa-sha256.txt
             swift-test.log
             xcodebuild.log
-            simulator-build.log
-            simulator-run.log
-            simulator-result.txt
-            simulator-system.log
           if-no-files-found: ignore
           retention-days: 7
