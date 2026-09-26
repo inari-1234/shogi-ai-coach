@@ -5,16 +5,18 @@
 #include <unistd.h>
 
 #include <cerrno>
-#include <cstring>
 #include <iostream>
 #include <mutex>
 #include <streambuf>
+#include <string>
 #include <thread>
 
 #include "bitboard.h"
 #include "misc.h"
 #include "position.h"
 #include "types.h"
+#include "usi.h"
+#include "engine/yaneuraou-engine/yaneuraou-search.h"
 
 using namespace YaneuraOu;
 
@@ -53,57 +55,49 @@ class SocketOut : public std::streambuf {
   int fd_;
 };
 
-class SocketIn : public std::streambuf {
- public:
-  explicit SocketIn(int fd) : fd_(fd) {}
-
- protected:
-  int underflow() override {
-    for (;;) {
-      const ssize_t n = ::read(fd_, &ch_, 1);
-      if (n > 0) {
-        setg(&ch_, &ch_, &ch_ + 1);
-        return static_cast<unsigned char>(ch_);
-      }
-      if (n < 0 && errno == EINTR) continue;
-      return EOF;
+bool readLine(int fd, std::string& line) {
+  line.clear();
+  for (;;) {
+    char ch = 0;
+    const ssize_t n = ::read(fd, &ch, 1);
+    if (n > 0) {
+      if (ch == '\n') return true;
+      if (ch != '\r') line.push_back(ch);
+      continue;
     }
+    if (n < 0 && errno == EINTR) continue;
+    return false;
   }
-
- private:
-  int fd_;
-  char ch_ = 0;
-};
+}
 
 void runEngine(int fd) {
   SocketOut out(fd);
-  SocketIn in(fd);
-
   auto* previousOut = std::cout.rdbuf(&out);
-  auto* previousIn = std::cin.rdbuf(&in);
   std::cout.clear();
-  std::cin.clear();
-
-  const char* ready = "info string bridge_stream_ready\n";
-  ::write(fd, ready, std::strlen(ready));
 
   const char* prog = "yaneuraou";
   char* argv[] = {const_cast<char*>(prog), nullptr};
   CommandLine::g.set_arg(1, argv);
+
   Bitboards::init();
-  const char* bitboards = "info string bridge_bitboards_ready\n";
-  ::write(fd, bitboards, std::strlen(bitboards));
-
   Position::init();
-  const char* position = "info string bridge_position_ready\n";
-  ::write(fd, position, std::strlen(position));
 
-  run_engine_entry();
+  YaneuraOuEngine engine;
+  USIEngine usi;
+  usi.set_engine(engine);
 
-  const char* exited = "info string bridge_engine_exit\n";
-  ::write(fd, exited, std::strlen(exited));
+  sync_cout << "info string bridge_dispatch_ready" << sync_endl;
+
+  std::string command;
+  while (readLine(fd, command)) {
+    if (usi.mobile_execute_command(command)) break;
+  }
+
+  engine.stop();
+  engine.wait_for_search_finished();
+
   std::cout.rdbuf(previousOut);
-  std::cin.rdbuf(previousIn);
+  std::cout.clear();
 }
 
 std::mutex engineMutex;
