@@ -33,6 +33,7 @@ jobs:
           cp ci/Project.yml Project.yml
           cp ci/Podfile Podfile
           cp ci/EngineProbeSocketPair.swift iOS/ShogiCoachPoC/EngineProbe.swift
+          cp ci/SimulatorCIProbe.swift iOS/ShogiCoachPoC/SimulatorCIProbe.swift
           cp ci/EngineNativeSocketPair.h iOS/ShogiCoachPoC/EngineNative.h
           cp ci/engine_bridge_socketpair.cpp native/bridge/engine_bridge.cpp
           cp ci/engine_bridge_socketpair.h native/bridge/engine_bridge.h
