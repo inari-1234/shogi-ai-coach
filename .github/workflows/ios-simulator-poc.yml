@@ -20,7 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Expand and patch PoC source
+      - name: Expand socketpair PoC source
         shell: bash
         run: |
           set -euo pipefail
@@ -34,120 +34,27 @@ jobs:
           unzip -q .ci-poc.zip -d .ci-unpack
           rsync -a .ci-unpack/shogi-ai-coach-poc/ ./
           rm -rf .ci-unpack .ci-poc.zip
+
           cp ci/Project.yml Project.yml
           cp ci/Podfile Podfile
           cp ci/SimulatorCIProbe.swift iOS/ShogiCoachPoC/SimulatorCIProbe.swift
+          cp ci/EngineProbeSocketPair.swift iOS/ShogiCoachPoC/EngineProbe.swift
+          cp ci/EngineNativeSocketPair.h iOS/ShogiCoachPoC/EngineNative.h
+          cp ci/engine_bridge_socketpair.cpp native/bridge/engine_bridge.cpp
+          cp ci/engine_bridge_socketpair.h native/bridge/engine_bridge.h
 
           python3 - <<'PY'
           from pathlib import Path
 
           pod = Path("native/yaneuraou_engine.podspec")
-          ps = pod.read_text()
-          if "s.homepage" not in ps:
-              ps = ps.replace(
+          text = pod.read_text()
+          if "s.homepage" not in text:
+              text = text.replace(
                   "  s.summary = 'YaneuraOu V9.00 NNUE engine bridge for the Shogi Coach PoC'\n",
                   "  s.summary = 'YaneuraOu V9.00 NNUE engine bridge for the Shogi Coach PoC'\n"
                   "  s.homepage = 'https://github.com/inari-1234/shogi-ai-coach'\n"
               )
-          pod.write_text(ps)
-
-          e = Path("iOS/ShogiCoachPoC/EngineProbe.swift")
-          es = e.read_text()
-
-          send_start = es.index("    func send(_ line: String) async throws {")
-          send_end = es.index("    func readUntil(", send_start)
-          send_block = es[send_start:send_end]
-          send_block = send_block.replace(
-              "withCheckedThrowingContinuation { continuation in",
-              "withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in",
-              1
-          )
-          send_block = send_block.replace(
-              "else { continuation.resume() }",
-              "else { continuation.resume(returning: ()) }",
-              1
-          )
-          es = es[:send_start] + send_block + es[send_end:]
-
-          old_wait = "\n".join([
-              "    func waitUntilConnected(timeoutSeconds: Double) async throws {",
-              "        if isConnected { return }",
-              "        try await withThrowingTaskGroup(of: Void.self) { group in",
-              "            group.addTask { try await self.awaitConnectionReady() }",
-              "            group.addTask {",
-              "                try await Task.sleep(for: .seconds(timeoutSeconds))",
-              "                throw EngineUSISession.ProbeError.connectionFailed",
-              "            }",
-              "            _ = try await group.next()",
-              "            group.cancelAll()",
-              "        }",
-              "    }",
-          ])
-          new_wait = "\n".join([
-              "    func waitUntilConnected(timeoutSeconds: Double) async throws {",
-              "        if isConnected { return }",
-              "        try await withCheckedThrowingContinuation { continuation in",
-              "            connectedContinuation = continuation",
-              "            Task {",
-              "                try? await Task.sleep(for: .seconds(timeoutSeconds))",
-              "                await self.timeoutConnectionWait()",
-              "            }",
-              "        }",
-              "    }",
-              "",
-              "    private func timeoutConnectionWait() {",
-              "        guard !isConnected, let continuation = connectedContinuation else { return }",
-              "        connectedContinuation = nil",
-              "        continuation.resume(throwing: EngineUSISession.ProbeError.connectionFailed)",
-              "    }",
-          ])
-          if old_wait not in es:
-              raise SystemExit("waitUntilConnected target not found")
-          es = es.replace(old_wait, new_wait, 1)
-
-          replacements = [
-              (
-                  "        let port = try await link.start()",
-                  "        let port = try await link.start()\n        SimulatorStage.mark(\"listener_started\")"
-              ),
-              (
-                  "        guard code == 0 else { throw ProbeError.engineStartFailed(code) }",
-                  "        guard code == 0 else { throw ProbeError.engineStartFailed(code) }\n        SimulatorStage.mark(\"engine_start_returned\")"
-              ),
-              (
-                  "        try await link.waitUntilConnected(timeoutSeconds: 5)",
-                  "        try await link.waitUntilConnected(timeoutSeconds: 5)\n        SimulatorStage.mark(\"connected\")"
-              ),
-              (
-                  "        try await link.send(\"usi\")",
-                  "        try await link.send(\"usi\")\n        SimulatorStage.mark(\"usi_sent\")"
-              ),
-              (
-                  "        _ = try await link.readUntil({ $0 == \"usiok\" }, timeoutSeconds: 5, label: \"usiok\")",
-                  "        _ = try await link.readUntil({ $0 == \"usiok\" }, timeoutSeconds: 5, label: \"usiok\")\n        SimulatorStage.mark(\"usiok\")"
-              ),
-              (
-                  "        try await link.send(\"isready\")",
-                  "        try await link.send(\"isready\")\n        SimulatorStage.mark(\"isready_sent\")"
-              ),
-              (
-                  "        _ = try await link.readUntil({ $0 == \"readyok\" }, timeoutSeconds: 20, label: \"readyok\")",
-                  "        _ = try await link.readUntil({ $0 == \"readyok\" }, timeoutSeconds: 20, label: \"readyok\")\n        SimulatorStage.mark(\"readyok\")"
-              ),
-              (
-                  "        try await link.send(\"go movetime \\(max(50, movetimeMs))\")",
-                  "        try await link.send(\"go movetime \\(max(50, movetimeMs))\")\n        SimulatorStage.mark(\"go_sent\")"
-              ),
-              (
-                  "        guard let result = finalResult else { throw ProbeError.timeout(\"bestmove\") }",
-                  "        guard let result = finalResult else { throw ProbeError.timeout(\"bestmove\") }\n        SimulatorStage.mark(\"bestmove_received\")"
-              ),
-          ]
-          for old, new in replacements:
-              if old not in es:
-                  raise SystemExit(f"stage target not found: {old}")
-              es = es.replace(old, new, 1)
-          e.write_text(es)
+          pod.write_text(text)
 
           app = Path("iOS/ShogiCoachPoC/ShogiCoachPoCApp.swift")
           app_text = app.read_text()
@@ -238,7 +145,7 @@ jobs:
           STAGE="$CONTAINER/Documents/ci-stage.txt"
 
           COMPLETE=0
-          for _ in $(seq 1 45); do
+          for _ in $(seq 1 75); do
             if [ -s "$REPORT" ] && grep -Fq "stage=complete" "$REPORT"; then
               COMPLETE=1
               break
@@ -252,7 +159,7 @@ jobs:
           echo "--- stage trace ---"
           cat simulator-stage.txt
 
-          xcrun simctl spawn "$UDID" log show --last 3m --style compact \
+          xcrun simctl spawn "$UDID" log show --last 5m --style compact \
             --predicate 'process == "ShogiCoachPoC"' > simulator-system.log 2>&1 || true
           xcrun simctl shutdown "$UDID" 2>/dev/null || true
 
