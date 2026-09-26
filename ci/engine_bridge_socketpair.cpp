@@ -5,6 +5,7 @@
 #include <unistd.h>
 
 #include <cerrno>
+#include <cstring>
 #include <iostream>
 #include <mutex>
 #include <streambuf>
@@ -80,14 +81,27 @@ void runEngine(int fd) {
 
   auto* previousOut = std::cout.rdbuf(&out);
   auto* previousIn = std::cin.rdbuf(&in);
+  std::cout.clear();
+  std::cin.clear();
+
+  const char* ready = "info string bridge_stream_ready\n";
+  ::write(fd, ready, std::strlen(ready));
 
   const char* prog = "yaneuraou";
   char* argv[] = {const_cast<char*>(prog), nullptr};
   CommandLine::g.set_arg(1, argv);
   Bitboards::init();
+  const char* bitboards = "info string bridge_bitboards_ready\n";
+  ::write(fd, bitboards, std::strlen(bitboards));
+
   Position::init();
+  const char* position = "info string bridge_position_ready\n";
+  ::write(fd, position, std::strlen(position));
+
   run_engine_entry();
 
+  const char* exited = "info string bridge_engine_exit\n";
+  ::write(fd, exited, std::strlen(exited));
   std::cout.rdbuf(previousOut);
   std::cin.rdbuf(previousIn);
 }
