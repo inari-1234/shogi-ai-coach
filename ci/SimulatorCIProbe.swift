@@ -55,7 +55,7 @@ enum SimulatorCIProbe {
         try? text.write(to: url, atomically: true, encoding: .utf8)
     }
 
-    private static func runKIFSelfTest() throws -> Int {
+    private static func runKIFSelfTest() throws -> KIFGame {
         let sample = """
         手合割：平手
         1 ７六歩(77)
@@ -73,7 +73,7 @@ enum SimulatorCIProbe {
                 userInfo: [NSLocalizedDescriptionKey: "KIF self-test mismatch"]
             )
         }
-        return game.moves.count
+        return game
     }
 
     static func runIfRequested() async {
@@ -83,9 +83,9 @@ enum SimulatorCIProbe {
         writeReport("stage=started\n")
         SimulatorStage.mark("probe_started")
 
-        let kifMoves: Int
+        let kifGame: KIFGame
         do {
-            kifMoves = try runKIFSelfTest()
+            kifGame = try runKIFSelfTest()
             SimulatorStage.mark("kif_pass")
         } catch {
             writeReport([
@@ -97,6 +97,35 @@ enum SimulatorCIProbe {
             fflush(stdout)
             exit(2)
         }
+
+        let shallow = ShallowAnalysisViewModel()
+        await shallow.analyze(game: kifGame, movetimeMs: 80)
+        let shallowStatus = shallow.status
+        let shallowCount = shallow.entries.count
+        let shallowValid = shallow.entries.allSatisfy {
+            !$0.bestMove.isEmpty
+                && !$0.scoreText.isEmpty
+                && !$0.pv.isEmpty
+                && !$0.actualMove.isEmpty
+        }
+        guard shallowStatus == "浅解析 PASS",
+              shallowCount == kifGame.moves.count,
+              shallowValid else {
+            writeReport([
+                "stage=shallow_failed",
+                "kif_status=PASS",
+                "kif_moves=\(kifGame.moves.count)",
+                "shallow_status=FAIL",
+                "shallow_count=\(shallowCount)",
+                "shallow_summary_begin",
+                shallow.summary,
+                "shallow_summary_end"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("shallow_failed")
+            fflush(stdout)
+            exit(3)
+        }
+        SimulatorStage.mark("shallow_pass")
 
         let probe = EngineProbe()
         await probe.runDefaultProbe()
@@ -117,7 +146,12 @@ enum SimulatorCIProbe {
         let report = [
             "stage=complete",
             "kif_status=PASS",
-            "kif_moves=\(kifMoves)",
+            "kif_moves=\(kifGame.moves.count)",
+            "shallow_status=PASS",
+            "shallow_count=\(shallowCount)",
+            "shallow_summary_begin",
+            shallow.summary,
+            "shallow_summary_end",
             "default_status=\(defaultStatus)",
             "default_result_begin",
             defaultResult,
