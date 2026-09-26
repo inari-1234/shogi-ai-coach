@@ -1,20 +1,45 @@
 import Foundation
 
 enum SimulatorStage {
+    private static let lock = NSLock()
+
+    private static var url: URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("engine-stage.txt")
+    }
+
+    static func reset() {
+        lock.lock()
+        defer { lock.unlock() }
+        try? FileManager.default.removeItem(at: url)
+    }
+
     static func mark(_ value: String) {
-#if targetEnvironment(simulator)
-        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("ci-stage.txt")
-        let line = value + "\n"
+        lock.lock()
+        defer { lock.unlock() }
+
+        let safe = value
+            .replacingOccurrences(of: "\n", with: " ")
+            .prefix(240)
+        let line = "\(Date().timeIntervalSince1970) \(safe)\n"
+        let data = Data(line.utf8)
+
         if FileManager.default.fileExists(atPath: url.path),
            let handle = try? FileHandle(forWritingTo: url) {
             defer { try? handle.close() }
             try? handle.seekToEnd()
-            try? handle.write(contentsOf: Data(line.utf8))
+            try? handle.write(contentsOf: data)
         } else {
-            try? line.write(to: url, atomically: true, encoding: .utf8)
+            try? data.write(to: url, options: .atomic)
         }
-#endif
+    }
+
+    static func latest() -> String? {
+        lock.lock()
+        defer { lock.unlock() }
+
+        guard let text = try? String(contentsOf: url, encoding: .utf8) else { return nil }
+        return text.split(separator: "\n").last.map(String.init)
     }
 }
 
@@ -32,6 +57,7 @@ enum SimulatorCIProbe {
     static func runIfRequested() async {
         guard ProcessInfo.processInfo.arguments.contains("--ci-smoke") else { return }
 
+        SimulatorStage.reset()
         writeReport("stage=started\n")
         SimulatorStage.mark("probe_started")
 
