@@ -198,18 +198,26 @@ jobs:
 
           CONTAINER=$(xcrun simctl get_app_container "$UDID" com.inari1234.shogicoachpoc data)
           REPORT="$CONTAINER/Documents/ci-probe.txt"
-          FOUND=0
-          for _ in $(seq 1 90); do
-            if [ -s "$REPORT" ]; then
-              FOUND=1
+          COMPLETE=0
+          for _ in $(seq 1 45); do
+            if [ -s "$REPORT" ] && grep -Fq "stage=complete" "$REPORT"; then
+              COMPLETE=1
               break
             fi
             sleep 2
           done
-          test "$FOUND" -eq 1
-          cp "$REPORT" simulator-result.txt
-          cat simulator-result.txt
 
+          if [ -s "$REPORT" ]; then
+            cp "$REPORT" simulator-result.txt
+            cat simulator-result.txt
+          else
+            echo "stage=no_report" | tee simulator-result.txt
+          fi
+
+          xcrun simctl spawn "$UDID" log show --last 3m --style compact \
+            --predicate 'process == "ShogiCoachPoC"' > simulator-system.log 2>&1 || true
+
+          test "$COMPLETE" -eq 1
           grep -Fq "default_status=PASS候補" simulator-result.txt
           grep -Fq "bestmove:" simulator-result.txt
           grep -Fq "score:" simulator-result.txt
@@ -232,5 +240,6 @@ jobs:
             simulator-build.log
             simulator-run.log
             simulator-result.txt
+            simulator-system.log
           if-no-files-found: ignore
           retention-days: 7
