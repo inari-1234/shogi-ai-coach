@@ -311,6 +311,10 @@ actor LocalUSITransport {
     }
 
     private func deliver(_ line: String) {
+        let marker = line.prefix(120)
+            .replacingOccurrences(of: " ", with: "_")
+            .replacingOccurrences(of: "/", with: "_")
+        SimulatorStage.mark("rx_\(marker)")
         while let id = waiterOrder.first {
             waiterOrder.removeFirst()
             if let continuation = lineWaiters.removeValue(forKey: id) {
