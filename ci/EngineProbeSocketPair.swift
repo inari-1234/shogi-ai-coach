@@ -10,21 +10,33 @@ final class EngineProbe: ObservableObject {
 
     private let session = EngineUSISession()
 
+    init() {
+        if let previous = SimulatorStage.latest() {
+            resultText = "前回の最終到達点:\n\(previous)"
+        }
+    }
+
     func runDefaultProbe() async {
+        SimulatorStage.reset()
+        SimulatorStage.mark("default_button_pressed")
         status = "解析中"
         resultText = ""
         do {
             let sfen = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
             let result = try await session.run(sfen: sfen, movetimeMs: 1500, multiPV: 1)
+            SimulatorStage.mark("default_probe_complete")
             resultText = Self.format(result)
             status = "PASS候補"
         } catch {
+            SimulatorStage.mark("default_probe_error_\(error.localizedDescription)")
             status = "未PASS"
             resultText = error.localizedDescription
         }
     }
 
     func runTenProbe() async {
+        SimulatorStage.reset()
+        SimulatorStage.mark("ten_probe_button_pressed")
         status = "10回連続解析中"
         resultText = ""
         let sfen = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
@@ -47,8 +59,10 @@ final class EngineProbe: ObservableObject {
                 "max footprint: \(maxMemory.map(Self.byteText) ?? "-")",
                 "thermal: \(samples.first?.thermalBefore ?? "-") -> \(last.thermalAfter)"
             ].joined(separator: "\n")
+            SimulatorStage.mark("ten_probe_complete")
             status = last.thermalAfter == "critical" ? "未PASS" : "実機PASS候補"
         } catch {
+            SimulatorStage.mark("ten_probe_error_\(error.localizedDescription)")
             status = "未PASS"
             resultText = "\(samples.count)/10 completed\n\(error.localizedDescription)"
         }
