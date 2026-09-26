@@ -48,6 +48,16 @@ jobs:
                   "  s.summary = 'YaneuraOu V9.00 NNUE engine bridge for the Shogi Coach PoC'\n"
                   "  s.homepage = 'https://github.com/inari-1234/shogi-ai-coach'\n"
               )
+
+          # Keep the real-device code path identical to the validated Simulator path.
+          # The previous podspec enabled USE_NEON only for iphoneos, which was the
+          # only material engine-code difference left when the real device crashed.
+          text = "\n".join(
+              line for line in text.splitlines()
+              if "USE_NEON" not in line
+          ) + "\n"
+          if "USE_NEON" in text:
+              raise SystemExit("USE_NEON removal failed")
           p.write_text(text)
           PY
 
@@ -115,6 +125,11 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             build 2>&1 | tee xcodebuild.log
+
+          if grep -q -- '-DUSE_NEON' xcodebuild.log; then
+            echo "Unexpected USE_NEON in real-device build"
+            exit 1
+          fi
 
       - name: Verify and package IPA
         shell: bash
