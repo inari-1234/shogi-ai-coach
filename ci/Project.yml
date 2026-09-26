@@ -35,7 +35,7 @@ targets:
         IPHONEOS_DEPLOYMENT_TARGET: "16.0"
         CODE_SIGN_STYLE: Automatic
         DEAD_CODE_STRIPPING: NO
-        OTHER_LDFLAGS: "$(inherited) -lc++"
+        OTHER_LDFLAGS: "$(inherited) -lc++ -Wl,-force_load,$(PODS_CONFIGURATION_BUILD_DIR)/yaneuraou_engine/libyaneuraou_engine.a"
 schemes:
   ShogiCoachPoC:
     build:
