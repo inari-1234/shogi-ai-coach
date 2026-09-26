@@ -2,7 +2,7 @@ name: iOS Engine PoC
 
 on:
   push:
-    branches: [main, candidate/phase3-shallow-analysis]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
