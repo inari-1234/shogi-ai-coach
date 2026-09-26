@@ -1,4 +1,5 @@
 import Foundation
+import ShogiCoachCore
 
 enum SimulatorStage {
     private static let lock = NSLock()
@@ -54,12 +55,48 @@ enum SimulatorCIProbe {
         try? text.write(to: url, atomically: true, encoding: .utf8)
     }
 
+    private static func runKIFSelfTest() throws -> Int {
+        let sample = """
+        手合割：平手
+        1 ７六歩(77)
+        2 ３四歩(33)
+        3 ２六歩(27)
+        4 ８四歩(83)
+        5 投了
+        """
+        let game = try KIFParser.parse(sample)
+        guard game.moves.map(\.usi) == ["7g7f", "3c3d", "2g2f", "8c8d"],
+              game.termination == "投了" else {
+            throw NSError(
+                domain: "ShogiCoach.KIFCI",
+                code: 1,
+                userInfo: [NSLocalizedDescriptionKey: "KIF self-test mismatch"]
+            )
+        }
+        return game.moves.count
+    }
+
     static func runIfRequested() async {
         guard ProcessInfo.processInfo.arguments.contains("--ci-smoke") else { return }
 
         SimulatorStage.reset()
         writeReport("stage=started\n")
         SimulatorStage.mark("probe_started")
+
+        let kifMoves: Int
+        do {
+            kifMoves = try runKIFSelfTest()
+            SimulatorStage.mark("kif_pass")
+        } catch {
+            writeReport([
+                "stage=kif_failed",
+                "kif_status=FAIL",
+                "kif_error=\(error.localizedDescription)"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("kif_failed_\(error.localizedDescription)")
+            fflush(stdout)
+            exit(2)
+        }
 
         let probe = EngineProbe()
         await probe.runDefaultProbe()
@@ -79,6 +116,8 @@ enum SimulatorCIProbe {
 
         let report = [
             "stage=complete",
+            "kif_status=PASS",
+            "kif_moves=\(kifMoves)",
             "default_status=\(defaultStatus)",
             "default_result_begin",
             defaultResult,

@@ -38,6 +38,7 @@ jobs:
           cp ci/Project.yml Project.yml
           cp ci/Podfile Podfile
           cp ci/SimulatorCIProbe.swift iOS/ShogiCoachPoC/SimulatorCIProbe.swift
+          cp ci/ContentViewPhase2.swift iOS/ShogiCoachPoC/ContentView.swift
           cp ci/EngineProbeSocketPair.swift iOS/ShogiCoachPoC/EngineProbe.swift
           cp ci/EngineNativeSocketPair.h iOS/ShogiCoachPoC/EngineNative.h
           cp ci/engine_bridge_socketpair.cpp native/bridge/engine_bridge.cpp
@@ -183,6 +184,8 @@ jobs:
           xcrun simctl shutdown "$UDID" 2>/dev/null || true
 
           test "$COMPLETE" -eq 1
+          grep -Fq "kif_status=PASS" simulator-result.txt
+          grep -Fq "kif_moves=4" simulator-result.txt
           grep -Fq "default_status=PASS候補" simulator-result.txt
           grep -Fq "bestmove:" simulator-result.txt
           grep -Fq "score:" simulator-result.txt
