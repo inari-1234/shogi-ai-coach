@@ -127,8 +127,9 @@ actor EngineUSISession {
 
     private var transport: LocalUSITransport?
 
-    func run(sfen: String, movetimeMs: Int, multiPV: Int) async throws -> ProbeSample {
+    func beginAnalysis(multiPV: Int = 1) async throws {
         if let old = transport {
+            try? await old.send("quit")
             await old.close()
             transport = nil
         }
@@ -139,25 +140,43 @@ actor EngineUSISession {
 
         let link = LocalUSITransport()
         transport = link
-        try await link.start()
-        SimulatorStage.mark("session_opened")
 
-        try await link.send("usi")
-        SimulatorStage.mark("usi_sent")
-        _ = try await link.readUntil({ $0 == "usiok" }, timeoutSeconds: 5, label: "usiok")
-        SimulatorStage.mark("usiok")
+        do {
+            try await link.start()
+            SimulatorStage.mark("session_opened")
 
-        try await link.send("setoption name Threads value 1")
-        try await link.send("setoption name USI_Hash value 64")
-        try await link.send("setoption name MultiPV value \(max(1, multiPV))")
-        try await link.send("setoption name EvalDir value \(evalURL.deletingLastPathComponent().path)")
-        try await link.send("isready")
-        SimulatorStage.mark("isready_sent")
-        _ = try await link.readUntil({ $0 == "readyok" }, timeoutSeconds: 20, label: "readyok")
-        SimulatorStage.mark("readyok")
+            try await link.send("usi")
+            SimulatorStage.mark("usi_sent")
+            _ = try await link.readUntil({ $0 == "usiok" }, timeoutSeconds: 5, label: "usiok")
+            SimulatorStage.mark("usiok")
 
-        try await link.send("usinewgame")
-        try await link.send("position sfen \(sfen)")
+            try await link.send("setoption name Threads value 1")
+            try await link.send("setoption name USI_Hash value 64")
+            try await link.send("setoption name MultiPV value \(max(1, multiPV))")
+            try await link.send("setoption name EvalDir value \(evalURL.deletingLastPathComponent().path)")
+            try await link.send("isready")
+            SimulatorStage.mark("isready_sent")
+            _ = try await link.readUntil({ $0 == "readyok" }, timeoutSeconds: 20, label: "readyok")
+            SimulatorStage.mark("readyok")
+
+            try await link.send("usinewgame")
+        } catch {
+            try? await link.send("quit")
+            await link.close()
+            transport = nil
+            throw error
+        }
+    }
+
+    func analyzePosition(command: String, movetimeMs: Int) async throws -> ProbeSample {
+        guard let link = transport else {
+            throw ProbeError.protocolError("解析セッションが開始されていません")
+        }
+        guard command.hasPrefix("position ") else {
+            throw ProbeError.protocolError("positionコマンドが不正です")
+        }
+
+        try await link.send(command)
 
         let thermalBefore = RuntimeMetrics.thermalState
         let started = ContinuousClock.now
@@ -165,7 +184,9 @@ actor EngineUSISession {
         try await link.send("go movetime \(max(50, movetimeMs))")
         SimulatorStage.mark("go_sent")
 
-        let deadline = ContinuousClock.now.advanced(by: .seconds(max(5, Double(movetimeMs) / 1000.0 + 5)))
+        let deadline = ContinuousClock.now.advanced(
+            by: .seconds(max(5, Double(movetimeMs) / 1000.0 + 5))
+        )
         var finalResult: EngineProbeResult?
         while ContinuousClock.now < deadline {
             let remaining = ContinuousClock.now.duration(to: deadline)
@@ -178,25 +199,46 @@ actor EngineUSISession {
 
         guard let result = finalResult else { throw ProbeError.timeout("bestmove") }
         SimulatorStage.mark("bestmove_received")
-        guard let primary = result.principalVariations.first, primary.score != nil, !primary.pv.isEmpty else {
+        guard let primary = result.principalVariations.first,
+              primary.score != nil,
+              !primary.pv.isEmpty else {
             throw ProbeError.protocolError("bestmoveは取得したがscore/PVが不足")
         }
 
         let elapsed = started.duration(to: .now)
         let components = elapsed.components
-        let elapsedMs = Int(components.seconds * 1000) + Int(components.attoseconds / 1_000_000_000_000_000)
-        let sample = ProbeSample(
+        let elapsedMs = Int(components.seconds * 1000)
+            + Int(components.attoseconds / 1_000_000_000_000_000)
+
+        return ProbeSample(
             result: result,
             elapsedMs: elapsedMs,
             memoryBytesAfter: RuntimeMetrics.physicalFootprintBytes,
             thermalBefore: thermalBefore,
             thermalAfter: RuntimeMetrics.thermalState
         )
+    }
 
+    func endAnalysis() async {
+        guard let link = transport else { return }
         try? await link.send("quit")
         await link.close()
         transport = nil
-        return sample
+    }
+
+    func run(sfen: String, movetimeMs: Int, multiPV: Int) async throws -> ProbeSample {
+        try await beginAnalysis(multiPV: multiPV)
+        do {
+            let sample = try await analyzePosition(
+                command: "position sfen \(sfen)",
+                movetimeMs: movetimeMs
+            )
+            await endAnalysis()
+            return sample
+        } catch {
+            await endAnalysis()
+            throw error
+        }
     }
 }
 
@@ -325,10 +367,15 @@ actor LocalUSITransport {
     }
 
     private func deliver(_ line: String) {
-        let marker = line.prefix(120)
-            .replacingOccurrences(of: " ", with: "_")
-            .replacingOccurrences(of: "/", with: "_")
-        SimulatorStage.mark("rx_\(marker)")
+        if line == "usiok"
+            || line == "readyok"
+            || line.hasPrefix("bestmove ")
+            || line.hasPrefix("info string bridge_") {
+            let marker = line.prefix(120)
+                .replacingOccurrences(of: " ", with: "_")
+                .replacingOccurrences(of: "/", with: "_")
+            SimulatorStage.mark("rx_\(marker)")
+        }
         while let id = waiterOrder.first {
             waiterOrder.removeFirst()
             if let continuation = lineWaiters.removeValue(forKey: id) {
