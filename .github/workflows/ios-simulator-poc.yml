@@ -2,7 +2,7 @@ name: iOS Simulator Engine PoC
 
 on:
   push:
-    branches: [main]
+    branches: [main, candidate/phase2-kif-import]
   workflow_dispatch:
 
 concurrency:
