@@ -2,7 +2,7 @@ name: iOS Engine PoC
 
 on:
   push:
-    branches: [main]
+    branches: [main, candidate/phase3-shallow-analysis]
   workflow_dispatch:
 
 permissions:
@@ -34,7 +34,7 @@ jobs:
           cp ci/Podfile Podfile
           cp ci/EngineProbeSocketPair.swift iOS/ShogiCoachPoC/EngineProbe.swift
           cp ci/SimulatorCIProbe.swift iOS/ShogiCoachPoC/SimulatorCIProbe.swift
-          cp ci/ContentViewPhase2.swift iOS/ShogiCoachPoC/ContentView.swift
+          cp ci/ContentViewPhase3.swift iOS/ShogiCoachPoC/ContentView.swift
           cp ci/EngineNativeSocketPair.h iOS/ShogiCoachPoC/EngineNative.h
           cp ci/engine_bridge_socketpair.cpp native/bridge/engine_bridge.cpp
           cp ci/engine_bridge_socketpair.h native/bridge/engine_bridge.h
