@@ -134,7 +134,7 @@ actor EngineUSISession {
         SimulatorStage.mark("usiok")
 
         try await link.send("setoption name Threads value 1")
-        try await link.send("setoption name Hash value 64")
+        try await link.send("setoption name USI_Hash value 64")
         try await link.send("setoption name MultiPV value \(max(1, multiPV))")
         try await link.send("setoption name EvalDir value \(evalURL.deletingLastPathComponent().path)")
         try await link.send("isready")
