@@ -86,6 +86,23 @@ jobs:
           ./scripts/fetch_eval.sh
           test -s iOS/ShogiCoachPoC/eval/nn.bin
 
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("native/third_party/YaneuraOu/source/usi.h")
+          text = p.read_text(encoding="utf-8-sig")
+          marker = "private:\n\t// 内包している思考エンジン"
+          insert = """#if !STOCKFISH
+    bool mobile_execute_command(const std::string& cmd) { return usi_cmdexec(cmd); }
+#endif
+
+private:
+\t// 内包している思考エンジン"""
+          if marker not in text:
+              raise SystemExit("USIEngine private marker not found")
+          text = text.replace(marker, insert, 1)
+          p.write_text(text, encoding="utf-8")
+          PY
+
       - name: Generate Xcode project
         shell: bash
         run: |
