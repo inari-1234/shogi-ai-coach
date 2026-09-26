@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: ios-simulator-engine-poc
+  group: ios-simulator-engine-poc-v2
   cancel-in-progress: true
 
 permissions:
