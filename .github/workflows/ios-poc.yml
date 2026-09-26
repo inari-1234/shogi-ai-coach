@@ -61,6 +61,59 @@ jobs:
           e.write_text(es)
           if send_block.count("CheckedContinuation<Void, Error>") != 1:
               raise SystemExit("EngineProbe send continuation patch failed")
+          app = Path("iOS/ShogiCoachPoC/ShogiCoachPoCApp.swift")
+          app_text = app.read_text()
+          app_text = app_text.replace(
+              "        WindowGroup { ContentView() }",
+              """        WindowGroup {
+            ContentView()
+                .task { await SimulatorCIProbe.runIfRequested() }
+        }"""
+          )
+          app_text += """
+#if targetEnvironment(simulator)
+import Darwin
+
+@MainActor
+enum SimulatorCIProbe {
+    static func runIfRequested() async {
+        guard ProcessInfo.processInfo.arguments.contains("--ci-smoke") else { return }
+
+        let probe = EngineProbe()
+        await probe.runDefaultProbe()
+        let defaultStatus = probe.status
+        let defaultResult = probe.resultText
+
+        await probe.runTenProbe()
+        let tenStatus = probe.status
+        let tenResult = probe.resultText
+
+        let report = [
+            "default_status=\\(defaultStatus)",
+            "default_result_begin",
+            defaultResult,
+            "default_result_end",
+            "ten_status=\\(tenStatus)",
+            "ten_result_begin",
+            tenResult,
+            "ten_result_end"
+        ].joined(separator: "\\n")
+
+        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("ci-probe.txt")
+        try? report.write(to: url, atomically: true, encoding: .utf8)
+        print("SHOGI_CI_REPORT_WRITTEN")
+        fflush(stdout)
+        exit(0)
+    }
+}
+#else
+enum SimulatorCIProbe {
+    static func runIfRequested() async {}
+}
+#endif
+"""
+          app.write_text(app_text)
           PY
 
       - name: Select Xcode and show environment
@@ -138,6 +191,108 @@ jobs:
           (cd ipa && zip -qry ../ShogiCoachPoC-unsigned.ipa Payload)
           shasum -a 256 ShogiCoachPoC-unsigned.ipa | tee ipa-sha256.txt
           du -h ShogiCoachPoC-unsigned.ipa
+
+      - name: Build iOS Simulator app
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -workspace ShogiCoachPoC.xcworkspace \
+            -scheme ShogiCoachPoC \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/SimulatorDerivedData \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            build 2>&1 | tee simulator-build.log
+
+      - name: Run simulator engine smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP='build/SimulatorDerivedData/Build/Products/Release-iphonesimulator/ShogiCoachPoC.app'
+          test -d "$APP"
+          mkdir -p "$APP/eval"
+          cp iOS/ShogiCoachPoC/eval/nn.bin "$APP/eval/nn.bin"
+          test -s "$APP/eval/nn.bin"
+
+          xcrun simctl list devices available --json > simulator-devices.json
+          UDID=$(python3 - <<'PY'
+          import json
+          data = json.load(open("simulator-devices.json"))
+          for runtime, devices in data["devices"].items():
+              for device in devices:
+                  if device.get("isAvailable") and "iPhone" in device.get("name", ""):
+                      print(device["udid"])
+                      raise SystemExit(0)
+          raise SystemExit("No available iPhone simulator")
+          PY
+          )
+          echo "Simulator UDID=$UDID"
+
+          xcrun simctl boot "$UDID" 2>/dev/null || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl install "$UDID" "$APP"
+
+          set +e
+          xcrun simctl launch --console "$UDID" com.inari1234.shogicoachpoc --ci-smoke 2>&1 | tee simulator-run.log
+          LAUNCH_RC=${PIPESTATUS[0]}
+          set -e
+          echo "simctl launch rc=$LAUNCH_RC"
+
+          CONTAINER=$(xcrun simctl get_app_container "$UDID" com.inari1234.shogicoachpoc data)
+          REPORT="$CONTAINER/Documents/ci-probe.txt"
+          test -s "$REPORT"
+          cp "$REPORT" simulator-result.txt
+          cat simulator-result.txt
+
+          grep -q '^default_status=PASS候補        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ShogiCoachPoC-iPhone-PoC
+          path: |
+            ShogiCoachPoC-unsigned.ipa
+            ipa-sha256.txt
+            swift-test.log
+            xcodebuild.log
+            simulator-build.log
+            simulator-run.log
+            simulator-result.txt
+          if-no-files-found: ignore
+          retention-days: 7
+ simulator-result.txt
+          grep -q '^bestmove:' simulator-result.txt
+          grep -q '^score:' simulator-result.txt
+          grep -q '^pv:' simulator-result.txt
+          grep -q '^ten_status=実機PASS候補        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ShogiCoachPoC-iPhone-PoC
+          path: |
+            ShogiCoachPoC-unsigned.ipa
+            ipa-sha256.txt
+            swift-test.log
+            xcodebuild.log
+          if-no-files-found: ignore
+          retention-days: 7
+ simulator-result.txt
+          grep -q '^10/10 completed        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ShogiCoachPoC-iPhone-PoC
+          path: |
+            ShogiCoachPoC-unsigned.ipa
+            ipa-sha256.txt
+            swift-test.log
+            xcodebuild.log
+          if-no-files-found: ignore
+          retention-days: 7
+ simulator-result.txt
+
+          xcrun simctl shutdown "$UDID" 2>/dev/null || true
 
       - name: Upload IPA and logs
         if: always()
