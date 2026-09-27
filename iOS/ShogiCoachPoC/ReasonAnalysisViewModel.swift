@@ -374,6 +374,15 @@ final class ReasonAnalysisViewModel: ObservableObject {
 
         if let captured = bestEffect.capturedPiece,
            actualEffect.capturedPiece == nil {
+            let isImmediatelyRecaptured = bestReplyEffect?.destination == bestEffect.destination
+                && bestReplyEffect?.capturedPiece == bestEffect.pieceAfter
+            if isImmediatelyRecaptured {
+                let bestReplyFact = "p\(deep.ply)-best-reply"
+                return .init(
+                    text: "最善手では直ちに\(captured.kanji)を取りますが、PVではその直後に動かした\(bestEffect.pieceAfter.kanji)が取り返されます。単純な駒取りの得だけでは評価差を説明できないため、この交換を含む読み筋全体の差として扱います。",
+                    evidenceFactIDs: [scoreFact, bestEffectFact, bestReplyFact]
+                )
+            }
             return .init(
                 text: "最善手では直ちに\(captured.kanji)を取れますが、実戦手ではその即時の駒取りがありません。この機会を逃したことが評価差の理由候補です。",
                 evidenceFactIDs: [scoreFact, bestEffectFact]
