@@ -13,6 +13,8 @@ struct ShallowAnalysisEntry: Identifiable {
     let npsText: String
     let pv: String
     let elapsedMs: Int
+    let thermalBefore: String
+    let thermalAfter: String
 
     var matchesBestMove: Bool { actualMove == bestMove }
 }
@@ -23,6 +25,8 @@ final class ShallowAnalysisViewModel: ObservableObject {
     @Published private(set) var summary = ""
     @Published private(set) var entries: [ShallowAnalysisEntry] = []
     @Published private(set) var isRunning = false
+    @Published private(set) var diagnosticURL: URL?
+    @Published private(set) var diagnosticError: String?
 
     private let session = EngineUSISession()
 
@@ -31,9 +35,11 @@ final class ShallowAnalysisViewModel: ObservableObject {
         summary = ""
         entries = []
         isRunning = false
+        diagnosticURL = nil
+        diagnosticError = nil
     }
 
-    func analyze(game: KIFGame, movetimeMs: Int = 150) async {
+    func analyze(game: KIFGame, fileName: String? = nil, movetimeMs: Int = 150) async {
         guard !game.moves.isEmpty else {
             status = "浅解析 未PASS"
             summary = "解析対象局面がありません"
@@ -43,11 +49,14 @@ final class ShallowAnalysisViewModel: ObservableObject {
         isRunning = true
         entries = []
         summary = ""
+        diagnosticURL = nil
+        diagnosticError = nil
         status = "浅解析 準備中"
         SimulatorStage.reset()
         SimulatorStage.mark("shallow_start_count_\(game.moves.count)")
 
         let totalStarted = ContinuousClock.now
+        var finalError: String?
 
         do {
             try await session.beginAnalysis(multiPV: 1)
@@ -85,7 +94,9 @@ final class ShallowAnalysisViewModel: ObservableObject {
                     nodesText: primary.nodes.map(String.init) ?? "-",
                     npsText: primary.nps.map(String.init) ?? "-",
                     pv: primary.pv.joined(separator: " "),
-                    elapsedMs: sample.elapsedMs
+                    elapsedMs: sample.elapsedMs,
+                    thermalBefore: sample.thermalBefore,
+                    thermalAfter: sample.thermalAfter
                 )
                 collected.append(entry)
                 entries = collected
@@ -127,12 +138,33 @@ final class ShallowAnalysisViewModel: ObservableObject {
             status = "浅解析 PASS"
         } catch {
             await session.endAnalysis()
+            finalError = error.localizedDescription
             SimulatorStage.mark("shallow_error_\(error.localizedDescription)")
             status = "浅解析 未PASS"
             summary = [
                 "completed: \(entries.count)/\(game.moves.count)",
                 error.localizedDescription
             ].joined(separator: "\n")
+        }
+
+        let totalElapsedMs = Self.elapsedMilliseconds(
+            from: totalStarted,
+            to: ContinuousClock.now
+        )
+        do {
+            diagnosticURL = try DiagnosticExporter.write(
+                game: game,
+                fileName: fileName,
+                entries: entries,
+                status: status,
+                requestedMoveTimeMs: movetimeMs,
+                totalElapsedMs: totalElapsedMs,
+                error: finalError
+            )
+            SimulatorStage.mark("diagnostic_json_written")
+        } catch {
+            diagnosticError = error.localizedDescription
+            SimulatorStage.mark("diagnostic_json_error_\(error.localizedDescription)")
         }
 
         isRunning = false
