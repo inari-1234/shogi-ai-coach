@@ -33,6 +33,7 @@ actor EngineUSISession {
     }
 
     private var transport: LocalUSITransport?
+    private var currentMultiPV = 1
 
     func beginAnalysis(multiPV: Int = 1) async throws {
         if let old = transport {
@@ -59,7 +60,8 @@ actor EngineUSISession {
 
             try await link.send("setoption name Threads value 1")
             try await link.send("setoption name USI_Hash value 64")
-            try await link.send("setoption name MultiPV value \(max(1, multiPV))")
+            currentMultiPV = max(1, multiPV)
+            try await link.send("setoption name MultiPV value \(currentMultiPV)")
             try await link.send("setoption name EvalDir value \(evalURL.deletingLastPathComponent().path)")
             try await link.send("isready")
             SimulatorStage.mark("isready_sent")
@@ -78,13 +80,22 @@ actor EngineUSISession {
     func analyzePosition(
         command: String,
         movetimeMs: Int,
-        searchMoves: [String] = []
+        searchMoves: [String] = [],
+        multiPV: Int? = nil
     ) async throws -> ProbeSample {
         guard let link = transport else {
             throw ProbeError.protocolError("解析セッションが開始されていません")
         }
         guard command.hasPrefix("position ") else {
             throw ProbeError.protocolError("positionコマンドが不正です")
+        }
+
+        if let multiPV {
+            let requested = max(1, multiPV)
+            if requested != currentMultiPV {
+                try await link.send("setoption name MultiPV value \(requested)")
+                currentMultiPV = requested
+            }
         }
 
         try await link.send(command)
@@ -139,6 +150,7 @@ actor EngineUSISession {
         try? await link.send("quit")
         await link.close()
         transport = nil
+        currentMultiPV = 1
     }
 
     func run(sfen: String, movetimeMs: Int, multiPV: Int) async throws -> ProbeSample {
