@@ -133,6 +133,8 @@ enum SimulatorCIProbe {
               diagnostic.analysis.completedPositions == kifGame.moves.count,
               diagnostic.positions.count == kifGame.moves.count,
               diagnostic.positions.allSatisfy({ !$0.pv.isEmpty && !$0.bestMove.isEmpty }),
+              diagnostic.app.version == "0.3.0",
+              diagnostic.app.build == "3",
               diagnostic.app.gitCommit != "unknown" else {
             writeReport([
                 "stage=diagnostic_failed",
@@ -171,6 +173,8 @@ enum SimulatorCIProbe {
             "diagnostic_status=PASS",
             "diagnostic_schema=\(diagnostic.schemaVersion)",
             "diagnostic_positions=\(diagnostic.positions.count)",
+            "diagnostic_version=\(diagnostic.app.version)",
+            "diagnostic_build=\(diagnostic.app.build)",
             "diagnostic_git=\(diagnostic.app.gitCommit)",
             "shallow_summary_begin",
             shallow.summary,
