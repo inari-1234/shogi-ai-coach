@@ -7,7 +7,7 @@ enum SimulatorStage {
 
     private static var url: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("engine-stage.txt")
+            .appendingPathComponent("ci-stage.txt")
     }
 
     static func reset() {

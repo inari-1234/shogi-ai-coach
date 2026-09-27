@@ -15,11 +15,23 @@ targets:
       - path: iOS/ShogiCoachPoC
         excludes:
           - eval
-    resources:
-      - path: iOS/ShogiCoachPoC/eval
-        type: folder
     dependencies:
       - package: ShogiCoachCore
+    postBuildScripts:
+      - name: Bundle NNUE evaluation
+        script: |
+          set -euo pipefail
+          SOURCE="$SRCROOT/iOS/ShogiCoachPoC/eval/nn.bin"
+          DESTINATION="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/eval"
+          test -s "$SOURCE"
+          mkdir -p "$DESTINATION"
+          cp "$SOURCE" "$DESTINATION/nn.bin"
+          test -s "$DESTINATION/nn.bin"
+        inputFiles:
+          - "$(SRCROOT)/iOS/ShogiCoachPoC/eval/nn.bin"
+        outputFiles:
+          - "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/eval/nn.bin"
+        basedOnDependencyAnalysis: true
     info:
       path: iOS/ShogiCoachPoC/Info.plist
       properties:

@@ -4,24 +4,22 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-echo '[1/4] Swift core tests'
-swift test
-
-echo '[2/4] Podspec syntax'
+echo '[1/3] Podspec and shell syntax'
 ruby -c native/yaneuraou_engine.podspec
-
-echo '[3/4] Shell syntax'
 bash -n scripts/fetch_yaneuraou.sh scripts/fetch_eval.sh scripts/patch_yaneuraou_ios.sh
 
-echo '[4/4] Repository structure'
+echo '[2/3] Canonical repository structure'
 test ! -e artifacts/poc.part.00
-test ! -e ci/ContentViewPhase2.swift
-test ! -e ci/ContentViewPhase3.swift
-test ! -e ci/ContentViewPhase4.swift
-test ! -e ci/ContentViewPhase5.swift
+test ! -d ci
+test ! -e iOS/ShogiCoachPoC/BuildIdentity.swift
+test ! -e iOS/ShogiCoachPoC/EngineProbe.swift
 test -f iOS/ShogiCoachPoC/ContentView.swift
-test -f iOS/ShogiCoachPoC/EngineProbe.swift
+test -f iOS/ShogiCoachPoC/EngineUSISession.swift
+test -f iOS/ShogiCoachPoC/SimulatorCIProbe.swift
 test -f Project.yml
 test -f Podfile
+
+echo '[3/3] No obsolete overlay references'
+! grep -R -n -E 'poc\.part|ContentViewPhase[2-6]|EngineProbeSocketPair|ci/Project\.yml'   .github Project.yml iOS Sources Tests scripts README.md
 
 echo 'STATIC_VERIFY_PASS'

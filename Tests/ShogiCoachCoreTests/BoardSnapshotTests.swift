@@ -72,4 +72,21 @@ final class BoardSnapshotTests: XCTestCase {
             )
         )
     }
+
+    func testSharedPieceMetadataAndStartpos() {
+        XCTAssertEqual(BoardPieceKind(kifName: "王"), .king)
+        XCTAssertEqual(BoardPieceKind(kifName: "竜"), .dragon)
+        XCTAssertEqual(BoardPieceKind.promotedPawn.kifName, "と")
+        XCTAssertTrue(BoardPieceKind.bishop.isPromotable)
+        XCTAssertFalse(BoardPieceKind.gold.isPromotable)
+
+        let snapshot = BoardSnapshotResolver.startpos
+        XCTAssertEqual(snapshot.pieceCount, 40)
+        XCTAssertEqual(snapshot.sideToMove, .black)
+        XCTAssertEqual(
+            snapshot.piece(at: BoardCoordinate(file: 8, rank: 8)),
+            BoardPieceState(side: .black, kind: .bishop)
+        )
+    }
+
 }

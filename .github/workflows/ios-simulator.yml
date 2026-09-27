@@ -35,14 +35,16 @@ jobs:
         run: |
           set -euo pipefail
           swift test 2>&1 | tee swift-test.log
+          ./scripts/verify.sh
 
       - name: Install build tools
         shell: bash
         run: |
           set -euo pipefail
-          brew install xcodegen cocoapods
+          command -v xcodegen >/dev/null 2>&1 || brew install xcodegen
+          command -v pod >/dev/null 2>&1 || brew install cocoapods
           if [ ! -s iOS/ShogiCoachPoC/eval/nn.bin ]; then
-            brew install p7zip
+            command -v 7z >/dev/null 2>&1 || brew install p7zip
           fi
 
       - name: Prepare pinned engine
