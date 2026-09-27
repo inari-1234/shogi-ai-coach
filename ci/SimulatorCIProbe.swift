@@ -232,7 +232,7 @@ enum SimulatorCIProbe {
               ),
               deepDiagnostic.schemaVersion == 2,
               deepDiagnostic.app.version == "0.4.0",
-              deepDiagnostic.app.build == "5",
+              deepDiagnostic.app.build == "6",
               deepDiagnostic.deepAnalysis?.status == "深掘り PASS",
               deepDiagnostic.deepAnalysis?.multiPV == 3,
               deepDiagnostic.deepAnalysis?.completedPositions == 3,
