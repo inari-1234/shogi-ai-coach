@@ -104,6 +104,19 @@ jobs:
               raise SystemExit("USIEngine private marker not found")
           text = text.replace(marker, insert, 1)
           p.write_text(text, encoding="utf-8")
+
+          # YaneuraOu V9.00 lowercases USI searchmoves tokens. That is invalid
+          # for shogi drop moves (for example G*1b), whose piece letter is
+          # case-sensitive. Preserve the token exactly as upstream fixed later.
+          usi_cpp = Path("native/third_party/YaneuraOu/source/usi.cpp")
+          usi_text = usi_cpp.read_text(encoding="utf-8-sig")
+          old = "limits.searchmoves.push_back(to_lower(token));"
+          if old not in usi_text:
+              raise SystemExit("V9.00 searchmoves lowercase marker not found")
+          usi_text = usi_text.replace(old, "limits.searchmoves.push_back(token);", 1)
+          if old in usi_text:
+              raise SystemExit("searchmoves lowercase patch incomplete")
+          usi_cpp.write_text(usi_text, encoding="utf-8")
           PY
 
       - name: Generate Xcode project
@@ -198,6 +211,7 @@ jobs:
           grep -Fq "terminal_deep_status=深掘り PASS" simulator-result.txt
           grep -Fq "terminal_deep_ply=81" simulator-result.txt
           grep -Fq "terminal_actual_source=multipv" simulator-result.txt
+          grep -Fq "drop_searchmoves_status=PASS" simulator-result.txt
           grep -Fq "default_status=PASS候補" simulator-result.txt
           grep -Fq "bestmove:" simulator-result.txt
           grep -Fq "score:" simulator-result.txt

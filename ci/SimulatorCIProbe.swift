@@ -189,7 +189,7 @@ enum SimulatorCIProbe {
               diagnostic.positions.count == kifGame.moves.count,
               diagnostic.positions.allSatisfy({ !$0.pv.isEmpty && !$0.bestMove.isEmpty }),
               diagnostic.app.version == "0.4.0",
-              diagnostic.app.build == "5",
+              diagnostic.app.build == "6",
               diagnostic.app.gitCommit != "unknown" else {
             writeReport([
                 "stage=diagnostic_failed",
@@ -307,6 +307,42 @@ enum SimulatorCIProbe {
         let terminalActualSource = terminalEntry.actualAnalysisSource
         SimulatorStage.mark("terminal_regression_pass")
 
+        let dropSearchSession = EngineUSISession()
+        var dropSearchStatus = "FAIL"
+        do {
+            try await dropSearchSession.beginAnalysis(multiPV: 1)
+            guard let finalMove = terminalGame.moves.last else {
+                throw EngineUSISession.ProbeError.protocolError("terminal move missing")
+            }
+            let dropSample = try await dropSearchSession.analyzePosition(
+                command: finalMove.positionBefore,
+                movetimeMs: 200,
+                searchMoves: [finalMove.usi]
+            )
+            await dropSearchSession.endAnalysis()
+            guard finalMove.usi == "G*1b",
+                  dropSample.result.bestMove.move == finalMove.usi,
+                  let dropPV = dropSample.result.principalVariations.first,
+                  !dropPV.pv.isEmpty,
+                  dropPV.pv.first == finalMove.usi else {
+                throw EngineUSISession.ProbeError.protocolError(
+                    "drop searchmoves was not enforced"
+                )
+            }
+            dropSearchStatus = "PASS"
+            SimulatorStage.mark("drop_searchmoves_pass")
+        } catch {
+            await dropSearchSession.endAnalysis()
+            writeReport([
+                "stage=drop_searchmoves_failed",
+                "drop_searchmoves_status=FAIL",
+                "drop_searchmoves_error=\(error.localizedDescription)"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("drop_searchmoves_failed_\(error.localizedDescription)")
+            fflush(stdout)
+            exit(7)
+        }
+
         let probe = EngineProbe()
         await probe.runDefaultProbe()
         let defaultStatus = probe.status
@@ -342,6 +378,7 @@ enum SimulatorCIProbe {
             "terminal_deep_status=\(terminalDeep.status)",
             "terminal_deep_ply=\(terminalEntry.ply)",
             "terminal_actual_source=\(terminalActualSource)",
+            "drop_searchmoves_status=\(dropSearchStatus)",
             "deep_summary_begin",
             deep.summary,
             "deep_summary_end",
