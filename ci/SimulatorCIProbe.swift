@@ -189,7 +189,7 @@ enum SimulatorCIProbe {
               diagnostic.positions.count == kifGame.moves.count,
               diagnostic.positions.allSatisfy({ !$0.pv.isEmpty && !$0.bestMove.isEmpty }),
               diagnostic.app.version == "0.6.0",
-              diagnostic.app.build == "8",
+              diagnostic.app.build == "9",
               diagnostic.app.gitCommit != "unknown" else {
             writeReport([
                 "stage=diagnostic_failed",
@@ -232,7 +232,7 @@ enum SimulatorCIProbe {
               ),
               deepDiagnostic.schemaVersion == 2,
               deepDiagnostic.app.version == "0.6.0",
-              deepDiagnostic.app.build == "8",
+              deepDiagnostic.app.build == "9",
               deepDiagnostic.deepAnalysis?.status == "深掘り PASS",
               deepDiagnostic.deepAnalysis?.multiPV == 3,
               deepDiagnostic.deepAnalysis?.completedPositions == 3,
@@ -281,7 +281,7 @@ enum SimulatorCIProbe {
               ),
               boardDiagnostic.schemaVersion == 3,
               boardDiagnostic.app.version == "0.6.0",
-              boardDiagnostic.app.build == "8",
+              boardDiagnostic.app.build == "9",
               boardDiagnostic.boardDisplay?.status == "盤面表示 PASS",
               boardDiagnostic.boardDisplay?.completedPositions == deep.entries.count,
               boardDiagnostic.boardDisplay?.positions.count == deep.entries.count else {
@@ -331,7 +331,7 @@ enum SimulatorCIProbe {
               ),
               reasonDiagnostic.schemaVersion == 4,
               reasonDiagnostic.app.version == "0.6.0",
-              reasonDiagnostic.app.build == "8",
+              reasonDiagnostic.app.build == "9",
               reasonDiagnostic.reasonAnalysis?.status == "理由解析 PASS",
               reasonDiagnostic.reasonAnalysis?.completedPositions == deep.entries.count,
               reasonDiagnostic.reasonAnalysis?.positions.count == deep.entries.count,
@@ -353,6 +353,66 @@ enum SimulatorCIProbe {
             exit(10)
         }
         SimulatorStage.mark("reason_analysis_pass")
+
+        let (zeroLossGame, _) = makeTerminalRegression()
+        let zeroLossDeepEntry = DeepAnalysisEntry(
+            id: 75,
+            ply: 75,
+            actualMove: "B*1d",
+            shallowBestMove: "2d2c+",
+            shallowEstimatedLossCp: 980,
+            bestMove: "2d2c+",
+            bestScoreText: "cp 4814",
+            actualScoreText: "cp 5442",
+            actualLossCp: 0,
+            actualPV: "B*1d G*2a",
+            actualAnalysisSource: "searchmoves",
+            opponentBestReply: "2b3a",
+            candidates: [
+                DeepCandidateLine(
+                    id: 1,
+                    rank: 1,
+                    move: "2d2c+",
+                    scoreText: "cp 4814",
+                    centipawn: 4814,
+                    depthText: "14",
+                    nodesText: "1",
+                    npsText: "1",
+                    pv: "2d2c+ 2b3a",
+                    opponentReply: "2b3a"
+                )
+            ],
+            elapsedMs: 1,
+            thermalBefore: "nominal",
+            thermalAfter: "nominal"
+        )
+        let zeroLossReason = ReasonAnalysisViewModel()
+        zeroLossReason.prepare(
+            game: zeroLossGame,
+            deepEntries: [zeroLossDeepEntry],
+            diagnosticURL: boardReview.diagnosticURL
+        )
+        guard zeroLossReason.status == "理由解析 PASS",
+              zeroLossReason.entries.count == 1,
+              let zeroLossEntry = zeroLossReason.entries.first,
+              zeroLossEntry.interpretation.text.contains("正の評価損失を確認できていません"),
+              !zeroLossEntry.interpretation.text.contains("評価差の理由候補"),
+              zeroLossEntry.facts.contains(where: {
+                  $0.kind == "score_comparison"
+                      && $0.text.contains("正の評価損失は未確認")
+              }) else {
+            writeReport([
+                "stage=reason_zero_loss_failed",
+                "reason_zero_loss_status=FAIL",
+                "reason_zero_loss_summary_begin",
+                zeroLossReason.summary,
+                "reason_zero_loss_summary_end"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("reason_zero_loss_failed")
+            fflush(stdout)
+            exit(12)
+        }
+        SimulatorStage.mark("reason_zero_loss_pass")
 
         let (terminalGame, terminalShallow) = makeTerminalRegression()
         let terminalDiagnosticURL: URL
@@ -554,6 +614,7 @@ enum SimulatorCIProbe {
             "reason_status=\(reasonStatus)",
             "reason_count=\(reasonCount)",
             "reason_schema=\(reasonDiagnostic.schemaVersion)",
+            "reason_zero_loss_status=PASS",
             "terminal_deep_status=\(terminalDeep.status)",
             "terminal_deep_ply=\(terminalEntry.ply)",
             "terminal_actual_source=\(terminalActualSource)",

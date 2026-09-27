@@ -120,7 +120,11 @@ final class ReasonAnalysisViewModel: ObservableObject {
 
                 let scoreText: String
                 if let loss = deep.actualLossCp {
-                    scoreText = "最善手 \(deep.bestScoreText) / 実戦手 \(deep.actualScoreText) / 差 \(loss)cp"
+                    if loss > 0 {
+                        scoreText = "最善手 \(deep.bestScoreText) / 実戦手 \(deep.actualScoreText) / 評価損失 \(loss)cp"
+                    } else {
+                        scoreText = "最善手 \(deep.bestScoreText) / 実戦手 \(deep.actualScoreText) / 正の評価損失は未確認"
+                    }
                 } else {
                     scoreText = "最善手 \(deep.bestScoreText) / 実戦手 \(deep.actualScoreText)"
                 }
@@ -347,6 +351,13 @@ final class ReasonAnalysisViewModel: ObservableObject {
            !deep.actualScoreText.hasPrefix("mate ") {
             return .init(
                 text: "最善手では詰みが確認されていますが、実戦手では同じ詰み評価が確認されていません。詰みを逃したことが評価差の理由候補です。",
+                evidenceFactIDs: [moveFact, scoreFact]
+            )
+        }
+
+        if let loss = deep.actualLossCp, loss <= 0 {
+            return .init(
+                text: "候補手と実戦手の盤面変化は異なりますが、実戦手限定の再探索では正の評価損失を確認できていません。短時間探索では評価順序が揺れることがあるため、この局面では成り・駒取りなどの違いを評価低下の原因とは扱いません。",
                 evidenceFactIDs: [moveFact, scoreFact]
             )
         }

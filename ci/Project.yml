@@ -33,7 +33,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.inari1234.shogicoachpoc
         PRODUCT_NAME: ShogiCoachPoC
         MARKETING_VERSION: "0.6.0"
-        CURRENT_PROJECT_VERSION: "8"
+        CURRENT_PROJECT_VERSION: "9"
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: Shogi Coach PoC
         INFOPLIST_KEY_GitCommit: "$(GIT_COMMIT_SHA)"

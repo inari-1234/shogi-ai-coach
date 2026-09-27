@@ -205,7 +205,7 @@ jobs:
           grep -Fq "diagnostic_status=PASS" simulator-result.txt
           grep -Fq "diagnostic_positions=4" simulator-result.txt
           grep -Fq "diagnostic_version=0.6.0" simulator-result.txt
-          grep -Fq "diagnostic_build=8" simulator-result.txt
+          grep -Fq "diagnostic_build=9" simulator-result.txt
           grep -Fq "deep_status=深掘り PASS" simulator-result.txt
           grep -Fq "deep_count=3" simulator-result.txt
           grep -Fq "deep_multipv=3" simulator-result.txt
@@ -216,6 +216,7 @@ jobs:
           grep -Fq "reason_status=理由解析 PASS" simulator-result.txt
           grep -Fq "reason_count=3" simulator-result.txt
           grep -Fq "reason_schema=4" simulator-result.txt
+          grep -Fq "reason_zero_loss_status=PASS" simulator-result.txt
           grep -Fq "terminal_deep_status=深掘り PASS" simulator-result.txt
           grep -Fq "terminal_deep_ply=81" simulator-result.txt
           grep -Fq "terminal_actual_source=multipv" simulator-result.txt
