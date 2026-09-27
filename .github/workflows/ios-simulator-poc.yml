@@ -2,7 +2,7 @@ name: iOS Simulator Engine PoC
 
 on:
   push:
-    branches: [main, candidate/phase3-diagnostic-json]
+    branches: [main, candidate/phase3-diagnostic-json, candidate/phase4-important-deep-analysis]
   workflow_dispatch:
 
 concurrency:
@@ -38,7 +38,7 @@ jobs:
           cp ci/Project.yml Project.yml
           cp ci/Podfile Podfile
           cp ci/SimulatorCIProbe.swift iOS/ShogiCoachPoC/SimulatorCIProbe.swift
-          cp ci/ContentViewPhase3.swift iOS/ShogiCoachPoC/ContentView.swift
+          cp ci/ContentViewPhase4.swift iOS/ShogiCoachPoC/ContentView.swift
           cp ci/EngineProbeSocketPair.swift iOS/ShogiCoachPoC/EngineProbe.swift
           cp ci/EngineNativeSocketPair.h iOS/ShogiCoachPoC/EngineNative.h
           cp ci/engine_bridge_socketpair.cpp native/bridge/engine_bridge.cpp
@@ -191,6 +191,10 @@ jobs:
           grep -Fq "shallow_count=4" simulator-result.txt
           grep -Fq "diagnostic_status=PASS" simulator-result.txt
           grep -Fq "diagnostic_positions=4" simulator-result.txt
+          grep -Fq "deep_status=深掘り PASS" simulator-result.txt
+          grep -Fq "deep_count=3" simulator-result.txt
+          grep -Fq "deep_multipv=3" simulator-result.txt
+          grep -Fq "deep_diagnostic_schema=2" simulator-result.txt
           grep -Fq "default_status=PASS候補" simulator-result.txt
           grep -Fq "bestmove:" simulator-result.txt
           grep -Fq "score:" simulator-result.txt

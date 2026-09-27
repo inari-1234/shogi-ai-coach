@@ -168,7 +168,11 @@ actor EngineUSISession {
         }
     }
 
-    func analyzePosition(command: String, movetimeMs: Int) async throws -> ProbeSample {
+    func analyzePosition(
+        command: String,
+        movetimeMs: Int,
+        searchMoves: [String] = []
+    ) async throws -> ProbeSample {
         guard let link = transport else {
             throw ProbeError.protocolError("解析セッションが開始されていません")
         }
@@ -181,8 +185,12 @@ actor EngineUSISession {
         let thermalBefore = RuntimeMetrics.thermalState
         let started = ContinuousClock.now
         var accumulator = USIAccumulator()
-        try await link.send("go movetime \(max(50, movetimeMs))")
-        SimulatorStage.mark("go_sent")
+        let boundedMovetime = max(50, movetimeMs)
+        let searchClause = searchMoves.isEmpty
+            ? ""
+            : " searchmoves " + searchMoves.joined(separator: " ")
+        try await link.send("go movetime \(boundedMovetime)\(searchClause)")
+        SimulatorStage.mark(searchMoves.isEmpty ? "go_sent" : "go_searchmoves_sent")
 
         let deadline = ContinuousClock.now.advanced(
             by: .seconds(max(5, Double(movetimeMs) / 1000.0 + 5))

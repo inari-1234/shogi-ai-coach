@@ -133,8 +133,8 @@ enum SimulatorCIProbe {
               diagnostic.analysis.completedPositions == kifGame.moves.count,
               diagnostic.positions.count == kifGame.moves.count,
               diagnostic.positions.allSatisfy({ !$0.pv.isEmpty && !$0.bestMove.isEmpty }),
-              diagnostic.app.version == "0.3.0",
-              diagnostic.app.build == "3",
+              diagnostic.app.version == "0.4.0",
+              diagnostic.app.build == "4",
               diagnostic.app.gitCommit != "unknown" else {
             writeReport([
                 "stage=diagnostic_failed",
@@ -147,6 +147,57 @@ enum SimulatorCIProbe {
             exit(4)
         }
         SimulatorStage.mark("diagnostic_pass")
+
+        let deep = DeepAnalysisViewModel()
+        await deep.analyze(
+            game: kifGame,
+            shallowEntries: shallow.entries,
+            diagnosticURL: shallow.diagnosticURL,
+            deepMovetimeMs: 200,
+            multiPV: 3,
+            maxPositions: 3
+        )
+        let deepStatus = deep.status
+        let deepCount = deep.entries.count
+        let deepValid = deep.entries.allSatisfy {
+            $0.candidates.count == 3
+                && !$0.bestMove.isEmpty
+                && !$0.actualMove.isEmpty
+                && !$0.actualPV.isEmpty
+                && $0.candidates.allSatisfy { !$0.pv.isEmpty && !$0.move.isEmpty }
+        }
+        guard deepStatus == "深掘り PASS",
+              deepCount == 3,
+              deepValid,
+              let deepDiagnosticURL = deep.diagnosticURL,
+              let deepDiagnosticData = try? Data(contentsOf: deepDiagnosticURL),
+              let deepDiagnostic = try? JSONDecoder.iso8601.decode(
+                ShogiDiagnosticDocument.self,
+                from: deepDiagnosticData
+              ),
+              deepDiagnostic.schemaVersion == 2,
+              deepDiagnostic.app.version == "0.4.0",
+              deepDiagnostic.app.build == "4",
+              deepDiagnostic.deepAnalysis?.status == "深掘り PASS",
+              deepDiagnostic.deepAnalysis?.multiPV == 3,
+              deepDiagnostic.deepAnalysis?.completedPositions == 3,
+              deepDiagnostic.deepAnalysis?.positions.count == 3 else {
+            writeReport([
+                "stage=deep_failed",
+                "kif_status=PASS",
+                "shallow_status=PASS",
+                "diagnostic_status=PASS",
+                "deep_status=FAIL",
+                "deep_count=\(deepCount)",
+                "deep_summary_begin",
+                deep.summary,
+                "deep_summary_end"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("deep_failed")
+            fflush(stdout)
+            exit(5)
+        }
+        SimulatorStage.mark("deep_pass")
 
         let probe = EngineProbe()
         await probe.runDefaultProbe()
@@ -176,6 +227,13 @@ enum SimulatorCIProbe {
             "diagnostic_version=\(diagnostic.app.version)",
             "diagnostic_build=\(diagnostic.app.build)",
             "diagnostic_git=\(diagnostic.app.gitCommit)",
+            "deep_status=\(deepStatus)",
+            "deep_count=\(deepCount)",
+            "deep_multipv=\(deepDiagnostic.deepAnalysis?.multiPV ?? 0)",
+            "deep_diagnostic_schema=\(deepDiagnostic.schemaVersion)",
+            "deep_summary_begin",
+            deep.summary,
+            "deep_summary_end",
             "shallow_summary_begin",
             shallow.summary,
             "shallow_summary_end",

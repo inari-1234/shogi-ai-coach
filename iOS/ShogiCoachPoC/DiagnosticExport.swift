@@ -49,13 +49,55 @@ struct ShogiDiagnosticDocument: Codable {
         let matchesBestMove: Bool
     }
 
-    let schemaVersion: Int
-    let generatedAt: Date
+    struct DeepCandidateInfo: Codable {
+        let rank: Int
+        let move: String
+        let score: String
+        let centipawn: Int?
+        let depth: String
+        let nodes: String
+        let nps: String
+        let pv: String
+        let opponentReply: String
+    }
+
+    struct DeepPositionInfo: Codable {
+        let ply: Int
+        let actualMove: String
+        let shallowBestMove: String
+        let shallowEstimatedLossCp: Int?
+        let bestMove: String
+        let bestScore: String
+        let actualScore: String
+        let actualLossCp: Int?
+        let actualPV: String
+        let opponentBestReply: String
+        let candidates: [DeepCandidateInfo]
+        let elapsedMs: Int
+        let thermalBefore: String
+        let thermalAfter: String
+    }
+
+    struct DeepAnalysisInfo: Codable {
+        let status: String
+        let requestedMoveTimeMs: Int
+        let multiPV: Int
+        let selectedPositions: Int
+        let completedPositions: Int
+        let totalElapsedMs: Int
+        let focus: String
+        let positions: [DeepPositionInfo]
+        let error: String?
+    }
+
+    var schemaVersion: Int
+    var generatedAt: Date
     let app: AppInfo
     let device: DeviceInfo
     let game: GameInfo
     let analysis: AnalysisInfo
     let positions: [PositionInfo]
+    var deepAnalysis: DeepAnalysisInfo?
     let error: String?
 }
 
@@ -121,18 +163,45 @@ enum DiagnosticExporter {
                     matchesBestMove: $0.matchesBestMove
                 )
             },
+            deepAnalysis: nil,
             error: error
         )
 
+        return try encode(document)
+    }
+
+    static func augmentWithDeepAnalysis(
+        url: URL,
+        deepAnalysis: ShogiDiagnosticDocument.DeepAnalysisInfo
+    ) throws -> URL {
+        let data = try Data(contentsOf: url)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        var document = try decoder.decode(ShogiDiagnosticDocument.self, from: data)
+        document.schemaVersion = 2
+        document.generatedAt = Date()
+        document.deepAnalysis = deepAnalysis
+        return try encode(document, url: url)
+    }
+
+    private static func encode(
+        _ document: ShogiDiagnosticDocument,
+        url: URL? = nil
+    ) throws -> URL {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
         encoder.dateEncodingStrategy = .iso8601
         let data = try encoder.encode(document)
 
-        let directory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let url = directory.appendingPathComponent("shogi-ai-coach-diagnostic.json")
-        try data.write(to: url, options: .atomic)
-        return url
+        let outputURL: URL
+        if let url {
+            outputURL = url
+        } else {
+            let directory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            outputURL = directory.appendingPathComponent("shogi-ai-coach-diagnostic.json")
+        }
+        try data.write(to: outputURL, options: .atomic)
+        return outputURL
     }
 
     private static func thermalText(_ state: ProcessInfo.ThermalState) -> String {
