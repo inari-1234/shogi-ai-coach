@@ -1,7 +1,7 @@
 import Foundation
 import ShogiCoachCore
 
-enum ContinuationRouteKind: String, Codable, CaseIterable {
+enum ContinuationRouteKind: String, Codable, CaseIterable, Hashable {
     case recommended
     case actual
 
