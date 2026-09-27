@@ -2,7 +2,7 @@ name: iOS Simulator Engine PoC
 
 on:
   push:
-    branches: [main]
+    branches: [main, candidate/phase3-diagnostic-json]
   workflow_dispatch:
 
 concurrency:
@@ -127,6 +127,7 @@ jobs:
             -derivedDataPath build/SimulatorDerivedData \
             ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
+            GIT_COMMIT_SHA="$GITHUB_SHA" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             build 2>&1 | tee simulator-build.log
