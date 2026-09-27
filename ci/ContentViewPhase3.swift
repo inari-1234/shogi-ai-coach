@@ -41,7 +41,7 @@ struct ContentView: View {
 
                     Button("全局面を浅く解析") {
                         guard let game = kif.game else { return }
-                        Task { await shallow.analyze(game: game) }
+                        Task { await shallow.analyze(game: game, fileName: kif.importedFileName) }
                     }
                     .disabled(kif.game == nil || shallow.isRunning)
 
@@ -50,6 +50,16 @@ struct ContentView: View {
                         Text(shallow.summary)
                             .font(.system(.footnote, design: .monospaced))
                             .textSelection(.enabled)
+                    }
+
+                    if let diagnosticURL = shallow.diagnosticURL {
+                        ShareLink(item: diagnosticURL) {
+                            Label("診断JSONを共有", systemImage: "square.and.arrow.up")
+                        }
+                    }
+                    if let diagnosticError = shallow.diagnosticError {
+                        Text("診断JSON 未出力: \(diagnosticError)")
+                            .font(.footnote)
                     }
                 }
 
