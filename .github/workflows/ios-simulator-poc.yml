@@ -189,6 +189,8 @@ jobs:
           grep -Fq "kif_moves=4" simulator-result.txt
           grep -Fq "shallow_status=PASS" simulator-result.txt
           grep -Fq "shallow_count=4" simulator-result.txt
+          grep -Fq "diagnostic_status=PASS" simulator-result.txt
+          grep -Fq "diagnostic_positions=4" simulator-result.txt
           grep -Fq "default_status=PASS候補" simulator-result.txt
           grep -Fq "bestmove:" simulator-result.txt
           grep -Fq "score:" simulator-result.txt
