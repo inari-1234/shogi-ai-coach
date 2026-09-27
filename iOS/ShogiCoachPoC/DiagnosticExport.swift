@@ -160,6 +160,54 @@ struct ShogiDiagnosticDocument: Codable {
         let error: String?
     }
 
+    struct ContinuationMoveInfo: Codable {
+        let index: Int
+        let usi: String
+        let side: String
+        let source: String?
+        let destination: String
+        let piece: String
+        let capturedPiece: String?
+        let isDrop: Bool
+        let promotes: Bool
+        let givesCheck: Bool
+        let label: String
+        let coachText: String
+    }
+
+    struct ContinuationBlockInfo: Codable {
+        let startIndex: Int
+        let endIndex: Int
+        let title: String
+        let summary: String
+    }
+
+    struct ContinuationRouteInfo: Codable {
+        let kind: String
+        let score: String
+        let stable: Bool
+        let moves: [ContinuationMoveInfo]
+        let developmentBlocks: [ContinuationBlockInfo]
+        let targetShapeSummary: String
+    }
+
+    struct ContinuationPositionInfo: Codable {
+        let ply: Int
+        let comparisonStable: Bool
+        let actualLossCp: Int?
+        let recommended: ContinuationRouteInfo
+        let actual: ContinuationRouteInfo
+        let reasonSummary: String
+    }
+
+    struct ContinuationSimulationInfo: Codable {
+        let status: String
+        let expectedPositions: Int
+        let completedPositions: Int
+        let positions: [ContinuationPositionInfo]
+        let error: String?
+    }
+
     var schemaVersion: Int
     var generatedAt: Date
     let app: AppInfo
@@ -170,6 +218,7 @@ struct ShogiDiagnosticDocument: Codable {
     var deepAnalysis: DeepAnalysisInfo?
     var boardDisplay: BoardDisplayInfo?
     var reasonAnalysis: ReasonAnalysisInfo?
+    var continuationSimulation: ContinuationSimulationInfo?
     let error: String?
 }
 
@@ -238,6 +287,7 @@ enum DiagnosticExporter {
             deepAnalysis: nil,
             boardDisplay: nil,
             reasonAnalysis: nil,
+            continuationSimulation: nil,
             error: error
         )
 
@@ -283,6 +333,20 @@ enum DiagnosticExporter {
         document.schemaVersion = 4
         document.generatedAt = Date()
         document.reasonAnalysis = reasonAnalysis
+        return try encode(document, url: url)
+    }
+
+    static func augmentWithContinuationSimulation(
+        url: URL,
+        continuationSimulation: ShogiDiagnosticDocument.ContinuationSimulationInfo
+    ) throws -> URL {
+        let data = try Data(contentsOf: url)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        var document = try decoder.decode(ShogiDiagnosticDocument.self, from: data)
+        document.schemaVersion = 5
+        document.generatedAt = Date()
+        document.continuationSimulation = continuationSimulation
         return try encode(document, url: url)
     }
 
