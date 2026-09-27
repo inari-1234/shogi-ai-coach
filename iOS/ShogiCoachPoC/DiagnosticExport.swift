@@ -70,6 +70,7 @@ struct ShogiDiagnosticDocument: Codable {
         let bestScore: String
         let actualScore: String
         let actualLossCp: Int?
+        let bestPV: String
         let actualPV: String
         let actualAnalysisSource: String
         let opponentBestReply: String
@@ -77,6 +78,12 @@ struct ShogiDiagnosticDocument: Codable {
         let elapsedMs: Int
         let thermalBefore: String
         let thermalAfter: String
+        let comparisonStable: Bool
+        let instabilityReasons: [String]
+        let analysisAttempts: Int
+        let finalMovetimeMs: Int
+        let adaptiveTriggered: Bool
+        let topCandidateGapCp: Int?
     }
 
     struct DeepAnalysisInfo: Codable {
