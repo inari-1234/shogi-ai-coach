@@ -199,6 +199,40 @@ enum SimulatorCIProbe {
         }
         SimulatorStage.mark("deep_pass")
 
+        var terminalProbeText = "not-run"
+        do {
+            let terminal = EngineUSISession()
+            try await terminal.beginAnalysis(multiPV: 3)
+            let command = "position startpos moves 7g7f 3c3d 2g2f 8c8d 6g6f 2b3c 2h6h 3a3b 5i4h 6a5b 4h3h 5a4b 3h2h 7a6b 1g1f 8d8e 8h7g 3c4d 2h2g 2a3c 3i3h 2c2d 7i7h 8b8d 6i5h 3b2c 9i9h 5c5d 6f6e 8d8b 4g4f 1c1d 5h4g 4b3a 2g2h 6b5c 4f4e 4d7g+ 7h7g 4a3b 1i1h B*3e 3g3f 3e2f 3h2g 2d2e 2i3g 3a2b 4i3h 9c9d 6h6i 8a9c 6i2i 2c2d B*4f 3d3e 3f3e 3b2c 4g3f P*3d 2g2f 2e2f 3e3d S*2g 3h2g 2f2g+ 2h2g 1d1e 1f1e 1a1e P*2e 2c3d 2e2d 1e1h+ B*1d G*1c S*2c 1c2c 1d2c+ 2b1a"
+            let unrestricted = try await terminal.analyzePosition(
+                command: command,
+                movetimeMs: 200
+            )
+            let restricted = try await terminal.analyzePosition(
+                command: command,
+                movetimeMs: 200,
+                searchMoves: ["G*1b"]
+            )
+            await terminal.endAnalysis()
+
+            let candidateMoves = unrestricted.result.principalVariations
+                .prefix(3)
+                .compactMap { $0.pv.first }
+                .joined(separator: ",")
+            let restrictedPV = restricted.result.principalVariations.first?.pv
+                .joined(separator: " ") ?? "-"
+            terminalProbeText = [
+                "unrestricted_best=\(unrestricted.result.bestMove.move)",
+                "unrestricted_candidates=\(candidateMoves)",
+                "restricted_best=\(restricted.result.bestMove.move)",
+                "restricted_pv=\(restrictedPV)"
+            ].joined(separator: " | ")
+            SimulatorStage.mark("terminal_probe_\(terminalProbeText)")
+        } catch {
+            terminalProbeText = "error=\(error.localizedDescription)"
+            SimulatorStage.mark("terminal_probe_error_\(error.localizedDescription)")
+        }
+
         let probe = EngineProbe()
         await probe.runDefaultProbe()
         let defaultStatus = probe.status
@@ -231,6 +265,7 @@ enum SimulatorCIProbe {
             "deep_count=\(deepCount)",
             "deep_multipv=\(deepDiagnostic.deepAnalysis?.multiPV ?? 0)",
             "deep_diagnostic_schema=\(deepDiagnostic.schemaVersion)",
+            "terminal_probe=\(terminalProbeText)",
             "deep_summary_begin",
             deep.summary,
             "deep_summary_end",
