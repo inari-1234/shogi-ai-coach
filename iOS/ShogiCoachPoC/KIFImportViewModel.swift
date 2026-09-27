@@ -6,11 +6,13 @@ final class KIFImportViewModel: ObservableObject {
     @Published private(set) var status = "未読込"
     @Published private(set) var summary = ""
     @Published private(set) var game: KIFGame?
+    @Published private(set) var importedFileName: String?
 
     func importFile(_ url: URL) async {
         status = "読込中"
         summary = ""
         game = nil
+        importedFileName = nil
 
         let scoped = url.startAccessingSecurityScopedResource()
         defer {
@@ -21,6 +23,7 @@ final class KIFImportViewModel: ObservableObject {
             let data = try Data(contentsOf: url)
             let imported = try KIFParser.parse(data: data)
             game = imported
+            importedFileName = url.lastPathComponent
             status = "KIF PASS"
 
             let first = imported.moves.first?.usi ?? "-"
