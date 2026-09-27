@@ -7,22 +7,26 @@ struct ContentView: View {
     @StateObject private var deep = DeepAnalysisViewModel()
     @StateObject private var boardReview = BoardReviewViewModel()
     @StateObject private var reason = ReasonAnalysisViewModel()
+    @StateObject private var continuation = ContinuationSimulationViewModel()
 
     @State private var showingKIFImporter = false
     @State private var showingBoardReview = false
     @State private var showingReasonAnalysis = false
+    @State private var showingContinuationSimulation = false
     @State private var isAnalyzing = false
     @State private var analysisStatus = "未解析"
 
     private var diagnosticURL: URL? {
-        reason.diagnosticURL
+        continuation.diagnosticURL
+            ?? reason.diagnosticURL
             ?? boardReview.diagnosticURL
             ?? deep.diagnosticURL
             ?? shallow.diagnosticURL
     }
 
     private var diagnosticError: String? {
-        reason.diagnosticError
+        continuation.diagnosticError
+            ?? reason.diagnosticError
             ?? boardReview.diagnosticError
             ?? deep.diagnosticError
             ?? shallow.diagnosticError
@@ -60,6 +64,7 @@ struct ContentView: View {
                             deep.reset()
                             boardReview.reset()
                             reason.reset()
+                            continuation.reset()
 
                             analysisStatus = "全局面を浅く解析中"
                             await shallow.analyze(
@@ -101,9 +106,24 @@ struct ContentView: View {
                                     ?? deep.diagnosticURL
                                     ?? shallow.diagnosticURL
                             )
-                            analysisStatus = reason.status == "理由解析 PASS"
+                            guard reason.status == "理由解析 PASS" else {
+                                analysisStatus = reason.status
+                                return
+                            }
+
+                            analysisStatus = "推奨展開を組み立て中"
+                            continuation.prepare(
+                                game: game,
+                                deepEntries: deep.entries,
+                                reasonEntries: reason.entries,
+                                diagnosticURL: reason.diagnosticURL
+                                    ?? boardReview.diagnosticURL
+                                    ?? deep.diagnosticURL
+                                    ?? shallow.diagnosticURL
+                            )
+                            analysisStatus = continuation.status == "展開シミュレーション PASS"
                                 ? "解析 PASS"
-                                : reason.status
+                                : continuation.status
                         }
                     }
                     .disabled(kif.game == nil || isAnalyzing)
@@ -130,6 +150,10 @@ struct ContentView: View {
 
                         Button("なぜ重要かを見る") {
                             showingReasonAnalysis = true
+                        }
+
+                        Button("推奨展開を動かして見る") {
+                            showingContinuationSimulation = true
                         }
 
                         if let diagnosticURL {
@@ -159,6 +183,7 @@ struct ContentView: View {
                         deep.reset()
                         boardReview.reset()
                         reason.reset()
+                        continuation.reset()
                         analysisStatus = "未解析"
                         await kif.importFile(url)
                     }
@@ -171,6 +196,9 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showingReasonAnalysis) {
                 ReasonAnalysisScreen(entries: reason.entries)
+            }
+            .sheet(isPresented: $showingContinuationSimulation) {
+                ContinuationSimulationScreen(entries: continuation.entries)
             }
         }
     }
