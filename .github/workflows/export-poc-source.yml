@@ -1,0 +1,32 @@
+name: Export embedded PoC source
+
+on:
+  push:
+    branches: [candidate/phase6-structure-optimization]
+
+permissions:
+  contents: read
+
+jobs:
+  export-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Expand embedded source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import base64
+          from pathlib import Path
+          parts = [Path(f"artifacts/poc.part.{i:02d}").read_text() for i in range(4)]
+          Path("poc.zip").write_bytes(base64.b64decode("".join(parts)))
+          PY
+          unzip -q poc.zip -d expanded
+      - name: Upload expanded source
+        uses: actions/upload-artifact@v4
+        with:
+          name: expanded-poc-source
+          path: expanded/shogi-ai-coach-poc
+          retention-days: 1
