@@ -23,7 +23,7 @@ targets:
     info:
       path: iOS/ShogiCoachPoC/Info.plist
       properties:
-        CFBundleDisplayName: Shogi Coach PoC
+        CFBundleDisplayName: 将棋AIコーチ
         CFBundleShortVersionString: "$(MARKETING_VERSION)"
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         GitCommit: "$(GIT_COMMIT_SHA)"
@@ -33,9 +33,9 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.inari1234.shogicoachpoc
         PRODUCT_NAME: ShogiCoachPoC
         MARKETING_VERSION: "0.6.0"
-        CURRENT_PROJECT_VERSION: "9"
+        CURRENT_PROJECT_VERSION: "10"
         GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_CFBundleDisplayName: Shogi Coach PoC
+        INFOPLIST_KEY_CFBundleDisplayName: 将棋AIコーチ
         INFOPLIST_KEY_GitCommit: "$(GIT_COMMIT_SHA)"
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES

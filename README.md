@@ -8,9 +8,9 @@ KIF取込 → 全局面の浅解析 → 重要局面抽出 → MultiPV深掘り 
 
 最善手・評価値・PVはやねうら王が担当し、アプリ側は実戦手との差分、盤面変化、理由候補を組み立てます。理由表示は「エンジン確認」「PV観測」「解釈候補」を分離し、エンジンで確認できない理由を事実として断定しません。
 
-## Build 9 基準
+## Build 10 candidate
 
-- App: v0.6.0 / Build 9
+- App: v0.6.0 / Build 10
 - YaneuraOu: V9.00 pinned
 - NNUE: Suisho5
 - Threads: 1

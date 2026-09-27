@@ -2,6 +2,7 @@ import Foundation
 import ShogiCoachCore
 
 enum SimulatorStage {
+    #if targetEnvironment(simulator)
     private static let lock = NSLock()
 
     private static var url: URL {
@@ -38,14 +39,112 @@ enum SimulatorStage {
     static func latest() -> String? {
         lock.lock()
         defer { lock.unlock() }
-
         guard let text = try? String(contentsOf: url, encoding: .utf8) else { return nil }
         return text.split(separator: "\n").last.map(String.init)
     }
+    #else
+    static func reset() {}
+    static func mark(_ value: String) {}
+    static func latest() -> String? { nil }
+    #endif
 }
 
 #if targetEnvironment(simulator)
 import Darwin
+@MainActor
+final class EngineProbe: ObservableObject {
+    @Published private(set) var status = "未実行"
+    @Published private(set) var resultText = ""
+
+    private let session = EngineUSISession()
+
+    init() {
+        if let previous = SimulatorStage.latest() {
+            resultText = "前回の最終到達点:\n\(previous)"
+        }
+    }
+
+    func runDefaultProbe() async {
+        SimulatorStage.reset()
+        SimulatorStage.mark("default_button_pressed")
+        status = "解析中"
+        resultText = ""
+        do {
+            let sfen = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
+            let result = try await session.run(sfen: sfen, movetimeMs: 1500, multiPV: 1)
+            SimulatorStage.mark("default_probe_complete")
+            resultText = Self.format(result)
+            status = "PASS候補"
+        } catch {
+            SimulatorStage.mark("default_probe_error_\(error.localizedDescription)")
+            status = "未PASS"
+            resultText = error.localizedDescription
+        }
+    }
+
+    func runTenProbe() async {
+        SimulatorStage.reset()
+        SimulatorStage.mark("ten_probe_button_pressed")
+        status = "10回連続解析中"
+        resultText = ""
+        let sfen = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
+        var samples: [ProbeSample] = []
+        do {
+            for i in 1...10 {
+                let sample = try await session.run(sfen: sfen, movetimeMs: 1500, multiPV: 1)
+                samples.append(sample)
+                status = "10回連続解析中 \(i)/10"
+            }
+            let elapsed = samples.map(\.elapsedMs).sorted()
+            let median = elapsed[elapsed.count / 2]
+            let maxMemory = samples.compactMap(\.memoryBytesAfter).max()
+            let last = samples.last!
+            resultText = [
+                "10/10 completed",
+                "median elapsed: \(median) ms",
+                "last bestmove: \(last.result.bestMove.move)",
+                "last nps: \(last.result.principalVariations.first?.nps.map(String.init) ?? "-")",
+                "max footprint: \(maxMemory.map(Self.byteText) ?? "-")",
+                "thermal: \(samples.first?.thermalBefore ?? "-") -> \(last.thermalAfter)"
+            ].joined(separator: "\n")
+            SimulatorStage.mark("ten_probe_complete")
+            status = last.thermalAfter == "critical" ? "未PASS" : "実機PASS候補"
+        } catch {
+            SimulatorStage.mark("ten_probe_error_\(error.localizedDescription)")
+            status = "未PASS"
+            resultText = "\(samples.count)/10 completed\n\(error.localizedDescription)"
+        }
+    }
+
+    private static func format(_ sample: ProbeSample) -> String {
+        let primary = sample.result.principalVariations.first
+        return [
+            "bestmove: \(sample.result.bestMove.move)",
+            "score: \(scoreText(primary?.score))",
+            "depth: \(primary?.depth.map(String.init) ?? "-")",
+            "nodes: \(primary?.nodes.map(String.init) ?? "-")",
+            "nps: \(primary?.nps.map(String.init) ?? "-")",
+            "pv: \(primary?.pv.joined(separator: " ") ?? "-")",
+            "elapsed: \(sample.elapsedMs) ms",
+            "footprint: \(sample.memoryBytesAfter.map(byteText) ?? "-")",
+            "thermal: \(sample.thermalBefore) -> \(sample.thermalAfter)"
+        ].joined(separator: "\n")
+    }
+
+    private static func scoreText(_ score: USIScore?) -> String {
+        guard let score else { return "-" }
+        switch score {
+        case .centipawn(let value, _): return "cp \(value)"
+        case .mate(let value, _): return "mate \(value)"
+        }
+    }
+
+    private static func byteText(_ bytes: UInt64) -> String {
+        ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .memory)
+    }
+}
+
+
 
 @MainActor
 enum SimulatorCIProbe {
@@ -189,7 +288,7 @@ enum SimulatorCIProbe {
               diagnostic.positions.count == kifGame.moves.count,
               diagnostic.positions.allSatisfy({ !$0.pv.isEmpty && !$0.bestMove.isEmpty }),
               diagnostic.app.version == "0.6.0",
-              diagnostic.app.build == "9",
+              diagnostic.app.build == "10",
               diagnostic.app.gitCommit != "unknown" else {
             writeReport([
                 "stage=diagnostic_failed",
@@ -232,7 +331,7 @@ enum SimulatorCIProbe {
               ),
               deepDiagnostic.schemaVersion == 2,
               deepDiagnostic.app.version == "0.6.0",
-              deepDiagnostic.app.build == "9",
+              deepDiagnostic.app.build == "10",
               deepDiagnostic.deepAnalysis?.status == "深掘り PASS",
               deepDiagnostic.deepAnalysis?.multiPV == 3,
               deepDiagnostic.deepAnalysis?.completedPositions == 3,
@@ -281,7 +380,7 @@ enum SimulatorCIProbe {
               ),
               boardDiagnostic.schemaVersion == 3,
               boardDiagnostic.app.version == "0.6.0",
-              boardDiagnostic.app.build == "9",
+              boardDiagnostic.app.build == "10",
               boardDiagnostic.boardDisplay?.status == "盤面表示 PASS",
               boardDiagnostic.boardDisplay?.completedPositions == deep.entries.count,
               boardDiagnostic.boardDisplay?.positions.count == deep.entries.count else {
@@ -331,7 +430,7 @@ enum SimulatorCIProbe {
               ),
               reasonDiagnostic.schemaVersion == 4,
               reasonDiagnostic.app.version == "0.6.0",
-              reasonDiagnostic.app.build == "9",
+              reasonDiagnostic.app.build == "10",
               reasonDiagnostic.reasonAnalysis?.status == "理由解析 PASS",
               reasonDiagnostic.reasonAnalysis?.completedPositions == deep.entries.count,
               reasonDiagnostic.reasonAnalysis?.positions.count == deep.entries.count,
