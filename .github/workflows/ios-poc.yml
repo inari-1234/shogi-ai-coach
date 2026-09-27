@@ -2,7 +2,7 @@ name: iOS Engine PoC
 
 on:
   push:
-    branches: [main]
+    branches: [main, candidate/phase3-diagnostic-json]
   workflow_dispatch:
 
 permissions:
@@ -123,6 +123,7 @@ jobs:
             -derivedDataPath build/DerivedData \
             ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=NO \
+            GIT_COMMIT_SHA="$GITHUB_SHA" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             build 2>&1 | tee xcodebuild.log
