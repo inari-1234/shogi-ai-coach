@@ -188,8 +188,8 @@ enum SimulatorCIProbe {
               diagnostic.analysis.completedPositions == kifGame.moves.count,
               diagnostic.positions.count == kifGame.moves.count,
               diagnostic.positions.allSatisfy({ !$0.pv.isEmpty && !$0.bestMove.isEmpty }),
-              diagnostic.app.version == "0.5.0",
-              diagnostic.app.build == "7",
+              diagnostic.app.version == "0.6.0",
+              diagnostic.app.build == "8",
               diagnostic.app.gitCommit != "unknown" else {
             writeReport([
                 "stage=diagnostic_failed",
@@ -231,8 +231,8 @@ enum SimulatorCIProbe {
                 from: deepDiagnosticData
               ),
               deepDiagnostic.schemaVersion == 2,
-              deepDiagnostic.app.version == "0.5.0",
-              deepDiagnostic.app.build == "7",
+              deepDiagnostic.app.version == "0.6.0",
+              deepDiagnostic.app.build == "8",
               deepDiagnostic.deepAnalysis?.status == "深掘り PASS",
               deepDiagnostic.deepAnalysis?.multiPV == 3,
               deepDiagnostic.deepAnalysis?.completedPositions == 3,
@@ -280,8 +280,8 @@ enum SimulatorCIProbe {
                 from: boardDiagnosticData
               ),
               boardDiagnostic.schemaVersion == 3,
-              boardDiagnostic.app.version == "0.5.0",
-              boardDiagnostic.app.build == "7",
+              boardDiagnostic.app.version == "0.6.0",
+              boardDiagnostic.app.build == "8",
               boardDiagnostic.boardDisplay?.status == "盤面表示 PASS",
               boardDiagnostic.boardDisplay?.completedPositions == deep.entries.count,
               boardDiagnostic.boardDisplay?.positions.count == deep.entries.count else {
@@ -298,6 +298,61 @@ enum SimulatorCIProbe {
             exit(8)
         }
         SimulatorStage.mark("board_display_pass")
+
+        let reason = ReasonAnalysisViewModel()
+        reason.prepare(
+            game: kifGame,
+            deepEntries: deep.entries,
+            diagnosticURL: boardReview.diagnosticURL
+        )
+        let reasonStatus = reason.status
+        let reasonCount = reason.entries.count
+        let reasonValid = reason.entries.allSatisfy { entry in
+            let factIDs = Set(entry.facts.map(\.id))
+            let validLevels = entry.facts.allSatisfy {
+                $0.level == .engineConfirmed || $0.level == .pvObserved
+            }
+            let linkedInterpretation = !entry.interpretation.evidenceFactIDs.isEmpty
+                && entry.interpretation.evidenceFactIDs.allSatisfy { factIDs.contains($0) }
+            return entry.facts.count >= 4
+                && validLevels
+                && linkedInterpretation
+                && !entry.bestPV.isEmpty
+                && !entry.actualPV.isEmpty
+        }
+        guard reasonStatus == "理由解析 PASS",
+              reasonCount == deep.entries.count,
+              reasonValid,
+              let reasonDiagnosticURL = reason.diagnosticURL,
+              let reasonDiagnosticData = try? Data(contentsOf: reasonDiagnosticURL),
+              let reasonDiagnostic = try? JSONDecoder.iso8601.decode(
+                ShogiDiagnosticDocument.self,
+                from: reasonDiagnosticData
+              ),
+              reasonDiagnostic.schemaVersion == 4,
+              reasonDiagnostic.app.version == "0.6.0",
+              reasonDiagnostic.app.build == "8",
+              reasonDiagnostic.reasonAnalysis?.status == "理由解析 PASS",
+              reasonDiagnostic.reasonAnalysis?.completedPositions == deep.entries.count,
+              reasonDiagnostic.reasonAnalysis?.positions.count == deep.entries.count,
+              reasonDiagnostic.reasonAnalysis?.positions.allSatisfy({
+                  !$0.facts.isEmpty
+                      && !$0.interpretation.text.isEmpty
+                      && !$0.interpretation.evidenceFactIDs.isEmpty
+              }) == true else {
+            writeReport([
+                "stage=reason_analysis_failed",
+                "reason_status=FAIL",
+                "reason_count=\(reasonCount)",
+                "reason_summary_begin",
+                reason.summary,
+                "reason_summary_end"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("reason_analysis_failed")
+            fflush(stdout)
+            exit(10)
+        }
+        SimulatorStage.mark("reason_analysis_pass")
 
         let (terminalGame, terminalShallow) = makeTerminalRegression()
         let terminalDiagnosticURL: URL
@@ -390,6 +445,41 @@ enum SimulatorCIProbe {
         let terminalBoardDestination = terminalBoardEntry.bestMove.destination.usi
         SimulatorStage.mark("terminal_board_pass")
 
+        let terminalReason = ReasonAnalysisViewModel()
+        terminalReason.prepare(
+            game: terminalGame,
+            deepEntries: terminalDeep.entries,
+            diagnosticURL: terminalBoardReview.diagnosticURL
+        )
+        guard terminalReason.status == "理由解析 PASS",
+              terminalReason.entries.count == 1,
+              let terminalReasonEntry = terminalReason.entries.first,
+              terminalReasonEntry.ply == 81,
+              terminalReasonEntry.actualMove == "G*1b",
+              !terminalReasonEntry.facts.isEmpty,
+              !terminalReasonEntry.interpretation.text.isEmpty,
+              let terminalReasonDiagnosticURL = terminalReason.diagnosticURL,
+              let terminalReasonData = try? Data(contentsOf: terminalReasonDiagnosticURL),
+              let terminalReasonDiagnostic = try? JSONDecoder.iso8601.decode(
+                ShogiDiagnosticDocument.self,
+                from: terminalReasonData
+              ),
+              terminalReasonDiagnostic.schemaVersion == 4,
+              terminalReasonDiagnostic.reasonAnalysis?.status == "理由解析 PASS",
+              terminalReasonDiagnostic.reasonAnalysis?.completedPositions == 1 else {
+            writeReport([
+                "stage=terminal_reason_failed",
+                "terminal_reason_status=FAIL",
+                "terminal_reason_summary_begin",
+                terminalReason.summary,
+                "terminal_reason_summary_end"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("terminal_reason_failed")
+            fflush(stdout)
+            exit(11)
+        }
+        SimulatorStage.mark("terminal_reason_pass")
+
         let dropSearchSession = EngineUSISession()
         var dropSearchStatus = "FAIL"
         do {
@@ -461,12 +551,17 @@ enum SimulatorCIProbe {
             "board_display_status=\(boardDisplayStatus)",
             "board_display_count=\(boardDisplayCount)",
             "board_display_schema=\(boardDiagnostic.schemaVersion)",
+            "reason_status=\(reasonStatus)",
+            "reason_count=\(reasonCount)",
+            "reason_schema=\(reasonDiagnostic.schemaVersion)",
             "terminal_deep_status=\(terminalDeep.status)",
             "terminal_deep_ply=\(terminalEntry.ply)",
             "terminal_actual_source=\(terminalActualSource)",
             "terminal_board_status=\(terminalBoardReview.status)",
             "terminal_board_is_drop=\(terminalBoardEntry.bestMove.isDrop)",
             "terminal_board_destination=\(terminalBoardDestination)",
+            "terminal_reason_status=\(terminalReason.status)",
+            "terminal_reason_ply=\(terminalReasonEntry.ply)",
             "drop_searchmoves_status=\(dropSearchStatus)",
             "deep_summary_begin",
             deep.summary,

@@ -2,7 +2,7 @@ name: iOS Simulator Engine PoC
 
 on:
   push:
-    branches: [main, candidate/phase3-diagnostic-json, candidate/phase4-important-deep-analysis, candidate/phase5-board-bestmove]
+    branches: [main, candidate/phase3-diagnostic-json, candidate/phase4-important-deep-analysis, candidate/phase5-board-bestmove, candidate/phase6-reason-analysis]
   workflow_dispatch:
 
 concurrency:
@@ -38,7 +38,7 @@ jobs:
           cp ci/Project.yml Project.yml
           cp ci/Podfile Podfile
           cp ci/SimulatorCIProbe.swift iOS/ShogiCoachPoC/SimulatorCIProbe.swift
-          cp ci/ContentViewPhase5.swift iOS/ShogiCoachPoC/ContentView.swift
+          cp ci/ContentViewPhase6.swift iOS/ShogiCoachPoC/ContentView.swift
           cp ci/EngineProbeSocketPair.swift iOS/ShogiCoachPoC/EngineProbe.swift
           cp ci/EngineNativeSocketPair.h iOS/ShogiCoachPoC/EngineNative.h
           cp ci/engine_bridge_socketpair.cpp native/bridge/engine_bridge.cpp
@@ -204,8 +204,8 @@ jobs:
           grep -Fq "shallow_count=4" simulator-result.txt
           grep -Fq "diagnostic_status=PASS" simulator-result.txt
           grep -Fq "diagnostic_positions=4" simulator-result.txt
-          grep -Fq "diagnostic_version=0.5.0" simulator-result.txt
-          grep -Fq "diagnostic_build=7" simulator-result.txt
+          grep -Fq "diagnostic_version=0.6.0" simulator-result.txt
+          grep -Fq "diagnostic_build=8" simulator-result.txt
           grep -Fq "deep_status=深掘り PASS" simulator-result.txt
           grep -Fq "deep_count=3" simulator-result.txt
           grep -Fq "deep_multipv=3" simulator-result.txt
@@ -213,11 +213,16 @@ jobs:
           grep -Fq "board_display_status=盤面表示 PASS" simulator-result.txt
           grep -Fq "board_display_count=3" simulator-result.txt
           grep -Fq "board_display_schema=3" simulator-result.txt
+          grep -Fq "reason_status=理由解析 PASS" simulator-result.txt
+          grep -Fq "reason_count=3" simulator-result.txt
+          grep -Fq "reason_schema=4" simulator-result.txt
           grep -Fq "terminal_deep_status=深掘り PASS" simulator-result.txt
           grep -Fq "terminal_deep_ply=81" simulator-result.txt
           grep -Fq "terminal_actual_source=multipv" simulator-result.txt
           grep -Fq "terminal_board_status=盤面表示 PASS" simulator-result.txt
           grep -Fq "terminal_board_is_drop=true" simulator-result.txt
+          grep -Fq "terminal_reason_status=理由解析 PASS" simulator-result.txt
+          grep -Fq "terminal_reason_ply=81" simulator-result.txt
           grep -Fq "drop_searchmoves_status=PASS" simulator-result.txt
           grep -Fq "default_status=PASS候補" simulator-result.txt
           grep -Fq "bestmove:" simulator-result.txt

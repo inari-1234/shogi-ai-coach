@@ -117,6 +117,42 @@ struct ShogiDiagnosticDocument: Codable {
         let error: String?
     }
 
+    struct ReasonFactInfo: Codable {
+        let id: String
+        let level: String
+        let kind: String
+        let text: String
+        let evidenceMoves: [String]
+    }
+
+    struct ReasonInterpretationInfo: Codable {
+        let text: String
+        let evidenceFactIDs: [String]
+    }
+
+    struct ReasonPositionInfo: Codable {
+        let ply: Int
+        let actualMove: String
+        let bestMove: String
+        let bestScore: String
+        let actualScore: String
+        let actualLossCp: Int?
+        let bestPV: String
+        let actualPV: String
+        let bestReply: String
+        let actualReply: String
+        let facts: [ReasonFactInfo]
+        let interpretation: ReasonInterpretationInfo
+    }
+
+    struct ReasonAnalysisInfo: Codable {
+        let status: String
+        let expectedPositions: Int
+        let completedPositions: Int
+        let positions: [ReasonPositionInfo]
+        let error: String?
+    }
+
     var schemaVersion: Int
     var generatedAt: Date
     let app: AppInfo
@@ -126,6 +162,7 @@ struct ShogiDiagnosticDocument: Codable {
     let positions: [PositionInfo]
     var deepAnalysis: DeepAnalysisInfo?
     var boardDisplay: BoardDisplayInfo?
+    var reasonAnalysis: ReasonAnalysisInfo?
     let error: String?
 }
 
@@ -193,6 +230,7 @@ enum DiagnosticExporter {
             },
             deepAnalysis: nil,
             boardDisplay: nil,
+            reasonAnalysis: nil,
             error: error
         )
 
@@ -224,6 +262,20 @@ enum DiagnosticExporter {
         document.schemaVersion = 3
         document.generatedAt = Date()
         document.boardDisplay = boardDisplay
+        return try encode(document, url: url)
+    }
+
+    static func augmentWithReasonAnalysis(
+        url: URL,
+        reasonAnalysis: ShogiDiagnosticDocument.ReasonAnalysisInfo
+    ) throws -> URL {
+        let data = try Data(contentsOf: url)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        var document = try decoder.decode(ShogiDiagnosticDocument.self, from: data)
+        document.schemaVersion = 4
+        document.generatedAt = Date()
+        document.reasonAnalysis = reasonAnalysis
         return try encode(document, url: url)
     }
 
