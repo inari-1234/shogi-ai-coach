@@ -78,9 +78,7 @@ final class ReasonAnalysisViewModel: ObservableObject {
                     throw ReasonAnalysisError.invalidPly(deep.ply)
                 }
                 let kifMove = game.moves[deep.ply - 1]
-                let bestPV = deep.candidates.first(where: { $0.move == deep.bestMove })?.pv
-                    ?? deep.candidates.first?.pv
-                    ?? deep.bestMove
+                let bestPV = deep.bestPV
                 let bestMoves = Self.pvMoves(bestPV)
                 let actualMoves = Self.pvMoves(deep.actualPV)
                 let bestReply = bestMoves.dropFirst().first ?? "-"
@@ -119,11 +117,16 @@ final class ReasonAnalysisViewModel: ObservableObject {
                 )
 
                 let scoreText: String
-                if let loss = deep.actualLossCp {
+                if !deep.comparisonStable {
+                    let reasons = deep.instabilityReasons.isEmpty
+                        ? "unknown"
+                        : deep.instabilityReasons.joined(separator: ",")
+                    scoreText = "最善候補 \(deep.bestScoreText) / 実戦手 \(deep.actualScoreText) / 同条件比較が未安定（\(reasons)）のため評価損失は断定しない"
+                } else if let loss = deep.actualLossCp {
                     if loss > 0 {
-                        scoreText = "最善手 \(deep.bestScoreText) / 実戦手 \(deep.actualScoreText) / 評価損失 \(loss)cp"
+                        scoreText = "最善手 \(deep.bestScoreText) / 実戦手 \(deep.actualScoreText) / 同条件比較の評価損失 \(loss)cp"
                     } else {
-                        scoreText = "最善手 \(deep.bestScoreText) / 実戦手 \(deep.actualScoreText) / 正の評価損失は未確認"
+                        scoreText = "最善手 \(deep.bestScoreText) / 実戦手 \(deep.actualScoreText) / 同条件比較で正の評価損失は未確認"
                     }
                 } else {
                     scoreText = "最善手 \(deep.bestScoreText) / 実戦手 \(deep.actualScoreText)"
@@ -347,6 +350,13 @@ final class ReasonAnalysisViewModel: ObservableObject {
             )
         }
 
+        if !deep.comparisonStable {
+            return .init(
+                text: "最善候補と実戦手は同じ探索条件で比較しましたが、再解析後も評価順序またはPVが安定していません。この局面では評価損失や失敗理由を断定せず、候補探索が未安定であることだけを確認事実とします。",
+                evidenceFactIDs: [moveFact, scoreFact]
+            )
+        }
+
         if deep.bestScoreText.hasPrefix("mate "),
            !deep.actualScoreText.hasPrefix("mate ") {
             return .init(
@@ -357,7 +367,7 @@ final class ReasonAnalysisViewModel: ObservableObject {
 
         if let loss = deep.actualLossCp, loss <= 0 {
             return .init(
-                text: "候補手と実戦手の盤面変化は異なりますが、実戦手限定の再探索では正の評価損失を確認できていません。短時間探索では評価順序が揺れることがあるため、この局面では成り・駒取りなどの違いを評価低下の原因とは扱いません。",
+                text: "候補手と実戦手の盤面変化は異なりますが、同条件比較では正の評価損失を確認できていません。探索では評価順序が接近することがあるため、この局面では成り・駒取りなどの違いを評価低下の原因とは扱いません。",
                 evidenceFactIDs: [moveFact, scoreFact]
             )
         }
