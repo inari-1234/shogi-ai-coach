@@ -188,8 +188,8 @@ enum SimulatorCIProbe {
               diagnostic.analysis.completedPositions == kifGame.moves.count,
               diagnostic.positions.count == kifGame.moves.count,
               diagnostic.positions.allSatisfy({ !$0.pv.isEmpty && !$0.bestMove.isEmpty }),
-              diagnostic.app.version == "0.4.0",
-              diagnostic.app.build == "6",
+              diagnostic.app.version == "0.5.0",
+              diagnostic.app.build == "7",
               diagnostic.app.gitCommit != "unknown" else {
             writeReport([
                 "stage=diagnostic_failed",
@@ -231,8 +231,8 @@ enum SimulatorCIProbe {
                 from: deepDiagnosticData
               ),
               deepDiagnostic.schemaVersion == 2,
-              deepDiagnostic.app.version == "0.4.0",
-              deepDiagnostic.app.build == "6",
+              deepDiagnostic.app.version == "0.5.0",
+              deepDiagnostic.app.build == "7",
               deepDiagnostic.deepAnalysis?.status == "深掘り PASS",
               deepDiagnostic.deepAnalysis?.multiPV == 3,
               deepDiagnostic.deepAnalysis?.completedPositions == 3,
@@ -253,6 +253,51 @@ enum SimulatorCIProbe {
             exit(5)
         }
         SimulatorStage.mark("deep_pass")
+
+        let boardReview = BoardReviewViewModel()
+        boardReview.prepare(
+            game: kifGame,
+            deepEntries: deep.entries,
+            diagnosticURL: deep.diagnosticURL
+        )
+        let boardDisplayStatus = boardReview.status
+        let boardDisplayCount = boardReview.entries.count
+        let boardDisplayValid = boardReview.entries.allSatisfy {
+            !$0.bestMoveText.isEmpty
+                && !$0.actualMoveText.isEmpty
+                && (1...9).contains($0.bestMove.destination.file)
+                && (1...9).contains($0.bestMove.destination.rank)
+                && ($0.bestMove.isDrop || $0.bestMove.source != nil)
+        }
+        guard boardDisplayStatus == "盤面表示 PASS",
+              boardDisplayCount == deep.entries.count,
+              boardDisplayValid,
+              boardReview.entries.contains(where: { !$0.bestMove.isDrop }),
+              let boardDiagnosticURL = boardReview.diagnosticURL,
+              let boardDiagnosticData = try? Data(contentsOf: boardDiagnosticURL),
+              let boardDiagnostic = try? JSONDecoder.iso8601.decode(
+                ShogiDiagnosticDocument.self,
+                from: boardDiagnosticData
+              ),
+              boardDiagnostic.schemaVersion == 3,
+              boardDiagnostic.app.version == "0.5.0",
+              boardDiagnostic.app.build == "7",
+              boardDiagnostic.boardDisplay?.status == "盤面表示 PASS",
+              boardDiagnostic.boardDisplay?.completedPositions == deep.entries.count,
+              boardDiagnostic.boardDisplay?.positions.count == deep.entries.count else {
+            writeReport([
+                "stage=board_display_failed",
+                "board_display_status=FAIL",
+                "board_display_count=\(boardDisplayCount)",
+                "board_display_summary_begin",
+                boardReview.summary,
+                "board_display_summary_end"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("board_display_failed")
+            fflush(stdout)
+            exit(8)
+        }
+        SimulatorStage.mark("board_display_pass")
 
         let (terminalGame, terminalShallow) = makeTerminalRegression()
         let terminalDiagnosticURL: URL
@@ -306,6 +351,44 @@ enum SimulatorCIProbe {
         }
         let terminalActualSource = terminalEntry.actualAnalysisSource
         SimulatorStage.mark("terminal_regression_pass")
+
+        let terminalBoardReview = BoardReviewViewModel()
+        terminalBoardReview.prepare(
+            game: terminalGame,
+            deepEntries: terminalDeep.entries,
+            diagnosticURL: terminalDeep.diagnosticURL
+        )
+        guard terminalBoardReview.status == "盤面表示 PASS",
+              terminalBoardReview.entries.count == 1,
+              let terminalBoardEntry = terminalBoardReview.entries.first,
+              terminalBoardEntry.ply == 81,
+              terminalBoardEntry.bestMove.isDrop,
+              terminalBoardEntry.bestMove.source == nil,
+              terminalBoardEntry.bestMove.dropPiece != nil,
+              terminalBoardEntry.snapshot.sideToMove == .black,
+              terminalBoardEntry.bestPiece == terminalBoardEntry.bestMove.dropPiece,
+              let terminalBoardDiagnosticURL = terminalBoardReview.diagnosticURL,
+              let terminalBoardData = try? Data(contentsOf: terminalBoardDiagnosticURL),
+              let terminalBoardDiagnostic = try? JSONDecoder.iso8601.decode(
+                ShogiDiagnosticDocument.self,
+                from: terminalBoardData
+              ),
+              terminalBoardDiagnostic.schemaVersion == 3,
+              terminalBoardDiagnostic.boardDisplay?.status == "盤面表示 PASS",
+              terminalBoardDiagnostic.boardDisplay?.completedPositions == 1 else {
+            writeReport([
+                "stage=terminal_board_failed",
+                "terminal_board_status=FAIL",
+                "terminal_board_summary_begin",
+                terminalBoardReview.summary,
+                "terminal_board_summary_end"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("terminal_board_failed")
+            fflush(stdout)
+            exit(9)
+        }
+        let terminalBoardDestination = terminalBoardEntry.bestMove.destination.usi
+        SimulatorStage.mark("terminal_board_pass")
 
         let dropSearchSession = EngineUSISession()
         var dropSearchStatus = "FAIL"
@@ -375,9 +458,15 @@ enum SimulatorCIProbe {
             "deep_count=\(deepCount)",
             "deep_multipv=\(deepDiagnostic.deepAnalysis?.multiPV ?? 0)",
             "deep_diagnostic_schema=\(deepDiagnostic.schemaVersion)",
+            "board_display_status=\(boardDisplayStatus)",
+            "board_display_count=\(boardDisplayCount)",
+            "board_display_schema=\(boardDiagnostic.schemaVersion)",
             "terminal_deep_status=\(terminalDeep.status)",
             "terminal_deep_ply=\(terminalEntry.ply)",
             "terminal_actual_source=\(terminalActualSource)",
+            "terminal_board_status=\(terminalBoardReview.status)",
+            "terminal_board_is_drop=\(terminalBoardEntry.bestMove.isDrop)",
+            "terminal_board_destination=\(terminalBoardDestination)",
             "drop_searchmoves_status=\(dropSearchStatus)",
             "deep_summary_begin",
             deep.summary,

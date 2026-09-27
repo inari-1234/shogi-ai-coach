@@ -91,6 +91,32 @@ struct ShogiDiagnosticDocument: Codable {
         let error: String?
     }
 
+    struct BoardDisplayPositionInfo: Codable {
+        let ply: Int
+        let sideToMove: String
+        let orientation: String
+        let bestMove: String
+        let source: String?
+        let destination: String
+        let isDrop: Bool
+        let piece: String
+        let promotes: Bool
+        let actualMove: String
+        let actualSource: String?
+        let actualDestination: String
+        let squarePieceCount: Int
+        let blackHandCount: Int
+        let whiteHandCount: Int
+    }
+
+    struct BoardDisplayInfo: Codable {
+        let status: String
+        let expectedPositions: Int
+        let completedPositions: Int
+        let positions: [BoardDisplayPositionInfo]
+        let error: String?
+    }
+
     var schemaVersion: Int
     var generatedAt: Date
     let app: AppInfo
@@ -99,6 +125,7 @@ struct ShogiDiagnosticDocument: Codable {
     let analysis: AnalysisInfo
     let positions: [PositionInfo]
     var deepAnalysis: DeepAnalysisInfo?
+    var boardDisplay: BoardDisplayInfo?
     let error: String?
 }
 
@@ -165,6 +192,7 @@ enum DiagnosticExporter {
                 )
             },
             deepAnalysis: nil,
+            boardDisplay: nil,
             error: error
         )
 
@@ -182,6 +210,20 @@ enum DiagnosticExporter {
         document.schemaVersion = 2
         document.generatedAt = Date()
         document.deepAnalysis = deepAnalysis
+        return try encode(document, url: url)
+    }
+
+    static func augmentWithBoardDisplay(
+        url: URL,
+        boardDisplay: ShogiDiagnosticDocument.BoardDisplayInfo
+    ) throws -> URL {
+        let data = try Data(contentsOf: url)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        var document = try decoder.decode(ShogiDiagnosticDocument.self, from: data)
+        document.schemaVersion = 3
+        document.generatedAt = Date()
+        document.boardDisplay = boardDisplay
         return try encode(document, url: url)
     }
 
