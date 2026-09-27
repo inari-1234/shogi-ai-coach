@@ -99,7 +99,7 @@ enum SimulatorCIProbe {
         }
 
         let shallow = ShallowAnalysisViewModel()
-        await shallow.analyze(game: kifGame, movetimeMs: 80)
+        await shallow.analyze(game: kifGame, fileName: "ci-sample.kif", movetimeMs: 80)
         let shallowStatus = shallow.status
         let shallowCount = shallow.entries.count
         let shallowValid = shallow.entries.allSatisfy {
@@ -125,7 +125,26 @@ enum SimulatorCIProbe {
             fflush(stdout)
             exit(3)
         }
-        SimulatorStage.mark("shallow_pass")
+        guard let diagnosticURL = shallow.diagnosticURL,
+              let diagnosticData = try? Data(contentsOf: diagnosticURL),
+              let diagnostic = try? JSONDecoder.iso8601.decode(ShogiDiagnosticDocument.self, from: diagnosticData),
+              diagnostic.schemaVersion == 1,
+              diagnostic.game.fileName == "ci-sample.kif",
+              diagnostic.analysis.completedPositions == kifGame.moves.count,
+              diagnostic.positions.count == kifGame.moves.count,
+              diagnostic.positions.allSatisfy({ !$0.pv.isEmpty && !$0.bestMove.isEmpty }),
+              diagnostic.app.gitCommit != "unknown" else {
+            writeReport([
+                "stage=diagnostic_failed",
+                "kif_status=PASS",
+                "shallow_status=PASS",
+                "diagnostic_status=FAIL"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("diagnostic_failed")
+            fflush(stdout)
+            exit(4)
+        }
+        SimulatorStage.mark("diagnostic_pass")
 
         let probe = EngineProbe()
         await probe.runDefaultProbe()
@@ -149,6 +168,10 @@ enum SimulatorCIProbe {
             "kif_moves=\(kifGame.moves.count)",
             "shallow_status=PASS",
             "shallow_count=\(shallowCount)",
+            "diagnostic_status=PASS",
+            "diagnostic_schema=\(diagnostic.schemaVersion)",
+            "diagnostic_positions=\(diagnostic.positions.count)",
+            "diagnostic_git=\(diagnostic.app.gitCommit)",
             "shallow_summary_begin",
             shallow.summary,
             "shallow_summary_end",
@@ -173,3 +196,12 @@ enum SimulatorCIProbe {
     static func runIfRequested() async {}
 }
 #endif
+
+
+private extension JSONDecoder {
+    static var iso8601: JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return decoder
+    }
+}
