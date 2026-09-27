@@ -20,6 +20,12 @@ targets:
         type: folder
     dependencies:
       - package: ShogiCoachCore
+    info:
+      path: iOS/ShogiCoachPoC/Info.plist
+      properties:
+        CFBundleDisplayName: Shogi Coach PoC
+        GitCommit: "$(GIT_COMMIT_SHA)"
+        UILaunchScreen: {}
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.inari1234.shogicoachpoc
