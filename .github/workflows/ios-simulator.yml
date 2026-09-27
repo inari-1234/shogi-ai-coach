@@ -139,8 +139,8 @@ jobs:
           grep -Fq "shallow_count=4" simulator-result.txt
           grep -Fq "diagnostic_status=PASS" simulator-result.txt
           grep -Fq "diagnostic_positions=4" simulator-result.txt
-          grep -Fq "diagnostic_version=0.6.0" simulator-result.txt
-          grep -Fq "diagnostic_build=10" simulator-result.txt
+          grep -Fq "diagnostic_version=0.7.0" simulator-result.txt
+          grep -Fq "diagnostic_build=11" simulator-result.txt
           grep -Fq "deep_status=深掘り PASS" simulator-result.txt
           grep -Fq "deep_count=3" simulator-result.txt
           grep -Fq "deep_multipv=3" simulator-result.txt
