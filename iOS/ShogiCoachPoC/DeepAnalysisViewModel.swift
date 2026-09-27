@@ -25,6 +25,7 @@ struct DeepAnalysisEntry: Identifiable {
     let actualScoreText: String
     let actualLossCp: Int?
     let actualPV: String
+    let actualAnalysisSource: String
     let opponentBestReply: String
     let candidates: [DeepCandidateLine]
     let elapsedMs: Int
@@ -136,22 +137,43 @@ final class DeepAnalysisViewModel: ObservableObject {
                     )
                 }
 
-                let actualSample = try await session.analyzePosition(
-                    command: move.positionBefore,
-                    movetimeMs: deepMovetimeMs,
-                    searchMoves: [move.usi]
-                )
-                guard actualSample.result.bestMove.move == move.usi,
-                      let actualPV = actualSample.result.principalVariations.first,
-                      let actualScore = actualPV.score,
-                      !actualPV.pv.isEmpty else {
-                    throw EngineUSISession.ProbeError.protocolError(
-                        "\(move.ply)手目の実戦手限定解析が不正"
+                let actualScoreText: String
+                let actualCp: Int?
+                let actualPVText: String
+                let actualAnalysisSource: String
+                let actualElapsedMs: Int
+                let actualThermalAfter: String
+
+                if let actualCandidate = candidateLines.first(where: { $0.move == move.usi }) {
+                    actualScoreText = actualCandidate.scoreText
+                    actualCp = actualCandidate.centipawn
+                    actualPVText = actualCandidate.pv
+                    actualAnalysisSource = "multipv"
+                    actualElapsedMs = 0
+                    actualThermalAfter = candidateSample.thermalAfter
+                } else {
+                    let actualSample = try await session.analyzePosition(
+                        command: move.positionBefore,
+                        movetimeMs: deepMovetimeMs,
+                        searchMoves: [move.usi]
                     )
+                    guard actualSample.result.bestMove.move == move.usi,
+                          let actualPV = actualSample.result.principalVariations.first,
+                          let actualScore = actualPV.score,
+                          !actualPV.pv.isEmpty else {
+                        throw EngineUSISession.ProbeError.protocolError(
+                            "\(move.ply)手目の実戦手限定解析が不正"
+                        )
+                    }
+
+                    actualScoreText = Self.scoreText(actualScore)
+                    actualCp = Self.centipawn(actualScore)
+                    actualPVText = actualPV.pv.joined(separator: " ")
+                    actualAnalysisSource = "searchmoves"
+                    actualElapsedMs = actualSample.elapsedMs
+                    actualThermalAfter = actualSample.thermalAfter
                 }
 
-                let actualScoreText = Self.scoreText(actualScore)
-                let actualCp = Self.centipawn(actualScore)
                 let lossCp: Int?
                 if let bestCp = bestLine.centipawn, let actualCp {
                     lossCp = max(0, bestCp - actualCp)
@@ -159,7 +181,7 @@ final class DeepAnalysisViewModel: ObservableObject {
                     lossCp = nil
                 }
 
-                let elapsed = candidateSample.elapsedMs + actualSample.elapsedMs
+                let elapsed = candidateSample.elapsedMs + actualElapsedMs
                 let entry = DeepAnalysisEntry(
                     id: move.ply,
                     ply: move.ply,
@@ -170,12 +192,13 @@ final class DeepAnalysisViewModel: ObservableObject {
                     bestScoreText: bestLine.scoreText,
                     actualScoreText: actualScoreText,
                     actualLossCp: lossCp,
-                    actualPV: actualPV.pv.joined(separator: " "),
+                    actualPV: actualPVText,
+                    actualAnalysisSource: actualAnalysisSource,
                     opponentBestReply: bestLine.opponentReply,
                     candidates: candidateLines,
                     elapsedMs: elapsed,
                     thermalBefore: candidateSample.thermalBefore,
-                    thermalAfter: actualSample.thermalAfter
+                    thermalAfter: actualThermalAfter
                 )
                 collected.append(entry)
                 entries = collected
@@ -185,7 +208,7 @@ final class DeepAnalysisViewModel: ObservableObject {
                 )
 
                 if candidateSample.thermalAfter == "critical"
-                    || actualSample.thermalAfter == "critical" {
+                    || actualThermalAfter == "critical" {
                     throw EngineUSISession.ProbeError.protocolError(
                         "thermal critical at ply \(move.ply)"
                     )
@@ -235,6 +258,7 @@ final class DeepAnalysisViewModel: ObservableObject {
                     actualScore: entry.actualScoreText,
                     actualLossCp: entry.actualLossCp,
                     actualPV: entry.actualPV,
+                    actualAnalysisSource: entry.actualAnalysisSource,
                     opponentBestReply: entry.opponentBestReply,
                     candidates: entry.candidates.map { candidate in
                         .init(
@@ -365,7 +389,7 @@ final class DeepAnalysisViewModel: ObservableObject {
         for entry in entries {
             let loss = entry.actualLossCp.map { "\($0)cp" } ?? "mate/unknown"
             lines.append(
-                "#\(entry.ply) loss \(loss) best \(entry.bestMove) / actual \(entry.actualMove) / reply \(entry.opponentBestReply)"
+                "#\(entry.ply) loss \(loss) best \(entry.bestMove) / actual \(entry.actualMove) [\(entry.actualAnalysisSource)] / reply \(entry.opponentBestReply)"
             )
         }
         if let error { lines.append(error) }

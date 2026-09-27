@@ -195,6 +195,9 @@ jobs:
           grep -Fq "deep_count=3" simulator-result.txt
           grep -Fq "deep_multipv=3" simulator-result.txt
           grep -Fq "deep_diagnostic_schema=2" simulator-result.txt
+          grep -Fq "terminal_deep_status=深掘り PASS" simulator-result.txt
+          grep -Fq "terminal_deep_ply=81" simulator-result.txt
+          grep -Fq "terminal_actual_source=multipv" simulator-result.txt
           grep -Fq "default_status=PASS候補" simulator-result.txt
           grep -Fq "bestmove:" simulator-result.txt
           grep -Fq "score:" simulator-result.txt

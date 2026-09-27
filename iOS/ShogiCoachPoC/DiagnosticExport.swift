@@ -71,6 +71,7 @@ struct ShogiDiagnosticDocument: Codable {
         let actualScore: String
         let actualLossCp: Int?
         let actualPV: String
+        let actualAnalysisSource: String
         let opponentBestReply: String
         let candidates: [DeepCandidateInfo]
         let elapsedMs: Int
