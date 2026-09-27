@@ -624,6 +624,69 @@ enum SimulatorCIProbe {
         }
         SimulatorStage.mark("reason_unstable_pass")
 
+        let recaptureDeepEntry = DeepAnalysisEntry(
+            id: 49,
+            ply: 49,
+            actualMove: "4i3h",
+            shallowBestMove: "3g2e",
+            shallowEstimatedLossCp: 1232,
+            bestMove: "3g2e",
+            bestScoreText: "cp 1103",
+            actualScoreText: "cp -103",
+            actualLossCp: 1206,
+            bestPV: "3g2e 3c2e 2g2f 3b3c 2h3i P*2d",
+            actualPV: "4i3h 5b4b B*6f",
+            actualAnalysisSource: "equal-condition",
+            opponentBestReply: "3c2e",
+            candidates: [
+                DeepCandidateLine(
+                    id: 1,
+                    rank: 1,
+                    move: "3g2e",
+                    scoreText: "cp 1103",
+                    centipawn: 1103,
+                    depthText: "13",
+                    nodesText: "1",
+                    npsText: "1",
+                    pv: "3g2e 3c2e 2g2f 3b3c 2h3i P*2d",
+                    opponentReply: "3c2e"
+                )
+            ],
+            elapsedMs: 1,
+            thermalBefore: "nominal",
+            thermalAfter: "nominal",
+            comparisonStable: true,
+            instabilityReasons: [],
+            analysisAttempts: 1,
+            finalMovetimeMs: 800,
+            adaptiveTriggered: false,
+            topCandidateGapCp: 782
+        )
+        let recaptureReason = ReasonAnalysisViewModel()
+        recaptureReason.prepare(
+            game: unstableGame,
+            deepEntries: [recaptureDeepEntry],
+            diagnosticURL: boardReview.diagnosticURL
+        )
+        guard recaptureReason.status == "理由解析 PASS",
+              recaptureReason.entries.count == 1,
+              let recaptureEntry = recaptureReason.entries.first,
+              recaptureEntry.interpretation.text.contains("取り返されます"),
+              recaptureEntry.interpretation.text.contains("単純な駒取り"),
+              !recaptureEntry.interpretation.text.contains("この機会を逃した") else {
+            writeReport([
+                "stage=reason_immediate_recapture_failed",
+                "reason_immediate_recapture_status=FAIL",
+                "reason_immediate_recapture_summary_begin",
+                recaptureReason.summary,
+                "reason_immediate_recapture_summary_end"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("reason_immediate_recapture_failed")
+            fflush(stdout)
+            exit(14)
+        }
+        SimulatorStage.mark("reason_immediate_recapture_pass")
+
         let (terminalGame, terminalShallow) = makeTerminalRegression()
         let terminalDiagnosticURL: URL
         do {
@@ -840,6 +903,7 @@ enum SimulatorCIProbe {
             "reason_count=\(reasonCount)",
             "reason_schema=\(reasonDiagnostic.schemaVersion)",
             "reason_unstable_status=PASS",
+            "reason_immediate_recapture_status=PASS",
             "terminal_deep_status=\(terminalDeep.status)",
             "terminal_deep_ply=\(terminalEntry.ply)",
             "terminal_actual_source=\(terminalActualSource)",
