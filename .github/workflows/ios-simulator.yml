@@ -153,6 +153,10 @@ jobs:
           grep -Fq "reason_schema=4" simulator-result.txt
           grep -Fq "reason_unstable_status=PASS" simulator-result.txt
           grep -Fq "reason_immediate_recapture_status=PASS" simulator-result.txt
+          grep -Fq "continuation_status=展開シミュレーション PASS" simulator-result.txt
+          grep -Fq "continuation_schema=5" simulator-result.txt
+          grep -Fq "terminal_continuation_status=展開シミュレーション PASS" simulator-result.txt
+          grep -Fq "terminal_continuation_drop=true" simulator-result.txt
           grep -Fq "terminal_deep_status=深掘り PASS" simulator-result.txt
           grep -Fq "terminal_deep_ply=81" simulator-result.txt
           grep -Fq "terminal_actual_source=equal-condition" simulator-result.txt
