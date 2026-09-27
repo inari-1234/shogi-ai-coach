@@ -24,6 +24,7 @@ struct DeepAnalysisEntry: Identifiable {
     let bestScoreText: String
     let actualScoreText: String
     let actualLossCp: Int?
+    let bestPV: String
     let actualPV: String
     let actualAnalysisSource: String
     let opponentBestReply: String
@@ -31,6 +32,12 @@ struct DeepAnalysisEntry: Identifiable {
     let elapsedMs: Int
     let thermalBefore: String
     let thermalAfter: String
+    let comparisonStable: Bool
+    let instabilityReasons: [String]
+    let analysisAttempts: Int
+    let finalMovetimeMs: Int
+    let adaptiveTriggered: Bool
+    let topCandidateGapCp: Int?
 }
 
 @MainActor
@@ -73,10 +80,14 @@ final class DeepAnalysisViewModel: ObservableObject {
             return
         }
 
+        let productionQualityMode = deepMovetimeMs >= 800
+        let provisionalLimit = productionQualityMode
+            ? min(8, max(maxPositions, 7))
+            : maxPositions
         let selection = Self.selectImportantPositions(
             game: game,
             entries: shallowEntries,
-            maxPositions: maxPositions
+            maxPositions: provisionalLimit
         )
         guard !selection.items.isEmpty else {
             status = "深掘り 未PASS"
@@ -94,11 +105,11 @@ final class DeepAnalysisViewModel: ObservableObject {
 
         let totalStarted = ContinuousClock.now
         var finalError: String?
+        var analyzedEntries: [DeepAnalysisEntry] = []
 
         do {
             try await session.beginAnalysis(multiPV: multiPV)
-            var collected: [DeepAnalysisEntry] = []
-            collected.reserveCapacity(selection.items.count)
+            analyzedEntries.reserveCapacity(selection.items.count)
 
             for (offset, selected) in selection.items.enumerated() {
                 status = "深掘り \(offset + 1)/\(selection.items.count)"
@@ -106,109 +117,65 @@ final class DeepAnalysisViewModel: ObservableObject {
                 let shallow = shallowEntries[selected.index]
                 SimulatorStage.mark("deep_ply_\(move.ply)_start")
 
-                let candidateSample = try await session.analyzePosition(
+                let comparison = try await AdaptiveComparisonAnalyzer.analyze(
+                    session: session,
                     command: move.positionBefore,
-                    movetimeMs: deepMovetimeMs
+                    actualMove: move.usi,
+                    baseMovetimeMs: deepMovetimeMs,
+                    candidateCount: multiPV
                 )
+                let final = comparison.finalAttempt
 
-                let candidateLines: [DeepCandidateLine] = candidateSample.result.principalVariations
-                    .prefix(max(1, multiPV))
-                    .enumerated()
-                    .compactMap { index, pv in
-                        guard let score = pv.score, !pv.pv.isEmpty else { return nil }
-                        let moves = pv.pv
-                        return DeepCandidateLine(
-                            id: index + 1,
-                            rank: index + 1,
-                            move: moves[0],
-                            scoreText: Self.scoreText(score),
-                            centipawn: Self.centipawn(score),
-                            depthText: pv.depth.map(String.init) ?? "-",
-                            nodesText: pv.nodes.map(String.init) ?? "-",
-                            npsText: pv.nps.map(String.init) ?? "-",
-                            pv: moves.joined(separator: " "),
-                            opponentReply: moves.dropFirst().first ?? "-"
-                        )
-                    }
-
-                guard let bestLine = candidateLines.first else {
-                    throw EngineUSISession.ProbeError.protocolError(
-                        "\(move.ply)手目のMultiPVが不足"
+                let candidateLines = final.candidateLines.enumerated().map { index, line in
+                    DeepCandidateLine(
+                        id: index + 1,
+                        rank: index + 1,
+                        move: line.move,
+                        scoreText: line.scoreText,
+                        centipawn: line.centipawn,
+                        depthText: line.depthText,
+                        nodesText: line.nodesText,
+                        npsText: line.npsText,
+                        pv: line.pvText,
+                        opponentReply: line.opponentReply
                     )
                 }
 
-                let actualScoreText: String
-                let actualCp: Int?
-                let actualPVText: String
-                let actualAnalysisSource: String
-                let actualElapsedMs: Int
-                let actualThermalAfter: String
-
-                if let actualCandidate = candidateLines.first(where: { $0.move == move.usi }) {
-                    actualScoreText = actualCandidate.scoreText
-                    actualCp = actualCandidate.centipawn
-                    actualPVText = actualCandidate.pv
-                    actualAnalysisSource = "multipv"
-                    actualElapsedMs = 0
-                    actualThermalAfter = candidateSample.thermalAfter
-                } else {
-                    let actualSample = try await session.analyzePosition(
-                        command: move.positionBefore,
-                        movetimeMs: deepMovetimeMs,
-                        searchMoves: [move.usi]
-                    )
-                    guard actualSample.result.bestMove.move == move.usi,
-                          let actualPV = actualSample.result.principalVariations.first,
-                          let actualScore = actualPV.score,
-                          !actualPV.pv.isEmpty else {
-                        throw EngineUSISession.ProbeError.protocolError(
-                            "\(move.ply)手目の実戦手限定解析が不正"
-                        )
-                    }
-
-                    actualScoreText = Self.scoreText(actualScore)
-                    actualCp = Self.centipawn(actualScore)
-                    actualPVText = actualPV.pv.joined(separator: " ")
-                    actualAnalysisSource = "searchmoves"
-                    actualElapsedMs = actualSample.elapsedMs
-                    actualThermalAfter = actualSample.thermalAfter
-                }
-
-                let lossCp: Int?
-                if let bestCp = bestLine.centipawn, let actualCp {
-                    lossCp = max(0, bestCp - actualCp)
-                } else {
-                    lossCp = nil
-                }
-
-                let elapsed = candidateSample.elapsedMs + actualElapsedMs
+                let source = final.bestLine.move == move.usi
+                    ? "equal-condition-same-move"
+                    : "equal-condition"
                 let entry = DeepAnalysisEntry(
                     id: move.ply,
                     ply: move.ply,
                     actualMove: move.usi,
                     shallowBestMove: shallow.bestMove,
                     shallowEstimatedLossCp: selected.estimatedLossCp,
-                    bestMove: bestLine.move,
-                    bestScoreText: bestLine.scoreText,
-                    actualScoreText: actualScoreText,
-                    actualLossCp: lossCp,
-                    actualPV: actualPVText,
-                    actualAnalysisSource: actualAnalysisSource,
-                    opponentBestReply: bestLine.opponentReply,
+                    bestMove: final.bestLine.move,
+                    bestScoreText: final.bestLine.scoreText,
+                    actualScoreText: final.actualLine.scoreText,
+                    actualLossCp: comparison.stable ? final.lossCp : nil,
+                    bestPV: final.bestLine.pvText,
+                    actualPV: final.actualLine.pvText,
+                    actualAnalysisSource: source,
+                    opponentBestReply: final.bestLine.opponentReply,
                     candidates: candidateLines,
-                    elapsedMs: elapsed,
-                    thermalBefore: candidateSample.thermalBefore,
-                    thermalAfter: actualThermalAfter
+                    elapsedMs: comparison.totalElapsedMs,
+                    thermalBefore: comparison.attempts.first?.thermalBefore ?? "unknown",
+                    thermalAfter: final.thermalAfter,
+                    comparisonStable: comparison.stable,
+                    instabilityReasons: comparison.instabilityReasons,
+                    analysisAttempts: comparison.attempts.count,
+                    finalMovetimeMs: comparison.finalMovetimeMs,
+                    adaptiveTriggered: comparison.adaptiveTriggered,
+                    topCandidateGapCp: final.topGapCp
                 )
-                collected.append(entry)
-                entries = collected
+                analyzedEntries.append(entry)
 
                 SimulatorStage.mark(
-                    "deep_ply_\(move.ply)_done_best_\(entry.bestMove)_actual_\(entry.actualMove)"
+                    "deep_ply_\(move.ply)_done_best_\(entry.bestMove)_actual_\(entry.actualMove)_stable_\(entry.comparisonStable)_attempts_\(entry.analysisAttempts)"
                 )
 
-                if candidateSample.thermalAfter == "critical"
-                    || actualThermalAfter == "critical" {
+                if final.thermalAfter == "critical" {
                     throw EngineUSISession.ProbeError.protocolError(
                         "thermal critical at ply \(move.ply)"
                     )
@@ -216,9 +183,22 @@ final class DeepAnalysisViewModel: ObservableObject {
             }
 
             await session.endAnalysis()
+
+            entries = productionQualityMode
+                ? Self.finalizeImportantEntries(
+                    analyzedEntries,
+                    maxPositions: maxPositions
+                )
+                : analyzedEntries
             status = "深掘り PASS"
         } catch {
             await session.endAnalysis()
+            entries = productionQualityMode
+                ? Self.finalizeImportantEntries(
+                    analyzedEntries,
+                    maxPositions: maxPositions
+                )
+                : analyzedEntries
             finalError = error.localizedDescription
             status = "深掘り 未PASS"
             SimulatorStage.mark("deep_error_\(error.localizedDescription)")
@@ -231,7 +211,8 @@ final class DeepAnalysisViewModel: ObservableObject {
 
         summary = Self.makeSummary(
             entries: entries,
-            selectedCount: selection.items.count,
+            provisionalCount: selection.items.count,
+            analyzedCount: analyzedEntries.count,
             deepMovetimeMs: deepMovetimeMs,
             multiPV: multiPV,
             totalElapsedMs: totalElapsedMs,
@@ -257,6 +238,7 @@ final class DeepAnalysisViewModel: ObservableObject {
                     bestScore: entry.bestScoreText,
                     actualScore: entry.actualScoreText,
                     actualLossCp: entry.actualLossCp,
+                    bestPV: entry.bestPV,
                     actualPV: entry.actualPV,
                     actualAnalysisSource: entry.actualAnalysisSource,
                     opponentBestReply: entry.opponentBestReply,
@@ -275,7 +257,13 @@ final class DeepAnalysisViewModel: ObservableObject {
                     },
                     elapsedMs: entry.elapsedMs,
                     thermalBefore: entry.thermalBefore,
-                    thermalAfter: entry.thermalAfter
+                    thermalAfter: entry.thermalAfter,
+                    comparisonStable: entry.comparisonStable,
+                    instabilityReasons: entry.instabilityReasons,
+                    analysisAttempts: entry.analysisAttempts,
+                    finalMovetimeMs: entry.finalMovetimeMs,
+                    adaptiveTriggered: entry.adaptiveTriggered,
+                    topCandidateGapCp: entry.topCandidateGapCp
                 )
             },
             error: finalError
@@ -366,48 +354,101 @@ final class DeepAnalysisViewModel: ObservableObject {
             return entries[$0.index].ply < entries[$1.index].ply
         }
 
-        let limit = max(1, min(5, maxPositions))
+        let limit = max(1, min(8, maxPositions))
         return Selection(items: Array(candidates.prefix(limit)), focus: focus)
+    }
+
+    private static func finalizeImportantEntries(
+        _ analyzed: [DeepAnalysisEntry],
+        maxPositions: Int
+    ) -> [DeepAnalysisEntry] {
+        guard !analyzed.isEmpty else { return [] }
+        let limit = max(1, min(5, maxPositions))
+        let ranked = analyzed.sorted {
+            let left = verifiedImportance($0)
+            let right = verifiedImportance($1)
+            if left != right { return left > right }
+            return $0.ply < $1.ply
+        }
+
+        var selected: [DeepAnalysisEntry] = []
+        for entry in ranked {
+            let meaningful = !entry.comparisonStable
+                || (entry.actualLossCp ?? 0) >= 80
+                || (entry.bestScoreText.hasPrefix("mate ")
+                    && !entry.actualScoreText.hasPrefix("mate "))
+            if !meaningful && !selected.isEmpty { continue }
+            if selected.contains(where: { likelySameEvent($0, entry) }) { continue }
+            selected.append(entry)
+            if selected.count == limit { break }
+        }
+
+        if selected.isEmpty, let first = ranked.first {
+            selected = [first]
+        }
+        return selected.sorted { $0.ply < $1.ply }
+    }
+
+    private static func verifiedImportance(_ entry: DeepAnalysisEntry) -> Int {
+        var value = (entry.actualLossCp ?? entry.shallowEstimatedLossCp ?? 0) * 10
+        if !entry.comparisonStable { value += 2_000 }
+        if entry.bestScoreText.hasPrefix("mate "),
+           !entry.actualScoreText.hasPrefix("mate ") {
+            value += 10_000
+        }
+        if entry.bestMove != entry.actualMove { value += 100 }
+        return value
+    }
+
+    private static func likelySameEvent(
+        _ lhs: DeepAnalysisEntry,
+        _ rhs: DeepAnalysisEntry
+    ) -> Bool {
+        guard abs(lhs.ply - rhs.ply) <= 4 else { return false }
+        let sameBestDestination = moveDestination(lhs.bestMove) == moveDestination(rhs.bestMove)
+        let sameReplyDestination = moveDestination(lhs.opponentBestReply)
+            == moveDestination(rhs.opponentBestReply)
+        return sameBestDestination && sameReplyDestination
+    }
+
+    private static func moveDestination(_ move: String) -> String {
+        guard move != "-", move.count >= 2 else { return move }
+        return String(move.suffix(2))
     }
 
     private static func makeSummary(
         entries: [DeepAnalysisEntry],
-        selectedCount: Int,
+        provisionalCount: Int,
+        analyzedCount: Int,
         deepMovetimeMs: Int,
         multiPV: Int,
         totalElapsedMs: Int,
         focus: String,
         error: String?
     ) -> String {
+        let adaptive = entries.filter(\.adaptiveTriggered).count
+        let unstable = entries.filter { !$0.comparisonStable }.count
         var lines = [
             "focus: \(focus)",
-            "important positions: \(entries.count)/\(selectedCount)",
-            "deep: \(deepMovetimeMs) ms x best+actual",
-            "MultiPV: \(multiPV)",
+            "provisional positions: \(provisionalCount)",
+            "analyzed positions: \(analyzedCount)",
+            "final important positions: \(entries.count)",
+            "deep base: \(deepMovetimeMs) ms",
+            "MultiPV discovery: \(multiPV)",
+            "comparison: equal-condition searchmoves",
+            "adaptive extended: \(adaptive)",
+            "unstable final: \(unstable)",
             "total elapsed: \(totalElapsedMs) ms"
         ]
         for entry in entries {
-            let loss = entry.actualLossCp.map { "\($0)cp" } ?? "mate/unknown"
+            let loss = entry.actualLossCp.map { "\($0)cp" }
+                ?? (entry.comparisonStable ? "mate/unknown" : "unstable")
             lines.append(
-                "#\(entry.ply) loss \(loss) best \(entry.bestMove) / actual \(entry.actualMove) [\(entry.actualAnalysisSource)] / reply \(entry.opponentBestReply)"
+                "#\(entry.ply) loss \(loss) best \(entry.bestMove) / actual \(entry.actualMove) [\(entry.actualAnalysisSource)] / \(entry.finalMovetimeMs)ms x\(entry.analysisAttempts)"
             )
         }
         if let error { lines.append(error) }
         return lines.joined(separator: "\n")
-    }
-
-    private static func scoreText(_ score: USIScore) -> String {
-        switch score {
-        case .centipawn(let value, _): return "cp \(value)"
-        case .mate(let value, _): return "mate \(value)"
-        }
-    }
-
-    private static func centipawn(_ score: USIScore) -> Int? {
-        switch score {
-        case .centipawn(let value, _): return value
-        case .mate: return nil
-        }
     }
 
     private static func elapsedMilliseconds(

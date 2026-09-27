@@ -32,6 +32,39 @@ public enum BoardPieceKind: String, Hashable, Equatable, Sendable {
     case horse = "+B"
     case dragon = "+R"
 
+    public init?(kifName: String) {
+        switch kifName {
+        case "歩": self = .pawn
+        case "香": self = .lance
+        case "桂": self = .knight
+        case "銀": self = .silver
+        case "金": self = .gold
+        case "角": self = .bishop
+        case "飛": self = .rook
+        case "玉", "王": self = .king
+        case "と": self = .promotedPawn
+        case "成香": self = .promotedLance
+        case "成桂": self = .promotedKnight
+        case "成銀": self = .promotedSilver
+        case "馬": self = .horse
+        case "龍", "竜": self = .dragon
+        default: return nil
+        }
+    }
+
+    public var kifName: String { kanji }
+
+    public var isPromoted: Bool { self != base }
+
+    public var isPromotable: Bool {
+        switch self {
+        case .pawn, .lance, .knight, .silver, .bishop, .rook:
+            return true
+        default:
+            return false
+        }
+    }
+
     public var kanji: String {
         switch self {
         case .pawn: return "歩"
@@ -213,6 +246,10 @@ public enum BoardSnapshotError: Error, LocalizedError, Equatable, Sendable {
 }
 
 public enum BoardSnapshotResolver {
+    public static var startpos: BoardSnapshot {
+        MutableBoard.startpos.snapshot
+    }
+
     public static func resolve(positionCommand: String) throws -> BoardSnapshot {
         let tokens = positionCommand.split(whereSeparator: { $0.isWhitespace }).map(String.init)
         guard tokens.count >= 2, tokens[0] == "position", tokens[1] == "startpos" else {

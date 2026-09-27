@@ -109,9 +109,9 @@ public enum KIFTextDecoder {
 
 public enum KIFParser {
     fileprivate struct ParsedMove {
-        let destination: Square
-        let origin: Square?
-        let piece: PieceKind
+        let destination: BoardCoordinate
+        let origin: BoardCoordinate?
+        let piece: BoardPieceKind
         let promotes: Bool
         let drop: Bool
         let notation: String
@@ -125,7 +125,7 @@ public enum KIFParser {
         var metadata: [String: String] = [:]
         var board = Board.startpos
         var side: ShogiSide = .black
-        var previousDestination: Square?
+        var previousDestination: BoardCoordinate?
         var usiMoves: [String] = []
         var moves: [KIFMove] = []
         var termination: String?
@@ -257,11 +257,11 @@ public enum KIFParser {
 
     private static func parseMoveBody(
         _ body: String,
-        previousDestination: Square?,
+        previousDestination: BoardCoordinate?,
         line: Int
     ) throws -> ParsedMove {
         var rest = body.trimmingCharacters(in: .whitespacesAndNewlines)
-        let destination: Square
+        let destination: BoardCoordinate
 
         if rest.hasPrefix("同") {
             guard let previousDestination else {
@@ -279,7 +279,7 @@ public enum KIFParser {
             guard let file = fileNumber(first), let rank = rankNumber(second) else {
                 throw KIFParseError.invalidSquare(line: line, text: "\(first)\(second)")
             }
-            destination = Square(file: file, rank: rank)
+            destination = BoardCoordinate(file: file, rank: rank)
             rest = rest.trimmingCharacters(in: .whitespaces)
         }
 
@@ -288,12 +288,12 @@ public enum KIFParser {
             "歩", "香", "桂", "銀", "金", "角", "飛", "玉", "王"
         ]
         guard let name = names.first(where: { rest.hasPrefix($0) }),
-              let piece = PieceKind(kifName: name) else {
+              let piece = BoardPieceKind(kifName: name) else {
             throw KIFParseError.malformedMove(line: line, text: body)
         }
         rest.removeFirst(name.count)
 
-        var origin: Square?
+        var origin: BoardCoordinate?
         let originPattern = #"\(([0-9])([0-9])\)\s*$"#
         if let regex = try? NSRegularExpression(pattern: originPattern),
            let match = regex.firstMatch(
@@ -307,7 +307,7 @@ public enum KIFParser {
            let file = Int(rest[fileRange]),
            let rank = Int(rest[rankRange]),
            ((file == 0 && rank == 0) || ((1...9).contains(file) && (1...9).contains(rank))) {
-            origin = Square(file: file, rank: rank)
+            origin = BoardCoordinate(file: file, rank: rank)
             rest.removeSubrange(whole)
         }
 
@@ -316,7 +316,7 @@ public enum KIFParser {
             .replacingOccurrences(of: " ", with: "")
         let drop = suffix.contains("打")
 
-        if origin == Square(file: 0, rank: 0) { origin = nil }
+        if origin == BoardCoordinate(file: 0, rank: 0) { origin = nil }
         if origin == nil && !drop {
             throw KIFParseError.missingOrigin(line: line, text: body)
         }
@@ -356,130 +356,13 @@ public enum KIFParser {
     }
 }
 
-fileprivate struct Square: Hashable, Equatable, Sendable {
-    let file: Int
-    let rank: Int
-
-    var usi: String {
-        guard (1...9).contains(file), (1...9).contains(rank) else { return "??" }
-        let ranks = Array("abcdefghi")
-        return "\(file)\(ranks[rank - 1])"
-    }
-}
-
-fileprivate enum PieceKind: String, Sendable {
-    case pawn = "P"
-    case lance = "L"
-    case knight = "N"
-    case silver = "S"
-    case gold = "G"
-    case bishop = "B"
-    case rook = "R"
-    case king = "K"
-    case promotedPawn = "+P"
-    case promotedLance = "+L"
-    case promotedKnight = "+N"
-    case promotedSilver = "+S"
-    case horse = "+B"
-    case dragon = "+R"
-
-    init?(kifName: String) {
-        switch kifName {
-        case "歩": self = .pawn
-        case "香": self = .lance
-        case "桂": self = .knight
-        case "銀": self = .silver
-        case "金": self = .gold
-        case "角": self = .bishop
-        case "飛": self = .rook
-        case "玉", "王": self = .king
-        case "と": self = .promotedPawn
-        case "成香": self = .promotedLance
-        case "成桂": self = .promotedKnight
-        case "成銀": self = .promotedSilver
-        case "馬": self = .horse
-        case "龍", "竜": self = .dragon
-        default: return nil
-        }
-    }
-
-    var kifName: String {
-        switch self {
-        case .pawn: return "歩"
-        case .lance: return "香"
-        case .knight: return "桂"
-        case .silver: return "銀"
-        case .gold: return "金"
-        case .bishop: return "角"
-        case .rook: return "飛"
-        case .king: return "玉"
-        case .promotedPawn: return "と"
-        case .promotedLance: return "成香"
-        case .promotedKnight: return "成桂"
-        case .promotedSilver: return "成銀"
-        case .horse: return "馬"
-        case .dragon: return "龍"
-        }
-    }
-
-    var base: PieceKind {
-        switch self {
-        case .promotedPawn: return .pawn
-        case .promotedLance: return .lance
-        case .promotedKnight: return .knight
-        case .promotedSilver: return .silver
-        case .horse: return .bishop
-        case .dragon: return .rook
-        default: return self
-        }
-    }
-
-    var isPromoted: Bool { self != base }
-
-    var isPromotable: Bool {
-        [.pawn, .lance, .knight, .silver, .bishop, .rook].contains(self)
-    }
-
-    var promoted: PieceKind? {
-        switch self {
-        case .pawn: return .promotedPawn
-        case .lance: return .promotedLance
-        case .knight: return .promotedKnight
-        case .silver: return .promotedSilver
-        case .bishop: return .horse
-        case .rook: return .dragon
-        default: return nil
-        }
-    }
-}
-
-fileprivate struct Piece: Equatable, Sendable {
-    let side: ShogiSide
-    let kind: PieceKind
-}
-
 fileprivate struct Board: Sendable {
-    var squares: [Square: Piece]
-    var hands: [ShogiSide: [PieceKind: Int]]
+    var squares: [BoardCoordinate: BoardPieceState]
+    var hands: [ShogiSide: [BoardPieceKind: Int]]
 
     static var startpos: Board {
-        var board = Board(squares: [:], hands: [.black: [:], .white: [:]])
-        let back: [PieceKind] = [
-            .lance, .knight, .silver, .gold, .king, .gold, .silver, .knight, .lance
-        ]
-
-        for file in 1...9 {
-            board.squares[Square(file: file, rank: 9)] = Piece(side: .black, kind: back[file - 1])
-            board.squares[Square(file: file, rank: 7)] = Piece(side: .black, kind: .pawn)
-            board.squares[Square(file: file, rank: 1)] = Piece(side: .white, kind: back[file - 1])
-            board.squares[Square(file: file, rank: 3)] = Piece(side: .white, kind: .pawn)
-        }
-
-        board.squares[Square(file: 8, rank: 8)] = Piece(side: .black, kind: .bishop)
-        board.squares[Square(file: 2, rank: 8)] = Piece(side: .black, kind: .rook)
-        board.squares[Square(file: 2, rank: 2)] = Piece(side: .white, kind: .bishop)
-        board.squares[Square(file: 8, rank: 2)] = Piece(side: .white, kind: .rook)
-        return board
+        let snapshot = BoardSnapshotResolver.startpos
+        return Board(squares: snapshot.squares, hands: snapshot.hands)
     }
 
     mutating func apply(
@@ -531,7 +414,7 @@ fileprivate struct Board: Sendable {
 
         squares.removeValue(forKey: origin)
         let newKind = move.promotes ? (source.kind.promoted ?? source.kind) : source.kind
-        squares[move.destination] = Piece(side: side, kind: newKind)
+        squares[move.destination] = BoardPieceState(side: side, kind: newKind)
         return origin.usi + move.destination.usi + (move.promotes ? "+" : "")
     }
 
@@ -565,15 +448,15 @@ fileprivate struct Board: Sendable {
         }
 
         hands[side]?[piece, default: 0] -= 1
-        squares[move.destination] = Piece(side: side, kind: piece)
+        squares[move.destination] = BoardPieceState(side: side, kind: piece)
         return piece.rawValue + "*" + move.destination.usi
     }
 
-    private func inPromotionZone(_ square: Square, side: ShogiSide) -> Bool {
+    private func inPromotionZone(_ square: BoardCoordinate, side: ShogiSide) -> Bool {
         side == .black ? square.rank <= 3 : square.rank >= 7
     }
 
-    private func mustPromote(_ kind: PieceKind, at destination: Square, side: ShogiSide) -> Bool {
+    private func mustPromote(_ kind: BoardPieceKind, at destination: BoardCoordinate, side: ShogiSide) -> Bool {
         switch kind {
         case .pawn, .lance:
             return side == .black ? destination.rank == 1 : destination.rank == 9
@@ -585,9 +468,9 @@ fileprivate struct Board: Sendable {
     }
 
     private func pseudoLegal(
-        _ kind: PieceKind,
-        from: Square,
-        to: Square,
+        _ kind: BoardPieceKind,
+        from: BoardCoordinate,
+        to: BoardCoordinate,
         side: ShogiSide
     ) -> Bool {
         let dx = to.file - from.file
@@ -625,14 +508,14 @@ fileprivate struct Board: Sendable {
         }
     }
 
-    private func clearPath(from: Square, to: Square) -> Bool {
+    private func clearPath(from: BoardCoordinate, to: BoardCoordinate) -> Bool {
         let stepFile = (to.file - from.file).signum()
         let stepRank = (to.rank - from.rank).signum()
-        var current = Square(file: from.file + stepFile, rank: from.rank + stepRank)
+        var current = BoardCoordinate(file: from.file + stepFile, rank: from.rank + stepRank)
 
         while current != to {
             if squares[current] != nil { return false }
-            current = Square(
+            current = BoardCoordinate(
                 file: current.file + stepFile,
                 rank: current.rank + stepRank
             )

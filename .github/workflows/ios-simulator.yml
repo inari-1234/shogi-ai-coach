@@ -1,123 +1,61 @@
-name: iOS Simulator Engine PoC
+name: iOS Simulator E2E
 
 on:
   push:
-    branches: [main, candidate/phase3-diagnostic-json, candidate/phase4-important-deep-analysis, candidate/phase5-board-bestmove]
+    branches:
+      - main
+      - 'candidate/**'
   workflow_dispatch:
 
 concurrency:
-  group: ios-simulator-engine-poc-v2
+  group: ios-simulator-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
-  simulator-engine-poc:
+  simulator-e2e:
     runs-on: macos-15
     timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Expand socketpair PoC source
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          import base64
-          from pathlib import Path
-
-          parts = [Path(f"artifacts/poc.part.{i:02d}").read_text() for i in range(4)]
-          Path(".ci-poc.zip").write_bytes(base64.b64decode("".join(parts)))
-          PY
-          unzip -q .ci-poc.zip -d .ci-unpack
-          rsync -a .ci-unpack/shogi-ai-coach-poc/ ./
-          rm -rf .ci-unpack .ci-poc.zip
-
-          cp ci/Project.yml Project.yml
-          cp ci/Podfile Podfile
-          cp ci/SimulatorCIProbe.swift iOS/ShogiCoachPoC/SimulatorCIProbe.swift
-          cp ci/ContentViewPhase5.swift iOS/ShogiCoachPoC/ContentView.swift
-          cp ci/EngineProbeSocketPair.swift iOS/ShogiCoachPoC/EngineProbe.swift
-          cp ci/EngineNativeSocketPair.h iOS/ShogiCoachPoC/EngineNative.h
-          cp ci/engine_bridge_socketpair.cpp native/bridge/engine_bridge.cpp
-          cp ci/engine_bridge_socketpair.h native/bridge/engine_bridge.h
-
-          python3 - <<'PY'
-          from pathlib import Path
-
-          pod = Path("native/yaneuraou_engine.podspec")
-          text = pod.read_text()
-          if "s.homepage" not in text:
-              text = text.replace(
-                  "  s.summary = 'YaneuraOu V9.00 NNUE engine bridge for the Shogi Coach PoC'\n",
-                  "  s.summary = 'YaneuraOu V9.00 NNUE engine bridge for the Shogi Coach PoC'\n"
-                  "  s.homepage = 'https://github.com/inari-1234/shogi-ai-coach'\n"
-              )
-          pod.write_text(text)
-
-          app = Path("iOS/ShogiCoachPoC/ShogiCoachPoCApp.swift")
-          app_text = app.read_text()
-          app_text = app_text.replace(
-              "        WindowGroup { ContentView() }",
-              "        WindowGroup { ContentView().task { await SimulatorCIProbe.runIfRequested() } }"
-          )
-          app.write_text(app_text)
-          PY
+      - name: Restore engine assets
+        uses: actions/cache@v4
+        with:
+          path: |
+            native/third_party/YaneuraOu
+            iOS/ShogiCoachPoC/eval/nn.bin
+          key: shogi-engine-assets-v2
 
       - name: Core regression tests
         shell: bash
         run: |
           set -euo pipefail
           swift test 2>&1 | tee swift-test.log
+          ./scripts/verify.sh
 
       - name: Install build tools
         shell: bash
         run: |
           set -euo pipefail
-          brew install xcodegen p7zip cocoapods
+          command -v xcodegen >/dev/null 2>&1 || brew install xcodegen
+          command -v pod >/dev/null 2>&1 || brew install cocoapods
+          if [ ! -s iOS/ShogiCoachPoC/eval/nn.bin ]; then
+            command -v 7z >/dev/null 2>&1 || brew install p7zip
+          fi
 
-      - name: Fetch pinned YaneuraOu and NNUE
+      - name: Prepare pinned engine
         shell: bash
         run: |
           set -euo pipefail
-          chmod +x scripts/fetch_yaneuraou.sh scripts/fetch_eval.sh
+          chmod +x scripts/*.sh
           ./scripts/fetch_yaneuraou.sh
           ./scripts/fetch_eval.sh
+          ./scripts/patch_yaneuraou_ios.sh
           test -s iOS/ShogiCoachPoC/eval/nn.bin
-
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path("native/third_party/YaneuraOu/source/usi.h")
-          text = p.read_text(encoding="utf-8-sig")
-          marker = "private:\n\t// 内包している思考エンジン"
-          insert = "\n".join([
-              "#if !STOCKFISH",
-              "    bool mobile_execute_command(const std::string& cmd) { return usi_cmdexec(cmd); }",
-              "#endif",
-              "",
-              "private:",
-              "\t// 内包している思考エンジン",
-          ])
-          if marker not in text:
-              raise SystemExit("USIEngine private marker not found")
-          text = text.replace(marker, insert, 1)
-          p.write_text(text, encoding="utf-8")
-
-          # YaneuraOu V9.00 lowercases USI searchmoves tokens. That is invalid
-          # for shogi drop moves (for example G*1b), whose piece letter is
-          # case-sensitive. Preserve the token exactly as upstream fixed later.
-          usi_cpp = Path("native/third_party/YaneuraOu/source/usi.cpp")
-          usi_text = usi_cpp.read_text(encoding="utf-8-sig")
-          old = "limits.searchmoves.push_back(to_lower(token));"
-          if old not in usi_text:
-              raise SystemExit("V9.00 searchmoves lowercase marker not found")
-          usi_text = usi_text.replace(old, "limits.searchmoves.push_back(token);", 1)
-          if old in usi_text:
-              raise SystemExit("searchmoves lowercase patch incomplete")
-          usi_cpp.write_text(usi_text, encoding="utf-8")
-          PY
 
       - name: Generate Xcode project
         shell: bash
@@ -145,14 +83,12 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             build 2>&1 | tee simulator-build.log
 
-      - name: Run simulator engine smoke test
+      - name: Run simulator engine E2E
         shell: bash
         run: |
           set -euo pipefail
           APP='build/SimulatorDerivedData/Build/Products/Release-iphonesimulator/ShogiCoachPoC.app'
           test -d "$APP"
-          mkdir -p "$APP/eval"
-          cp iOS/ShogiCoachPoC/eval/nn.bin "$APP/eval/nn.bin"
           test -s "$APP/eval/nn.bin"
 
           xcrun simctl list devices available --json > simulator-devices.json
@@ -167,7 +103,6 @@ jobs:
           raise SystemExit("No available iPhone simulator")
           PY
           )
-          echo "Simulator UDID=$UDID"
 
           xcrun simctl boot "$UDID" 2>/dev/null || true
           xcrun simctl bootstatus "$UDID" -b
@@ -204,8 +139,8 @@ jobs:
           grep -Fq "shallow_count=4" simulator-result.txt
           grep -Fq "diagnostic_status=PASS" simulator-result.txt
           grep -Fq "diagnostic_positions=4" simulator-result.txt
-          grep -Fq "diagnostic_version=0.5.0" simulator-result.txt
-          grep -Fq "diagnostic_build=7" simulator-result.txt
+          grep -Fq "diagnostic_version=0.6.0" simulator-result.txt
+          grep -Fq "diagnostic_build=10" simulator-result.txt
           grep -Fq "deep_status=深掘り PASS" simulator-result.txt
           grep -Fq "deep_count=3" simulator-result.txt
           grep -Fq "deep_multipv=3" simulator-result.txt
@@ -213,12 +148,20 @@ jobs:
           grep -Fq "board_display_status=盤面表示 PASS" simulator-result.txt
           grep -Fq "board_display_count=3" simulator-result.txt
           grep -Fq "board_display_schema=3" simulator-result.txt
+          grep -Fq "reason_status=理由解析 PASS" simulator-result.txt
+          grep -Fq "reason_count=3" simulator-result.txt
+          grep -Fq "reason_schema=4" simulator-result.txt
+          grep -Fq "reason_unstable_status=PASS" simulator-result.txt
+          grep -Fq "reason_immediate_recapture_status=PASS" simulator-result.txt
           grep -Fq "terminal_deep_status=深掘り PASS" simulator-result.txt
           grep -Fq "terminal_deep_ply=81" simulator-result.txt
-          grep -Fq "terminal_actual_source=multipv" simulator-result.txt
+          grep -Fq "terminal_actual_source=equal-condition" simulator-result.txt
           grep -Fq "terminal_board_status=盤面表示 PASS" simulator-result.txt
           grep -Fq "terminal_board_is_drop=true" simulator-result.txt
+          grep -Fq "terminal_reason_status=理由解析 PASS" simulator-result.txt
+          grep -Fq "terminal_reason_ply=81" simulator-result.txt
           grep -Fq "drop_searchmoves_status=PASS" simulator-result.txt
+          grep -Fq "analysis_quality_gate_status=PASS" simulator-result.txt
           grep -Fq "default_status=PASS候補" simulator-result.txt
           grep -Fq "bestmove:" simulator-result.txt
           grep -Fq "score:" simulator-result.txt
@@ -230,7 +173,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ShogiCoachPoC-Simulator-PoC
+          name: ShogiCoachPoC-Simulator
           path: |
             swift-test.log
             simulator-build.log

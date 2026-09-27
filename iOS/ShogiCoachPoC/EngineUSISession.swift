@@ -3,99 +3,6 @@ import Dispatch
 import Darwin
 import ShogiCoachCore
 
-@MainActor
-final class EngineProbe: ObservableObject {
-    @Published private(set) var status = "未実行"
-    @Published private(set) var resultText = ""
-
-    private let session = EngineUSISession()
-
-    init() {
-        if let previous = SimulatorStage.latest() {
-            resultText = "前回の最終到達点:\n\(previous)"
-        }
-    }
-
-    func runDefaultProbe() async {
-        SimulatorStage.reset()
-        SimulatorStage.mark("default_button_pressed")
-        status = "解析中"
-        resultText = ""
-        do {
-            let sfen = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
-            let result = try await session.run(sfen: sfen, movetimeMs: 1500, multiPV: 1)
-            SimulatorStage.mark("default_probe_complete")
-            resultText = Self.format(result)
-            status = "PASS候補"
-        } catch {
-            SimulatorStage.mark("default_probe_error_\(error.localizedDescription)")
-            status = "未PASS"
-            resultText = error.localizedDescription
-        }
-    }
-
-    func runTenProbe() async {
-        SimulatorStage.reset()
-        SimulatorStage.mark("ten_probe_button_pressed")
-        status = "10回連続解析中"
-        resultText = ""
-        let sfen = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
-        var samples: [ProbeSample] = []
-        do {
-            for i in 1...10 {
-                let sample = try await session.run(sfen: sfen, movetimeMs: 1500, multiPV: 1)
-                samples.append(sample)
-                status = "10回連続解析中 \(i)/10"
-            }
-            let elapsed = samples.map(\.elapsedMs).sorted()
-            let median = elapsed[elapsed.count / 2]
-            let maxMemory = samples.compactMap(\.memoryBytesAfter).max()
-            let last = samples.last!
-            resultText = [
-                "10/10 completed",
-                "median elapsed: \(median) ms",
-                "last bestmove: \(last.result.bestMove.move)",
-                "last nps: \(last.result.principalVariations.first?.nps.map(String.init) ?? "-")",
-                "max footprint: \(maxMemory.map(Self.byteText) ?? "-")",
-                "thermal: \(samples.first?.thermalBefore ?? "-") -> \(last.thermalAfter)"
-            ].joined(separator: "\n")
-            SimulatorStage.mark("ten_probe_complete")
-            status = last.thermalAfter == "critical" ? "未PASS" : "実機PASS候補"
-        } catch {
-            SimulatorStage.mark("ten_probe_error_\(error.localizedDescription)")
-            status = "未PASS"
-            resultText = "\(samples.count)/10 completed\n\(error.localizedDescription)"
-        }
-    }
-
-    private static func format(_ sample: ProbeSample) -> String {
-        let primary = sample.result.principalVariations.first
-        return [
-            "bestmove: \(sample.result.bestMove.move)",
-            "score: \(scoreText(primary?.score))",
-            "depth: \(primary?.depth.map(String.init) ?? "-")",
-            "nodes: \(primary?.nodes.map(String.init) ?? "-")",
-            "nps: \(primary?.nps.map(String.init) ?? "-")",
-            "pv: \(primary?.pv.joined(separator: " ") ?? "-")",
-            "elapsed: \(sample.elapsedMs) ms",
-            "footprint: \(sample.memoryBytesAfter.map(byteText) ?? "-")",
-            "thermal: \(sample.thermalBefore) -> \(sample.thermalAfter)"
-        ].joined(separator: "\n")
-    }
-
-    private static func scoreText(_ score: USIScore?) -> String {
-        guard let score else { return "-" }
-        switch score {
-        case .centipawn(let value, _): return "cp \(value)"
-        case .mate(let value, _): return "mate \(value)"
-        }
-    }
-
-    private static func byteText(_ bytes: UInt64) -> String {
-        ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .memory)
-    }
-}
-
 struct ProbeSample: Sendable {
     let result: EngineProbeResult
     let elapsedMs: Int
@@ -126,6 +33,7 @@ actor EngineUSISession {
     }
 
     private var transport: LocalUSITransport?
+    private var currentMultiPV = 1
 
     func beginAnalysis(multiPV: Int = 1) async throws {
         if let old = transport {
@@ -152,7 +60,8 @@ actor EngineUSISession {
 
             try await link.send("setoption name Threads value 1")
             try await link.send("setoption name USI_Hash value 64")
-            try await link.send("setoption name MultiPV value \(max(1, multiPV))")
+            currentMultiPV = max(1, multiPV)
+            try await link.send("setoption name MultiPV value \(currentMultiPV)")
             try await link.send("setoption name EvalDir value \(evalURL.deletingLastPathComponent().path)")
             try await link.send("isready")
             SimulatorStage.mark("isready_sent")
@@ -171,13 +80,22 @@ actor EngineUSISession {
     func analyzePosition(
         command: String,
         movetimeMs: Int,
-        searchMoves: [String] = []
+        searchMoves: [String] = [],
+        multiPV: Int? = nil
     ) async throws -> ProbeSample {
         guard let link = transport else {
             throw ProbeError.protocolError("解析セッションが開始されていません")
         }
         guard command.hasPrefix("position ") else {
             throw ProbeError.protocolError("positionコマンドが不正です")
+        }
+
+        if let multiPV {
+            let requested = max(1, multiPV)
+            if requested != currentMultiPV {
+                try await link.send("setoption name MultiPV value \(requested)")
+                currentMultiPV = requested
+            }
         }
 
         try await link.send(command)
@@ -232,6 +150,7 @@ actor EngineUSISession {
         try? await link.send("quit")
         await link.close()
         transport = nil
+        currentMultiPV = 1
     }
 
     func run(sfen: String, movetimeMs: Int, multiPV: Int) async throws -> ProbeSample {
