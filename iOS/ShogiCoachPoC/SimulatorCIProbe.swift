@@ -230,6 +230,99 @@ enum SimulatorCIProbe {
         return (game, shallow)
     }
 
+    private struct AnalysisQualityGateResult {
+        let normalStable: Bool
+        let normalAttempts: Int
+        let closeGapCp: Int?
+        let closeAttempts: Int
+        let terminalStable: Bool
+        let terminalAttempts: Int
+        let terminalBestMove: String
+    }
+
+    private static func runAnalysisQualityGate(
+        terminalGame: KIFGame
+    ) async throws -> AnalysisQualityGateResult {
+        guard AdaptiveComparisonAnalyzer.analysisTiers(baseMovetimeMs: 800) == [800, 1600, 2400] else {
+            throw EngineUSISession.ProbeError.protocolError("adaptive tier policy mismatch")
+        }
+        guard terminalGame.moves.count >= 81,
+              let terminalMove = terminalGame.moves.last else {
+            throw EngineUSISession.ProbeError.protocolError("quality gate positions missing")
+        }
+
+        let session = EngineUSISession()
+        try await session.beginAnalysis(multiPV: 3)
+        do {
+            let normalMove = terminalGame.moves[40]
+            let normal = try await AdaptiveComparisonAnalyzer.analyze(
+                session: session,
+                command: normalMove.positionBefore,
+                actualMove: normalMove.usi,
+                baseMovetimeMs: 800,
+                candidateCount: 3
+            )
+            let normalFinal = normal.finalAttempt
+            let normalPVUsable = normalFinal.bestLine.pvMoves.count >= 4
+                && normalFinal.actualLine.pvMoves.count >= 3
+            let normalExplicitlyUnstableForPV = normal.instabilityReasons.contains("best_pv_short")
+                || normal.instabilityReasons.contains("actual_pv_short")
+            guard !normalFinal.bestLine.pvMoves.isEmpty,
+                  !normalFinal.actualLine.pvMoves.isEmpty,
+                  normalPVUsable || normalExplicitlyUnstableForPV else {
+                throw EngineUSISession.ProbeError.protocolError(
+                    "normal quality position lacks usable PV without instability flag"
+                )
+            }
+
+            let close = try await AdaptiveComparisonAnalyzer.analyze(
+                session: session,
+                command: "position startpos",
+                actualMove: "7g7f",
+                baseMovetimeMs: 800,
+                candidateCount: 3
+            )
+            if let gap = close.attempts.first?.topGapCp,
+               gap <= 40,
+               close.attempts.count < 2 {
+                throw EngineUSISession.ProbeError.protocolError(
+                    "close candidates did not trigger adaptive extension"
+                )
+            }
+
+            let terminal = try await AdaptiveComparisonAnalyzer.analyze(
+                session: session,
+                command: terminalMove.positionBefore,
+                actualMove: terminalMove.usi,
+                baseMovetimeMs: 800,
+                candidateCount: 3
+            )
+            let terminalFinal = terminal.finalAttempt
+            guard terminalMove.usi == "G*1b",
+                  terminalFinal.actualLine.move == terminalMove.usi,
+                  terminalFinal.actualLine.pvMoves.first == terminalMove.usi,
+                  !terminalFinal.bestLine.pvMoves.isEmpty else {
+                throw EngineUSISession.ProbeError.protocolError(
+                    "terminal/drop quality position regression"
+                )
+            }
+
+            await session.endAnalysis()
+            return AnalysisQualityGateResult(
+                normalStable: normal.stable,
+                normalAttempts: normal.attempts.count,
+                closeGapCp: close.attempts.first?.topGapCp,
+                closeAttempts: close.attempts.count,
+                terminalStable: terminal.stable,
+                terminalAttempts: terminal.attempts.count,
+                terminalBestMove: terminalFinal.bestLine.move
+            )
+        } catch {
+            await session.endAnalysis()
+            throw error
+        }
+    }
+
     static func runIfRequested() async {
         guard ProcessInfo.processInfo.arguments.contains("--ci-smoke") else { return }
 
@@ -453,8 +546,8 @@ enum SimulatorCIProbe {
         }
         SimulatorStage.mark("reason_analysis_pass")
 
-        let (zeroLossGame, _) = makeTerminalRegression()
-        let zeroLossDeepEntry = DeepAnalysisEntry(
+        let (unstableGame, _) = makeTerminalRegression()
+        let unstableDeepEntry = DeepAnalysisEntry(
             id: 75,
             ply: 75,
             actualMove: "B*1d",
@@ -463,9 +556,10 @@ enum SimulatorCIProbe {
             bestMove: "2d2c+",
             bestScoreText: "cp 4814",
             actualScoreText: "cp 5442",
-            actualLossCp: 0,
+            actualLossCp: nil,
+            bestPV: "2d2c+ 2b3a",
             actualPV: "B*1d G*2a",
-            actualAnalysisSource: "searchmoves",
+            actualAnalysisSource: "equal-condition",
             opponentBestReply: "2b3a",
             candidates: [
                 DeepCandidateLine(
@@ -483,35 +577,42 @@ enum SimulatorCIProbe {
             ],
             elapsedMs: 1,
             thermalBefore: "nominal",
-            thermalAfter: "nominal"
+            thermalAfter: "nominal",
+            comparisonStable: false,
+            instabilityReasons: ["comparison_inversion"],
+            analysisAttempts: 3,
+            finalMovetimeMs: 2400,
+            adaptiveTriggered: true,
+            topCandidateGapCp: 18
         )
-        let zeroLossReason = ReasonAnalysisViewModel()
-        zeroLossReason.prepare(
-            game: zeroLossGame,
-            deepEntries: [zeroLossDeepEntry],
+        let unstableReason = ReasonAnalysisViewModel()
+        unstableReason.prepare(
+            game: unstableGame,
+            deepEntries: [unstableDeepEntry],
             diagnosticURL: boardReview.diagnosticURL
         )
-        guard zeroLossReason.status == "理由解析 PASS",
-              zeroLossReason.entries.count == 1,
-              let zeroLossEntry = zeroLossReason.entries.first,
-              zeroLossEntry.interpretation.text.contains("正の評価損失を確認できていません"),
-              !zeroLossEntry.interpretation.text.contains("評価差の理由候補"),
-              zeroLossEntry.facts.contains(where: {
+        guard unstableReason.status == "理由解析 PASS",
+              unstableReason.entries.count == 1,
+              let unstableEntry = unstableReason.entries.first,
+              unstableEntry.interpretation.text.contains("未安定"),
+              unstableEntry.interpretation.text.contains("断定"),
+              !unstableEntry.interpretation.text.contains("評価差の理由候補"),
+              unstableEntry.facts.contains(where: {
                   $0.kind == "score_comparison"
-                      && $0.text.contains("正の評価損失は未確認")
+                      && $0.text.contains("評価損失は断定しない")
               }) else {
             writeReport([
-                "stage=reason_zero_loss_failed",
-                "reason_zero_loss_status=FAIL",
-                "reason_zero_loss_summary_begin",
-                zeroLossReason.summary,
-                "reason_zero_loss_summary_end"
+                "stage=reason_unstable_failed",
+                "reason_unstable_status=FAIL",
+                "reason_unstable_summary_begin",
+                unstableReason.summary,
+                "reason_unstable_summary_end"
             ].joined(separator: "\n") + "\n")
-            SimulatorStage.mark("reason_zero_loss_failed")
+            SimulatorStage.mark("reason_unstable_failed")
             fflush(stdout)
             exit(12)
         }
-        SimulatorStage.mark("reason_zero_loss_pass")
+        SimulatorStage.mark("reason_unstable_pass")
 
         let (terminalGame, terminalShallow) = makeTerminalRegression()
         let terminalDiagnosticURL: URL
@@ -549,7 +650,7 @@ enum SimulatorCIProbe {
               let terminalEntry = terminalDeep.entries.first,
               terminalEntry.ply == 81,
               terminalEntry.actualMove == "G*1b",
-              terminalEntry.actualAnalysisSource == "multipv",
+              terminalEntry.actualAnalysisSource.hasPrefix("equal-condition"),
               terminalEntry.candidates.contains(where: { $0.move == "G*1b" }),
               !terminalEntry.actualPV.isEmpty else {
             writeReport([
@@ -675,6 +776,21 @@ enum SimulatorCIProbe {
             exit(7)
         }
 
+        let qualityGate: AnalysisQualityGateResult
+        do {
+            qualityGate = try await runAnalysisQualityGate(terminalGame: terminalGame)
+            SimulatorStage.mark("analysis_quality_gate_pass")
+        } catch {
+            writeReport([
+                "stage=analysis_quality_gate_failed",
+                "analysis_quality_gate_status=FAIL",
+                "analysis_quality_gate_error=\(error.localizedDescription)"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("analysis_quality_gate_failed_\(error.localizedDescription)")
+            fflush(stdout)
+            exit(13)
+        }
+
         let probe = EngineProbe()
         await probe.runDefaultProbe()
         let defaultStatus = probe.status
@@ -713,7 +829,7 @@ enum SimulatorCIProbe {
             "reason_status=\(reasonStatus)",
             "reason_count=\(reasonCount)",
             "reason_schema=\(reasonDiagnostic.schemaVersion)",
-            "reason_zero_loss_status=PASS",
+            "reason_unstable_status=PASS",
             "terminal_deep_status=\(terminalDeep.status)",
             "terminal_deep_ply=\(terminalEntry.ply)",
             "terminal_actual_source=\(terminalActualSource)",
@@ -723,6 +839,14 @@ enum SimulatorCIProbe {
             "terminal_reason_status=\(terminalReason.status)",
             "terminal_reason_ply=\(terminalReasonEntry.ply)",
             "drop_searchmoves_status=\(dropSearchStatus)",
+            "analysis_quality_gate_status=PASS",
+            "quality_normal_stable=\(qualityGate.normalStable)",
+            "quality_normal_attempts=\(qualityGate.normalAttempts)",
+            "quality_close_gap_cp=\(qualityGate.closeGapCp.map(String.init) ?? "-")",
+            "quality_close_attempts=\(qualityGate.closeAttempts)",
+            "quality_terminal_stable=\(qualityGate.terminalStable)",
+            "quality_terminal_attempts=\(qualityGate.terminalAttempts)",
+            "quality_terminal_bestmove=\(qualityGate.terminalBestMove)",
             "deep_summary_begin",
             deep.summary,
             "deep_summary_end",
