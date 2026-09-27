@@ -1,0 +1,11 @@
+.DS_Store
+.build/
+build/
+DerivedData/
+Pods/
+Podfile.lock
+*.xcworkspace/
+*.xcodeproj/
+iOS/ShogiCoachPoC/eval/nn.bin
+iOS/ShogiCoachPoC/eval/*.7z
+native/third_party/
