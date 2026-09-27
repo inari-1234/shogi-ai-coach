@@ -410,7 +410,11 @@ enum SimulatorCIProbe {
             $0.candidates.count == 3
                 && !$0.bestMove.isEmpty
                 && !$0.actualMove.isEmpty
+                && !$0.bestPV.isEmpty
                 && !$0.actualPV.isEmpty
+                && $0.actualAnalysisSource.hasPrefix("equal-condition")
+                && $0.analysisAttempts >= 1
+                && $0.finalMovetimeMs == 200
                 && $0.candidates.allSatisfy { !$0.pv.isEmpty && !$0.move.isEmpty }
         }
         guard deepStatus == "深掘り PASS",
@@ -428,7 +432,13 @@ enum SimulatorCIProbe {
               deepDiagnostic.deepAnalysis?.status == "深掘り PASS",
               deepDiagnostic.deepAnalysis?.multiPV == 3,
               deepDiagnostic.deepAnalysis?.completedPositions == 3,
-              deepDiagnostic.deepAnalysis?.positions.count == 3 else {
+              deepDiagnostic.deepAnalysis?.positions.count == 3,
+              deepDiagnostic.deepAnalysis?.positions.allSatisfy({
+                  $0.actualAnalysisSource.hasPrefix("equal-condition")
+                      && !$0.bestPV.isEmpty
+                      && !$0.actualPV.isEmpty
+                      && $0.analysisAttempts >= 1
+              }) == true else {
             writeReport([
                 "stage=deep_failed",
                 "kif_status=PASS",
