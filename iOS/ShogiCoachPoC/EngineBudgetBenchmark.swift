@@ -7,6 +7,7 @@ struct EngineBudgetAdaptiveBaseline {
     let depthText: String
     let nodesText: String
     let pvLength: Int
+    let pvMoves: [String]
     let stable: Bool
     let attempts: Int
     let finalMovetimeMs: Int
@@ -25,6 +26,7 @@ struct EngineBudgetBenchmarkSample {
     let searchedNodes: UInt64
     let nps: UInt64?
     let pvLength: Int
+    let pvMoves: [String]
     let elapsedMs: Int
     let thermalBefore: String
     let thermalAfter: String
@@ -59,6 +61,21 @@ struct EngineBudgetBenchmarkResult {
         scoreDelta(from: 2_000_000, to: 4_000_000)
     }
 
+    var commonPVPrefixEightHundredKToTwoMillion: Int? {
+        commonPVPrefix(from: 800_000, to: 2_000_000)
+    }
+
+    var commonPVPrefixTwoMillionToFourMillion: Int? {
+        commonPVPrefix(from: 2_000_000, to: 4_000_000)
+    }
+
+    var commonPVPrefixAdaptiveToFourMillion: Int? {
+        guard let four = samples.first(where: { $0.nodeBudget == 4_000_000 }) else {
+            return nil
+        }
+        return Self.commonPrefixCount(adaptiveBaseline.pvMoves, four.pvMoves)
+    }
+
     private func stableBestMove(from leftBudget: Int, to rightBudget: Int) -> Bool? {
         guard let left = samples.first(where: { $0.nodeBudget == leftBudget }),
               let right = samples.first(where: { $0.nodeBudget == rightBudget }) else {
@@ -75,6 +92,23 @@ struct EngineBudgetBenchmarkResult {
         return Self.centipawn(left.scoreText).flatMap { leftCP in
             Self.centipawn(right.scoreText).map { abs(leftCP - $0) }
         }
+    }
+
+    private func commonPVPrefix(from leftBudget: Int, to rightBudget: Int) -> Int? {
+        guard let left = samples.first(where: { $0.nodeBudget == leftBudget }),
+              let right = samples.first(where: { $0.nodeBudget == rightBudget }) else {
+            return nil
+        }
+        return Self.commonPrefixCount(left.pvMoves, right.pvMoves)
+    }
+
+    private static func commonPrefixCount(_ lhs: [String], _ rhs: [String]) -> Int {
+        var count = 0
+        for pair in zip(lhs, rhs) {
+            guard pair.0 == pair.1 else { break }
+            count += 1
+        }
+        return count
     }
 
     private static func centipawn(_ text: String) -> Int? {
@@ -147,6 +181,7 @@ enum EngineBudgetBenchmark {
                             searchedNodes: searchedNodes,
                             nps: primary.nps,
                             pvLength: primary.pv.count,
+                            pvMoves: primary.pv,
                             elapsedMs: sample.elapsedMs,
                             thermalBefore: sample.thermalBefore,
                             thermalAfter: sample.thermalAfter,
@@ -204,6 +239,7 @@ enum EngineBudgetBenchmark {
             lines.append("\(baselinePrefix)_depth=\(baseline.depthText)")
             lines.append("\(baselinePrefix)_nodes=\(baseline.nodesText)")
             lines.append("\(baselinePrefix)_pv_plies=\(baseline.pvLength)")
+            lines.append("\(baselinePrefix)_pv=\(baseline.pvMoves.joined(separator: " "))")
             lines.append("\(baselinePrefix)_stable=\(baseline.stable)")
             lines.append("\(baselinePrefix)_attempts=\(baseline.attempts)")
             lines.append("\(baselinePrefix)_final_movetime_ms=\(baseline.finalMovetimeMs)")
@@ -222,6 +258,7 @@ enum EngineBudgetBenchmark {
                 lines.append("\(prefix)_termination=\(sample.terminationReason)")
                 lines.append("\(prefix)_nps=\(sample.nps.map(String.init) ?? "-")")
                 lines.append("\(prefix)_pv_plies=\(sample.pvLength)")
+                lines.append("\(prefix)_pv=\(sample.pvMoves.joined(separator: " "))")
                 lines.append("\(prefix)_elapsed_ms=\(sample.elapsedMs)")
                 lines.append("\(prefix)_thermal_before=\(sample.thermalBefore)")
                 lines.append("\(prefix)_thermal_after=\(sample.thermalAfter)")
@@ -244,6 +281,18 @@ enum EngineBudgetBenchmark {
             lines.append(
                 "budget_\(result.label)_2m_4m_score_delta_cp="
                     + (result.scoreDeltaTwoMillionToFourMillion.map(String.init) ?? "-")
+            )
+            lines.append(
+                "budget_\(result.label)_800k_2m_common_pv_prefix="
+                    + (result.commonPVPrefixEightHundredKToTwoMillion.map(String.init) ?? "-")
+            )
+            lines.append(
+                "budget_\(result.label)_2m_4m_common_pv_prefix="
+                    + (result.commonPVPrefixTwoMillionToFourMillion.map(String.init) ?? "-")
+            )
+            lines.append(
+                "budget_\(result.label)_adaptive_4m_common_pv_prefix="
+                    + (result.commonPVPrefixAdaptiveToFourMillion.map(String.init) ?? "-")
             )
         }
         return lines
@@ -273,6 +322,7 @@ enum EngineBudgetBenchmark {
                 depthText: final.bestLine.depthText,
                 nodesText: final.bestLine.nodesText,
                 pvLength: final.bestLine.pvMoves.count,
+                pvMoves: final.bestLine.pvMoves,
                 stable: result.stable,
                 attempts: result.attempts.count,
                 finalMovetimeMs: result.finalMovetimeMs,
