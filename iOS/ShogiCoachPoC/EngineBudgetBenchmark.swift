@@ -9,6 +9,10 @@ struct EngineBudgetAdaptiveBaseline {
     let pvLength: Int
     let pvMoves: [String]
     let stable: Bool
+    let comparisonStable: Bool
+    let continuationStable: Bool
+    let comparisonReasons: [String]
+    let continuationReasons: [String]
     let attempts: Int
     let finalMovetimeMs: Int
     let totalElapsedMs: Int
@@ -43,6 +47,7 @@ struct EngineBudgetBenchmarkResult {
     let label: String
     let sourcePly: Int
     let adaptiveBaseline: EngineBudgetAdaptiveBaseline
+    let adaptiveV2: EngineBudgetAdaptiveBaseline
     let samples: [EngineBudgetBenchmarkSample]
 
     var stableFromEightHundredKToTwoMillion: Bool? {
@@ -132,7 +137,14 @@ enum EngineBudgetBenchmark {
             let adaptiveBaseline = try await runAdaptiveBaseline(
                 command: position.command,
                 actualMove: position.actualMove,
-                multiPV: multiPV
+                multiPV: multiPV,
+                policy: .productionV1
+            )
+            let adaptiveV2 = try await runAdaptiveBaseline(
+                command: position.command,
+                actualMove: position.actualMove,
+                multiPV: multiPV,
+                policy: .experimentalV2
             )
             var samples: [EngineBudgetBenchmarkSample] = []
 
@@ -200,6 +212,7 @@ enum EngineBudgetBenchmark {
                     label: position.label,
                     sourcePly: position.ply,
                     adaptiveBaseline: adaptiveBaseline,
+                    adaptiveV2: adaptiveV2,
                     samples: samples
                 )
             )
@@ -223,6 +236,7 @@ enum EngineBudgetBenchmark {
             "budget_benchmark_status=PASS",
             "budget_benchmark_positions=\(results.count)",
             "budget_benchmark_adaptive_baselines=\(results.count)",
+            "budget_benchmark_adaptive_v2=\(results.count)",
             "budget_benchmark_samples=\(samples.count)",
             "budget_benchmark_multipv=3",
             "budget_benchmark_budget_reached_samples=\(reachedCount)",
@@ -246,6 +260,29 @@ enum EngineBudgetBenchmark {
             lines.append("\(baselinePrefix)_elapsed_ms=\(baseline.totalElapsedMs)")
             lines.append("\(baselinePrefix)_thermal_before=\(baseline.thermalBefore)")
             lines.append("\(baselinePrefix)_thermal_after=\(baseline.thermalAfter)")
+            lines.append("\(baselinePrefix)_comparison_stable=\(baseline.comparisonStable)")
+            lines.append("\(baselinePrefix)_continuation_stable=\(baseline.continuationStable)")
+            lines.append("\(baselinePrefix)_comparison_reasons=\(baseline.comparisonReasons.joined(separator: ","))")
+            lines.append("\(baselinePrefix)_continuation_reasons=\(baseline.continuationReasons.joined(separator: ","))")
+
+            let v2Prefix = "budget_\(result.label)_adaptive_v2"
+            let v2 = result.adaptiveV2
+            lines.append("\(v2Prefix)_bestmove=\(v2.bestMove)")
+            lines.append("\(v2Prefix)_score=\(v2.scoreText)")
+            lines.append("\(v2Prefix)_depth=\(v2.depthText)")
+            lines.append("\(v2Prefix)_nodes=\(v2.nodesText)")
+            lines.append("\(v2Prefix)_pv_plies=\(v2.pvLength)")
+            lines.append("\(v2Prefix)_pv=\(v2.pvMoves.joined(separator: " "))")
+            lines.append("\(v2Prefix)_stable=\(v2.stable)")
+            lines.append("\(v2Prefix)_comparison_stable=\(v2.comparisonStable)")
+            lines.append("\(v2Prefix)_continuation_stable=\(v2.continuationStable)")
+            lines.append("\(v2Prefix)_comparison_reasons=\(v2.comparisonReasons.joined(separator: ","))")
+            lines.append("\(v2Prefix)_continuation_reasons=\(v2.continuationReasons.joined(separator: ","))")
+            lines.append("\(v2Prefix)_attempts=\(v2.attempts)")
+            lines.append("\(v2Prefix)_final_movetime_ms=\(v2.finalMovetimeMs)")
+            lines.append("\(v2Prefix)_elapsed_ms=\(v2.totalElapsedMs)")
+            lines.append("\(v2Prefix)_thermal_before=\(v2.thermalBefore)")
+            lines.append("\(v2Prefix)_thermal_after=\(v2.thermalAfter)")
 
             for sample in result.samples {
                 let prefix = "budget_\(result.label)_\(sample.nodeBudget)"
@@ -301,7 +338,8 @@ enum EngineBudgetBenchmark {
     private static func runAdaptiveBaseline(
         command: String,
         actualMove: String,
-        multiPV: Int
+        multiPV: Int,
+        policy: AdaptiveAnalysisPolicy
     ) async throws -> EngineBudgetAdaptiveBaseline {
         let session = EngineUSISession()
         try await session.beginAnalysis(multiPV: multiPV)
@@ -311,7 +349,8 @@ enum EngineBudgetBenchmark {
                 command: command,
                 actualMove: actualMove,
                 baseMovetimeMs: 800,
-                candidateCount: multiPV
+                candidateCount: multiPV,
+                policy: policy
             )
             await session.endAnalysis()
 
@@ -324,6 +363,10 @@ enum EngineBudgetBenchmark {
                 pvLength: final.bestLine.pvMoves.count,
                 pvMoves: final.bestLine.pvMoves,
                 stable: result.stable,
+                comparisonStable: result.comparisonStable,
+                continuationStable: result.continuationStable,
+                comparisonReasons: result.comparisonInstabilityReasons,
+                continuationReasons: result.continuationInstabilityReasons,
                 attempts: result.attempts.count,
                 finalMovetimeMs: result.finalMovetimeMs,
                 totalElapsedMs: result.totalElapsedMs,
