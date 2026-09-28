@@ -1060,23 +1060,65 @@ enum SimulatorCIProbe {
 
         let budgetBenchmark: [EngineBudgetBenchmarkResult]
         do {
-            guard terminalGame.moves.count >= 81 else {
+            guard terminalGame.moves.count >= 20,
+                  let middleSection = terminalPhaseReview.sections.first(where: {
+                      $0.kind == .middlegame
+                  }),
+                  let endgameSection = terminalPhaseReview.sections.first(where: {
+                      $0.kind == .endgame
+                  }) else {
                 throw EngineUSISession.ProbeError.protocolError(
-                    "budget benchmark positions missing"
+                    "budget benchmark phase positions missing"
                 )
             }
+
+            let middlePly = middleSection.startPly
+                + (middleSection.endPly - middleSection.startPly) / 2
+            let endgameSafeEndPly = max(
+                endgameSection.startPly,
+                endgameSection.endPly - 8
+            )
+            let endgamePly = min(
+                endgameSection.startPly + 4,
+                endgameSafeEndPly
+            )
+
+            guard (1...terminalGame.moves.count).contains(middlePly),
+                  (1...terminalGame.moves.count).contains(endgamePly) else {
+                throw EngineUSISession.ProbeError.protocolError(
+                    "budget benchmark phase ply out of range"
+                )
+            }
+
             budgetBenchmark = try await EngineBudgetBenchmark.run(
                 positions: [
-                    (label: "opening", command: "position startpos"),
-                    (label: "middle", command: terminalGame.moves[40].positionBefore),
-                    (label: "endgame", command: terminalGame.moves[80].positionBefore)
+                    (
+                        label: "opening",
+                        ply: 1,
+                        command: "position startpos"
+                    ),
+                    (
+                        label: "middle",
+                        ply: middlePly,
+                        command: terminalGame.moves[middlePly - 1].positionBefore
+                    ),
+                    (
+                        label: "endgame",
+                        ply: endgamePly,
+                        command: terminalGame.moves[endgamePly - 1].positionBefore
+                    )
                 ],
                 multiPV: 3
             )
             guard budgetBenchmark.count == 3,
-                  budgetBenchmark.reduce(0, { $0 + $1.samples.count }) == 9 else {
+                  budgetBenchmark.reduce(0, { $0 + $1.samples.count }) == 9,
+                  budgetBenchmark.allSatisfy({
+                      $0.samples.allSatisfy {
+                          $0.budgetReached || $0.terminationReason != "early_non_mate"
+                      }
+                  }) else {
                 throw EngineUSISession.ProbeError.protocolError(
-                    "budget benchmark sample count mismatch"
+                    "budget benchmark sample validation mismatch"
                 )
             }
             SimulatorStage.mark("budget_benchmark_pass")
