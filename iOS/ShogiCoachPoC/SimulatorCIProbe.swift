@@ -233,10 +233,22 @@ enum SimulatorCIProbe {
     private struct AnalysisQualityGateResult {
         let normalStable: Bool
         let normalAttempts: Int
+        let normalFinalMovetimeMs: Int
+        let normalFinalDepth: String
+        let normalFinalNodes: String
+        let normalFinalPVPlies: Int
         let closeGapCp: Int?
         let closeAttempts: Int
+        let closeFinalMovetimeMs: Int
+        let closeFinalDepth: String
+        let closeFinalNodes: String
+        let closeFinalPVPlies: Int
         let terminalStable: Bool
         let terminalAttempts: Int
+        let terminalFinalMovetimeMs: Int
+        let terminalFinalDepth: String
+        let terminalFinalNodes: String
+        let terminalFinalPVPlies: Int
         let terminalBestMove: String
     }
 
@@ -308,13 +320,26 @@ enum SimulatorCIProbe {
             }
 
             await session.endAnalysis()
+            let closeFinal = close.finalAttempt
             return AnalysisQualityGateResult(
                 normalStable: normal.stable,
                 normalAttempts: normal.attempts.count,
+                normalFinalMovetimeMs: normal.finalMovetimeMs,
+                normalFinalDepth: normalFinal.bestLine.depthText,
+                normalFinalNodes: normalFinal.bestLine.nodesText,
+                normalFinalPVPlies: normalFinal.bestLine.pvMoves.count,
                 closeGapCp: close.attempts.first?.topGapCp,
                 closeAttempts: close.attempts.count,
+                closeFinalMovetimeMs: close.finalMovetimeMs,
+                closeFinalDepth: closeFinal.bestLine.depthText,
+                closeFinalNodes: closeFinal.bestLine.nodesText,
+                closeFinalPVPlies: closeFinal.bestLine.pvMoves.count,
                 terminalStable: terminal.stable,
                 terminalAttempts: terminal.attempts.count,
+                terminalFinalMovetimeMs: terminal.finalMovetimeMs,
+                terminalFinalDepth: terminalFinal.bestLine.depthText,
+                terminalFinalNodes: terminalFinal.bestLine.nodesText,
+                terminalFinalPVPlies: terminalFinal.bestLine.pvMoves.count,
                 terminalBestMove: terminalFinal.bestLine.move
             )
         } catch {
@@ -1032,6 +1057,42 @@ enum SimulatorCIProbe {
             exit(13)
         }
 
+
+        let budgetBenchmark: [EngineBudgetBenchmarkResult]
+        do {
+            guard terminalGame.moves.count >= 81 else {
+                throw EngineUSISession.ProbeError.protocolError(
+                    "budget benchmark positions missing"
+                )
+            }
+            budgetBenchmark = try await EngineBudgetBenchmark.run(
+                positions: [
+                    (label: "opening", command: "position startpos"),
+                    (label: "middle", command: terminalGame.moves[40].positionBefore),
+                    (label: "endgame", command: terminalGame.moves[80].positionBefore)
+                ],
+                multiPV: 3
+            )
+            guard budgetBenchmark.count == 3,
+                  budgetBenchmark.reduce(0, { $0 + $1.samples.count }) == 9 else {
+                throw EngineUSISession.ProbeError.protocolError(
+                    "budget benchmark sample count mismatch"
+                )
+            }
+            SimulatorStage.mark("budget_benchmark_pass")
+        } catch {
+            writeReport([
+                "stage=budget_benchmark_failed",
+                "budget_benchmark_status=FAIL",
+                "budget_benchmark_error=\(error.localizedDescription)"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("budget_benchmark_failed_\(error.localizedDescription)")
+            fflush(stdout)
+            exit(19)
+        }
+
+        let budgetReportLines = EngineBudgetBenchmark.reportLines(budgetBenchmark)
+
         let probe = EngineProbe()
         await probe.runDefaultProbe()
         let defaultStatus = probe.status
@@ -1094,11 +1155,24 @@ enum SimulatorCIProbe {
             "analysis_quality_gate_status=PASS",
             "quality_normal_stable=\(qualityGate.normalStable)",
             "quality_normal_attempts=\(qualityGate.normalAttempts)",
+            "quality_normal_final_movetime_ms=\(qualityGate.normalFinalMovetimeMs)",
+            "quality_normal_final_depth=\(qualityGate.normalFinalDepth)",
+            "quality_normal_final_nodes=\(qualityGate.normalFinalNodes)",
+            "quality_normal_final_pv_plies=\(qualityGate.normalFinalPVPlies)",
             "quality_close_gap_cp=\(qualityGate.closeGapCp.map(String.init) ?? "-")",
             "quality_close_attempts=\(qualityGate.closeAttempts)",
+            "quality_close_final_movetime_ms=\(qualityGate.closeFinalMovetimeMs)",
+            "quality_close_final_depth=\(qualityGate.closeFinalDepth)",
+            "quality_close_final_nodes=\(qualityGate.closeFinalNodes)",
+            "quality_close_final_pv_plies=\(qualityGate.closeFinalPVPlies)",
             "quality_terminal_stable=\(qualityGate.terminalStable)",
             "quality_terminal_attempts=\(qualityGate.terminalAttempts)",
+            "quality_terminal_final_movetime_ms=\(qualityGate.terminalFinalMovetimeMs)",
+            "quality_terminal_final_depth=\(qualityGate.terminalFinalDepth)",
+            "quality_terminal_final_nodes=\(qualityGate.terminalFinalNodes)",
+            "quality_terminal_final_pv_plies=\(qualityGate.terminalFinalPVPlies)",
             "quality_terminal_bestmove=\(qualityGate.terminalBestMove)",
+        ] + budgetReportLines + [
             "deep_summary_begin",
             deep.summary,
             "deep_summary_end",
