@@ -44,8 +44,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.inari1234.shogicoachpoc
         PRODUCT_NAME: ShogiCoachPoC
-        MARKETING_VERSION: "0.7.0"
-        CURRENT_PROJECT_VERSION: "11"
+        MARKETING_VERSION: "0.8.0"
+        CURRENT_PROJECT_VERSION: "12"
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: 将棋AIコーチ
         INFOPLIST_KEY_GitCommit: "$(GIT_COMMIT_SHA)"

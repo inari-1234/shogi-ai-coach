@@ -208,6 +208,48 @@ struct ShogiDiagnosticDocument: Codable {
         let error: String?
     }
 
+    struct PhasePointInfo: Codable {
+        let ply: Int
+        let title: String
+        let detail: String
+        let evidence: [String]
+        let source: String
+        let continuationSummary: String?
+    }
+
+    struct PhaseSectionInfo: Codable {
+        let kind: String
+        let title: String
+        let startPly: Int
+        let endPly: Int
+        let summary: String
+        let focusText: String
+        let points: [PhasePointInfo]
+    }
+
+    struct PhaseTransitionInfo: Codable {
+        let ply: Int
+        let phase: String
+        let cumulativeCaptures: Int
+        let totalHandPieces: Int
+        let promotedPieces: Int
+        let enemyCampPieces: Int
+        let majorPieceContacts: Int
+        let recentChecks: Int
+        let kingPressure: Int
+        let evaluationSwingCp: Int?
+        let mateSignal: Bool
+        let sideToMoveInCheck: Bool
+    }
+
+    struct PhaseAnalysisInfo: Codable {
+        let status: String
+        let usedAdditionalEngineSearch: Bool
+        let sections: [PhaseSectionInfo]
+        let transitions: [PhaseTransitionInfo]
+        let error: String?
+    }
+
     var schemaVersion: Int
     var generatedAt: Date
     let app: AppInfo
@@ -219,6 +261,7 @@ struct ShogiDiagnosticDocument: Codable {
     var boardDisplay: BoardDisplayInfo?
     var reasonAnalysis: ReasonAnalysisInfo?
     var continuationSimulation: ContinuationSimulationInfo?
+    var phaseAnalysis: PhaseAnalysisInfo?
     let error: String?
 }
 
@@ -288,6 +331,7 @@ enum DiagnosticExporter {
             boardDisplay: nil,
             reasonAnalysis: nil,
             continuationSimulation: nil,
+            phaseAnalysis: nil,
             error: error
         )
 
@@ -347,6 +391,20 @@ enum DiagnosticExporter {
         document.schemaVersion = 5
         document.generatedAt = Date()
         document.continuationSimulation = continuationSimulation
+        return try encode(document, url: url)
+    }
+
+    static func augmentWithPhaseAnalysis(
+        url: URL,
+        phaseAnalysis: ShogiDiagnosticDocument.PhaseAnalysisInfo
+    ) throws -> URL {
+        let data = try Data(contentsOf: url)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        var document = try decoder.decode(ShogiDiagnosticDocument.self, from: data)
+        document.schemaVersion = 6
+        document.generatedAt = Date()
+        document.phaseAnalysis = phaseAnalysis
         return try encode(document, url: url)
     }
 

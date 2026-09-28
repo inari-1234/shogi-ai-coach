@@ -8,16 +8,19 @@ struct ContentView: View {
     @StateObject private var boardReview = BoardReviewViewModel()
     @StateObject private var reason = ReasonAnalysisViewModel()
     @StateObject private var continuation = ContinuationSimulationViewModel()
+    @StateObject private var phaseReview = PhaseReviewViewModel()
 
     @State private var showingKIFImporter = false
     @State private var showingBoardReview = false
     @State private var showingReasonAnalysis = false
     @State private var showingContinuationSimulation = false
+    @State private var showingPhaseReview = false
     @State private var isAnalyzing = false
     @State private var analysisStatus = "未解析"
 
     private var diagnosticURL: URL? {
-        continuation.diagnosticURL
+        phaseReview.diagnosticURL
+            ?? continuation.diagnosticURL
             ?? reason.diagnosticURL
             ?? boardReview.diagnosticURL
             ?? deep.diagnosticURL
@@ -25,7 +28,8 @@ struct ContentView: View {
     }
 
     private var diagnosticError: String? {
-        continuation.diagnosticError
+        phaseReview.diagnosticError
+            ?? continuation.diagnosticError
             ?? reason.diagnosticError
             ?? boardReview.diagnosticError
             ?? deep.diagnosticError
@@ -65,6 +69,7 @@ struct ContentView: View {
                             boardReview.reset()
                             reason.reset()
                             continuation.reset()
+                            phaseReview.reset()
 
                             analysisStatus = "全局面を浅く解析中"
                             await shallow.analyze(
@@ -121,9 +126,27 @@ struct ContentView: View {
                                     ?? deep.diagnosticURL
                                     ?? shallow.diagnosticURL
                             )
-                            analysisStatus = continuation.status == "展開シミュレーション PASS"
+                            guard continuation.status == "展開シミュレーション PASS" else {
+                                analysisStatus = continuation.status
+                                return
+                            }
+
+                            analysisStatus = "対局フェーズを整理中"
+                            phaseReview.prepare(
+                                game: game,
+                                shallowEntries: shallow.entries,
+                                deepEntries: deep.entries,
+                                reasonEntries: reason.entries,
+                                continuationEntries: continuation.entries,
+                                diagnosticURL: continuation.diagnosticURL
+                                    ?? reason.diagnosticURL
+                                    ?? boardReview.diagnosticURL
+                                    ?? deep.diagnosticURL
+                                    ?? shallow.diagnosticURL
+                            )
+                            analysisStatus = phaseReview.status == "フェーズ別振り返り PASS"
                                 ? "解析 PASS"
-                                : continuation.status
+                                : phaseReview.status
                         }
                     }
                     .disabled(kif.game == nil || isAnalyzing)
@@ -154,6 +177,10 @@ struct ContentView: View {
 
                         Button("推奨展開を動かして見る") {
                             showingContinuationSimulation = true
+                        }
+
+                        Button("対局をフェーズ別に振り返る") {
+                            showingPhaseReview = true
                         }
 
                         if let diagnosticURL {
@@ -199,6 +226,9 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showingContinuationSimulation) {
                 ContinuationSimulationScreen(entries: continuation.entries)
+            }
+            .sheet(isPresented: $showingPhaseReview) {
+                PhaseReviewScreen(sections: phaseReview.sections)
             }
         }
     }
