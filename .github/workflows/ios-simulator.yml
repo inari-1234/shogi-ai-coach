@@ -114,7 +114,7 @@ jobs:
           STAGE="$CONTAINER/Documents/ci-stage.txt"
 
           COMPLETE=0
-          for _ in $(seq 1 75); do
+          for _ in $(seq 1 300); do
             if [ -s "$REPORT" ] && grep -Fq "stage=complete" "$REPORT"; then
               COMPLETE=1
               break

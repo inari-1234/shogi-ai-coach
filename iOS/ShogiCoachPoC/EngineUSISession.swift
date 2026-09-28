@@ -104,7 +104,7 @@ actor EngineUSISession {
         return try await analyzePosition(
             command: command,
             goLimit: "nodes \(boundedNodes)",
-            timeoutSeconds: max(15, Double(boundedNodes) / 250_000.0 + 10),
+            timeoutSeconds: max(20, Double(boundedNodes) / 60_000.0 + 15),
             searchMoves: searchMoves,
             multiPV: multiPV,
             stageSuffix: "nodes"
