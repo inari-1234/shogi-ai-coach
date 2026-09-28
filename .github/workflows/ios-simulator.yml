@@ -175,6 +175,7 @@ jobs:
           grep -Fq "budget_benchmark_positions=3" simulator-result.txt
           grep -Fq "budget_benchmark_samples=9" simulator-result.txt
           grep -Fq "budget_benchmark_multipv=3" simulator-result.txt
+          grep -Fq "budget_benchmark_early_non_mate_samples=0" simulator-result.txt
           grep -Fq "default_status=PASS候補" simulator-result.txt
           grep -Fq "bestmove:" simulator-result.txt
           grep -Fq "score:" simulator-result.txt
