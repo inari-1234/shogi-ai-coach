@@ -1109,7 +1109,7 @@ enum SimulatorCIProbe {
         let tenStatus = probe.status
         let tenResult = probe.resultText
 
-        let report = [
+        var reportLines: [String] = [
             "stage=complete",
             "kif_status=PASS",
             "kif_moves=\(kifGame.moves.count)",
@@ -1127,7 +1127,10 @@ enum SimulatorCIProbe {
             "deep_diagnostic_schema=\(deepDiagnostic.schemaVersion)",
             "board_display_status=\(boardDisplayStatus)",
             "board_display_count=\(boardDisplayCount)",
-            "board_display_schema=\(boardDiagnostic.schemaVersion)",
+            "board_display_schema=\(boardDiagnostic.schemaVersion)"
+        ]
+
+        reportLines.append(contentsOf: [
             "reason_status=\(reasonStatus)",
             "reason_count=\(reasonCount)",
             "reason_schema=\(reasonDiagnostic.schemaVersion)",
@@ -1146,7 +1149,10 @@ enum SimulatorCIProbe {
             "terminal_board_is_drop=\(terminalBoardEntry.bestMove.isDrop)",
             "terminal_board_destination=\(terminalBoardDestination)",
             "terminal_reason_status=\(terminalReason.status)",
-            "terminal_reason_ply=\(terminalReasonEntry.ply)",
+            "terminal_reason_ply=\(terminalReasonEntry.ply)"
+        ])
+
+        reportLines.append(contentsOf: [
             "terminal_continuation_status=\(terminalContinuation.status)",
             "terminal_continuation_drop=\(terminalContinuationEntry.actual.moves.first?.effect.isDrop ?? false)",
             "terminal_phase_status=\(terminalPhaseReview.status)",
@@ -1164,15 +1170,22 @@ enum SimulatorCIProbe {
             "quality_close_final_movetime_ms=\(qualityGate.closeFinalMovetimeMs)",
             "quality_close_final_depth=\(qualityGate.closeFinalDepth)",
             "quality_close_final_nodes=\(qualityGate.closeFinalNodes)",
-            "quality_close_final_pv_plies=\(qualityGate.closeFinalPVPlies)",
+            "quality_close_final_pv_plies=\(qualityGate.closeFinalPVPlies)"
+        ])
+
+        reportLines.append(contentsOf: [
             "quality_terminal_stable=\(qualityGate.terminalStable)",
             "quality_terminal_attempts=\(qualityGate.terminalAttempts)",
             "quality_terminal_final_movetime_ms=\(qualityGate.terminalFinalMovetimeMs)",
             "quality_terminal_final_depth=\(qualityGate.terminalFinalDepth)",
             "quality_terminal_final_nodes=\(qualityGate.terminalFinalNodes)",
             "quality_terminal_final_pv_plies=\(qualityGate.terminalFinalPVPlies)",
-            "quality_terminal_bestmove=\(qualityGate.terminalBestMove)",
-        ] + budgetReportLines + [
+            "quality_terminal_bestmove=\(qualityGate.terminalBestMove)"
+        ])
+
+        reportLines.append(contentsOf: budgetReportLines)
+
+        reportLines.append(contentsOf: [
             "deep_summary_begin",
             deep.summary,
             "deep_summary_end",
@@ -1187,7 +1200,9 @@ enum SimulatorCIProbe {
             "ten_result_begin",
             tenResult,
             "ten_result_end"
-        ].joined(separator: "\n") + "\n"
+        ])
+
+        let report = reportLines.joined(separator: "\n") + "\n"
 
         writeReport(report)
         SimulatorStage.mark("probe_complete")
