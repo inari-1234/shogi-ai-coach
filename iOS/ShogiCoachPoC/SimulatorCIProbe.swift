@@ -1095,17 +1095,20 @@ enum SimulatorCIProbe {
                     (
                         label: "opening",
                         ply: 1,
-                        command: "position startpos"
+                        command: "position startpos",
+                        actualMove: terminalGame.moves[0].usi
                     ),
                     (
                         label: "middle",
                         ply: middlePly,
-                        command: terminalGame.moves[middlePly - 1].positionBefore
+                        command: terminalGame.moves[middlePly - 1].positionBefore,
+                        actualMove: terminalGame.moves[middlePly - 1].usi
                     ),
                     (
                         label: "endgame",
                         ply: endgamePly,
-                        command: terminalGame.moves[endgamePly - 1].positionBefore
+                        command: terminalGame.moves[endgamePly - 1].positionBefore,
+                        actualMove: terminalGame.moves[endgamePly - 1].usi
                     )
                 ],
                 multiPV: 3
