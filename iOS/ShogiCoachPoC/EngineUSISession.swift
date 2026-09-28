@@ -83,6 +83,42 @@ actor EngineUSISession {
         searchMoves: [String] = [],
         multiPV: Int? = nil
     ) async throws -> ProbeSample {
+        let boundedMovetime = max(50, movetimeMs)
+        return try await analyzePosition(
+            command: command,
+            goLimit: "movetime \(boundedMovetime)",
+            timeoutSeconds: max(5, Double(boundedMovetime) / 1000.0 + 5),
+            searchMoves: searchMoves,
+            multiPV: multiPV,
+            stageSuffix: "time"
+        )
+    }
+
+    func analyzePosition(
+        command: String,
+        nodes: Int,
+        searchMoves: [String] = [],
+        multiPV: Int? = nil
+    ) async throws -> ProbeSample {
+        let boundedNodes = max(1, nodes)
+        return try await analyzePosition(
+            command: command,
+            goLimit: "nodes \(boundedNodes)",
+            timeoutSeconds: max(15, Double(boundedNodes) / 250_000.0 + 10),
+            searchMoves: searchMoves,
+            multiPV: multiPV,
+            stageSuffix: "nodes"
+        )
+    }
+
+    private func analyzePosition(
+        command: String,
+        goLimit: String,
+        timeoutSeconds: Double,
+        searchMoves: [String],
+        multiPV: Int?,
+        stageSuffix: String
+    ) async throws -> ProbeSample {
         guard let link = transport else {
             throw ProbeError.protocolError("解析セッションが開始されていません")
         }
@@ -103,16 +139,17 @@ actor EngineUSISession {
         let thermalBefore = RuntimeMetrics.thermalState
         let started = ContinuousClock.now
         var accumulator = USIAccumulator()
-        let boundedMovetime = max(50, movetimeMs)
         let searchClause = searchMoves.isEmpty
             ? ""
             : " searchmoves " + searchMoves.joined(separator: " ")
-        try await link.send("go movetime \(boundedMovetime)\(searchClause)")
-        SimulatorStage.mark(searchMoves.isEmpty ? "go_sent" : "go_searchmoves_sent")
-
-        let deadline = ContinuousClock.now.advanced(
-            by: .seconds(max(5, Double(movetimeMs) / 1000.0 + 5))
+        try await link.send("go \(goLimit)\(searchClause)")
+        SimulatorStage.mark(
+            searchMoves.isEmpty
+                ? "go_\(stageSuffix)_sent"
+                : "go_\(stageSuffix)_searchmoves_sent"
         )
+
+        let deadline = ContinuousClock.now.advanced(by: .seconds(timeoutSeconds))
         var finalResult: EngineProbeResult?
         while ContinuousClock.now < deadline {
             let remaining = ContinuousClock.now.duration(to: deadline)
