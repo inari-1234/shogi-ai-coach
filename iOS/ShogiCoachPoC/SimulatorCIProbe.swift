@@ -380,8 +380,8 @@ enum SimulatorCIProbe {
               diagnostic.analysis.completedPositions == kifGame.moves.count,
               diagnostic.positions.count == kifGame.moves.count,
               diagnostic.positions.allSatisfy({ !$0.pv.isEmpty && !$0.bestMove.isEmpty }),
-              diagnostic.app.version == "0.6.0",
-              diagnostic.app.build == "10",
+              diagnostic.app.version == "0.7.0",
+              diagnostic.app.build == "11",
               diagnostic.app.gitCommit != "unknown" else {
             writeReport([
                 "stage=diagnostic_failed",
@@ -427,8 +427,8 @@ enum SimulatorCIProbe {
                 from: deepDiagnosticData
               ),
               deepDiagnostic.schemaVersion == 2,
-              deepDiagnostic.app.version == "0.6.0",
-              deepDiagnostic.app.build == "10",
+              deepDiagnostic.app.version == "0.7.0",
+              deepDiagnostic.app.build == "11",
               deepDiagnostic.deepAnalysis?.status == "深掘り PASS",
               deepDiagnostic.deepAnalysis?.multiPV == 3,
               deepDiagnostic.deepAnalysis?.completedPositions == 3,
@@ -482,8 +482,8 @@ enum SimulatorCIProbe {
                 from: boardDiagnosticData
               ),
               boardDiagnostic.schemaVersion == 3,
-              boardDiagnostic.app.version == "0.6.0",
-              boardDiagnostic.app.build == "10",
+              boardDiagnostic.app.version == "0.7.0",
+              boardDiagnostic.app.build == "11",
               boardDiagnostic.boardDisplay?.status == "盤面表示 PASS",
               boardDiagnostic.boardDisplay?.completedPositions == deep.entries.count,
               boardDiagnostic.boardDisplay?.positions.count == deep.entries.count else {
@@ -532,8 +532,8 @@ enum SimulatorCIProbe {
                 from: reasonDiagnosticData
               ),
               reasonDiagnostic.schemaVersion == 4,
-              reasonDiagnostic.app.version == "0.6.0",
-              reasonDiagnostic.app.build == "10",
+              reasonDiagnostic.app.version == "0.7.0",
+              reasonDiagnostic.app.build == "11",
               reasonDiagnostic.reasonAnalysis?.status == "理由解析 PASS",
               reasonDiagnostic.reasonAnalysis?.completedPositions == deep.entries.count,
               reasonDiagnostic.reasonAnalysis?.positions.count == deep.entries.count,
@@ -555,6 +555,64 @@ enum SimulatorCIProbe {
             exit(10)
         }
         SimulatorStage.mark("reason_analysis_pass")
+
+        let continuation = ContinuationSimulationViewModel()
+        continuation.prepare(
+            game: kifGame,
+            deepEntries: deep.entries,
+            reasonEntries: reason.entries,
+            diagnosticURL: reason.diagnosticURL
+        )
+        let continuationStatus = continuation.status
+        let continuationCount = continuation.entries.count
+        let continuationValid = continuation.entries.allSatisfy { entry in
+            guard let recommendedFirst = entry.recommended.moves.first,
+                  let actualFirst = entry.actual.moves.first else {
+                return false
+            }
+            return recommendedFirst.usi == deep.entries.first(where: { $0.ply == entry.ply })?.bestMove
+                && actualFirst.usi == deep.entries.first(where: { $0.ply == entry.ply })?.actualMove
+                && entry.recommended.moves.count <= 10
+                && entry.actual.moves.count <= 10
+                && !entry.recommended.developmentBlocks.isEmpty
+                && !entry.actual.developmentBlocks.isEmpty
+                && !entry.recommended.targetShapeSummary.isEmpty
+                && !entry.actual.targetShapeSummary.isEmpty
+        }
+        guard continuationStatus == "展開シミュレーション PASS",
+              continuationCount == deep.entries.count,
+              continuationValid,
+              let continuationDiagnosticURL = continuation.diagnosticURL,
+              let continuationDiagnosticData = try? Data(contentsOf: continuationDiagnosticURL),
+              let continuationDiagnostic = try? JSONDecoder.iso8601.decode(
+                ShogiDiagnosticDocument.self,
+                from: continuationDiagnosticData
+              ),
+              continuationDiagnostic.schemaVersion == 5,
+              continuationDiagnostic.app.version == "0.7.0",
+              continuationDiagnostic.app.build == "11",
+              continuationDiagnostic.continuationSimulation?.status == "展開シミュレーション PASS",
+              continuationDiagnostic.continuationSimulation?.completedPositions == deep.entries.count,
+              continuationDiagnostic.continuationSimulation?.positions.count == deep.entries.count,
+              continuationDiagnostic.continuationSimulation?.positions.allSatisfy({
+                  !$0.recommended.moves.isEmpty
+                      && !$0.actual.moves.isEmpty
+                      && !$0.recommended.targetShapeSummary.isEmpty
+                      && !$0.actual.targetShapeSummary.isEmpty
+              }) == true else {
+            writeReport([
+                "stage=continuation_simulation_failed",
+                "continuation_status=FAIL",
+                "continuation_count=\(continuationCount)",
+                "continuation_summary_begin",
+                continuation.summary,
+                "continuation_summary_end"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("continuation_simulation_failed")
+            fflush(stdout)
+            exit(15)
+        }
+        SimulatorStage.mark("continuation_simulation_pass")
 
         let (unstableGame, _) = makeTerminalRegression()
         let unstableDeepEntry = DeepAnalysisEntry(
@@ -813,6 +871,35 @@ enum SimulatorCIProbe {
         }
         SimulatorStage.mark("terminal_reason_pass")
 
+        let terminalContinuation = ContinuationSimulationViewModel()
+        terminalContinuation.prepare(
+            game: terminalGame,
+            deepEntries: terminalDeep.entries,
+            reasonEntries: terminalReason.entries,
+            diagnosticURL: terminalReason.diagnosticURL
+        )
+        guard terminalContinuation.status == "展開シミュレーション PASS",
+              terminalContinuation.entries.count == 1,
+              let terminalContinuationEntry = terminalContinuation.entries.first,
+              let terminalActualFirst = terminalContinuationEntry.actual.moves.first,
+              terminalActualFirst.usi == "G*1b",
+              terminalActualFirst.effect.isDrop,
+              terminalActualFirst.effect.source == nil,
+              terminalActualFirst.effect.destination.usi == "1b",
+              !terminalContinuationEntry.actual.targetShapeSummary.isEmpty else {
+            writeReport([
+                "stage=terminal_continuation_failed",
+                "terminal_continuation_status=FAIL",
+                "terminal_continuation_summary_begin",
+                terminalContinuation.summary,
+                "terminal_continuation_summary_end"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("terminal_continuation_failed")
+            fflush(stdout)
+            exit(16)
+        }
+        SimulatorStage.mark("terminal_continuation_pass")
+
         let dropSearchSession = EngineUSISession()
         var dropSearchStatus = "FAIL"
         do {
@@ -904,6 +991,9 @@ enum SimulatorCIProbe {
             "reason_schema=\(reasonDiagnostic.schemaVersion)",
             "reason_unstable_status=PASS",
             "reason_immediate_recapture_status=PASS",
+            "continuation_status=\(continuationStatus)",
+            "continuation_count=\(continuationCount)",
+            "continuation_schema=5",
             "terminal_deep_status=\(terminalDeep.status)",
             "terminal_deep_ply=\(terminalEntry.ply)",
             "terminal_actual_source=\(terminalActualSource)",
@@ -912,6 +1002,8 @@ enum SimulatorCIProbe {
             "terminal_board_destination=\(terminalBoardDestination)",
             "terminal_reason_status=\(terminalReason.status)",
             "terminal_reason_ply=\(terminalReasonEntry.ply)",
+            "terminal_continuation_status=\(terminalContinuation.status)",
+            "terminal_continuation_drop=\(terminalContinuationEntry.actual.moves.first?.effect.isDrop ?? false)",
             "drop_searchmoves_status=\(dropSearchStatus)",
             "analysis_quality_gate_status=PASS",
             "quality_normal_stable=\(qualityGate.normalStable)",
