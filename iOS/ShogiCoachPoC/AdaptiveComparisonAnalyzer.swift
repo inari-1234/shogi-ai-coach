@@ -217,7 +217,23 @@ enum AdaptiveComparisonAnalyzer {
             previousActualPV = comparedActual.pvMoves
 
             let hasNextTier = index + 1 < tiers.count
-            if extensionReasons.isEmpty || !hasNextTier {
+            let shouldContinue: Bool
+            switch policy {
+            case .productionV1:
+                shouldContinue = !extensionReasons.isEmpty
+            case .experimentalV2:
+                if index == 0 {
+                    // One confirmation pass is allowed for close candidates,
+                    // short PVs, or decisive non-mate positions.
+                    shouldContinue = !extensionReasons.isEmpty
+                } else {
+                    // Do not spend the final tier merely chasing a longer or
+                    // identical PV. Reserve it for unstable move/score comparison.
+                    shouldContinue = !unstableReasons.isEmpty
+                }
+            }
+
+            if !shouldContinue || !hasNextTier {
                 break
             }
         }
