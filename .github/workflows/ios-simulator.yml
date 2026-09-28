@@ -171,6 +171,10 @@ jobs:
           grep -Fq "terminal_reason_ply=81" simulator-result.txt
           grep -Fq "drop_searchmoves_status=PASS" simulator-result.txt
           grep -Fq "analysis_quality_gate_status=PASS" simulator-result.txt
+          grep -Fq "budget_benchmark_status=PASS" simulator-result.txt
+          grep -Fq "budget_benchmark_positions=3" simulator-result.txt
+          grep -Fq "budget_benchmark_samples=9" simulator-result.txt
+          grep -Fq "budget_benchmark_multipv=3" simulator-result.txt
           grep -Fq "default_status=PASS候補" simulator-result.txt
           grep -Fq "bestmove:" simulator-result.txt
           grep -Fq "score:" simulator-result.txt
