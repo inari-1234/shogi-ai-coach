@@ -173,6 +173,7 @@ jobs:
           grep -Fq "analysis_quality_gate_status=PASS" simulator-result.txt
           grep -Fq "budget_benchmark_status=PASS" simulator-result.txt
           grep -Fq "budget_benchmark_positions=3" simulator-result.txt
+          grep -Fq "budget_benchmark_adaptive_baselines=3" simulator-result.txt
           grep -Fq "budget_benchmark_samples=9" simulator-result.txt
           grep -Fq "budget_benchmark_multipv=3" simulator-result.txt
           grep -Fq "budget_benchmark_early_non_mate_samples=0" simulator-result.txt
