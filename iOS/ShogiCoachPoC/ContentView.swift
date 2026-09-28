@@ -211,6 +211,7 @@ struct ContentView: View {
                         boardReview.reset()
                         reason.reset()
                         continuation.reset()
+                        phaseReview.reset()
                         analysisStatus = "未解析"
                         await kif.importFile(url)
                     }
