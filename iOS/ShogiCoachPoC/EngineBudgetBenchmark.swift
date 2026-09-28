@@ -1,6 +1,20 @@
 import Foundation
 import ShogiCoachCore
 
+struct EngineBudgetAdaptiveBaseline {
+    let bestMove: String
+    let scoreText: String
+    let depthText: String
+    let nodesText: String
+    let pvLength: Int
+    let stable: Bool
+    let attempts: Int
+    let finalMovetimeMs: Int
+    let totalElapsedMs: Int
+    let thermalBefore: String
+    let thermalAfter: String
+}
+
 struct EngineBudgetBenchmarkSample {
     let label: String
     let sourcePly: Int
@@ -26,6 +40,7 @@ struct EngineBudgetBenchmarkSample {
 struct EngineBudgetBenchmarkResult {
     let label: String
     let sourcePly: Int
+    let adaptiveBaseline: EngineBudgetAdaptiveBaseline
     let samples: [EngineBudgetBenchmarkSample]
 
     var stableFromEightHundredKToTwoMillion: Bool? {
@@ -73,13 +88,18 @@ enum EngineBudgetBenchmark {
     static let nodeBudgets = [800_000, 2_000_000, 4_000_000]
 
     static func run(
-        positions: [(label: String, ply: Int, command: String)],
+        positions: [(label: String, ply: Int, command: String, actualMove: String)],
         multiPV: Int = 3
     ) async throws -> [EngineBudgetBenchmarkResult] {
         var results: [EngineBudgetBenchmarkResult] = []
         results.reserveCapacity(positions.count)
 
         for position in positions {
+            let adaptiveBaseline = try await runAdaptiveBaseline(
+                command: position.command,
+                actualMove: position.actualMove,
+                multiPV: multiPV
+            )
             var samples: [EngineBudgetBenchmarkSample] = []
 
             for budget in nodeBudgets {
@@ -144,6 +164,7 @@ enum EngineBudgetBenchmark {
                 EngineBudgetBenchmarkResult(
                     label: position.label,
                     sourcePly: position.ply,
+                    adaptiveBaseline: adaptiveBaseline,
                     samples: samples
                 )
             )
@@ -166,6 +187,7 @@ enum EngineBudgetBenchmark {
         var lines = [
             "budget_benchmark_status=PASS",
             "budget_benchmark_positions=\(results.count)",
+            "budget_benchmark_adaptive_baselines=\(results.count)",
             "budget_benchmark_samples=\(samples.count)",
             "budget_benchmark_multipv=3",
             "budget_benchmark_budget_reached_samples=\(reachedCount)",
@@ -175,6 +197,20 @@ enum EngineBudgetBenchmark {
 
         for result in results {
             lines.append("budget_\(result.label)_source_ply=\(result.sourcePly)")
+            let baselinePrefix = "budget_\(result.label)_adaptive"
+            let baseline = result.adaptiveBaseline
+            lines.append("\(baselinePrefix)_bestmove=\(baseline.bestMove)")
+            lines.append("\(baselinePrefix)_score=\(baseline.scoreText)")
+            lines.append("\(baselinePrefix)_depth=\(baseline.depthText)")
+            lines.append("\(baselinePrefix)_nodes=\(baseline.nodesText)")
+            lines.append("\(baselinePrefix)_pv_plies=\(baseline.pvLength)")
+            lines.append("\(baselinePrefix)_stable=\(baseline.stable)")
+            lines.append("\(baselinePrefix)_attempts=\(baseline.attempts)")
+            lines.append("\(baselinePrefix)_final_movetime_ms=\(baseline.finalMovetimeMs)")
+            lines.append("\(baselinePrefix)_elapsed_ms=\(baseline.totalElapsedMs)")
+            lines.append("\(baselinePrefix)_thermal_before=\(baseline.thermalBefore)")
+            lines.append("\(baselinePrefix)_thermal_after=\(baseline.thermalAfter)")
+
             for sample in result.samples {
                 let prefix = "budget_\(result.label)_\(sample.nodeBudget)"
                 lines.append("\(prefix)_bestmove=\(sample.bestMove)")
@@ -211,6 +247,43 @@ enum EngineBudgetBenchmark {
             )
         }
         return lines
+    }
+
+    private static func runAdaptiveBaseline(
+        command: String,
+        actualMove: String,
+        multiPV: Int
+    ) async throws -> EngineBudgetAdaptiveBaseline {
+        let session = EngineUSISession()
+        try await session.beginAnalysis(multiPV: multiPV)
+        do {
+            let result = try await AdaptiveComparisonAnalyzer.analyze(
+                session: session,
+                command: command,
+                actualMove: actualMove,
+                baseMovetimeMs: 800,
+                candidateCount: multiPV
+            )
+            await session.endAnalysis()
+
+            let final = result.finalAttempt
+            return EngineBudgetAdaptiveBaseline(
+                bestMove: final.bestLine.move,
+                scoreText: final.bestLine.scoreText,
+                depthText: final.bestLine.depthText,
+                nodesText: final.bestLine.nodesText,
+                pvLength: final.bestLine.pvMoves.count,
+                stable: result.stable,
+                attempts: result.attempts.count,
+                finalMovetimeMs: result.finalMovetimeMs,
+                totalElapsedMs: result.totalElapsedMs,
+                thermalBefore: result.attempts.first?.thermalBefore ?? "unknown",
+                thermalAfter: final.thermalAfter
+            )
+        } catch {
+            await session.endAnalysis()
+            throw error
+        }
     }
 
     private static func terminationReason(
