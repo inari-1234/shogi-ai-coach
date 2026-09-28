@@ -29,10 +29,19 @@ struct AdaptiveComparisonAttempt {
     let thermalAfter: String
 }
 
+enum AdaptiveAnalysisPolicy {
+    case productionV1
+    case experimentalV2
+}
+
 struct AdaptiveComparisonResult {
     let attempts: [AdaptiveComparisonAttempt]
     let stable: Bool
     let instabilityReasons: [String]
+    let comparisonStable: Bool
+    let continuationStable: Bool
+    let comparisonInstabilityReasons: [String]
+    let continuationInstabilityReasons: [String]
 
     var finalAttempt: AdaptiveComparisonAttempt { attempts[attempts.count - 1] }
     var finalMovetimeMs: Int { finalAttempt.movetimeMs }
@@ -45,13 +54,17 @@ enum AdaptiveComparisonAnalyzer {
     private static let lossSwingThresholdCp = 120
     private static let minimumBestPVPlies = 4
     private static let minimumActualPVPlies = 3
+    private static let decisiveConfirmationThresholdCp = 1_500
+    private static let minimumConfirmedBestPVPrefixPlies = 3
+    private static let minimumConfirmedActualPVPrefixPlies = 2
 
     static func analyze(
         session: EngineUSISession,
         command: String,
         actualMove: String,
         baseMovetimeMs: Int,
-        candidateCount: Int = 3
+        candidateCount: Int = 3,
+        policy: AdaptiveAnalysisPolicy = .productionV1
     ) async throws -> AdaptiveComparisonResult {
         let tiers = analysisTiers(baseMovetimeMs: baseMovetimeMs)
         var attempts: [AdaptiveComparisonAttempt] = []
@@ -59,6 +72,8 @@ enum AdaptiveComparisonAnalyzer {
         var previousBestScoreKind: String?
         var previousActualScoreKind: String?
         var previousLossCp: Int?
+        var previousBestPV: [String]?
+        var previousActualPV: [String]?
 
         for (index, movetimeMs) in tiers.enumerated() {
             let candidateSample = try await session.analyzePosition(
@@ -150,6 +165,35 @@ enum AdaptiveComparisonAnalyzer {
                 extensionReasons.append("actual_pv_short")
             }
 
+            if policy == .experimentalV2 {
+                if index == 0,
+                   isDecisiveNonMate(comparedBest.score) {
+                    extensionReasons.append("decisive_confirmation")
+                }
+
+                if let previousBestPV,
+                   previousBestPV.count >= minimumConfirmedBestPVPrefixPlies,
+                   comparedBest.pvMoves.count >= minimumConfirmedBestPVPrefixPlies,
+                   !samePrefix(
+                       previousBestPV,
+                       comparedBest.pvMoves,
+                       count: minimumConfirmedBestPVPrefixPlies
+                   ) {
+                    extensionReasons.append("best_pv_changed")
+                }
+
+                if let previousActualPV,
+                   previousActualPV.count >= minimumConfirmedActualPVPrefixPlies,
+                   comparedActual.pvMoves.count >= minimumConfirmedActualPVPrefixPlies,
+                   !samePrefix(
+                       previousActualPV,
+                       comparedActual.pvMoves,
+                       count: minimumConfirmedActualPVPrefixPlies
+                   ) {
+                    extensionReasons.append("actual_pv_changed")
+                }
+            }
+
             let attempt = AdaptiveComparisonAttempt(
                 movetimeMs: movetimeMs,
                 candidateLines: candidates,
@@ -169,6 +213,8 @@ enum AdaptiveComparisonAnalyzer {
             previousBestScoreKind = bestKind
             previousActualScoreKind = actualKind
             previousLossCp = lossCp
+            previousBestPV = comparedBest.pvMoves
+            previousActualPV = comparedActual.pvMoves
 
             let hasNextTier = index + 1 < tiers.count
             if extensionReasons.isEmpty || !hasNextTier {
@@ -180,19 +226,35 @@ enum AdaptiveComparisonAnalyzer {
             throw EngineUSISession.ProbeError.protocolError("適応型解析結果がありません")
         }
 
-        var finalUnstableReasons = final.unstableReasons
+        let comparisonReasons = Array(Set(final.unstableReasons)).sorted()
+        var continuationReasons: [String] = []
         if final.extensionReasons.contains("best_pv_short") {
-            finalUnstableReasons.append("best_pv_short")
+            continuationReasons.append("best_pv_short")
         }
         if final.extensionReasons.contains("actual_pv_short") {
-            finalUnstableReasons.append("actual_pv_short")
+            continuationReasons.append("actual_pv_short")
         }
-        finalUnstableReasons = Array(Set(finalUnstableReasons)).sorted()
+        if policy == .experimentalV2,
+           final.extensionReasons.contains("best_pv_changed") {
+            continuationReasons.append("best_pv_changed")
+        }
+        if policy == .experimentalV2,
+           final.extensionReasons.contains("actual_pv_changed") {
+            continuationReasons.append("actual_pv_changed")
+        }
+        continuationReasons = Array(Set(continuationReasons)).sorted()
+        let finalUnstableReasons = Array(
+            Set(comparisonReasons + continuationReasons)
+        ).sorted()
 
         return AdaptiveComparisonResult(
             attempts: attempts,
             stable: finalUnstableReasons.isEmpty,
-            instabilityReasons: finalUnstableReasons
+            instabilityReasons: finalUnstableReasons,
+            comparisonStable: comparisonReasons.isEmpty,
+            continuationStable: continuationReasons.isEmpty,
+            comparisonInstabilityReasons: comparisonReasons,
+            continuationInstabilityReasons: continuationReasons
         )
     }
 
@@ -270,6 +332,20 @@ enum AdaptiveComparisonAnalyzer {
     private static func isMate(_ score: USIScore) -> Bool {
         if case .mate = score { return true }
         return false
+    }
+
+    private static func isDecisiveNonMate(_ score: USIScore) -> Bool {
+        guard case .centipawn(let value, _) = score else { return false }
+        return abs(value) >= decisiveConfirmationThresholdCp
+    }
+
+    private static func samePrefix(
+        _ lhs: [String],
+        _ rhs: [String],
+        count: Int
+    ) -> Bool {
+        guard lhs.count >= count, rhs.count >= count else { return false }
+        return Array(lhs.prefix(count)) == Array(rhs.prefix(count))
     }
 
     private static func isBetter(_ lhs: USIScore, than rhs: USIScore) -> Bool {
