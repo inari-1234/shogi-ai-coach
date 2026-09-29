@@ -70,6 +70,10 @@ struct PhaseReviewSection: Identifiable {
     let endPly: Int
     let summary: String
     let focusText: String
+    let themeTitle: String
+    let themeDetail: String
+    let nextCheckText: String
+    let hasImportantPoint: Bool
     let takeawayText: String
     let points: [PhaseCoachPoint]
 }
@@ -366,20 +370,22 @@ final class PhaseReviewViewModel: ObservableObject {
                     if left != right { return left > right }
                     return $0.ply < $1.ply
                 }
-                .prefix(2)
+                .prefix(1)
 
             for deep in deepInPhase {
                 let reason = reasons[deep.ply]?.interpretation.text
                     ?? "この局面はエンジンの最善手・実戦手・PVを比較して確認します。"
-                var evidence = ["最善手 \(deep.bestMove) / 実戦手 \(deep.actualMove)"]
-                if deep.comparisonStable, let loss = deep.actualLossCp {
-                    evidence.append("同条件比較の評価損失 \(loss)cp")
-                } else if !deep.comparisonStable {
-                    evidence.append("同条件比較は未安定のため評価損失を断定しない")
-                } else {
-                    evidence.append("最善手 \(deep.bestScoreText) / 実戦手 \(deep.actualScoreText)")
-                }
                 let continuation = continuations[deep.ply]
+                let recommendedMove = continuation?.recommended.moves.first?.label ?? deep.bestMove
+                let actualMove = continuation?.actual.moves.first?.label ?? deep.actualMove
+                var evidence = ["推奨 \(recommendedMove) / 実戦 \(actualMove)"]
+                if deep.comparisonStable, let loss = deep.actualLossCp {
+                    evidence.append(evaluationDifferenceText(loss))
+                } else if !deep.comparisonStable {
+                    evidence.append("評価比較は未安定のため、盤面変化を中心に確認")
+                } else {
+                    evidence.append("推奨手と実戦手を同じ条件で比較")
+                }
                 if continuation?.continuationStable == false {
                     evidence.append("継続PVは未安定のため到達形は参考扱い")
                 }
@@ -419,8 +425,16 @@ final class PhaseReviewViewModel: ObservableObject {
                 )
             }
 
-            let clipped = Array(points.prefix(4))
-            let importantPly = clipped.first(where: { $0.kind == .important })?.ply
+            let clipped = Array(points.prefix(3))
+            let representative = clipped.first(where: { $0.kind == .important })
+            let topDeep = deepInPhase.first
+            let coaching = phaseCoaching(
+                kind: kind,
+                start: start,
+                end: end,
+                representativePly: representative?.ply,
+                representativeDeep: topDeep
+            )
             return PhaseReviewSection(
                 id: kind,
                 kind: kind,
@@ -429,9 +443,95 @@ final class PhaseReviewViewModel: ObservableObject {
                 endPly: end.ply,
                 summary: phaseSummary(kind: kind, start: start, end: end),
                 focusText: kind.focusText,
-                takeawayText: takeawayText(kind: kind, importantPly: importantPly),
+                themeTitle: coaching.title,
+                themeDetail: coaching.detail,
+                nextCheckText: coaching.nextCheck,
+                hasImportantPoint: representative != nil,
+                takeawayText: takeawayText(kind: kind, importantPly: representative?.ply),
                 points: clipped
             )
+        }
+    }
+
+    private static func phaseCoaching(
+        kind: GamePhaseKind,
+        start: PhaseFeatureSnapshot,
+        end: PhaseFeatureSnapshot,
+        representativePly: Int?,
+        representativeDeep: DeepAnalysisEntry?
+    ) -> (title: String, detail: String, nextCheck: String) {
+        let captureDelta = max(0, end.cumulativeCaptures - start.cumulativeCaptures)
+        let stableLoss = representativeDeep.flatMap { deep in
+            deep.comparisonStable ? deep.actualLossCp : nil
+        }
+
+        switch kind {
+        case .opening:
+            let title: String
+            if let loss = stableLoss, loss >= 300 {
+                title = "仕掛け前の判断がこの序盤の課題"
+            } else if captureDelta > 0 || end.totalHandPieces > start.totalHandPieces {
+                title = "駒組みから最初の接触へ移るタイミング"
+            } else {
+                title = "駒組みを整える序盤"
+            }
+            let detail = representativePly.map {
+                "\($0)手目が序盤の代表局面です。駒を動かす目的だけでなく、仕掛けた後に飛車・角・銀桂が働く形になっているかを盤面で確認します。"
+            } ?? "この序盤では大きな分岐を追加抽出していません。駒組みの進み方と、仕掛ける前の玉の安全を確認します。"
+            return (
+                title,
+                detail,
+                "次回は仕掛ける前に、①自玉は安全か ②飛車・角・銀桂が働くか ③相手の反撃を受けられるか、の3点を確認します。"
+            )
+
+        case .middlegame:
+            let title: String
+            if let loss = stableLoss, loss >= 300 {
+                title = "駒交換後の読み筋がこの中盤の課題"
+            } else if captureDelta >= 4 {
+                title = "駒交換が続く中で、次の一手まで読む"
+            } else {
+                title = "攻めと受けを切り替える判断"
+            }
+            let detail = representativePly.map {
+                "\($0)手目を代表局面として、駒を取った直後に取り返されるか、その交換後も攻めが続くかまで盤面で比較します。"
+            } ?? "この中盤では大きな分岐を追加抽出していません。駒交換後に先手を取れるか、相手の攻めを受ける必要があるかを確認します。"
+            return (
+                title,
+                detail,
+                "次回は駒を取る前に、①取り返しがあるか ②交換後に自分の駒が働くか ③相手の攻めが先に来ないか、まで読みます。"
+            )
+
+        case .endgame:
+            let title: String
+            if representativeDeep?.comparisonStable == false {
+                title = "寄せと受けの判断は、結論を急がず盤面で確認"
+            } else if end.recentChecks >= 2 || end.kingPressure >= 2 {
+                title = "寄せと受けの速度がこの終盤のテーマ"
+            } else {
+                title = "玉の安全を優先して勝ち筋を探す終盤"
+            }
+            let detail = representativePly.map {
+                "\($0)手目を代表局面として、王手を続けるのか、受けに回るのか、その後の相手の応手まで盤面で確認します。"
+            } ?? "この終盤では大きな分岐を追加抽出していません。王手だけでなく、相手の受けと自玉への反撃まで含めて確認します。"
+            return (
+                title,
+                detail,
+                "次回は終盤で指す前に、①詰み・詰めろがあるか ②相手の受けは何か ③自玉に逆王手や詰めろが来ないか、を確認します。"
+            )
+        }
+    }
+
+    private static func evaluationDifferenceText(_ lossCp: Int) -> String {
+        switch lossCp {
+        case ..<100:
+            return "推奨手と実戦手の評価差は小さい"
+        case 100..<300:
+            return "推奨手側の評価がやや上"
+        case 300..<700:
+            return "推奨手側の評価が明確に上"
+        default:
+            return "推奨手側の評価が大きく上"
         }
     }
 
