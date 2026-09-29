@@ -23,6 +23,7 @@ struct ContinuationMoveStep: Identifiable {
     let effect: MoveEffect
     let givesCheck: Bool
     let label: String
+    let factText: String
     let coachText: String
 }
 
@@ -273,13 +274,18 @@ final class ContinuationSimulationViewModel: ObservableObject {
                 snapshot: nextSnapshot,
                 checkedSide: Self.opponent(of: effect.side)
             )
-            let label = Self.eventLabel(effect: effect, givesCheck: givesCheck)
+            let label = Self.japaneseMoveLabel(effect: effect)
+            let factText = Self.factText(
+                effect: effect,
+                givesCheck: givesCheck,
+                userSide: userSide
+            )
             let coachText = Self.coachText(
                 effect: effect,
                 givesCheck: givesCheck,
-                routeKind: kind,
-                stepIndex: zeroBased + 1,
-                userSide: userSide
+                userSide: userSide,
+                snapshotBefore: currentSnapshot,
+                snapshotAfter: nextSnapshot
             )
 
             steps.append(
@@ -293,6 +299,7 @@ final class ContinuationSimulationViewModel: ObservableObject {
                     effect: effect,
                     givesCheck: givesCheck,
                     label: label,
+                    factText: factText,
                     coachText: coachText
                 )
             )
@@ -303,7 +310,10 @@ final class ContinuationSimulationViewModel: ObservableObject {
         let blocks = Self.makeDevelopmentBlocks(steps)
         let routeSummary = Self.makeRouteSummary(
             kind: kind,
+            initial: initialSnapshot,
+            final: currentSnapshot,
             moves: steps,
+            userSide: userSide,
             comparisonStable: comparisonStable,
             actualLossCp: actualLossCp,
             reasonSummary: reasonSummary
@@ -396,69 +406,172 @@ final class ContinuationSimulationViewModel: ObservableObject {
         return prefix + "： " + parts.joined(separator: "、") + "。"
     }
 
-    private static func eventLabel(
-        effect: MoveEffect,
-        givesCheck: Bool
+    private static func japaneseMoveLabel(
+        effect: MoveEffect
     ) -> String {
-        var label: String
+        let marker = effect.side == .black ? "▲" : "△"
+        let destination = japaneseCoordinate(effect.destination)
+        var suffix = effect.pieceAfter.kanji
         if effect.isDrop {
-            label = "\(effect.pieceBefore.kanji)打 \(effect.destination.usi)"
-        } else if let captured = effect.capturedPiece {
-            label = "\(effect.pieceBefore.kanji)で\(captured.kanji)を取る \(effect.destination.usi)"
-        } else if effect.pieceBefore == .king {
-            label = "玉を\(effect.destination.usi)へ"
-        } else {
-            label = "\(effect.pieceBefore.kanji) \(effect.destination.usi)へ"
+            suffix += "打"
+        } else if effect.promotes {
+            suffix += "成"
         }
+        return marker + destination + suffix
+    }
 
+    private static func japaneseCoordinate(_ coordinate: BoardCoordinate) -> String {
+        let files = ["", "１", "２", "３", "４", "５", "６", "７", "８", "９"]
+        let ranks = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九"]
+        guard (1...9).contains(coordinate.file),
+              (1...9).contains(coordinate.rank) else {
+            return coordinate.usi
+        }
+        return files[coordinate.file] + ranks[coordinate.rank]
+    }
+
+    private static func factText(
+        effect: MoveEffect,
+        givesCheck: Bool,
+        userSide: ShogiSide
+    ) -> String {
+        let actor = effect.side == userSide ? "あなた側" : "相手側"
+        var facts: [String] = []
+
+        if effect.isDrop {
+            facts.append("持駒の\(effect.pieceBefore.kanji)を\(japaneseCoordinate(effect.destination))へ打つ")
+        } else {
+            facts.append("\(effect.pieceBefore.kanji)を\(japaneseCoordinate(effect.destination))へ移動")
+        }
+        if let captured = effect.capturedPiece {
+            facts.append("\(captured.kanji)を取る")
+        }
         if effect.promotes {
-            label += "・\(effect.pieceAfter.kanji)に成る"
+            facts.append("\(effect.pieceAfter.kanji)に成る")
         }
         if givesCheck {
-            label += "・王手"
+            facts.append("王手")
         }
-        return label
+        return actor + "： " + facts.joined(separator: "・")
     }
 
     private static func coachText(
         effect: MoveEffect,
         givesCheck: Bool,
-        routeKind: ContinuationRouteKind,
-        stepIndex: Int,
-        userSide: ShogiSide
+        userSide: ShogiSide,
+        snapshotBefore: BoardSnapshot,
+        snapshotAfter: BoardSnapshot
     ) -> String {
-        let actor = effect.side == userSide ? "あなた側" : "相手側"
-        let opening: String
-        if stepIndex == 1 {
-            opening = routeKind == .recommended
-                ? "推奨手です。"
-                : "実戦で選んだ手です。"
-        } else {
-            opening = "\(actor)の応手です。"
+        let mover = effect.side
+        let checkedSide = opponent(of: mover)
+
+        let attackBefore = kingZoneAttackerCount(
+            snapshot: snapshotBefore,
+            checkedSide: checkedSide
+        )
+        let attackAfter = kingZoneAttackerCount(
+            snapshot: snapshotAfter,
+            checkedSide: checkedSide
+        )
+        let dangerBefore = kingZoneAttackerCount(
+            snapshot: snapshotBefore,
+            checkedSide: mover
+        )
+        let dangerAfter = kingZoneAttackerCount(
+            snapshot: snapshotAfter,
+            checkedSide: mover
+        )
+        let defendersBefore = kingZoneDefenderCount(
+            snapshot: snapshotBefore,
+            side: mover
+        )
+        let defendersAfter = kingZoneDefenderCount(
+            snapshot: snapshotAfter,
+            side: mover
+        )
+
+        let ownKing = kingSquare(snapshot: snapshotAfter, side: mover)
+        let opponentKing = kingSquare(snapshot: snapshotAfter, side: checkedSide)
+        let nearOwnKing = ownKing.map {
+            chebyshevDistance(effect.destination, $0) <= 2
+        } ?? false
+        let nearOpponentKing = opponentKing.map {
+            chebyshevDistance(effect.destination, $0) <= 2
+        } ?? false
+
+        var meanings: [String] = []
+
+        if givesCheck {
+            meanings.append("相手玉に直接迫り、応手を求める手です")
+        }
+        if attackAfter > attackBefore {
+            meanings.append("相手玉周辺へ利く駒を増やし、攻めを続けやすい形にします")
+        }
+        if dangerAfter < dangerBefore {
+            meanings.append("自玉周辺への相手の圧力を減らします")
+        }
+        if defendersAfter > defendersBefore {
+            meanings.append("自玉の近くに守り駒を増やします")
         }
 
-        var facts: [String] = []
         if effect.isDrop {
-            facts.append("持駒の\(effect.pieceBefore.kanji)を\(effect.destination.usi)へ投入します")
-        } else if let captured = effect.capturedPiece {
-            facts.append("\(effect.pieceBefore.kanji)で\(captured.kanji)を取ります")
-        } else if effect.pieceBefore == .king {
-            facts.append("玉を\(effect.destination.usi)へ動かします")
-        } else {
-            facts.append("\(effect.pieceBefore.kanji)を\(effect.destination.usi)へ動かします")
+            if nearOpponentKing {
+                meanings.append("持駒を相手玉の近くへ投入し、次の攻めに使います")
+            } else if nearOwnKing {
+                meanings.append("持駒を自玉の近くへ投入し、受けに使いやすくします")
+            } else {
+                meanings.append("持駒を盤上へ投入し、次の働き場所を作ります")
+            }
         }
+
+        if effect.pieceBefore == .king {
+            if dangerAfter < dangerBefore {
+                meanings.append("玉を相手の利きが少ない側へ動かし、安全度を上げます")
+            } else {
+                meanings.append("玉の位置を変え、次の攻防に備えます")
+            }
+        } else if effect.capturedPiece != nil {
+            if nearOpponentKing {
+                meanings.append("駒を取りながら相手玉の近くへ踏み込みます")
+            } else {
+                meanings.append("駒交換を進め、交換後の配置と持駒の使い方が次の焦点になります")
+            }
+        }
+
         if effect.promotes {
-            facts.append("\(effect.pieceAfter.kanji)に成って働きを変えます")
+            meanings.append("成ることで駒の働きを強めます")
         }
-        if givesCheck {
-            facts.append("王手をかけます")
+
+        if meanings.isEmpty, let source = effect.source {
+            if let opponentKing {
+                let beforeDistance = chebyshevDistance(source, opponentKing)
+                let afterDistance = chebyshevDistance(effect.destination, opponentKing)
+                if afterDistance < beforeDistance {
+                    meanings.append("駒を相手玉側へ進め、攻めに参加しやすくします")
+                }
+            }
+            if meanings.isEmpty, let ownKing {
+                let beforeDistance = chebyshevDistance(source, ownKing)
+                let afterDistance = chebyshevDistance(effect.destination, ownKing)
+                if afterDistance < beforeDistance {
+                    meanings.append("駒を自玉側へ寄せ、守備に使いやすい位置へ移します")
+                }
+            }
         }
-        return opening + facts.joined(separator: "。") + "。"
+
+        if meanings.isEmpty {
+            meanings.append("駒の位置を変え、次の手で使える利きと配置を整えます")
+        }
+
+        return meanings.prefix(2).joined(separator: "。") + "。"
     }
 
     private static func makeRouteSummary(
         kind: ContinuationRouteKind,
+        initial: BoardSnapshot,
+        final: BoardSnapshot,
         moves: [ContinuationMoveStep],
+        userSide: ShogiSide,
         comparisonStable: Bool,
         actualLossCp: Int?,
         reasonSummary: String
@@ -467,32 +580,125 @@ final class ContinuationSimulationViewModel: ObservableObject {
             return "読み筋を取得できませんでした。"
         }
 
-        if kind == .recommended {
-            if moves.count >= 2,
-               let captured = first.effect.capturedPiece,
-               moves[1].effect.capturedPiece == first.effect.pieceAfter,
-               moves[1].effect.destination == first.effect.destination {
-                return "推奨手では\(captured.kanji)を取りますが、直後に動かした\(first.effect.pieceAfter.kanji)が取り返されます。駒得だけでなく、交換後の形まで確認する読み筋です。"
-            }
-            return reasonSummary
+        if kind == .recommended,
+           moves.count >= 2,
+           let captured = first.effect.capturedPiece,
+           moves[1].effect.capturedPiece == first.effect.pieceAfter,
+           moves[1].effect.destination == first.effect.destination {
+            return "最初に\(captured.kanji)を取りますが、直後に動かした\(first.effect.pieceAfter.kanji)が取り返されます。単純な駒得ではなく、交換後の形と次の手まで含めて評価された展開です。"
         }
 
-        var pieces = ["実戦は \(first.usi) から始まります。"]
-        if comparisonStable, let loss = actualLossCp {
-            if loss > 0 {
-                pieces.append("同条件比較では推奨手との差は \(loss)cp です。")
-            } else {
-                pieces.append("同条件比較では明確な評価損失は確認されていません。")
-            }
-        } else if !comparisonStable {
-            pieces.append("推奨手との評価比較はまだ安定していません。")
-        }
-        if moves.count >= 2 {
-            pieces.append("直後の応手 \(moves[1].usi) まで進め、盤面がどう変わるか確認します。")
+        let opponentSide = opponent(of: userSide)
+        let ownDangerBefore = kingZoneAttackerCount(
+            snapshot: initial,
+            checkedSide: userSide
+        )
+        let ownDangerAfter = kingZoneAttackerCount(
+            snapshot: final,
+            checkedSide: userSide
+        )
+        let attackBefore = kingZoneAttackerCount(
+            snapshot: initial,
+            checkedSide: opponentSide
+        )
+        let attackAfter = kingZoneAttackerCount(
+            snapshot: final,
+            checkedSide: opponentSide
+        )
+        let userChecks = moves.filter {
+            $0.side == userSide && $0.givesCheck
+        }.count
+        let userCaptures = moves.filter {
+            $0.side == userSide && $0.effect.capturedPiece != nil
+        }.count
+        let userDrops = moves.filter {
+            $0.side == userSide && $0.effect.isDrop
+        }.count
+
+        var sentences: [String] = []
+        if kind == .recommended {
+            sentences.append("推奨ルートは \(first.label) から始まります。")
         } else {
-            pieces.append("この手の後の盤面変化を確認します。")
+            sentences.append("実戦ルートは \(first.label) から始まります。")
         }
-        return pieces.joined()
+
+        if attackAfter > attackBefore {
+            sentences.append("相手玉周辺への攻撃参加が増える展開です。")
+        } else if ownDangerAfter < ownDangerBefore {
+            sentences.append("自玉周辺への圧力を減らす展開です。")
+        } else if userChecks > 0 {
+            sentences.append("王手を\(userChecks)回含み、相手玉へ直接迫ります。")
+        } else if userCaptures >= 2 {
+            sentences.append("駒交換を重ね、交換後の配置で差を作る展開です。")
+        } else if userDrops > 0 {
+            sentences.append("持駒を盤上へ投入して次の攻防を作ります。")
+        } else {
+            sentences.append("駒の配置を変えながら、次の攻防へつなぐ展開です。")
+        }
+
+        if kind == .actual {
+            if comparisonStable, let loss = actualLossCp, loss > 0 {
+                sentences.append("同条件比較では推奨手との差は\(loss)cpです。盤面を動かして、どこで差が広がるか確認します。")
+            } else if !comparisonStable {
+                sentences.append("推奨手との評価比較は未安定なので、評価値ではなく盤面変化を中心に確認します。")
+            }
+        } else if sentences.count == 1 {
+            sentences.append(reasonSummary)
+        }
+
+        return sentences.joined()
+    }
+
+    private static func kingSquare(
+        snapshot: BoardSnapshot,
+        side: ShogiSide
+    ) -> BoardCoordinate? {
+        snapshot.squares.first {
+            $0.value.side == side && $0.value.kind == .king
+        }?.key
+    }
+
+    private static func chebyshevDistance(
+        _ lhs: BoardCoordinate,
+        _ rhs: BoardCoordinate
+    ) -> Int {
+        max(abs(lhs.file - rhs.file), abs(lhs.rank - rhs.rank))
+    }
+
+    private static func kingZoneDefenderCount(
+        snapshot: BoardSnapshot,
+        side: ShogiSide
+    ) -> Int {
+        guard let king = kingSquare(snapshot: snapshot, side: side) else { return 0 }
+        return snapshot.squares.reduce(into: 0) { count, item in
+            guard item.value.side == side, item.value.kind != .king else { return }
+            if chebyshevDistance(item.key, king) <= 1 {
+                count += 1
+            }
+        }
+    }
+
+    private static func kingZoneAttackerCount(
+        snapshot: BoardSnapshot,
+        checkedSide: ShogiSide
+    ) -> Int {
+        guard let king = kingSquare(snapshot: snapshot, side: checkedSide) else {
+            return 0
+        }
+        let targets = (max(1, king.file - 1)...min(9, king.file + 1)).flatMap { file in
+            (max(1, king.rank - 1)...min(9, king.rank + 1)).map {
+                BoardCoordinate(file: file, rank: $0)
+            }
+        }
+        let attacker = opponent(of: checkedSide)
+        return snapshot.squares.reduce(into: 0) { count, item in
+            guard item.value.side == attacker else { return }
+            if targets.contains(where: {
+                attacks(from: item.key, piece: item.value, target: $0, snapshot: snapshot)
+            }) {
+                count += 1
+            }
+        }
     }
 
     private static func diagnosticRoute(

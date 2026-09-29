@@ -174,7 +174,7 @@ struct ContentView: View {
                         Button {
                             showingPhaseReview = true
                         } label: {
-                            Label("対局全体の流れを盤面で振り返る", systemImage: "square.split.2x1")
+                            Label("序盤・中盤・終盤の課題を見る", systemImage: "square.split.2x1")
                         }
                     }
 
