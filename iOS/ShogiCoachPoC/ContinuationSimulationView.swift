@@ -95,6 +95,17 @@ private struct ContinuationPositionPage: View {
                         .font(.caption.monospacedDigit())
                 }
 
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(selectedKind == .recommended ? "推奨ルートの意味" : "実戦ルートの意味")
+                        .font(.caption.bold())
+                        .foregroundStyle(.secondary)
+                    Text(route.summary)
+                        .font(.subheadline)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(10)
+                .background(.quaternary, in: RoundedRectangle(cornerRadius: 10))
+
                 ShogiBoardPanel(
                     snapshot: snapshot,
                     orientation: entry.orientation,
@@ -105,12 +116,21 @@ private struct ContinuationPositionPage: View {
                 controlBar
 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(currentMove == nil ? "このルートの短評" : "この手の短評")
-                        .font(.caption.bold())
-                        .foregroundStyle(.secondary)
                     if let move = currentMove {
                         Text(move.label)
                             .font(.headline)
+
+                        Text("盤面で起きたこと")
+                            .font(.caption.bold())
+                            .foregroundStyle(.secondary)
+                        Text(move.factText)
+                            .font(.subheadline)
+
+                        Divider()
+
+                        Text("この手の意味")
+                            .font(.caption.bold())
+                            .foregroundStyle(.secondary)
                         Text(move.coachText)
                             .font(.subheadline)
 
@@ -129,8 +149,9 @@ private struct ContinuationPositionPage: View {
                             }
                         }
                     } else {
-                        Text(route.summary)
+                        Text("盤面を動かすと、各手の事実と意味をここに表示します。")
                             .font(.subheadline)
+                            .foregroundStyle(.secondary)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -290,7 +311,7 @@ struct ShogiBoardPanel: View {
                 snapshot: snapshot,
                 side: opponentSide,
                 label: "相手の持駒",
-                alignment: .trailing
+                alignLeading: false
             )
 
             ContinuationBoardView(
@@ -303,7 +324,7 @@ struct ShogiBoardPanel: View {
                 snapshot: snapshot,
                 side: orientation,
                 label: "自分の持駒",
-                alignment: .leading
+                alignLeading: true
             )
         }
     }
@@ -313,7 +334,7 @@ private struct ShogiHandStrip: View {
     let snapshot: BoardSnapshot
     let side: ShogiSide
     let label: String
-    let alignment: HorizontalAlignment
+    let alignLeading: Bool
 
     private let kinds: [BoardPieceKind] = [
         .rook, .bishop, .gold, .silver, .knight, .lance, .pawn
@@ -327,7 +348,7 @@ private struct ShogiHandStrip: View {
     }
 
     var body: some View {
-        VStack(alignment: alignment, spacing: 2) {
+        VStack(alignment: alignLeading ? .leading : .trailing, spacing: 2) {
             Text(label)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
@@ -336,7 +357,7 @@ private struct ShogiHandStrip: View {
                 Text("なし")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: alignment == .leading ? .leading : .trailing)
+                    .frame(maxWidth: .infinity, alignment: alignLeading ? .leading : .trailing)
             } else {
                 HStack(spacing: 8) {
                     ForEach(Array(items.enumerated()), id: \.offset) { _, item in
@@ -350,7 +371,7 @@ private struct ShogiHandStrip: View {
                         }
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: alignment == .leading ? .leading : .trailing)
+                .frame(maxWidth: .infinity, alignment: alignLeading ? .leading : .trailing)
             }
         }
         .foregroundStyle(.primary)
