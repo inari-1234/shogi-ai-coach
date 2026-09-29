@@ -1167,6 +1167,7 @@ enum SimulatorCIProbe {
             "deep_status=\(deepStatus)",
             "deep_count=\(deepCount)",
             "deep_multipv=\(deepDiagnostic.deepAnalysis?.multiPV ?? 0)",
+            "deep_adaptive_policy=\(deepDiagnostic.deepAnalysis?.adaptivePolicy ?? "-")",
             "deep_diagnostic_schema=\(deepDiagnostic.schemaVersion)",
             "board_display_status=\(boardDisplayStatus)",
             "board_display_count=\(boardDisplayCount)",
