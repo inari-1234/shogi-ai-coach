@@ -38,6 +38,7 @@ struct ContinuationRoute {
     let kind: ContinuationRouteKind
     let scoreText: String
     let stable: Bool
+    let summary: String
     let initialSnapshot: BoardSnapshot
     let moves: [ContinuationMoveStep]
     let developmentBlocks: [ContinuationDevelopmentBlock]
@@ -106,6 +107,8 @@ final class ContinuationSimulationViewModel: ObservableObject {
                     positionCommand: kifMove.positionBefore
                 )
 
+                let reasonSummary = reasonByPly[deep.ply]?.interpretation.text
+                    ?? "この局面はエンジンPVを盤面で比較します。"
                 let recommendedMoves = try Self.normalizedPVMoves(
                     pv: deep.bestPV,
                     expectedFirstMove: deep.bestMove,
@@ -124,7 +127,10 @@ final class ContinuationSimulationViewModel: ObservableObject {
                     initialPositionCommand: kifMove.positionBefore,
                     initialSnapshot: initialSnapshot,
                     moves: recommendedMoves,
-                    userSide: orientation
+                    userSide: orientation,
+                    comparisonStable: deep.comparisonStable,
+                    actualLossCp: deep.actualLossCp,
+                    reasonSummary: reasonSummary
                 )
                 let actual = try Self.makeRoute(
                     kind: .actual,
@@ -133,11 +139,11 @@ final class ContinuationSimulationViewModel: ObservableObject {
                     initialPositionCommand: kifMove.positionBefore,
                     initialSnapshot: initialSnapshot,
                     moves: actualMoves,
-                    userSide: orientation
+                    userSide: orientation,
+                    comparisonStable: deep.comparisonStable,
+                    actualLossCp: deep.actualLossCp,
+                    reasonSummary: reasonSummary
                 )
-
-                let reasonSummary = reasonByPly[deep.ply]?.interpretation.text
-                    ?? "この局面はエンジンPVを盤面で比較します。"
 
                 let entry = ContinuationSimulationEntry(
                     id: deep.ply,
@@ -247,7 +253,10 @@ final class ContinuationSimulationViewModel: ObservableObject {
         initialPositionCommand: String,
         initialSnapshot: BoardSnapshot,
         moves: [String],
-        userSide: ShogiSide
+        userSide: ShogiSide,
+        comparisonStable: Bool,
+        actualLossCp: Int?,
+        reasonSummary: String
     ) throws -> ContinuationRoute {
         var command = initialPositionCommand
         var currentSnapshot = initialSnapshot
@@ -268,7 +277,9 @@ final class ContinuationSimulationViewModel: ObservableObject {
             let coachText = Self.coachText(
                 effect: effect,
                 givesCheck: givesCheck,
-                routeKind: kind
+                routeKind: kind,
+                stepIndex: zeroBased + 1,
+                userSide: userSide
             )
 
             steps.append(
@@ -290,6 +301,13 @@ final class ContinuationSimulationViewModel: ObservableObject {
         }
 
         let blocks = Self.makeDevelopmentBlocks(steps)
+        let routeSummary = Self.makeRouteSummary(
+            kind: kind,
+            moves: steps,
+            comparisonStable: comparisonStable,
+            actualLossCp: actualLossCp,
+            reasonSummary: reasonSummary
+        )
         let targetShape = Self.makeTargetShapeSummary(
             routeKind: kind,
             initial: initialSnapshot,
@@ -302,6 +320,7 @@ final class ContinuationSimulationViewModel: ObservableObject {
             kind: kind,
             scoreText: scoreText,
             stable: stable,
+            summary: routeSummary,
             initialSnapshot: initialSnapshot,
             moves: steps,
             developmentBlocks: blocks,
@@ -404,27 +423,76 @@ final class ContinuationSimulationViewModel: ObservableObject {
     private static func coachText(
         effect: MoveEffect,
         givesCheck: Bool,
-        routeKind: ContinuationRouteKind
+        routeKind: ContinuationRouteKind,
+        stepIndex: Int,
+        userSide: ShogiSide
     ) -> String {
-        let route = routeKind == .recommended ? "推奨ルート" : "実戦ルート"
-        var facts: [String] = []
-
-        if effect.isDrop {
-            facts.append("持駒の\(effect.pieceBefore.kanji)を\(effect.destination.usi)へ打ちます")
+        let actor = effect.side == userSide ? "あなた側" : "相手側"
+        let opening: String
+        if stepIndex == 1 {
+            opening = routeKind == .recommended
+                ? "推奨手です。"
+                : "実戦で選んだ手です。"
         } else {
-            facts.append("\(effect.pieceBefore.kanji)を\(effect.source?.usi ?? "-")から\(effect.destination.usi)へ動かします")
+            opening = "\(actor)の応手です。"
         }
-        if let captured = effect.capturedPiece {
-            facts.append("\(captured.kanji)を取ります")
+
+        var facts: [String] = []
+        if effect.isDrop {
+            facts.append("持駒の\(effect.pieceBefore.kanji)を\(effect.destination.usi)へ投入します")
+        } else if let captured = effect.capturedPiece {
+            facts.append("\(effect.pieceBefore.kanji)で\(captured.kanji)を取ります")
+        } else if effect.pieceBefore == .king {
+            facts.append("玉を\(effect.destination.usi)へ動かします")
+        } else {
+            facts.append("\(effect.pieceBefore.kanji)を\(effect.destination.usi)へ動かします")
         }
         if effect.promotes {
-            facts.append("\(effect.pieceAfter.kanji)に成ります")
+            facts.append("\(effect.pieceAfter.kanji)に成って働きを変えます")
         }
         if givesCheck {
-            facts.append("相手玉への王手です")
+            facts.append("王手をかけます")
+        }
+        return opening + facts.joined(separator: "。") + "。"
+    }
+
+    private static func makeRouteSummary(
+        kind: ContinuationRouteKind,
+        moves: [ContinuationMoveStep],
+        comparisonStable: Bool,
+        actualLossCp: Int?,
+        reasonSummary: String
+    ) -> String {
+        guard let first = moves.first else {
+            return "読み筋を取得できませんでした。"
         }
 
-        return route + "： " + facts.joined(separator: "。") + "。"
+        if kind == .recommended {
+            if moves.count >= 2,
+               let captured = first.effect.capturedPiece,
+               moves[1].effect.capturedPiece == first.effect.pieceAfter,
+               moves[1].effect.destination == first.effect.destination {
+                return "推奨手では\(captured.kanji)を取りますが、直後に動かした\(first.effect.pieceAfter.kanji)が取り返されます。駒得だけでなく、交換後の形まで確認する読み筋です。"
+            }
+            return reasonSummary
+        }
+
+        var pieces = ["実戦は \(first.usi) から始まります。"]
+        if comparisonStable, let loss = actualLossCp {
+            if loss > 0 {
+                pieces.append("同条件比較では推奨手との差は \(loss)cp です。")
+            } else {
+                pieces.append("同条件比較では明確な評価損失は確認されていません。")
+            }
+        } else if !comparisonStable {
+            pieces.append("推奨手との評価比較はまだ安定していません。")
+        }
+        if moves.count >= 2 {
+            pieces.append("直後の応手 \(moves[1].usi) まで進め、盤面がどう変わるか確認します。")
+        } else {
+            pieces.append("この手の後の盤面変化を確認します。")
+        }
+        return pieces.joined()
     }
 
     private static func diagnosticRoute(
