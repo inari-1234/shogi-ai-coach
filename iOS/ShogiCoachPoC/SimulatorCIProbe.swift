@@ -894,12 +894,12 @@ enum SimulatorCIProbe {
               !continuationSplitEntry.actual.stable,
               !continuationSplitEntry.recommended.summary.isEmpty,
               continuationSplitEntry.actual.summary.contains("1206cp"),
-              continuationSplitEntry.recommended.moves.allSatisfy {
+              continuationSplitEntry.recommended.moves.allSatisfy({
                   !$0.factText.isEmpty && !$0.coachText.isEmpty
-              },
-              continuationSplitEntry.actual.moves.allSatisfy {
+              }),
+              continuationSplitEntry.actual.moves.allSatisfy({
                   !$0.factText.isEmpty && !$0.coachText.isEmpty
-              },
+              }),
               let continuationSplitURL = continuationSplit.diagnosticURL,
               let continuationSplitData = try? Data(contentsOf: continuationSplitURL),
               let continuationSplitDiagnostic = try? JSONDecoder.iso8601.decode(
