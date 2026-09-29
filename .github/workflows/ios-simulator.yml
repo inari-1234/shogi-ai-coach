@@ -139,8 +139,8 @@ jobs:
           grep -Fq "shallow_count=4" simulator-result.txt
           grep -Fq "diagnostic_status=PASS" simulator-result.txt
           grep -Fq "diagnostic_positions=4" simulator-result.txt
-          grep -Fq "diagnostic_version=0.8.1" simulator-result.txt
-          grep -Fq "diagnostic_build=13" simulator-result.txt
+          grep -Fq "diagnostic_version=0.8.2" simulator-result.txt
+          grep -Fq "diagnostic_build=14" simulator-result.txt
           grep -Fq "deep_status=深掘り PASS" simulator-result.txt
           grep -Fq "deep_count=3" simulator-result.txt
           grep -Fq "deep_multipv=3" simulator-result.txt
@@ -156,6 +156,7 @@ jobs:
           grep -Fq "reason_immediate_recapture_status=PASS" simulator-result.txt
           grep -Fq "reason_continuation_unstable_status=PASS" simulator-result.txt
           grep -Fq "continuation_stability_split_status=PASS" simulator-result.txt
+          grep -Fq "board_first_review_status=PASS" simulator-result.txt
           grep -Fq "continuation_status=展開シミュレーション PASS" simulator-result.txt
           grep -Fq "continuation_schema=5" simulator-result.txt
           grep -Fq "phase_status=フェーズ別振り返り PASS" simulator-result.txt

@@ -14,7 +14,7 @@ struct ContinuationSimulationScreen: View {
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: entries.count > 1 ? .automatic : .never))
-            .navigationTitle("推奨展開シミュレーション")
+            .navigationTitle("重要局面を盤面で振り返る")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -104,8 +104,11 @@ private struct ContinuationPositionPage: View {
 
                 controlBar
 
-                if let move = currentMove {
-                    VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(currentMove == nil ? "このルートの短評" : "この手の短評")
+                        .font(.caption.bold())
+                        .foregroundStyle(.secondary)
+                    if let move = currentMove {
                         Text(move.label)
                             .font(.headline)
                         Text(move.coachText)
@@ -125,49 +128,45 @@ private struct ContinuationPositionPage: View {
                                 eventBadge("王手", systemImage: "bolt")
                             }
                         }
+                    } else {
+                        Text(route.summary)
+                            .font(.subheadline)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding()
-                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12))
-                } else {
-                    Text(entry.reasonSummary)
-                        .font(.subheadline)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding()
-                        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12))
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding()
+                .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12))
 
                 moveStrip
 
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("展開のまとまり")
-                        .font(.headline)
-                    ForEach(route.developmentBlocks) { block in
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(block.title)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                            Text(block.summary)
-                                .font(.subheadline)
+                DisclosureGroup("この展開を詳しく見る") {
+                    VStack(alignment: .leading, spacing: 12) {
+                        ForEach(route.developmentBlocks) { block in
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(block.title)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                Text(block.summary)
+                                    .font(.subheadline)
+                            }
                         }
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
 
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(route.stable ? "このPVの到達形" : "このPVの参考到達形")
-                        .font(.headline)
-                    Text(route.targetShapeSummary)
-                        .font(.subheadline)
-                    Text(
-                        route.stable
-                            ? "エンジンPVから再構築した到達形だけを表示し、PVにない理想形は補っていません。"
-                            : "現在取得できたエンジンPVから再構築していますが、継続手順が安定していないため参考として表示します。"
-                    )
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        Divider()
+
+                        Text(route.stable ? "PVの到達形" : "参考到達形")
+                            .font(.headline)
+                        Text(route.targetShapeSummary)
+                            .font(.subheadline)
+                        Text(
+                            route.stable
+                                ? "エンジンPVから再構築した範囲だけを表示しています。"
+                                : "継続手順が安定していないため、この到達形は参考として表示します。"
+                        )
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.top, 8)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.bottom, 26)
             }
         }
@@ -275,7 +274,7 @@ private struct ContinuationPositionPage: View {
     }
 }
 
-private struct ContinuationBoardView: View {
+struct ContinuationBoardView: View {
     let snapshot: BoardSnapshot
     let orientation: ShogiSide
     let move: ContinuationMoveStep?

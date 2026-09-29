@@ -11,8 +11,6 @@ struct ContentView: View {
     @StateObject private var phaseReview = PhaseReviewViewModel()
 
     @State private var showingKIFImporter = false
-    @State private var showingBoardReview = false
-    @State private var showingReasonAnalysis = false
     @State private var showingContinuationSimulation = false
     @State private var showingPhaseReview = false
     @State private var isAnalyzing = false
@@ -159,29 +157,31 @@ struct ContentView: View {
                         .font(.headline)
 
                     if analysisStatus == "解析 PASS" {
-                        Text(reason.summary)
-                            .font(.system(.footnote, design: .monospaced))
+                        Text("重要局面を\(continuation.entries.count)件抽出しました。推奨手と実戦手を盤面で動かして比較できます。")
+                            .font(.footnote)
                             .foregroundStyle(.secondary)
                     }
                 }
 
                 if analysisStatus == "解析 PASS" {
-                    Section("重要局面") {
-                        Button("最善手を盤面で見る") {
-                            showingBoardReview = true
-                        }
-
-                        Button("なぜ重要かを見る") {
-                            showingReasonAnalysis = true
-                        }
-
-                        Button("推奨展開を動かして見る") {
+                    Section("振り返り") {
+                        Button {
                             showingContinuationSimulation = true
+                        } label: {
+                            Label("重要局面を盤面で振り返る", systemImage: "play.rectangle")
                         }
 
-                        Button("対局をフェーズ別に振り返る") {
+                        Button {
                             showingPhaseReview = true
+                        } label: {
+                            Label("対局全体の流れを盤面で振り返る", systemImage: "square.split.2x1")
                         }
+                    }
+
+                    Section("詳細") {
+                        Text("エンジンの根拠一覧は通常の振り返りには表示せず、診断JSONに保持しています。")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
 
                         if let diagnosticURL {
                             ShareLink(item: diagnosticURL) {
@@ -219,17 +219,14 @@ struct ContentView: View {
                     break
                 }
             }
-            .sheet(isPresented: $showingBoardReview) {
-                BoardReviewScreen(entries: boardReview.entries)
-            }
-            .sheet(isPresented: $showingReasonAnalysis) {
-                ReasonAnalysisScreen(entries: reason.entries)
-            }
             .sheet(isPresented: $showingContinuationSimulation) {
                 ContinuationSimulationScreen(entries: continuation.entries)
             }
             .sheet(isPresented: $showingPhaseReview) {
-                PhaseReviewScreen(sections: phaseReview.sections)
+                PhaseReviewScreen(
+                    sections: phaseReview.sections,
+                    continuationEntries: continuation.entries
+                )
             }
         }
     }

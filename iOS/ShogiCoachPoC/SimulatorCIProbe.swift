@@ -388,8 +388,8 @@ enum SimulatorCIProbe {
               diagnostic.analysis.completedPositions == kifGame.moves.count,
               diagnostic.positions.count == kifGame.moves.count,
               diagnostic.positions.allSatisfy({ !$0.pv.isEmpty && !$0.bestMove.isEmpty }),
-              diagnostic.app.version == "0.8.1",
-              diagnostic.app.build == "13",
+              diagnostic.app.version == "0.8.2",
+              diagnostic.app.build == "14",
               diagnostic.app.gitCommit != "unknown" else {
             writeReport([
                 "stage=diagnostic_failed",
@@ -435,8 +435,8 @@ enum SimulatorCIProbe {
                 from: deepDiagnosticData
               ),
               deepDiagnostic.schemaVersion == 2,
-              deepDiagnostic.app.version == "0.8.1",
-              deepDiagnostic.app.build == "13",
+              deepDiagnostic.app.version == "0.8.2",
+              deepDiagnostic.app.build == "14",
               deepDiagnostic.deepAnalysis?.status == "深掘り PASS",
               deepDiagnostic.deepAnalysis?.multiPV == 3,
               deepDiagnostic.deepAnalysis?.adaptivePolicy == "adaptive-v2",
@@ -491,8 +491,8 @@ enum SimulatorCIProbe {
                 from: boardDiagnosticData
               ),
               boardDiagnostic.schemaVersion == 3,
-              boardDiagnostic.app.version == "0.8.1",
-              boardDiagnostic.app.build == "13",
+              boardDiagnostic.app.version == "0.8.2",
+              boardDiagnostic.app.build == "14",
               boardDiagnostic.boardDisplay?.status == "盤面表示 PASS",
               boardDiagnostic.boardDisplay?.completedPositions == deep.entries.count,
               boardDiagnostic.boardDisplay?.positions.count == deep.entries.count else {
@@ -541,8 +541,8 @@ enum SimulatorCIProbe {
                 from: reasonDiagnosticData
               ),
               reasonDiagnostic.schemaVersion == 4,
-              reasonDiagnostic.app.version == "0.8.1",
-              reasonDiagnostic.app.build == "13",
+              reasonDiagnostic.app.version == "0.8.2",
+              reasonDiagnostic.app.build == "14",
               reasonDiagnostic.reasonAnalysis?.status == "理由解析 PASS",
               reasonDiagnostic.reasonAnalysis?.completedPositions == deep.entries.count,
               reasonDiagnostic.reasonAnalysis?.positions.count == deep.entries.count,
@@ -585,6 +585,10 @@ enum SimulatorCIProbe {
                 && entry.actual.moves.count <= 10
                 && !entry.recommended.developmentBlocks.isEmpty
                 && !entry.actual.developmentBlocks.isEmpty
+                && !entry.recommended.summary.isEmpty
+                && !entry.actual.summary.isEmpty
+                && entry.recommended.moves.allSatisfy { !$0.coachText.isEmpty }
+                && entry.actual.moves.allSatisfy { !$0.coachText.isEmpty }
                 && !entry.recommended.targetShapeSummary.isEmpty
                 && !entry.actual.targetShapeSummary.isEmpty
         }
@@ -598,8 +602,8 @@ enum SimulatorCIProbe {
                 from: continuationDiagnosticData
               ),
               continuationDiagnostic.schemaVersion == 5,
-              continuationDiagnostic.app.version == "0.8.1",
-              continuationDiagnostic.app.build == "13",
+              continuationDiagnostic.app.version == "0.8.2",
+              continuationDiagnostic.app.build == "14",
               continuationDiagnostic.continuationSimulation?.status == "展開シミュレーション PASS",
               continuationDiagnostic.continuationSimulation?.completedPositions == deep.entries.count,
               continuationDiagnostic.continuationSimulation?.positions.count == deep.entries.count,
@@ -637,6 +641,11 @@ enum SimulatorCIProbe {
         guard phaseStatus == "フェーズ別振り返り PASS",
               phaseReview.sections.count == 1,
               phaseKinds == Set([GamePhaseKind.opening]),
+              phaseReview.sections.allSatisfy({
+                  !$0.takeawayText.isEmpty
+                      && !$0.points.isEmpty
+                      && $0.points.allSatisfy { $0.snapshot.pieceCount > 0 }
+              }),
               let phaseDiagnosticURL = phaseReview.diagnosticURL,
               let phaseDiagnosticData = try? Data(contentsOf: phaseDiagnosticURL),
               let phaseDiagnostic = try? JSONDecoder.iso8601.decode(
@@ -644,8 +653,8 @@ enum SimulatorCIProbe {
                 from: phaseDiagnosticData
               ),
               phaseDiagnostic.schemaVersion == 7,
-              phaseDiagnostic.app.version == "0.8.1",
-              phaseDiagnostic.app.build == "13",
+              phaseDiagnostic.app.version == "0.8.2",
+              phaseDiagnostic.app.build == "14",
               phaseDiagnostic.phaseAnalysis?.status == "フェーズ別振り返り PASS",
               phaseDiagnostic.phaseAnalysis?.usedAdditionalEngineSearch == false,
               phaseDiagnostic.phaseAnalysis?.sections.count == 1,
@@ -754,7 +763,7 @@ enum SimulatorCIProbe {
                     move: "3g2e",
                     scoreText: "cp 1103",
                     centipawn: 1103,
-                    depthText: "13",
+                    depthText: "14",
                     nodesText: "1",
                     npsText: "1",
                     pv: "3g2e 3c2e 2g2f 3b3c 2h3i P*2d",
@@ -867,6 +876,10 @@ enum SimulatorCIProbe {
               !continuationSplitEntry.continuationStable,
               !continuationSplitEntry.recommended.stable,
               !continuationSplitEntry.actual.stable,
+              !continuationSplitEntry.recommended.summary.isEmpty,
+              continuationSplitEntry.actual.summary.contains("1206cp"),
+              continuationSplitEntry.recommended.moves.allSatisfy { !$0.coachText.isEmpty },
+              continuationSplitEntry.actual.moves.allSatisfy { !$0.coachText.isEmpty },
               let continuationSplitURL = continuationSplit.diagnosticURL,
               let continuationSplitData = try? Data(contentsOf: continuationSplitURL),
               let continuationSplitDiagnostic = try? JSONDecoder.iso8601.decode(
@@ -1179,6 +1192,7 @@ enum SimulatorCIProbe {
             "reason_immediate_recapture_status=PASS",
             "reason_continuation_unstable_status=PASS",
             "continuation_stability_split_status=PASS",
+            "board_first_review_status=PASS",
             "continuation_status=\(continuationStatus)",
             "continuation_count=\(continuationCount)",
             "continuation_schema=5",

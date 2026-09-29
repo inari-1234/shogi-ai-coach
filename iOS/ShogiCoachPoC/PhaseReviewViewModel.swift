@@ -30,6 +30,7 @@ enum GamePhaseKind: String, Codable, CaseIterable, Identifiable, Hashable {
 
 struct PhaseFeatureSnapshot {
     let ply: Int
+    let snapshot: BoardSnapshot
     let cumulativeCaptures: Int
     let totalHandPieces: Int
     let promotedPieces: Int
@@ -42,23 +43,34 @@ struct PhaseFeatureSnapshot {
     let sideToMoveInCheck: Bool
 }
 
+enum PhaseCoachPointKind: String {
+    case transition
+    case important
+    case endpoint
+}
+
 struct PhaseCoachPoint: Identifiable {
     let id: String
+    let kind: PhaseCoachPointKind
     let ply: Int
+    let snapshot: BoardSnapshot
     let title: String
     let detail: String
     let evidence: [String]
     let source: String
     let continuationSummary: String?
+    let continuationPly: Int?
 }
 
 struct PhaseReviewSection: Identifiable {
     let id: GamePhaseKind
     let kind: GamePhaseKind
+    let orientation: ShogiSide
     let startPly: Int
     let endPly: Int
     let summary: String
     let focusText: String
+    let takeawayText: String
     let points: [PhaseCoachPoint]
 }
 
@@ -102,12 +114,14 @@ final class PhaseReviewViewModel: ObservableObject {
         do {
             let features = try Self.makeFeatures(game: game, shallowEntries: shallowEntries)
             let assignments = Self.assignPhases(features: features)
+            let orientation = Self.userOrientation(game: game)
             let resolved = Self.makeSections(
                 features: features,
                 assignments: assignments,
                 deepEntries: deepEntries,
                 reasonEntries: reasonEntries,
-                continuationEntries: continuationEntries
+                continuationEntries: continuationEntries,
+                orientation: orientation
             )
             guard !resolved.isEmpty else {
                 throw PhaseReviewError.noSections
@@ -195,6 +209,7 @@ final class PhaseReviewViewModel: ObservableObject {
             result.append(
                 PhaseFeatureSnapshot(
                     ply: move.ply,
+                    snapshot: snapshot,
                     cumulativeCaptures: cumulativeCaptures,
                     totalHandPieces: snapshot.totalHandCount(side: .black)
                         + snapshot.totalHandCount(side: .white),
@@ -313,11 +328,13 @@ final class PhaseReviewViewModel: ObservableObject {
         assignments: [GamePhaseKind],
         deepEntries: [DeepAnalysisEntry],
         reasonEntries: [ReasonAnalysisEntry],
-        continuationEntries: [ContinuationSimulationEntry]
+        continuationEntries: [ContinuationSimulationEntry],
+        orientation: ShogiSide
     ) -> [PhaseReviewSection] {
         guard features.count == assignments.count else { return [] }
         let reasons = Dictionary(uniqueKeysWithValues: reasonEntries.map { ($0.ply, $0) })
         let continuations = Dictionary(uniqueKeysWithValues: continuationEntries.map { ($0.ply, $0) })
+        let featuresByPly = Dictionary(uniqueKeysWithValues: features.map { ($0.ply, $0) })
 
         return GamePhaseKind.allCases.compactMap { kind in
             let indices = assignments.indices.filter { assignments[$0] == kind }
@@ -329,12 +346,15 @@ final class PhaseReviewViewModel: ObservableObject {
             points.append(
                 PhaseCoachPoint(
                     id: "\(kind.rawValue)-start-\(start.ply)",
+                    kind: .transition,
                     ply: start.ply,
-                    title: kind == .opening ? "このフェーズで見ること" : "\(kind.title)へ移った根拠",
-                    detail: kind.focusText,
-                    evidence: evidenceTexts(start),
+                    snapshot: start.snapshot,
+                    title: kind == .opening ? "序盤の盤面" : "\(kind.title)へ移った局面",
+                    detail: transitionNarrative(kind: kind, feature: start),
+                    evidence: humanEvidenceTexts(start),
                     source: "phase_state",
-                    continuationSummary: nil
+                    continuationSummary: nil,
+                    continuationPly: nil
                 )
             )
 
@@ -363,17 +383,21 @@ final class PhaseReviewViewModel: ObservableObject {
                 if continuation?.continuationStable == false {
                     evidence.append("継続PVは未安定のため到達形は参考扱い")
                 }
+                guard let feature = featuresByPly[deep.ply] else { continue }
                 points.append(
                     PhaseCoachPoint(
                         id: "\(kind.rawValue)-deep-\(deep.ply)",
+                        kind: .important,
                         ply: deep.ply,
-                        title: "\(deep.ply)手目の重要局面",
+                        snapshot: feature.snapshot,
+                        title: "\(deep.ply)手目：この対局のポイント",
                         detail: reason,
                         evidence: evidence,
                         source: "engine_important_position",
                         continuationSummary: continuation?.continuationStable == true
                             ? continuation?.recommended.targetShapeSummary
-                            : nil
+                            : nil,
+                        continuationPly: continuation == nil ? nil : deep.ply
                     )
                 )
             }
@@ -382,24 +406,30 @@ final class PhaseReviewViewModel: ObservableObject {
                 points.append(
                     PhaseCoachPoint(
                         id: "\(kind.rawValue)-end-\(end.ply)",
+                        kind: .endpoint,
                         ply: end.ply,
-                        title: "フェーズ終点の盤面",
-                        detail: "この時点の盤面事実を確認し、次のフェーズへ何が変わったかを振り返ります。",
-                        evidence: evidenceTexts(end),
+                        snapshot: end.snapshot,
+                        title: "\(kind.title)の終わり",
+                        detail: endpointNarrative(kind: kind, feature: end),
+                        evidence: humanEvidenceTexts(end),
                         source: "phase_state",
-                        continuationSummary: nil
+                        continuationSummary: nil,
+                        continuationPly: nil
                     )
                 )
             }
 
             let clipped = Array(points.prefix(4))
+            let importantPly = clipped.first(where: { $0.kind == .important })?.ply
             return PhaseReviewSection(
                 id: kind,
                 kind: kind,
+                orientation: orientation,
                 startPly: start.ply,
                 endPly: end.ply,
                 summary: phaseSummary(kind: kind, start: start, end: end),
                 focusText: kind.focusText,
+                takeawayText: takeawayText(kind: kind, importantPly: importantPly),
                 points: clipped
             )
         }
@@ -410,28 +440,91 @@ final class PhaseReviewViewModel: ObservableObject {
         start: PhaseFeatureSnapshot,
         end: PhaseFeatureSnapshot
     ) -> String {
-        let captureDelta = max(0, end.cumulativeCaptures - start.cumulativeCaptures)
-        return "\(start.ply)〜\(end.ply)手。区間内の累積駒取り増加は\(captureDelta)回、終点の持駒は合計\(end.totalHandPieces)枚、成駒は\(end.promotedPieces)枚、直近8手の王手は\(end.recentChecks)回です。\(kind.focusText)"
+        switch kind {
+        case .opening:
+            return "駒を整えながら、どこから仕掛けるかを作っていく区間です。大きな分岐がある局面だけ盤面で確認します。"
+        case .middlegame:
+            return "駒交換が進み、攻めるか受けるかの判断で盤面が大きく変わる区間です。重要局面は推奨手と実戦手を動かして比較します。"
+        case .endgame:
+            return "玉周辺の攻防が中心になり、1手ごとの寄せと受けが結果に直結しやすい区間です。王手や詰みに近い局面を盤面で確認します。"
+        }
     }
 
-    private static func evidenceTexts(_ f: PhaseFeatureSnapshot) -> [String] {
-        var result = [
-            "累積駒取り \(f.cumulativeCaptures)回",
-            "持駒 合計\(f.totalHandPieces)枚"
-        ]
-        if f.promotedPieces > 0 { result.append("成駒 \(f.promotedPieces)枚") }
-        if f.enemyCampPieces > 0 { result.append("敵陣侵入駒 \(f.enemyCampPieces)枚") }
-        if f.recentChecks > 0 { result.append("直近8手の王手 \(f.recentChecks)回") }
-        if f.kingPressure > 0 { result.append("王周辺への攻撃駒 最大\(f.kingPressure)枚") }
-        if f.cumulativeCaptures > 0 && f.majorPieceContacts > 0 {
-            result.append("大駒が敵駒へ接触 \(f.majorPieceContacts)件")
+    private static func transitionNarrative(
+        kind: GamePhaseKind,
+        feature: PhaseFeatureSnapshot
+    ) -> String {
+        switch kind {
+        case .opening:
+            return "まだ大きな駒交換は少なく、駒の配置を整えるところから始まっています。"
+        case .middlegame:
+            if feature.majorPieceContacts > 0 {
+                return "飛車・角が相手駒へ働き始め、駒組み中心の局面から具体的な攻防へ移っています。"
+            }
+            return "駒交換と持駒が生まれ、駒組み中心の局面から具体的な攻めと受けへ移っています。"
+        case .endgame:
+            if feature.recentChecks > 0 || feature.kingPressure >= 2 {
+                return "王手や玉周辺の攻防が増え、駒得よりも寄せと受けの速度が重要な局面へ移っています。"
+            }
+            return "持駒と敵陣への進出が増え、玉を直接狙う終盤の判断が中心になっています。"
         }
-        if let swing = f.evaluationSwingCp, swing >= 100 {
-            result.append("直前局面からの評価値変動 \(swing)cp")
+    }
+
+    private static func endpointNarrative(
+        kind: GamePhaseKind,
+        feature: PhaseFeatureSnapshot
+    ) -> String {
+        switch kind {
+        case .opening:
+            return "ここまでで駒組みが進み、次は実際に駒がぶつかる局面へ進みます。盤面の配置がどう変わったかを確認します。"
+        case .middlegame:
+            return "駒交換後の形が固まり、ここからは玉周辺の攻防がより重要になります。次の局面へ入る前の形を確認します。"
+        case .endgame:
+            return "終局に近い盤面です。王手・受け・持駒の使い方がどのように結果へつながったかを確認します。"
         }
-        if f.mateSignal { result.append("エンジンmate評価あり") }
-        if f.sideToMoveInCheck { result.append("手番側の玉が王手状態") }
-        return Array(result.prefix(6))
+    }
+
+    private static func takeawayText(
+        kind: GamePhaseKind,
+        importantPly: Int?
+    ) -> String {
+        if let importantPly {
+            return "このフェーズでは、\(importantPly)手目の分岐を盤面で動かし、推奨手と実戦手で何が変わるかを確認するのが中心です。"
+        }
+        switch kind {
+        case .opening:
+            return "この対局では序盤に大きな分岐は検出されませんでした。駒組みがどう進んだかを盤面で確認します。"
+        case .middlegame:
+            return "この対局では中盤に明確な重要局面を追加抽出していません。駒交換後の盤面変化を確認します。"
+        case .endgame:
+            return "この対局では終盤に明確な重要局面を追加抽出していません。玉周辺の攻防の変化を確認します。"
+        }
+    }
+
+    private static func humanEvidenceTexts(_ f: PhaseFeatureSnapshot) -> [String] {
+        var result: [String] = []
+        if f.cumulativeCaptures >= 2 {
+            result.append("駒交換が進み、盤上の形が変わっています")
+        }
+        if f.totalHandPieces >= 2 {
+            result.append("持駒が生まれ、駒を打つ手が選択肢に入っています")
+        }
+        if f.majorPieceContacts > 0 {
+            result.append("飛車・角が相手駒へ直接働く局面です")
+        }
+        if f.recentChecks > 0 || f.kingPressure >= 2 {
+            result.append("玉周辺の攻防が強まっています")
+        }
+        if let swing = f.evaluationSwingCp, swing >= 200 {
+            result.append("直前から評価が大きく動いた局面です")
+        }
+        if f.mateSignal {
+            result.append("エンジンは詰みに関わる読みを検出しています")
+        }
+        if result.isEmpty {
+            result.append("大きな駒交換はまだ少なく、駒の配置が中心です")
+        }
+        return Array(result.prefix(3))
     }
 
     private static func transitionDiagnostics(
@@ -587,6 +680,15 @@ final class PhaseReviewViewModel: ObservableObject {
             rank += rankStep
         }
         return true
+    }
+
+    private static func userOrientation(game: KIFGame) -> ShogiSide {
+        let sente = game.metadata["先手"] ?? ""
+        let gote = game.metadata["後手"] ?? ""
+        if gote.contains("あなた"), !sente.contains("あなた") {
+            return .white
+        }
+        return .black
     }
 
     private static func opponent(of side: ShogiSide) -> ShogiSide {
