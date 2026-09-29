@@ -56,11 +56,18 @@ private struct ContinuationPositionPage: View {
                         .font(.headline)
                     Spacer()
                     if entry.comparisonStable {
-                        Text(entry.actualLossCp.map { "同条件差 \($0)cp" } ?? "同条件比較")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                        VStack(alignment: .trailing, spacing: 2) {
+                            Text(entry.actualLossCp.map { "同条件差 \($0)cp" } ?? "同条件比較")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            if !entry.continuationStable {
+                                Label("読み筋は参考", systemImage: "exclamationmark.triangle")
+                                    .font(.caption2)
+                                    .foregroundStyle(.orange)
+                            }
+                        }
                     } else {
-                        Label("探索未安定", systemImage: "exclamationmark.triangle")
+                        Label("比較判定保留", systemImage: "exclamationmark.triangle")
                             .font(.caption)
                             .foregroundStyle(.orange)
                     }
@@ -148,11 +155,15 @@ private struct ContinuationPositionPage: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("このPVの到達形")
+                    Text(route.stable ? "このPVの到達形" : "このPVの参考到達形")
                         .font(.headline)
                     Text(route.targetShapeSummary)
                         .font(.subheadline)
-                    Text("エンジンPVから再構築した到達形だけを表示し、PVにない理想形は補っていません。")
+                    Text(
+                        route.stable
+                            ? "エンジンPVから再構築した到達形だけを表示し、PVにない理想形は補っていません。"
+                            : "現在取得できたエンジンPVから再構築していますが、継続手順が安定していないため参考として表示します。"
+                    )
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }

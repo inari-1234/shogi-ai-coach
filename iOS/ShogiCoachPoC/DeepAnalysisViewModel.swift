@@ -34,6 +34,8 @@ struct DeepAnalysisEntry: Identifiable {
     let thermalAfter: String
     let comparisonStable: Bool
     let instabilityReasons: [String]
+    let continuationStable: Bool
+    let continuationInstabilityReasons: [String]
     let analysisAttempts: Int
     let finalMovetimeMs: Int
     let adaptiveTriggered: Bool
@@ -153,7 +155,7 @@ final class DeepAnalysisViewModel: ObservableObject {
                     bestMove: final.bestLine.move,
                     bestScoreText: final.bestLine.scoreText,
                     actualScoreText: final.actualLine.scoreText,
-                    actualLossCp: comparison.stable ? final.lossCp : nil,
+                    actualLossCp: comparison.comparisonStable ? final.lossCp : nil,
                     bestPV: final.bestLine.pvText,
                     actualPV: final.actualLine.pvText,
                     actualAnalysisSource: source,
@@ -162,8 +164,10 @@ final class DeepAnalysisViewModel: ObservableObject {
                     elapsedMs: comparison.totalElapsedMs,
                     thermalBefore: comparison.attempts.first?.thermalBefore ?? "unknown",
                     thermalAfter: final.thermalAfter,
-                    comparisonStable: comparison.stable,
-                    instabilityReasons: comparison.instabilityReasons,
+                    comparisonStable: comparison.comparisonStable,
+                    instabilityReasons: comparison.comparisonInstabilityReasons,
+                    continuationStable: comparison.continuationStable,
+                    continuationInstabilityReasons: comparison.continuationInstabilityReasons,
                     analysisAttempts: comparison.attempts.count,
                     finalMovetimeMs: comparison.finalMovetimeMs,
                     adaptiveTriggered: comparison.adaptiveTriggered,
@@ -172,7 +176,7 @@ final class DeepAnalysisViewModel: ObservableObject {
                 analyzedEntries.append(entry)
 
                 SimulatorStage.mark(
-                    "deep_ply_\(move.ply)_done_best_\(entry.bestMove)_actual_\(entry.actualMove)_stable_\(entry.comparisonStable)_attempts_\(entry.analysisAttempts)"
+                    "deep_ply_\(move.ply)_done_best_\(entry.bestMove)_actual_\(entry.actualMove)_comparison_\(entry.comparisonStable)_continuation_\(entry.continuationStable)_attempts_\(entry.analysisAttempts)"
                 )
 
                 if final.thermalAfter == "critical" {
@@ -228,6 +232,7 @@ final class DeepAnalysisViewModel: ObservableObject {
             completedPositions: entries.count,
             totalElapsedMs: totalElapsedMs,
             focus: selection.focus,
+            adaptivePolicy: "adaptive-v2",
             positions: entries.map { entry in
                 .init(
                     ply: entry.ply,
@@ -260,6 +265,8 @@ final class DeepAnalysisViewModel: ObservableObject {
                     thermalAfter: entry.thermalAfter,
                     comparisonStable: entry.comparisonStable,
                     instabilityReasons: entry.instabilityReasons,
+                    continuationStable: entry.continuationStable,
+                    continuationInstabilityReasons: entry.continuationInstabilityReasons,
                     analysisAttempts: entry.analysisAttempts,
                     finalMovetimeMs: entry.finalMovetimeMs,
                     adaptiveTriggered: entry.adaptiveTriggered,
@@ -427,7 +434,8 @@ final class DeepAnalysisViewModel: ObservableObject {
         error: String?
     ) -> String {
         let adaptive = entries.filter(\.adaptiveTriggered).count
-        let unstable = entries.filter { !$0.comparisonStable }.count
+        let comparisonUnstable = entries.filter { !$0.comparisonStable }.count
+        let continuationUnstable = entries.filter { !$0.continuationStable }.count
         var lines = [
             "focus: \(focus)",
             "provisional positions: \(provisionalCount)",
@@ -437,7 +445,8 @@ final class DeepAnalysisViewModel: ObservableObject {
             "MultiPV discovery: \(multiPV)",
             "comparison: equal-condition searchmoves",
             "adaptive extended: \(adaptive)",
-            "unstable final: \(unstable)",
+            "comparison unstable: \(comparisonUnstable)",
+            "continuation unstable: \(continuationUnstable)",
             "total elapsed: \(totalElapsedMs) ms"
         ]
         for entry in entries {

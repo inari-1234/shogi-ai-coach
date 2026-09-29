@@ -49,6 +49,7 @@ struct ContinuationSimulationEntry: Identifiable {
     let ply: Int
     let orientation: ShogiSide
     let comparisonStable: Bool
+    let continuationStable: Bool
     let actualLossCp: Int?
     let recommended: ContinuationRoute
     let actual: ContinuationRoute
@@ -119,7 +120,7 @@ final class ContinuationSimulationViewModel: ObservableObject {
                 let recommended = try Self.makeRoute(
                     kind: .recommended,
                     scoreText: deep.bestScoreText,
-                    stable: deep.comparisonStable,
+                    stable: deep.continuationStable,
                     initialPositionCommand: kifMove.positionBefore,
                     initialSnapshot: initialSnapshot,
                     moves: recommendedMoves,
@@ -128,7 +129,7 @@ final class ContinuationSimulationViewModel: ObservableObject {
                 let actual = try Self.makeRoute(
                     kind: .actual,
                     scoreText: deep.actualScoreText,
-                    stable: deep.comparisonStable,
+                    stable: deep.continuationStable,
                     initialPositionCommand: kifMove.positionBefore,
                     initialSnapshot: initialSnapshot,
                     moves: actualMoves,
@@ -143,6 +144,7 @@ final class ContinuationSimulationViewModel: ObservableObject {
                     ply: deep.ply,
                     orientation: orientation,
                     comparisonStable: deep.comparisonStable,
+                    continuationStable: deep.continuationStable,
                     actualLossCp: deep.actualLossCp,
                     recommended: recommended,
                     actual: actual,
@@ -154,6 +156,7 @@ final class ContinuationSimulationViewModel: ObservableObject {
                     .init(
                         ply: deep.ply,
                         comparisonStable: deep.comparisonStable,
+                        continuationStable: deep.continuationStable,
                         actualLossCp: deep.actualLossCp,
                         recommended: Self.diagnosticRoute(recommended),
                         actual: Self.diagnosticRoute(actual),
@@ -164,12 +167,14 @@ final class ContinuationSimulationViewModel: ObservableObject {
 
             entries = resolved
             status = "展開シミュレーション PASS"
-            let stableCount = resolved.filter(\.comparisonStable).count
+            let stableComparisonCount = resolved.filter(\.comparisonStable).count
+            let stableContinuationCount = resolved.filter(\.continuationStable).count
             let recommendedPlies = resolved.reduce(0) { $0 + $1.recommended.moves.count }
             let actualPlies = resolved.reduce(0) { $0 + $1.actual.moves.count }
             summary = [
                 "important positions: \(resolved.count)/\(deepEntries.count)",
-                "stable comparisons: \(stableCount)/\(resolved.count)",
+                "stable comparisons: \(stableComparisonCount)/\(resolved.count)",
+                "stable continuations: \(stableContinuationCount)/\(resolved.count)",
                 "recommended continuation plies: \(recommendedPlies)",
                 "actual continuation plies: \(actualPlies)",
                 "target shape: PV-derived only"

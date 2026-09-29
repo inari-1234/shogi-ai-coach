@@ -141,6 +141,21 @@ final class ReasonAnalysisViewModel: ObservableObject {
                     )
                 )
 
+                if deep.comparisonStable && !deep.continuationStable {
+                    let reasons = deep.continuationInstabilityReasons.isEmpty
+                        ? "unknown"
+                        : deep.continuationInstabilityReasons.joined(separator: ",")
+                    facts.append(
+                        .init(
+                            id: "p\(deep.ply)-continuation-stability",
+                            level: .engineConfirmed,
+                            kind: "continuation_stability",
+                            text: "同条件比較は安定。ただし継続PVは未安定（\(reasons)）のため、長い読み筋は参考扱い",
+                            evidenceMoves: [deep.bestMove, deep.actualMove]
+                        )
+                    )
+                }
+
                 facts.append(
                     .init(
                         id: "p\(deep.ply)-best-effect",
@@ -342,6 +357,7 @@ final class ReasonAnalysisViewModel: ObservableObject {
         let scoreFact = "p\(deep.ply)-engine-score"
         let bestEffectFact = "p\(deep.ply)-best-effect"
         let actualReplyFact = "p\(deep.ply)-actual-reply"
+        let continuationFact = "p\(deep.ply)-continuation-stability"
 
         if deep.actualMove == deep.bestMove {
             return .init(
@@ -352,7 +368,7 @@ final class ReasonAnalysisViewModel: ObservableObject {
 
         if !deep.comparisonStable {
             return .init(
-                text: "最善候補と実戦手は同じ探索条件で比較しましたが、再解析後も評価順序またはPVが安定していません。この局面では評価損失や失敗理由を断定せず、候補探索が未安定であることだけを確認事実とします。",
+                text: "最善候補と実戦手は同じ探索条件で比較しましたが、再解析後も評価順序または評価差が安定していません。この局面では評価損失や失敗理由を断定せず、比較判定を保留します。",
                 evidenceFactIDs: [moveFact, scoreFact]
             )
         }
@@ -369,6 +385,19 @@ final class ReasonAnalysisViewModel: ObservableObject {
             return .init(
                 text: "候補手と実戦手の盤面変化は異なりますが、同条件比較では正の評価損失を確認できていません。探索では評価順序が接近することがあるため、この局面では成り・駒取りなどの違いを評価低下の原因とは扱いません。",
                 evidenceFactIDs: [moveFact, scoreFact]
+            )
+        }
+
+        if !deep.continuationStable {
+            let reasons = deep.continuationInstabilityReasons.isEmpty
+                ? "unknown"
+                : deep.continuationInstabilityReasons.joined(separator: ",")
+            let prefix = deep.actualLossCp.map {
+                "同条件比較では\($0)cpの評価差を確認できます。"
+            } ?? "同条件比較自体は安定しています。"
+            return .init(
+                text: prefix + " ただし、その後の読み筋は安定していません（\(reasons)）。このため、駒取りや成りなど一つの盤面イベントだけを評価差の原因とは断定しません。",
+                evidenceFactIDs: [moveFact, scoreFact, continuationFact]
             )
         }
 
