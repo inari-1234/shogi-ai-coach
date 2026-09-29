@@ -577,27 +577,20 @@ struct ContinuationBoardView: View {
     private func dropOverlay(move: ContinuationMoveStep, cell: CGFloat) -> some View {
         let point = center(of: move.effect.destination, cell: cell)
 
-        ZStack {
-            Circle()
-                .fill(Color.blue.opacity(0.18))
-                .overlay(
-                    Circle()
-                        .stroke(
-                            Color.blue,
-                            style: StrokeStyle(lineWidth: 3, dash: [5, 3])
-                        )
+        ZStack(alignment: .topTrailing) {
+            RoundedRectangle(cornerRadius: 3)
+                .stroke(
+                    Color.blue,
+                    style: StrokeStyle(lineWidth: 2.5, dash: [5, 3])
                 )
-            Text(move.effect.pieceBefore.kanji)
-                .font(.system(size: 18, weight: .bold, design: .serif))
-                .foregroundStyle(.blue)
             Image(systemName: "plus")
                 .font(.caption2.bold())
                 .foregroundStyle(.white)
                 .padding(3)
                 .background(Circle().fill(Color.blue))
-                .offset(x: cell * 0.28, y: -cell * 0.28)
+                .offset(x: cell * 0.12, y: -cell * 0.12)
         }
-        .frame(width: cell * 0.82, height: cell * 0.82)
+        .frame(width: cell * 0.78, height: cell * 0.78)
         .position(point)
     }
 }
