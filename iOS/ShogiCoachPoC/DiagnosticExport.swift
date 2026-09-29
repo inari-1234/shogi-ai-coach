@@ -80,6 +80,8 @@ struct ShogiDiagnosticDocument: Codable {
         let thermalAfter: String
         let comparisonStable: Bool
         let instabilityReasons: [String]
+        let continuationStable: Bool
+        let continuationInstabilityReasons: [String]
         let analysisAttempts: Int
         let finalMovetimeMs: Int
         let adaptiveTriggered: Bool
@@ -94,6 +96,7 @@ struct ShogiDiagnosticDocument: Codable {
         let completedPositions: Int
         let totalElapsedMs: Int
         let focus: String
+        let adaptivePolicy: String
         let positions: [DeepPositionInfo]
         let error: String?
     }
@@ -194,6 +197,7 @@ struct ShogiDiagnosticDocument: Codable {
     struct ContinuationPositionInfo: Codable {
         let ply: Int
         let comparisonStable: Bool
+        let continuationStable: Bool
         let actualLossCp: Int?
         let recommended: ContinuationRouteInfo
         let actual: ContinuationRouteInfo
@@ -402,7 +406,7 @@ enum DiagnosticExporter {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         var document = try decoder.decode(ShogiDiagnosticDocument.self, from: data)
-        document.schemaVersion = 6
+        document.schemaVersion = 7
         document.generatedAt = Date()
         document.phaseAnalysis = phaseAnalysis
         return try encode(document, url: url)

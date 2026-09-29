@@ -232,10 +232,14 @@ enum SimulatorCIProbe {
 
     private struct AnalysisQualityGateResult {
         let normalStable: Bool
+        let normalComparisonStable: Bool
+        let normalContinuationStable: Bool
         let normalAttempts: Int
         let closeGapCp: Int?
         let closeAttempts: Int
         let terminalStable: Bool
+        let terminalComparisonStable: Bool
+        let terminalContinuationStable: Bool
         let terminalAttempts: Int
         let terminalBestMove: String
     }
@@ -265,8 +269,8 @@ enum SimulatorCIProbe {
             let normalFinal = normal.finalAttempt
             let normalPVUsable = normalFinal.bestLine.pvMoves.count >= 4
                 && normalFinal.actualLine.pvMoves.count >= 3
-            let normalExplicitlyUnstableForPV = normal.instabilityReasons.contains("best_pv_short")
-                || normal.instabilityReasons.contains("actual_pv_short")
+            let normalExplicitlyUnstableForPV = normal.continuationInstabilityReasons.contains("best_pv_short")
+                || normal.continuationInstabilityReasons.contains("actual_pv_short")
             guard !normalFinal.bestLine.pvMoves.isEmpty,
                   !normalFinal.actualLine.pvMoves.isEmpty,
                   normalPVUsable || normalExplicitlyUnstableForPV else {
@@ -310,10 +314,14 @@ enum SimulatorCIProbe {
             await session.endAnalysis()
             return AnalysisQualityGateResult(
                 normalStable: normal.stable,
+                normalComparisonStable: normal.comparisonStable,
+                normalContinuationStable: normal.continuationStable,
                 normalAttempts: normal.attempts.count,
                 closeGapCp: close.attempts.first?.topGapCp,
                 closeAttempts: close.attempts.count,
                 terminalStable: terminal.stable,
+                terminalComparisonStable: terminal.comparisonStable,
+                terminalContinuationStable: terminal.continuationStable,
                 terminalAttempts: terminal.attempts.count,
                 terminalBestMove: terminalFinal.bestLine.move
             )
@@ -380,8 +388,8 @@ enum SimulatorCIProbe {
               diagnostic.analysis.completedPositions == kifGame.moves.count,
               diagnostic.positions.count == kifGame.moves.count,
               diagnostic.positions.allSatisfy({ !$0.pv.isEmpty && !$0.bestMove.isEmpty }),
-              diagnostic.app.version == "0.8.0",
-              diagnostic.app.build == "12",
+              diagnostic.app.version == "0.8.1",
+              diagnostic.app.build == "13",
               diagnostic.app.gitCommit != "unknown" else {
             writeReport([
                 "stage=diagnostic_failed",
@@ -427,10 +435,11 @@ enum SimulatorCIProbe {
                 from: deepDiagnosticData
               ),
               deepDiagnostic.schemaVersion == 2,
-              deepDiagnostic.app.version == "0.8.0",
-              deepDiagnostic.app.build == "12",
+              deepDiagnostic.app.version == "0.8.1",
+              deepDiagnostic.app.build == "13",
               deepDiagnostic.deepAnalysis?.status == "深掘り PASS",
               deepDiagnostic.deepAnalysis?.multiPV == 3,
+              deepDiagnostic.deepAnalysis?.adaptivePolicy == "adaptive-v2",
               deepDiagnostic.deepAnalysis?.completedPositions == 3,
               deepDiagnostic.deepAnalysis?.positions.count == 3,
               deepDiagnostic.deepAnalysis?.positions.allSatisfy({
@@ -482,8 +491,8 @@ enum SimulatorCIProbe {
                 from: boardDiagnosticData
               ),
               boardDiagnostic.schemaVersion == 3,
-              boardDiagnostic.app.version == "0.8.0",
-              boardDiagnostic.app.build == "12",
+              boardDiagnostic.app.version == "0.8.1",
+              boardDiagnostic.app.build == "13",
               boardDiagnostic.boardDisplay?.status == "盤面表示 PASS",
               boardDiagnostic.boardDisplay?.completedPositions == deep.entries.count,
               boardDiagnostic.boardDisplay?.positions.count == deep.entries.count else {
@@ -532,8 +541,8 @@ enum SimulatorCIProbe {
                 from: reasonDiagnosticData
               ),
               reasonDiagnostic.schemaVersion == 4,
-              reasonDiagnostic.app.version == "0.8.0",
-              reasonDiagnostic.app.build == "12",
+              reasonDiagnostic.app.version == "0.8.1",
+              reasonDiagnostic.app.build == "13",
               reasonDiagnostic.reasonAnalysis?.status == "理由解析 PASS",
               reasonDiagnostic.reasonAnalysis?.completedPositions == deep.entries.count,
               reasonDiagnostic.reasonAnalysis?.positions.count == deep.entries.count,
@@ -589,8 +598,8 @@ enum SimulatorCIProbe {
                 from: continuationDiagnosticData
               ),
               continuationDiagnostic.schemaVersion == 5,
-              continuationDiagnostic.app.version == "0.8.0",
-              continuationDiagnostic.app.build == "12",
+              continuationDiagnostic.app.version == "0.8.1",
+              continuationDiagnostic.app.build == "13",
               continuationDiagnostic.continuationSimulation?.status == "展開シミュレーション PASS",
               continuationDiagnostic.continuationSimulation?.completedPositions == deep.entries.count,
               continuationDiagnostic.continuationSimulation?.positions.count == deep.entries.count,
@@ -634,9 +643,9 @@ enum SimulatorCIProbe {
                 ShogiDiagnosticDocument.self,
                 from: phaseDiagnosticData
               ),
-              phaseDiagnostic.schemaVersion == 6,
-              phaseDiagnostic.app.version == "0.8.0",
-              phaseDiagnostic.app.build == "12",
+              phaseDiagnostic.schemaVersion == 7,
+              phaseDiagnostic.app.version == "0.8.1",
+              phaseDiagnostic.app.build == "13",
               phaseDiagnostic.phaseAnalysis?.status == "フェーズ別振り返り PASS",
               phaseDiagnostic.phaseAnalysis?.usedAdditionalEngineSearch == false,
               phaseDiagnostic.phaseAnalysis?.sections.count == 1,
@@ -688,6 +697,8 @@ enum SimulatorCIProbe {
             thermalAfter: "nominal",
             comparisonStable: false,
             instabilityReasons: ["comparison_inversion"],
+            continuationStable: false,
+            continuationInstabilityReasons: ["best_pv_short", "actual_pv_short"],
             analysisAttempts: 3,
             finalMovetimeMs: 2400,
             adaptiveTriggered: true,
@@ -702,7 +713,7 @@ enum SimulatorCIProbe {
         guard unstableReason.status == "理由解析 PASS",
               unstableReason.entries.count == 1,
               let unstableEntry = unstableReason.entries.first,
-              unstableEntry.interpretation.text.contains("未安定"),
+              unstableEntry.interpretation.text.contains("判定を保留"),
               unstableEntry.interpretation.text.contains("断定"),
               !unstableEntry.interpretation.text.contains("評価差の理由候補"),
               unstableEntry.facts.contains(where: {
@@ -755,6 +766,8 @@ enum SimulatorCIProbe {
             thermalAfter: "nominal",
             comparisonStable: true,
             instabilityReasons: [],
+            continuationStable: true,
+            continuationInstabilityReasons: [],
             analysisAttempts: 1,
             finalMovetimeMs: 800,
             adaptiveTriggered: false,
@@ -784,6 +797,97 @@ enum SimulatorCIProbe {
             exit(14)
         }
         SimulatorStage.mark("reason_immediate_recapture_pass")
+
+        let continuationUnstableDeepEntry = DeepAnalysisEntry(
+            id: 49,
+            ply: 49,
+            actualMove: "4i3h",
+            shallowBestMove: "3g2e",
+            shallowEstimatedLossCp: 1232,
+            bestMove: "3g2e",
+            bestScoreText: "cp 1103",
+            actualScoreText: "cp -103",
+            actualLossCp: 1206,
+            bestPV: "3g2e 3c2e 2g2f 3b3c 2h3i P*2d",
+            actualPV: "4i3h 5b4b B*6f",
+            actualAnalysisSource: "equal-condition",
+            opponentBestReply: "3c2e",
+            candidates: recaptureDeepEntry.candidates,
+            elapsedMs: 1,
+            thermalBefore: "nominal",
+            thermalAfter: "nominal",
+            comparisonStable: true,
+            instabilityReasons: [],
+            continuationStable: false,
+            continuationInstabilityReasons: ["best_pv_changed"],
+            analysisAttempts: 2,
+            finalMovetimeMs: 1600,
+            adaptiveTriggered: true,
+            topCandidateGapCp: 782
+        )
+        let continuationUnstableReason = ReasonAnalysisViewModel()
+        continuationUnstableReason.prepare(
+            game: unstableGame,
+            deepEntries: [continuationUnstableDeepEntry],
+            diagnosticURL: boardReview.diagnosticURL
+        )
+        guard continuationUnstableReason.status == "理由解析 PASS",
+              let continuationUnstableReasonEntry = continuationUnstableReason.entries.first,
+              continuationUnstableReasonEntry.actualLossCp == 1206,
+              continuationUnstableReasonEntry.interpretation.text.contains("1206cp"),
+              continuationUnstableReasonEntry.interpretation.text.contains("読み筋"),
+              continuationUnstableReasonEntry.interpretation.text.contains("断定しません"),
+              !continuationUnstableReasonEntry.interpretation.text.contains("取り返されます"),
+              continuationUnstableReasonEntry.facts.contains(where: {
+                  $0.kind == "continuation_stability"
+              }) else {
+            writeReport([
+                "stage=reason_continuation_unstable_failed",
+                "reason_continuation_unstable_status=FAIL",
+                "reason_continuation_unstable_summary_begin",
+                continuationUnstableReason.summary,
+                "reason_continuation_unstable_summary_end"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("reason_continuation_unstable_failed")
+            fflush(stdout)
+            exit(20)
+        }
+        SimulatorStage.mark("reason_continuation_unstable_pass")
+
+        let continuationSplit = ContinuationSimulationViewModel()
+        continuationSplit.prepare(
+            game: unstableGame,
+            deepEntries: [continuationUnstableDeepEntry],
+            reasonEntries: continuationUnstableReason.entries,
+            diagnosticURL: continuationUnstableReason.diagnosticURL
+        )
+        guard continuationSplit.status == "展開シミュレーション PASS",
+              let continuationSplitEntry = continuationSplit.entries.first,
+              continuationSplitEntry.comparisonStable,
+              !continuationSplitEntry.continuationStable,
+              !continuationSplitEntry.recommended.stable,
+              !continuationSplitEntry.actual.stable,
+              let continuationSplitURL = continuationSplit.diagnosticURL,
+              let continuationSplitData = try? Data(contentsOf: continuationSplitURL),
+              let continuationSplitDiagnostic = try? JSONDecoder.iso8601.decode(
+                ShogiDiagnosticDocument.self,
+                from: continuationSplitData
+              ),
+              continuationSplitDiagnostic.schemaVersion == 5,
+              continuationSplitDiagnostic.continuationSimulation?.positions.first?.comparisonStable == true,
+              continuationSplitDiagnostic.continuationSimulation?.positions.first?.continuationStable == false else {
+            writeReport([
+                "stage=continuation_stability_split_failed",
+                "continuation_stability_split_status=FAIL",
+                "continuation_stability_split_summary_begin",
+                continuationSplit.summary,
+                "continuation_stability_split_summary_end"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("continuation_stability_split_failed")
+            fflush(stdout)
+            exit(21)
+        }
+        SimulatorStage.mark("continuation_stability_split_pass")
 
         let (terminalGame, terminalShallow) = makeTerminalRegression()
         let terminalDiagnosticURL: URL
@@ -966,7 +1070,7 @@ enum SimulatorCIProbe {
                 ShogiDiagnosticDocument.self,
                 from: terminalPhaseData
               ),
-              terminalPhaseDiagnostic.schemaVersion == 6,
+              terminalPhaseDiagnostic.schemaVersion == 7,
               terminalPhaseDiagnostic.phaseAnalysis?.usedAdditionalEngineSearch == false else {
             writeReport([
                 "stage=terminal_phase_failed",
@@ -1063,6 +1167,7 @@ enum SimulatorCIProbe {
             "deep_status=\(deepStatus)",
             "deep_count=\(deepCount)",
             "deep_multipv=\(deepDiagnostic.deepAnalysis?.multiPV ?? 0)",
+            "deep_adaptive_policy=\(deepDiagnostic.deepAnalysis?.adaptivePolicy ?? "-")",
             "deep_diagnostic_schema=\(deepDiagnostic.schemaVersion)",
             "board_display_status=\(boardDisplayStatus)",
             "board_display_count=\(boardDisplayCount)",
@@ -1072,11 +1177,13 @@ enum SimulatorCIProbe {
             "reason_schema=\(reasonDiagnostic.schemaVersion)",
             "reason_unstable_status=PASS",
             "reason_immediate_recapture_status=PASS",
+            "reason_continuation_unstable_status=PASS",
+            "continuation_stability_split_status=PASS",
             "continuation_status=\(continuationStatus)",
             "continuation_count=\(continuationCount)",
             "continuation_schema=5",
             "phase_status=\(phaseStatus)",
-            "phase_schema=6",
+            "phase_schema=7",
             "phase_additional_engine=false",
             "terminal_deep_status=\(terminalDeep.status)",
             "terminal_deep_ply=\(terminalEntry.ply)",
@@ -1093,10 +1200,14 @@ enum SimulatorCIProbe {
             "drop_searchmoves_status=\(dropSearchStatus)",
             "analysis_quality_gate_status=PASS",
             "quality_normal_stable=\(qualityGate.normalStable)",
+            "quality_normal_comparison_stable=\(qualityGate.normalComparisonStable)",
+            "quality_normal_continuation_stable=\(qualityGate.normalContinuationStable)",
             "quality_normal_attempts=\(qualityGate.normalAttempts)",
             "quality_close_gap_cp=\(qualityGate.closeGapCp.map(String.init) ?? "-")",
             "quality_close_attempts=\(qualityGate.closeAttempts)",
             "quality_terminal_stable=\(qualityGate.terminalStable)",
+            "quality_terminal_comparison_stable=\(qualityGate.terminalComparisonStable)",
+            "quality_terminal_continuation_stable=\(qualityGate.terminalContinuationStable)",
             "quality_terminal_attempts=\(qualityGate.terminalAttempts)",
             "quality_terminal_bestmove=\(qualityGate.terminalBestMove)",
             "deep_summary_begin",

@@ -359,6 +359,10 @@ final class PhaseReviewViewModel: ObservableObject {
                 } else {
                     evidence.append("最善手 \(deep.bestScoreText) / 実戦手 \(deep.actualScoreText)")
                 }
+                let continuation = continuations[deep.ply]
+                if continuation?.continuationStable == false {
+                    evidence.append("継続PVは未安定のため到達形は参考扱い")
+                }
                 points.append(
                     PhaseCoachPoint(
                         id: "\(kind.rawValue)-deep-\(deep.ply)",
@@ -367,7 +371,9 @@ final class PhaseReviewViewModel: ObservableObject {
                         detail: reason,
                         evidence: evidence,
                         source: "engine_important_position",
-                        continuationSummary: continuations[deep.ply]?.recommended.targetShapeSummary
+                        continuationSummary: continuation?.continuationStable == true
+                            ? continuation?.recommended.targetShapeSummary
+                            : nil
                     )
                 )
             }
