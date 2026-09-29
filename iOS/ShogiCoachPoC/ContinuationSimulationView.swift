@@ -95,7 +95,7 @@ private struct ContinuationPositionPage: View {
                         .font(.caption.monospacedDigit())
                 }
 
-                ContinuationBoardView(
+                ShogiBoardPanel(
                     snapshot: snapshot,
                     orientation: entry.orientation,
                     move: currentMove
@@ -232,8 +232,9 @@ private struct ContinuationPositionPage: View {
                         isPlaying = false
                         currentStep = move.index
                     } label: {
-                        Text("\(move.index). \(move.usi)")
-                            .font(.system(.caption, design: .monospaced))
+                        Text("\(move.index). \(move.label)")
+                            .font(.caption)
+                            .lineLimit(1)
                     }
                     .buttonStyle(.bordered)
                     .tint(currentStep == move.index ? .accentColor : nil)
@@ -271,6 +272,101 @@ private struct ContinuationPositionPage: View {
             }
             isPlaying = false
         }
+    }
+}
+
+struct ShogiBoardPanel: View {
+    let snapshot: BoardSnapshot
+    let orientation: ShogiSide
+    let move: ContinuationMoveStep?
+
+    private var opponentSide: ShogiSide {
+        orientation == .black ? .white : .black
+    }
+
+    var body: some View {
+        VStack(spacing: 6) {
+            ShogiHandStrip(
+                snapshot: snapshot,
+                side: opponentSide,
+                label: "相手の持駒",
+                alignment: .trailing
+            )
+
+            ContinuationBoardView(
+                snapshot: snapshot,
+                orientation: orientation,
+                move: move
+            )
+
+            ShogiHandStrip(
+                snapshot: snapshot,
+                side: orientation,
+                label: "自分の持駒",
+                alignment: .leading
+            )
+        }
+    }
+}
+
+private struct ShogiHandStrip: View {
+    let snapshot: BoardSnapshot
+    let side: ShogiSide
+    let label: String
+    let alignment: HorizontalAlignment
+
+    private let kinds: [BoardPieceKind] = [
+        .rook, .bishop, .gold, .silver, .knight, .lance, .pawn
+    ]
+
+    private var items: [(BoardPieceKind, Int)] {
+        kinds.compactMap { kind in
+            let count = snapshot.handCount(side: side, kind: kind)
+            return count > 0 ? (kind, count) : nil
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: alignment, spacing: 2) {
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+
+            if items.isEmpty {
+                Text("なし")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: alignment == .leading ? .leading : .trailing)
+            } else {
+                HStack(spacing: 8) {
+                    ForEach(Array(items.enumerated()), id: \.offset) { _, item in
+                        HStack(spacing: 2) {
+                            Text(item.0.kanji)
+                                .font(.system(.caption, design: .serif).weight(.semibold))
+                            if item.1 > 1 {
+                                Text("×\(item.1)")
+                                    .font(.caption2.monospacedDigit())
+                            }
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: alignment == .leading ? .leading : .trailing)
+            }
+        }
+        .foregroundStyle(.primary)
+    }
+}
+
+private struct ShogiPieceShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.midX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX - rect.width * 0.12, y: rect.minY + rect.height * 0.18))
+        path.addLine(to: CGPoint(x: rect.maxX - rect.width * 0.04, y: rect.maxY - rect.height * 0.04))
+        path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.04, y: rect.maxY - rect.height * 0.04))
+        path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.12, y: rect.minY + rect.height * 0.18))
+        path.closeSubpath()
+        return path
     }
 }
 
@@ -317,8 +413,21 @@ struct ContinuationBoardView: View {
                 }
             }
             .frame(width: side, height: side)
-            .background(Color.brown.opacity(0.13))
-            .overlay(Rectangle().stroke(Color.primary.opacity(0.75), lineWidth: 1.5))
+            .background(
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.84, green: 0.67, blue: 0.39),
+                        Color(red: 0.76, green: 0.55, blue: 0.28)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .overlay(
+                Rectangle()
+                    .stroke(Color(red: 0.25, green: 0.16, blue: 0.08), lineWidth: 2)
+            )
+            .shadow(color: .black.opacity(0.18), radius: 2, y: 1)
         }
         .aspectRatio(1, contentMode: .fit)
         .accessibilityElement(children: .contain)
@@ -331,13 +440,44 @@ struct ContinuationBoardView: View {
             Rectangle()
                 .fill(highlightColor(for: coordinate))
             Rectangle()
-                .stroke(Color.primary.opacity(0.55), lineWidth: 0.5)
+                .stroke(
+                    Color(red: 0.28, green: 0.18, blue: 0.08).opacity(0.9),
+                    lineWidth: 0.55
+                )
 
             if let piece = snapshot.piece(at: coordinate) {
-                Text(piece.kind.kanji)
-                    .font(.system(size: 18, weight: .semibold, design: .serif))
-                    .minimumScaleFactor(0.55)
-                    .rotationEffect(piece.side == orientation ? .degrees(0) : .degrees(180))
+                ZStack {
+                    ShogiPieceShape()
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color(red: 0.96, green: 0.84, blue: 0.60),
+                                    Color(red: 0.88, green: 0.69, blue: 0.39)
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        .overlay(
+                            ShogiPieceShape()
+                                .stroke(
+                                    Color(red: 0.34, green: 0.21, blue: 0.08),
+                                    lineWidth: 0.8
+                                )
+                        )
+                        .shadow(color: .black.opacity(0.18), radius: 0.8, y: 0.7)
+
+                    Text(piece.kind.kanji)
+                        .font(.system(size: piece.kind.kanji.count > 1 ? 11 : 17, weight: .bold, design: .serif))
+                        .minimumScaleFactor(0.55)
+                        .foregroundStyle(
+                            piece.kind.isPromoted
+                                ? Color(red: 0.62, green: 0.08, blue: 0.05)
+                                : Color(red: 0.10, green: 0.07, blue: 0.04)
+                        )
+                }
+                .padding(3)
+                .rotationEffect(piece.side == orientation ? .degrees(0) : .degrees(180))
             }
         }
     }
@@ -345,10 +485,12 @@ struct ContinuationBoardView: View {
     private func highlightColor(for coordinate: BoardCoordinate) -> Color {
         guard let move else { return .clear }
         if coordinate == move.effect.destination {
-            return move.effect.capturedPiece == nil ? .green.opacity(0.34) : .red.opacity(0.28)
+            return move.effect.capturedPiece == nil
+                ? Color(red: 0.32, green: 0.60, blue: 0.30).opacity(0.42)
+                : Color(red: 0.70, green: 0.20, blue: 0.16).opacity(0.40)
         }
         if coordinate == move.effect.source {
-            return .orange.opacity(0.34)
+            return Color(red: 0.82, green: 0.48, blue: 0.12).opacity(0.42)
         }
         return .clear
     }
@@ -391,9 +533,23 @@ struct ContinuationBoardView: View {
             path.addLine(to: right)
         }
         .stroke(
-            Color.blue,
-            style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round)
+            Color.white.opacity(0.92),
+            style: StrokeStyle(lineWidth: 6, lineCap: .round, lineJoin: .round)
         )
+        .overlay {
+            Path { path in
+                path.move(to: arrowStart)
+                path.addLine(to: arrowEnd)
+                path.move(to: arrowEnd)
+                path.addLine(to: left)
+                path.move(to: arrowEnd)
+                path.addLine(to: right)
+            }
+            .stroke(
+                Color.blue,
+                style: StrokeStyle(lineWidth: 3.3, lineCap: .round, lineJoin: .round)
+            )
+        }
     }
 
     @ViewBuilder
