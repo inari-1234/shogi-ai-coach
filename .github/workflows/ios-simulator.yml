@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   simulator-e2e:
@@ -29,6 +29,83 @@ jobs:
             native/third_party/YaneuraOu
             iOS/ShogiCoachPoC/eval/nn.bin
           key: shogi-engine-assets-v2
+
+      - name: Build compact precedent knowledge from official Denryusen KIF
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/context-knowledge-source
+          curl --fail --location --retry 3 --retry-delay 2 \
+            'https://denryu-sen.jp/denryusen/dr4_hardware2/kif_dr4_hdw2.zip' \
+            --output build/denryusen-dr4-hardware2.zip
+          python3 - <<'PY'
+          import zipfile
+          from pathlib import Path
+
+          source = Path("build/denryusen-dr4-hardware2.zip")
+          destination = Path("build/context-knowledge-source")
+          destination.mkdir(parents=True, exist_ok=True)
+          with zipfile.ZipFile(source, metadata_encoding="cp932") as archive:
+              for member in archive.infolist():
+                  target = (destination / member.filename).resolve()
+                  if destination.resolve() not in target.parents and target != destination.resolve():
+                      raise SystemExit(f"unsafe zip path: {member.filename}")
+              archive.extractall(destination)
+          PY
+          swift run -c release ContextKnowledgeBuilder -- \
+            --input-dir build/context-knowledge-source \
+            --output build/context-knowledge.json \
+            --max-ply 80 \
+            --min-observations 2 \
+            --source-id 'denryusen:dr4-hardware2:2024' \
+            --source-title '第2回マイナビニュース杯電竜戦統一ハードウェア戦' \
+            --source-url 'https://denryu-sen.jp/denryusen/dr4_hardware2/dr1_live.php' \
+            --rights-note '公式ページ: 棋譜利用は制限等ありませんので、ご自由にお使いください。' \
+            --retrieved-date '2026-10-01' \
+            2>&1 | tee build/context-knowledge-build.log
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("build/context-knowledge.json")
+          doc = json.loads(path.read_text(encoding="utf-8"))
+          assert doc["schemaVersion"] == 1
+          assert doc["statistics"]["parsedGames"] > 0
+          assert doc["statistics"]["emittedRecords"] == len(doc["records"])
+          assert len(doc["records"]) > 0
+          assert all(r["sourceKind"] == "precedent" for r in doc["records"])
+          assert all(r["intent"] == "unresolved" for r in doc["records"])
+          assert all(r["observationCount"] >= 2 for r in doc["records"])
+          assert {r["sourceID"] for r in doc["records"]} == {"denryusen:dr4-hardware2:2024"}
+          summary = "\n".join([
+              "context_knowledge_validation=PASS",
+              f"context_knowledge_parsed_games={doc['statistics']['parsedGames']}",
+              f"context_knowledge_skipped_games={doc['statistics']['skippedGames']}",
+              f"context_knowledge_aggregated_moves={doc['statistics']['aggregatedMoves']}",
+              f"context_knowledge_records={len(doc['records'])}",
+              f"context_knowledge_bytes={path.stat().st_size}",
+          ]) + "\n"
+          Path("build/context-knowledge-summary.txt").write_text(summary, encoding="utf-8")
+          print(summary, end="")
+          PY
+
+      - name: Sync generated compact knowledge into candidate branch
+        if: github.ref_name == 'candidate/build16-context-engine'
+        shell: bash
+        run: |
+          set -euo pipefail
+          RESOURCE='iOS/ShogiCoachPoC/Resources/context-knowledge.json'
+          mkdir -p "$(dirname "$RESOURCE")"
+          cp build/context-knowledge.json "$RESOURCE"
+          if [ -n "$(git status --porcelain -- "$RESOURCE")" ]; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add "$RESOURCE"
+            git commit -m 'Build 16: refresh generated precedent knowledge'
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+            echo 'context_knowledge_repo_sync=UPDATED'
+          else
+            echo 'context_knowledge_repo_sync=UNCHANGED'
+          fi
 
       - name: Core regression tests
         shell: bash
@@ -90,6 +167,7 @@ jobs:
           APP='build/SimulatorDerivedData/Build/Products/Release-iphonesimulator/ShogiCoachPoC.app'
           test -d "$APP"
           test -s "$APP/eval/nn.bin"
+          test -s "$APP/context-knowledge.json"
 
           xcrun simctl list devices available --json > simulator-devices.json
           UDID=$(python3 - <<'PY'
@@ -124,6 +202,12 @@ jobs:
 
           if [ -s "$REPORT" ]; then cp "$REPORT" simulator-result.txt; else echo "stage=no_report" > simulator-result.txt; fi
           if [ -s "$STAGE" ]; then cp "$STAGE" simulator-stage.txt; else echo "stage=no_stage_file" > simulator-stage.txt; fi
+          CONTEXT_JSON="$CONTAINER/Documents/ci-context-main.json"
+          if [ -s "$CONTEXT_JSON" ]; then
+            cp "$CONTEXT_JSON" simulator-context-diagnostic.json
+          else
+            echo '{}' > simulator-context-diagnostic.json
+          fi
           cat simulator-result.txt
           echo "--- stage trace ---"
           cat simulator-stage.txt
@@ -134,13 +218,13 @@ jobs:
 
           test "$COMPLETE" -eq 1
           grep -Fq "kif_status=PASS" simulator-result.txt
-          grep -Fq "kif_moves=4" simulator-result.txt
+          grep -Fq "kif_moves=5" simulator-result.txt
           grep -Fq "shallow_status=PASS" simulator-result.txt
-          grep -Fq "shallow_count=4" simulator-result.txt
+          grep -Fq "shallow_count=5" simulator-result.txt
           grep -Fq "diagnostic_status=PASS" simulator-result.txt
-          grep -Fq "diagnostic_positions=4" simulator-result.txt
+          grep -Fq "diagnostic_positions=5" simulator-result.txt
           grep -Fq "diagnostic_version=0.8.3" simulator-result.txt
-          grep -Fq "diagnostic_build=15" simulator-result.txt
+          grep -Fq "diagnostic_build=16" simulator-result.txt
           grep -Fq "deep_status=深掘り PASS" simulator-result.txt
           grep -Fq "deep_count=3" simulator-result.txt
           grep -Fq "deep_multipv=3" simulator-result.txt
@@ -164,6 +248,29 @@ jobs:
           grep -Fq "phase_status=フェーズ別振り返り PASS" simulator-result.txt
           grep -Fq "phase_schema=7" simulator-result.txt
           grep -Fq "phase_additional_engine=false" simulator-result.txt
+          grep -Fq "context_status=局面文脈解析 PASS" simulator-result.txt
+          grep -Fq "context_count=5" simulator-result.txt
+          grep -Fq "context_schema=8" simulator-result.txt
+          grep -Fq "context_refinement_policy=selective-low-unresolved-v1" simulator-result.txt
+          grep -Fq "context_selective_refinement_status=PASS" simulator-result.txt
+          grep -Fq "context_selective_refinement_unresolved=true" simulator-result.txt
+          grep -Fq "context_semantics_status=PASS" simulator-result.txt
+          grep -Fq "context_rook_pawn_intent=rook_pawn_response" simulator-result.txt
+          grep -Fq "context_bishop_line_intent=bishop_line_response" simulator-result.txt
+          grep -Fq "context_geometry_primary=false" simulator-result.txt
+          grep -Fq "context_knowledge_status=PASS" simulator-result.txt
+          grep -Fq "context_knowledge_load=PASS" simulator-result.txt
+          grep -Fq "context_knowledge_source=denryusen:dr4-hardware2:2024" simulator-result.txt
+          grep -Fq "context_knowledge_records=1281" simulator-result.txt
+          grep -Fq "context_knowledge_target_observations=12" simulator-result.txt
+          grep -Fq "context_knowledge_target_intent=rook_pawn_response" simulator-result.txt
+          grep -Fq "context_knowledge_target_precedent=true" simulator-result.txt
+          grep -Fq "context_explanation_status=PASS" simulator-result.txt
+          grep -Fq "context_explanation_target_confidence=high" simulator-result.txt
+          grep -Fq "context_explanation_target_tone=assertive" simulator-result.txt
+          grep -Fq "context_explanation_geometry_language=false" simulator-result.txt
+          grep -Fq "context_recommended_explanation_status=PASS" simulator-result.txt
+          grep -Fq "context_recommended_explanation_count=3" simulator-result.txt
           grep -Fq "terminal_continuation_status=展開シミュレーション PASS" simulator-result.txt
           grep -Fq "terminal_continuation_drop=true" simulator-result.txt
           grep -Fq "terminal_phase_status=フェーズ別振り返り PASS" simulator-result.txt
@@ -184,6 +291,92 @@ jobs:
           grep -Fq "ten_status=実機PASS候補" simulator-result.txt
           grep -Fq "10/10 completed" simulator-result.txt
 
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("simulator-context-diagnostic.json")
+          doc = json.loads(path.read_text(encoding="utf-8"))
+          assert doc["schemaVersion"] == 8
+          assert doc["game"]["moveCount"] == 5
+          context = doc["contextAnalysis"]
+          assert context["status"] == "局面文脈解析 PASS"
+          assert context["completedPositions"] == 5
+          assert context["expectedPositions"] == 5
+          assert context["knowledgeLoadStatus"] == "PASS"
+          assert context["knowledgeSourceIDs"] == ["denryusen:dr4-hardware2:2024"]
+          assert context["knowledgeRecordCount"] == 1281
+          assert context["refinementPolicy"] == "selective-low-unresolved-v1"
+          assert len(context["refinementCompletedPlies"]) <= len(context["refinementCandidatePlies"])
+
+          positions = context["positions"]
+          assert len(positions) == 5
+          for item in positions:
+              analysis = item["analysis"]
+              assert analysis["move"]
+              assert analysis["selectedIntent"]
+              assert analysis["confidence"]
+              assert isinstance(analysis["evidence"], list)
+
+          recommended = [
+              item for item in positions
+              if item.get("recommendedMove") is not None
+              and item.get("recommendedExplanation") is not None
+          ]
+          assert len(recommended) == 3
+          for item in recommended:
+              explanation = item["recommendedExplanation"]
+              assert explanation["conclusion"]
+              assert explanation["whyNow"]
+              assert explanation["evidenceText"]
+              assert explanation["confidence"] in {"high", "medium", "low", "unresolved"}
+              assert explanation["tone"] in {"assertive", "measured", "tentative", "unresolved"}
+
+          target_items = [
+              item for item in positions
+              if item["analysis"]["move"] == "8h7g"
+              and item["analysis"].get("previousMove") == "8d8e"
+          ]
+          assert len(target_items) == 1
+          target_item = target_items[0]
+          analysis = target_item["analysis"]
+          explanation = target_item["explanation"]
+          assert analysis["selectedIntent"] == "rook_pawn_response"
+          assert analysis["confidence"] == "high"
+          assert any(
+              e["kind"] == "previous_move_causality"
+              and e["supportedIntent"] == "rook_pawn_response"
+              for e in analysis["evidence"]
+          )
+          assert any(
+              e["kind"] == "precedent"
+              and e["supportedIntent"] == "rook_pawn_response"
+              and "observations=12" in e["detail"]
+              for e in analysis["evidence"]
+          )
+          assert explanation["confidence"] == "high"
+          assert explanation["tone"] == "assertive"
+          assert "飛車先" in explanation["conclusion"]
+          assert "直前" in explanation["whyNow"]
+          assert "前例12件" in explanation["evidenceText"]
+          combined = explanation["conclusion"] + explanation["whyNow"]
+          assert "相手玉側" not in combined
+          assert "攻めに参加" not in combined
+
+          summary = "\n".join([
+              "context_schema8_audit=PASS",
+              "context_schema8_target_intent=rook_pawn_response",
+              "context_schema8_target_confidence=high",
+              "context_schema8_target_causality=true",
+              "context_schema8_target_precedent=true",
+              "context_schema8_explanation=PASS",
+              "context_schema8_geometry_language=false",
+              "context_schema8_recommended_explanations=3",
+          ]) + "\n"
+          Path("simulator-context-audit.txt").write_text(summary, encoding="utf-8")
+          print(summary, end="")
+          PY
+
       - name: Upload simulator diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -196,5 +389,10 @@ jobs:
             simulator-result.txt
             simulator-stage.txt
             simulator-system.log
+            simulator-context-diagnostic.json
+            simulator-context-audit.txt
+            build/context-knowledge.json
+            build/context-knowledge-summary.txt
+            build/context-knowledge-build.log
           if-no-files-found: ignore
           retention-days: 7

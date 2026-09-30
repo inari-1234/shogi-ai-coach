@@ -4,6 +4,8 @@ import ShogiCoachCore
 struct PhaseReviewScreen: View {
     let sections: [PhaseReviewSection]
     let continuationEntries: [ContinuationSimulationEntry]
+    let contextEntries: [ContextAnalysisEntry]
+    let recommendedExplanations: [Int: ContextMoveExplanation]
 
     @Environment(\.dismiss) private var dismiss
     @State private var selectedPhase: GamePhaseKind = .opening
@@ -103,7 +105,11 @@ struct PhaseReviewScreen: View {
                 }
             }
             .sheet(item: $selectedContinuation) { entry in
-                ContinuationSimulationScreen(entries: [entry])
+                ContinuationSimulationScreen(
+                    entries: [entry],
+                    contextEntries: contextEntries,
+                    recommendedExplanations: recommendedExplanations
+                )
             }
         }
     }

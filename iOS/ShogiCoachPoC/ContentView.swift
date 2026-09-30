@@ -9,6 +9,7 @@ struct ContentView: View {
     @StateObject private var reason = ReasonAnalysisViewModel()
     @StateObject private var continuation = ContinuationSimulationViewModel()
     @StateObject private var phaseReview = PhaseReviewViewModel()
+    @StateObject private var contextAnalysis = ContextAnalysisViewModel()
 
     @State private var showingKIFImporter = false
     @State private var showingContinuationSimulation = false
@@ -17,7 +18,8 @@ struct ContentView: View {
     @State private var analysisStatus = "未解析"
 
     private var diagnosticURL: URL? {
-        phaseReview.diagnosticURL
+        contextAnalysis.diagnosticURL
+            ?? phaseReview.diagnosticURL
             ?? continuation.diagnosticURL
             ?? reason.diagnosticURL
             ?? boardReview.diagnosticURL
@@ -26,7 +28,8 @@ struct ContentView: View {
     }
 
     private var diagnosticError: String? {
-        phaseReview.diagnosticError
+        contextAnalysis.diagnosticError
+            ?? phaseReview.diagnosticError
             ?? continuation.diagnosticError
             ?? reason.diagnosticError
             ?? boardReview.diagnosticError
@@ -68,6 +71,7 @@ struct ContentView: View {
                             reason.reset()
                             continuation.reset()
                             phaseReview.reset()
+                            contextAnalysis.reset()
 
                             analysisStatus = "全局面を浅く解析中"
                             await shallow.analyze(
@@ -142,9 +146,25 @@ struct ContentView: View {
                                     ?? deep.diagnosticURL
                                     ?? shallow.diagnosticURL
                             )
-                            analysisStatus = phaseReview.status == "フェーズ別振り返り PASS"
+                            guard phaseReview.status == "フェーズ別振り返り PASS" else {
+                                analysisStatus = phaseReview.status
+                                return
+                            }
+
+                            analysisStatus = "局面文脈を検証中"
+                            await contextAnalysis.prepare(
+                                game: game,
+                                deepEntries: deep.entries,
+                                diagnosticURL: phaseReview.diagnosticURL
+                                    ?? continuation.diagnosticURL
+                                    ?? reason.diagnosticURL
+                                    ?? boardReview.diagnosticURL
+                                    ?? deep.diagnosticURL
+                                    ?? shallow.diagnosticURL
+                            )
+                            analysisStatus = contextAnalysis.status == "局面文脈解析 PASS"
                                 ? "解析 PASS"
-                                : phaseReview.status
+                                : contextAnalysis.status
                         }
                     }
                     .disabled(kif.game == nil || isAnalyzing)
@@ -212,6 +232,7 @@ struct ContentView: View {
                         reason.reset()
                         continuation.reset()
                         phaseReview.reset()
+                        contextAnalysis.reset()
                         analysisStatus = "未解析"
                         await kif.importFile(url)
                     }
@@ -220,12 +241,18 @@ struct ContentView: View {
                 }
             }
             .sheet(isPresented: $showingContinuationSimulation) {
-                ContinuationSimulationScreen(entries: continuation.entries)
+                ContinuationSimulationScreen(
+                    entries: continuation.entries,
+                    contextEntries: contextAnalysis.entries,
+                    recommendedExplanations: contextAnalysis.recommendedExplanations
+                )
             }
             .sheet(isPresented: $showingPhaseReview) {
                 PhaseReviewScreen(
                     sections: phaseReview.sections,
-                    continuationEntries: continuation.entries
+                    continuationEntries: continuation.entries,
+                    contextEntries: contextAnalysis.entries,
+                    recommendedExplanations: contextAnalysis.recommendedExplanations
                 )
             }
         }

@@ -158,13 +158,14 @@ enum SimulatorCIProbe {
         let sample = """
         手合割：平手
         1 ７六歩(77)
-        2 ３四歩(33)
+        2 ８四歩(83)
         3 ２六歩(27)
-        4 ８四歩(83)
-        5 投了
+        4 ８五歩(84)
+        5 ７七角(88)
+        6 投了
         """
         let game = try KIFParser.parse(sample)
-        guard game.moves.map(\.usi) == ["7g7f", "3c3d", "2g2f", "8c8d"],
+        guard game.moves.map(\.usi) == ["7g7f", "8c8d", "2g2f", "8d8e", "8h7g"],
               game.termination == "投了" else {
             throw NSError(
                 domain: "ShogiCoach.KIFCI",
@@ -389,7 +390,7 @@ enum SimulatorCIProbe {
               diagnostic.positions.count == kifGame.moves.count,
               diagnostic.positions.allSatisfy({ !$0.pv.isEmpty && !$0.bestMove.isEmpty }),
               diagnostic.app.version == "0.8.3",
-              diagnostic.app.build == "15",
+              diagnostic.app.build == "16",
               diagnostic.app.gitCommit != "unknown" else {
             writeReport([
                 "stage=diagnostic_failed",
@@ -436,7 +437,7 @@ enum SimulatorCIProbe {
               ),
               deepDiagnostic.schemaVersion == 2,
               deepDiagnostic.app.version == "0.8.3",
-              deepDiagnostic.app.build == "15",
+              deepDiagnostic.app.build == "16",
               deepDiagnostic.deepAnalysis?.status == "深掘り PASS",
               deepDiagnostic.deepAnalysis?.multiPV == 3,
               deepDiagnostic.deepAnalysis?.adaptivePolicy == "adaptive-v2",
@@ -492,7 +493,7 @@ enum SimulatorCIProbe {
               ),
               boardDiagnostic.schemaVersion == 3,
               boardDiagnostic.app.version == "0.8.3",
-              boardDiagnostic.app.build == "15",
+              boardDiagnostic.app.build == "16",
               boardDiagnostic.boardDisplay?.status == "盤面表示 PASS",
               boardDiagnostic.boardDisplay?.completedPositions == deep.entries.count,
               boardDiagnostic.boardDisplay?.positions.count == deep.entries.count else {
@@ -542,7 +543,7 @@ enum SimulatorCIProbe {
               ),
               reasonDiagnostic.schemaVersion == 4,
               reasonDiagnostic.app.version == "0.8.3",
-              reasonDiagnostic.app.build == "15",
+              reasonDiagnostic.app.build == "16",
               reasonDiagnostic.reasonAnalysis?.status == "理由解析 PASS",
               reasonDiagnostic.reasonAnalysis?.completedPositions == deep.entries.count,
               reasonDiagnostic.reasonAnalysis?.positions.count == deep.entries.count,
@@ -615,7 +616,7 @@ enum SimulatorCIProbe {
               ),
               continuationDiagnostic.schemaVersion == 5,
               continuationDiagnostic.app.version == "0.8.3",
-              continuationDiagnostic.app.build == "15",
+              continuationDiagnostic.app.build == "16",
               continuationDiagnostic.continuationSimulation?.status == "展開シミュレーション PASS",
               continuationDiagnostic.continuationSimulation?.completedPositions == deep.entries.count,
               continuationDiagnostic.continuationSimulation?.positions.count == deep.entries.count,
@@ -670,7 +671,7 @@ enum SimulatorCIProbe {
               ),
               phaseDiagnostic.schemaVersion == 7,
               phaseDiagnostic.app.version == "0.8.3",
-              phaseDiagnostic.app.build == "15",
+              phaseDiagnostic.app.build == "16",
               phaseDiagnostic.phaseAnalysis?.status == "フェーズ別振り返り PASS",
               phaseDiagnostic.phaseAnalysis?.usedAdditionalEngineSearch == false,
               phaseDiagnostic.phaseAnalysis?.sections.count == 1,
@@ -687,6 +688,218 @@ enum SimulatorCIProbe {
             exit(17)
         }
         SimulatorStage.mark("phase_review_pass")
+
+        let contextReview = ContextAnalysisViewModel()
+        await contextReview.prepare(
+            game: kifGame,
+            deepEntries: deep.entries,
+            diagnosticURL: phaseReview.diagnosticURL
+        )
+        let contextStatus = contextReview.status
+        let contextCount = contextReview.entries.count
+        guard contextStatus == "局面文脈解析 PASS",
+              contextCount == kifGame.moves.count,
+              let contextDiagnosticURL = contextReview.diagnosticURL,
+              let contextDiagnosticData = try? Data(contentsOf: contextDiagnosticURL),
+              let contextDiagnostic = try? JSONDecoder.iso8601.decode(
+                ShogiDiagnosticDocument.self,
+                from: contextDiagnosticData
+              ),
+              contextDiagnostic.schemaVersion == 8,
+              contextDiagnostic.app.version == "0.8.3",
+              contextDiagnostic.app.build == "16",
+              contextDiagnostic.contextAnalysis?.status == "局面文脈解析 PASS",
+              contextDiagnostic.contextAnalysis?.refinementPolicy == ContextAnalysisViewModel.refinementPolicy,
+              contextDiagnostic.contextAnalysis?.completedPositions == kifGame.moves.count,
+              contextDiagnostic.contextAnalysis?.positions.count == kifGame.moves.count else {
+            writeReport([
+                "stage=context_analysis_failed",
+                "context_status=FAIL",
+                "context_count=\(contextCount)",
+                "context_summary_begin",
+                contextReview.summary,
+                "context_summary_end"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("context_analysis_failed")
+            fflush(stdout)
+            exit(22)
+        }
+
+        let contextAuditURL = FileManager.default.urls(
+            for: .documentDirectory,
+            in: .userDomainMask
+        )[0].appendingPathComponent("ci-context-main.json")
+        do {
+            try contextDiagnosticData.write(to: contextAuditURL, options: .atomic)
+        } catch {
+            writeReport([
+                "stage=context_diagnostic_copy_failed",
+                "context_status=FAIL",
+                "context_diagnostic_copy_error=\(error.localizedDescription)"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("context_diagnostic_copy_failed")
+            fflush(stdout)
+            exit(26)
+        }
+
+        let contextEngine = MoveContextEngine()
+        guard let rookPawnRegression = try? contextEngine.analyze(
+                positionCommand: "position startpos moves 7g7f 8c8d 2g2f 8d8e",
+                move: "8h7g"
+              ),
+              rookPawnRegression.selectedIntent == .rookPawnResponse,
+              rookPawnRegression.confidence == .high,
+              rookPawnRegression.evidence.contains(where: {
+                  $0.kind == .previousMoveCausality
+                      && $0.supportedIntent == .rookPawnResponse
+              }),
+              rookPawnRegression.selectedIntent != .attackPreparation,
+              let bishopLineRegression = try? contextEngine.analyze(
+                positionCommand: "position startpos moves 7g7f 3c3d",
+                move: "8h2b+"
+              ),
+              bishopLineRegression.selectedIntent == .bishopLineResponse,
+              let geometryRegression = try? contextEngine.analyze(
+                positionCommand: "position startpos moves 7g7f 3c3d",
+                move: "6i7h"
+              ),
+              geometryRegression.selectedIntent != .attackPreparation else {
+            writeReport([
+                "stage=context_semantics_failed",
+                "context_status=\(contextStatus)",
+                "context_semantics_status=FAIL"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("context_semantics_failed")
+            fflush(stdout)
+            exit(23)
+        }
+
+        let diagnosticRecommendedCount = contextDiagnostic.contextAnalysis?.positions.filter {
+            $0.recommendedMove != nil && $0.recommendedExplanation != nil
+        }.count ?? 0
+
+        let knowledgeRuntime = ContextKnowledgeStore.load()
+        guard knowledgeRuntime.loadStatus == "PASS",
+              knowledgeRuntime.recordCount == 1281,
+              knowledgeRuntime.sourceIDs == ["denryusen:dr4-hardware2:2024"],
+              let knowledgeRookRegression = try? knowledgeRuntime.engine.analyze(
+                positionCommand: "position startpos moves 7g7f 8c8d 2g2f 8d8e",
+                move: "8h7g"
+              ),
+              knowledgeRookRegression.selectedIntent == .rookPawnResponse,
+              knowledgeRookRegression.confidence == .high,
+              let precedentEvidence = knowledgeRookRegression.evidence.first(where: {
+                  $0.kind == .precedent && $0.supportedIntent == .rookPawnResponse
+              }),
+              precedentEvidence.detail.contains("observations=12"),
+              precedentEvidence.detail.contains("raw_knowledge_reinforces=rook_pawn_response"),
+              contextDiagnostic.contextAnalysis?.knowledgeLoadStatus == "PASS",
+              contextDiagnostic.contextAnalysis?.knowledgeSourceIDs == ["denryusen:dr4-hardware2:2024"],
+              contextDiagnostic.contextAnalysis?.knowledgeRecordCount == 1281,
+              contextReview.recommendedExplanations.count == deep.entries.count,
+              diagnosticRecommendedCount == deep.entries.count,
+              let targetContextPosition = contextDiagnostic.contextAnalysis?.positions.first(where: {
+                  $0.analysis.move == "8h7g" && $0.analysis.previousMove == "8d8e"
+              }),
+              targetContextPosition.explanation.confidence == .high,
+              targetContextPosition.explanation.tone == .assertive,
+              targetContextPosition.explanation.conclusion.contains("飛車先"),
+              targetContextPosition.explanation.whyNow.contains("直前"),
+              targetContextPosition.explanation.evidenceText.contains("前例12件"),
+              !targetContextPosition.explanation.conclusion.contains("相手玉側"),
+              !targetContextPosition.explanation.conclusion.contains("攻めに参加") else {
+            writeReport([
+                "stage=context_knowledge_failed",
+                "context_status=\(contextStatus)",
+                "context_knowledge_status=FAIL",
+                "context_knowledge_load=\(knowledgeRuntime.loadStatus)",
+                "context_knowledge_records=\(knowledgeRuntime.recordCount)"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("context_knowledge_failed")
+            fflush(stdout)
+            exit(24)
+        }
+        let refinementGame = KIFGame(
+            metadata: ["手合割": "平手", "先手": "あなた", "後手": "CPU"],
+            moves: [
+                KIFMove(
+                    ply: 1,
+                    notation: "7g7f",
+                    usi: "7g7f",
+                    positionBefore: "position startpos"
+                )
+            ],
+            termination: nil
+        )
+        let refinementDeep = DeepAnalysisEntry(
+            id: 1,
+            ply: 1,
+            actualMove: "7g7f",
+            shallowBestMove: "2g2f",
+            shallowEstimatedLossCp: nil,
+            bestMove: "2g2f",
+            bestScoreText: "cp 0",
+            actualScoreText: "cp 0",
+            actualLossCp: nil,
+            bestPV: "2g2f 8c8d 2f2e",
+            actualPV: "7g7f 3c3d 2g2f",
+            actualAnalysisSource: "equal-condition",
+            opponentBestReply: "8c8d",
+            candidates: [],
+            elapsedMs: 1,
+            thermalBefore: "nominal",
+            thermalAfter: "nominal",
+            comparisonStable: false,
+            instabilityReasons: ["fixture_unstable"],
+            continuationStable: false,
+            continuationInstabilityReasons: ["fixture_unstable"],
+            analysisAttempts: 1,
+            finalMovetimeMs: 800,
+            adaptiveTriggered: false,
+            topCandidateGapCp: nil
+        )
+        let refinementDiagnosticURL = FileManager.default.urls(
+            for: .documentDirectory,
+            in: .userDomainMask
+        )[0].appendingPathComponent("ci-context-refinement.json")
+        do {
+            try contextDiagnosticData.write(to: refinementDiagnosticURL, options: .atomic)
+        } catch {
+            writeReport([
+                "stage=context_refinement_fixture_copy_failed",
+                "context_selective_refinement_status=FAIL",
+                "context_refinement_fixture_error=\(error.localizedDescription)"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("context_refinement_fixture_copy_failed")
+            fflush(stdout)
+            exit(27)
+        }
+
+        let refinementReview = ContextAnalysisViewModel()
+        await refinementReview.prepare(
+            game: refinementGame,
+            deepEntries: [refinementDeep],
+            diagnosticURL: refinementDiagnosticURL
+        )
+        guard refinementReview.status == "局面文脈解析 PASS",
+              refinementReview.usedAdditionalEngineSearch,
+              refinementReview.refinementCandidatePlies == [1],
+              refinementReview.refinementCompletedPlies == [1],
+              refinementReview.entries.first?.analysis.selectedIntent == .unresolved,
+              refinementReview.entries.first?.analysis.confidence == .unresolved else {
+            writeReport([
+                "stage=context_selective_refinement_failed",
+                "context_selective_refinement_status=FAIL",
+                "context_selective_candidates=\(refinementReview.refinementCandidatePlies)",
+                "context_selective_completed=\(refinementReview.refinementCompletedPlies)",
+                "context_selective_summary=\(refinementReview.summary)"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("context_selective_refinement_failed")
+            fflush(stdout)
+            exit(25)
+        }
+        SimulatorStage.mark("context_selective_refinement_pass")
+        SimulatorStage.mark("context_analysis_pass")
 
         let (unstableGame, _) = makeTerminalRegression()
         let unstableDeepEntry = DeepAnalysisEntry(
@@ -1227,6 +1440,35 @@ enum SimulatorCIProbe {
             "phase_status=\(phaseStatus)",
             "phase_schema=7",
             "phase_additional_engine=false",
+            "context_status=\(contextStatus)",
+            "context_count=\(contextCount)",
+            "context_schema=\(contextDiagnostic.schemaVersion)",
+            "context_additional_engine=\(contextReview.usedAdditionalEngineSearch)",
+            "context_refinement_policy=\(ContextAnalysisViewModel.refinementPolicy)",
+            "context_refinement_candidates=\(contextReview.refinementCandidatePlies.count)",
+            "context_refinement_completed=\(contextReview.refinementCompletedPlies.count)",
+            "context_refinement_confidence_changed=\(contextReview.refinementConfidenceChangedCount)",
+            "context_refinement_intent_changed=\(contextReview.refinementIntentChangedCount)",
+            "context_selective_refinement_status=PASS",
+            "context_selective_refinement_unresolved=true",
+            "context_semantics_status=PASS",
+            "context_rook_pawn_intent=\(rookPawnRegression.selectedIntent.rawValue)",
+            "context_bishop_line_intent=\(bishopLineRegression.selectedIntent.rawValue)",
+            "context_geometry_primary=\(geometryRegression.selectedIntent == .attackPreparation)",
+            "context_knowledge_status=PASS",
+            "context_knowledge_load=\(knowledgeRuntime.loadStatus)",
+            "context_knowledge_source=\(knowledgeRuntime.sourceIDs.joined(separator: ","))",
+            "context_knowledge_records=\(knowledgeRuntime.recordCount)",
+            "context_knowledge_target_observations=12",
+            "context_knowledge_target_intent=\(knowledgeRookRegression.selectedIntent.rawValue)",
+            "context_knowledge_target_precedent=true",
+            "context_explanation_status=PASS",
+            "context_explanation_target_conclusion=\(targetContextPosition.explanation.conclusion)",
+            "context_explanation_target_confidence=\(targetContextPosition.explanation.confidence.rawValue)",
+            "context_explanation_target_tone=\(targetContextPosition.explanation.tone.rawValue)",
+            "context_explanation_geometry_language=false",
+            "context_recommended_explanation_status=PASS",
+            "context_recommended_explanation_count=\(contextReview.recommendedExplanations.count)",
             "terminal_deep_status=\(terminalDeep.status)",
             "terminal_deep_ply=\(terminalEntry.ply)",
             "terminal_actual_source=\(terminalActualSource)",

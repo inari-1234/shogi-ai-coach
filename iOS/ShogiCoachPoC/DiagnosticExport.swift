@@ -254,6 +254,34 @@ struct ShogiDiagnosticDocument: Codable {
         let error: String?
     }
 
+    struct ContextPositionInfo: Codable {
+        let ply: Int
+        let analysis: MoveContextAnalysis
+        let explanation: ContextMoveExplanation
+        let recommendedMove: String?
+        let recommendedExplanation: ContextMoveExplanation?
+    }
+
+    struct ContextAnalysisInfo: Codable {
+        let status: String
+        let usedAdditionalEngineSearch: Bool
+        let expectedPositions: Int
+        let completedPositions: Int
+        let positions: [ContextPositionInfo]
+        let knowledgeLoadStatus: String?
+        let knowledgeSourceIDs: [String]?
+        let knowledgeRecordCount: Int?
+        let knowledgeMatchedPositions: Int?
+        let refinementPolicy: String?
+        let refinementCandidatePlies: [Int]?
+        let refinementCompletedPlies: [Int]?
+        let refinementConfidenceChangedCount: Int?
+        let refinementIntentChangedCount: Int?
+        let refinementUnresolvedAfterCount: Int?
+        let refinementError: String?
+        let error: String?
+    }
+
     var schemaVersion: Int
     var generatedAt: Date
     let app: AppInfo
@@ -266,6 +294,7 @@ struct ShogiDiagnosticDocument: Codable {
     var reasonAnalysis: ReasonAnalysisInfo?
     var continuationSimulation: ContinuationSimulationInfo?
     var phaseAnalysis: PhaseAnalysisInfo?
+    var contextAnalysis: ContextAnalysisInfo?
     let error: String?
 }
 
@@ -336,6 +365,7 @@ enum DiagnosticExporter {
             reasonAnalysis: nil,
             continuationSimulation: nil,
             phaseAnalysis: nil,
+            contextAnalysis: nil,
             error: error
         )
 
@@ -409,6 +439,20 @@ enum DiagnosticExporter {
         document.schemaVersion = 7
         document.generatedAt = Date()
         document.phaseAnalysis = phaseAnalysis
+        return try encode(document, url: url)
+    }
+
+    static func augmentWithContextAnalysis(
+        url: URL,
+        contextAnalysis: ShogiDiagnosticDocument.ContextAnalysisInfo
+    ) throws -> URL {
+        let data = try Data(contentsOf: url)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        var document = try decoder.decode(ShogiDiagnosticDocument.self, from: data)
+        document.schemaVersion = 8
+        document.generatedAt = Date()
+        document.contextAnalysis = contextAnalysis
         return try encode(document, url: url)
     }
 
