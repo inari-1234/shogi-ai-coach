@@ -867,7 +867,8 @@ public struct MoveContextEngine: Sendable {
         before: BoardSnapshot,
         after: BoardSnapshot
     ) -> Bool {
-        guard let movedPiece = after.piece(at: effect.destination) else { return false }
+        guard !effect.isDrop,
+              let movedPiece = after.piece(at: effect.destination) else { return false }
         let opponent = opponent(of: effect.side)
         for (target, targetPiece) in after.squares
         where targetPiece.side == opponent && targetPiece.kind != .king {

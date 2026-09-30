@@ -87,8 +87,8 @@ final class ContextIntentMatrixTests: XCTestCase {
 
     func testImmediateRecaptureIsExchangeContext() throws {
         let analysis = try MoveContextEngine().analyze(
-            positionCommand: "position startpos moves 7g7f 8c8d 2g2f 8d8e 8h7g 3c3d 7i8h 2b7g+",
-            move: "8h7g"
+            positionCommand: "position startpos moves 8g8f 8c8d 7g7f 8d8e 8h7g 8e8f",
+            move: "7g8f"
         )
         assertIntent(
             analysis,
