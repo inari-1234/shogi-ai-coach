@@ -774,6 +774,10 @@ enum SimulatorCIProbe {
             exit(23)
         }
 
+        let diagnosticRecommendedCount = contextDiagnostic.contextAnalysis?.positions.filter {
+            $0.recommendedMove != nil && $0.recommendedExplanation != nil
+        }.count ?? 0
+
         let knowledgeRuntime = ContextKnowledgeStore.load()
         guard knowledgeRuntime.loadStatus == "PASS",
               knowledgeRuntime.recordCount == 1281,
@@ -793,9 +797,7 @@ enum SimulatorCIProbe {
               contextDiagnostic.contextAnalysis?.knowledgeSourceIDs == ["denryusen:dr4-hardware2:2024"],
               contextDiagnostic.contextAnalysis?.knowledgeRecordCount == 1281,
               contextReview.recommendedExplanations.count == deep.entries.count,
-              contextDiagnostic.contextAnalysis?.positions.filter {
-                  $0.recommendedMove != nil && $0.recommendedExplanation != nil
-              }.count == deep.entries.count,
+              diagnosticRecommendedCount == deep.entries.count,
               let targetContextPosition = contextDiagnostic.contextAnalysis?.positions.first(where: {
                   $0.analysis.move == "8h7g" && $0.analysis.previousMove == "8d8e"
               }),
