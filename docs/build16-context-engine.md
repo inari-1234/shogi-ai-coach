@@ -120,3 +120,15 @@ comparisonStableでない評価差は理由断定へ使わない。追加探索�
 - 実機確認後のpromotion判断
 
 最初のIntent回帰が通っただけではBuild16完成としない。UI文言の置換は内部判定の回帰安定後に行う。
+## 10. 第4段階A — 実データ知識生成経路
+
+- 初回の実データ元は、第2回マイナビニュース杯電竜戦統一ハードウェア戦の公式KIF（250局）とする。
+- 公式ページは「棋譜利用は制限等ありませんので、ご自由にお使いください。」と明記している。
+- GitHub Actionsで公式ZIPを取得し、既存の KIFParser で解析する。
+- ContextKnowledgeBuilder が局面を NormalizedPositionKey に正規化し、同一局面・同一指し手の観測数を集約する。
+- 初期設定は最大80手、2観測以上のみを出力する。
+- 生棋譜から生成するレコードの intent は必ず unresolved とする。
+- raw opening/precedent evidence は単独でIntentを作らず、既存の非geometry根拠で検出済みのIntentだけを補強する。
+- curatedな意味ラベルを将来追加する場合は、raw生成物とは別の検証済み入力として扱う。
+- 生成JSONは schemaVersion=1、source manifest、build statistics、compact recordsを保持する。
+- この段階では生成JSONをArtifactとして監査し、内容・容量・回帰を確認した後にアプリ同梱へ進む。

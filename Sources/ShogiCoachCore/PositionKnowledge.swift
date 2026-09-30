@@ -72,6 +72,40 @@ public enum NormalizedPositionKey {
     }
 }
 
+public struct ContextKnowledgeSourceManifest: Codable, Equatable, Sendable {
+    public let sourceID: String
+    public let title: String
+    public let sourceURL: String
+    public let rightsNote: String
+    public let retrievedDate: String
+
+    public init(sourceID: String, title: String, sourceURL: String, rightsNote: String, retrievedDate: String) {
+        self.sourceID = sourceID
+        self.title = title
+        self.sourceURL = sourceURL
+        self.rightsNote = rightsNote
+        self.retrievedDate = retrievedDate
+    }
+}
+
+public struct ContextKnowledgeBuildStatistics: Codable, Equatable, Sendable {
+    public let parsedGames: Int
+    public let skippedGames: Int
+    public let aggregatedMoves: Int
+    public let emittedRecords: Int
+    public let maxPly: Int
+    public let minObservations: Int
+
+    public init(parsedGames: Int, skippedGames: Int, aggregatedMoves: Int, emittedRecords: Int, maxPly: Int, minObservations: Int) {
+        self.parsedGames = parsedGames
+        self.skippedGames = skippedGames
+        self.aggregatedMoves = aggregatedMoves
+        self.emittedRecords = emittedRecords
+        self.maxPly = maxPly
+        self.minObservations = minObservations
+    }
+}
+
 public struct CompactPositionKnowledgeRecord: Codable, Equatable, Sendable {
     public let positionKey: String
     public let move: String
@@ -100,8 +134,38 @@ public struct CompactPositionKnowledgeRecord: Codable, Equatable, Sendable {
     }
 }
 
+public struct ContextKnowledgeDocument: Codable, Equatable, Sendable {
+    public let schemaVersion: Int
+    public let sources: [ContextKnowledgeSourceManifest]
+    public let records: [CompactPositionKnowledgeRecord]
+    public let statistics: ContextKnowledgeBuildStatistics
+
+    public init(schemaVersion: Int = 1, sources: [ContextKnowledgeSourceManifest], records: [CompactPositionKnowledgeRecord], statistics: ContextKnowledgeBuildStatistics) {
+        self.schemaVersion = schemaVersion
+        self.sources = sources
+        self.records = records
+        self.statistics = statistics
+    }
+}
+
+public enum ContextKnowledgeDecodeError: Error, Equatable, Sendable {
+    case unsupportedSchema(Int)
+}
+
 public struct CompactMoveContextKnowledgeProvider: MoveContextKnowledgeProvider {
     private let records: [String: [CompactPositionKnowledgeRecord]]
+
+    public init(document: ContextKnowledgeDocument) {
+        self.init(records: document.records)
+    }
+
+    public init(data: Data) throws {
+        let document = try JSONDecoder().decode(ContextKnowledgeDocument.self, from: data)
+        guard document.schemaVersion == 1 else {
+            throw ContextKnowledgeDecodeError.unsupportedSchema(document.schemaVersion)
+        }
+        self.init(document: document)
+    }
 
     public init(records: [CompactPositionKnowledgeRecord]) {
         var grouped: [String: [CompactPositionKnowledgeRecord]] = [:]

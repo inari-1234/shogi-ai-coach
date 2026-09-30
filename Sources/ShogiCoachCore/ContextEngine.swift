@@ -610,13 +610,26 @@ public struct MoveContextEngine: Sendable {
             }
         }
 
+        let rawKnowledgeAnchor = Self.strongestKnowledgeAnchor(from: evidence)
         for item in knowledgeProvider.evidence(positionCommand: positionCommand, move: move) {
             guard item.kind == .openingBook || item.kind == .precedent else { continue }
+
+            let supportedIntent: MoveIntent
+            let detail: String
+            if item.intent == .unresolved {
+                guard let rawKnowledgeAnchor else { continue }
+                supportedIntent = rawKnowledgeAnchor
+                detail = "raw_knowledge_reinforces=\(rawKnowledgeAnchor.rawValue);\(item.detail)"
+            } else {
+                supportedIntent = item.intent
+                detail = item.detail
+            }
+
             evidence.append(.init(
                 id: "knowledge_\(item.sourceID)",
                 kind: item.kind,
-                detail: item.detail,
-                supportedIntent: item.intent,
+                detail: detail,
+                supportedIntent: supportedIntent,
                 weight: max(0, item.weight)
             ))
         }
@@ -714,6 +727,24 @@ public struct MoveContextEngine: Sendable {
             confidence: confidence,
             evidence: evidence
         )
+    }
+
+    private static func strongestKnowledgeAnchor(from evidence: [ContextEvidence]) -> MoveIntent? {
+        var grouped: [MoveIntent: Int] = [:]
+        for item in evidence {
+            guard item.kind != .geometry,
+                  item.kind != .openingBook,
+                  item.kind != .precedent,
+                  item.supportedIntent != .unresolved else { continue }
+            grouped[item.supportedIntent, default: 0] += max(0, item.weight)
+        }
+        let ranked = grouped.sorted {
+            if $0.value == $1.value { return $0.key.rawValue < $1.key.rawValue }
+            return $0.value > $1.value
+        }
+        guard let first = ranked.first, first.value >= 30 else { return nil }
+        if ranked.count > 1, ranked[1].value == first.value { return nil }
+        return first.key
     }
 
     private struct Attacker {
