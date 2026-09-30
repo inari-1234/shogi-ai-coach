@@ -140,7 +140,7 @@ jobs:
           grep -Fq "diagnostic_status=PASS" simulator-result.txt
           grep -Fq "diagnostic_positions=4" simulator-result.txt
           grep -Fq "diagnostic_version=0.8.3" simulator-result.txt
-          grep -Fq "diagnostic_build=15" simulator-result.txt
+          grep -Fq "diagnostic_build=16" simulator-result.txt
           grep -Fq "deep_status=深掘り PASS" simulator-result.txt
           grep -Fq "deep_count=3" simulator-result.txt
           grep -Fq "deep_multipv=3" simulator-result.txt
@@ -164,6 +164,14 @@ jobs:
           grep -Fq "phase_status=フェーズ別振り返り PASS" simulator-result.txt
           grep -Fq "phase_schema=7" simulator-result.txt
           grep -Fq "phase_additional_engine=false" simulator-result.txt
+          grep -Fq "context_status=局面文脈解析 PASS" simulator-result.txt
+          grep -Fq "context_count=4" simulator-result.txt
+          grep -Fq "context_schema=8" simulator-result.txt
+          grep -Fq "context_additional_engine=false" simulator-result.txt
+          grep -Fq "context_semantics_status=PASS" simulator-result.txt
+          grep -Fq "context_rook_pawn_intent=rook_pawn_response" simulator-result.txt
+          grep -Fq "context_bishop_line_intent=bishop_line_response" simulator-result.txt
+          grep -Fq "context_geometry_primary=false" simulator-result.txt
           grep -Fq "terminal_continuation_status=展開シミュレーション PASS" simulator-result.txt
           grep -Fq "terminal_continuation_drop=true" simulator-result.txt
           grep -Fq "terminal_phase_status=フェーズ別振り返り PASS" simulator-result.txt

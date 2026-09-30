@@ -254,6 +254,20 @@ struct ShogiDiagnosticDocument: Codable {
         let error: String?
     }
 
+    struct ContextPositionInfo: Codable {
+        let ply: Int
+        let analysis: MoveContextAnalysis
+    }
+
+    struct ContextAnalysisInfo: Codable {
+        let status: String
+        let usedAdditionalEngineSearch: Bool
+        let expectedPositions: Int
+        let completedPositions: Int
+        let positions: [ContextPositionInfo]
+        let error: String?
+    }
+
     var schemaVersion: Int
     var generatedAt: Date
     let app: AppInfo
@@ -266,6 +280,7 @@ struct ShogiDiagnosticDocument: Codable {
     var reasonAnalysis: ReasonAnalysisInfo?
     var continuationSimulation: ContinuationSimulationInfo?
     var phaseAnalysis: PhaseAnalysisInfo?
+    var contextAnalysis: ContextAnalysisInfo?
     let error: String?
 }
 
@@ -336,6 +351,7 @@ enum DiagnosticExporter {
             reasonAnalysis: nil,
             continuationSimulation: nil,
             phaseAnalysis: nil,
+            contextAnalysis: nil,
             error: error
         )
 
@@ -409,6 +425,20 @@ enum DiagnosticExporter {
         document.schemaVersion = 7
         document.generatedAt = Date()
         document.phaseAnalysis = phaseAnalysis
+        return try encode(document, url: url)
+    }
+
+    static func augmentWithContextAnalysis(
+        url: URL,
+        contextAnalysis: ShogiDiagnosticDocument.ContextAnalysisInfo
+    ) throws -> URL {
+        let data = try Data(contentsOf: url)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        var document = try decoder.decode(ShogiDiagnosticDocument.self, from: data)
+        document.schemaVersion = 8
+        document.generatedAt = Date()
+        document.contextAnalysis = contextAnalysis
         return try encode(document, url: url)
     }
 

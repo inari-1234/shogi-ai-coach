@@ -389,7 +389,7 @@ enum SimulatorCIProbe {
               diagnostic.positions.count == kifGame.moves.count,
               diagnostic.positions.allSatisfy({ !$0.pv.isEmpty && !$0.bestMove.isEmpty }),
               diagnostic.app.version == "0.8.3",
-              diagnostic.app.build == "15",
+              diagnostic.app.build == "16",
               diagnostic.app.gitCommit != "unknown" else {
             writeReport([
                 "stage=diagnostic_failed",
@@ -436,7 +436,7 @@ enum SimulatorCIProbe {
               ),
               deepDiagnostic.schemaVersion == 2,
               deepDiagnostic.app.version == "0.8.3",
-              deepDiagnostic.app.build == "15",
+              deepDiagnostic.app.build == "16",
               deepDiagnostic.deepAnalysis?.status == "深掘り PASS",
               deepDiagnostic.deepAnalysis?.multiPV == 3,
               deepDiagnostic.deepAnalysis?.adaptivePolicy == "adaptive-v2",
@@ -492,7 +492,7 @@ enum SimulatorCIProbe {
               ),
               boardDiagnostic.schemaVersion == 3,
               boardDiagnostic.app.version == "0.8.3",
-              boardDiagnostic.app.build == "15",
+              boardDiagnostic.app.build == "16",
               boardDiagnostic.boardDisplay?.status == "盤面表示 PASS",
               boardDiagnostic.boardDisplay?.completedPositions == deep.entries.count,
               boardDiagnostic.boardDisplay?.positions.count == deep.entries.count else {
@@ -542,7 +542,7 @@ enum SimulatorCIProbe {
               ),
               reasonDiagnostic.schemaVersion == 4,
               reasonDiagnostic.app.version == "0.8.3",
-              reasonDiagnostic.app.build == "15",
+              reasonDiagnostic.app.build == "16",
               reasonDiagnostic.reasonAnalysis?.status == "理由解析 PASS",
               reasonDiagnostic.reasonAnalysis?.completedPositions == deep.entries.count,
               reasonDiagnostic.reasonAnalysis?.positions.count == deep.entries.count,
@@ -615,7 +615,7 @@ enum SimulatorCIProbe {
               ),
               continuationDiagnostic.schemaVersion == 5,
               continuationDiagnostic.app.version == "0.8.3",
-              continuationDiagnostic.app.build == "15",
+              continuationDiagnostic.app.build == "16",
               continuationDiagnostic.continuationSimulation?.status == "展開シミュレーション PASS",
               continuationDiagnostic.continuationSimulation?.completedPositions == deep.entries.count,
               continuationDiagnostic.continuationSimulation?.positions.count == deep.entries.count,
@@ -670,7 +670,7 @@ enum SimulatorCIProbe {
               ),
               phaseDiagnostic.schemaVersion == 7,
               phaseDiagnostic.app.version == "0.8.3",
-              phaseDiagnostic.app.build == "15",
+              phaseDiagnostic.app.build == "16",
               phaseDiagnostic.phaseAnalysis?.status == "フェーズ別振り返り PASS",
               phaseDiagnostic.phaseAnalysis?.usedAdditionalEngineSearch == false,
               phaseDiagnostic.phaseAnalysis?.sections.count == 1,
@@ -687,6 +687,75 @@ enum SimulatorCIProbe {
             exit(17)
         }
         SimulatorStage.mark("phase_review_pass")
+
+        let contextReview = ContextAnalysisViewModel()
+        contextReview.prepare(
+            game: kifGame,
+            deepEntries: deep.entries,
+            diagnosticURL: phaseReview.diagnosticURL
+        )
+        let contextStatus = contextReview.status
+        let contextCount = contextReview.entries.count
+        guard contextStatus == "局面文脈解析 PASS",
+              contextCount == kifGame.moves.count,
+              let contextDiagnosticURL = contextReview.diagnosticURL,
+              let contextDiagnosticData = try? Data(contentsOf: contextDiagnosticURL),
+              let contextDiagnostic = try? JSONDecoder.iso8601.decode(
+                ShogiDiagnosticDocument.self,
+                from: contextDiagnosticData
+              ),
+              contextDiagnostic.schemaVersion == 8,
+              contextDiagnostic.app.version == "0.8.3",
+              contextDiagnostic.app.build == "16",
+              contextDiagnostic.contextAnalysis?.status == "局面文脈解析 PASS",
+              contextDiagnostic.contextAnalysis?.usedAdditionalEngineSearch == false,
+              contextDiagnostic.contextAnalysis?.completedPositions == kifGame.moves.count,
+              contextDiagnostic.contextAnalysis?.positions.count == kifGame.moves.count else {
+            writeReport([
+                "stage=context_analysis_failed",
+                "context_status=FAIL",
+                "context_count=\(contextCount)",
+                "context_summary_begin",
+                contextReview.summary,
+                "context_summary_end"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("context_analysis_failed")
+            fflush(stdout)
+            exit(22)
+        }
+
+        let contextEngine = MoveContextEngine()
+        guard let rookPawnRegression = try? contextEngine.analyze(
+                positionCommand: "position startpos moves 7g7f 8c8d 2g2f 8d8e",
+                move: "8h7g"
+              ),
+              rookPawnRegression.selectedIntent == .rookPawnResponse,
+              rookPawnRegression.confidence == .high,
+              rookPawnRegression.evidence.contains(where: {
+                  $0.kind == .previousMoveCausality
+                      && $0.supportedIntent == .rookPawnResponse
+              }),
+              rookPawnRegression.selectedIntent != .attackPreparation,
+              let bishopLineRegression = try? contextEngine.analyze(
+                positionCommand: "position startpos moves 7g7f 3c3d",
+                move: "8h2b+"
+              ),
+              bishopLineRegression.selectedIntent == .bishopLineResponse,
+              let geometryRegression = try? contextEngine.analyze(
+                positionCommand: "position startpos moves 7g7f 3c3d",
+                move: "6i7h"
+              ),
+              geometryRegression.selectedIntent != .attackPreparation else {
+            writeReport([
+                "stage=context_semantics_failed",
+                "context_status=\(contextStatus)",
+                "context_semantics_status=FAIL"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("context_semantics_failed")
+            fflush(stdout)
+            exit(23)
+        }
+        SimulatorStage.mark("context_analysis_pass")
 
         let (unstableGame, _) = makeTerminalRegression()
         let unstableDeepEntry = DeepAnalysisEntry(
@@ -1227,6 +1296,14 @@ enum SimulatorCIProbe {
             "phase_status=\(phaseStatus)",
             "phase_schema=7",
             "phase_additional_engine=false",
+            "context_status=\(contextStatus)",
+            "context_count=\(contextCount)",
+            "context_schema=\(contextDiagnostic.schemaVersion)",
+            "context_additional_engine=false",
+            "context_semantics_status=PASS",
+            "context_rook_pawn_intent=\(rookPawnRegression.selectedIntent.rawValue)",
+            "context_bishop_line_intent=\(bishopLineRegression.selectedIntent.rawValue)",
+            "context_geometry_primary=\(geometryRegression.selectedIntent == .attackPreparation)",
             "terminal_deep_status=\(terminalDeep.status)",
             "terminal_deep_ply=\(terminalEntry.ply)",
             "terminal_actual_source=\(terminalActualSource)",
