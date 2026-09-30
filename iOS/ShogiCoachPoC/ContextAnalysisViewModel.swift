@@ -57,7 +57,8 @@ final class ContextAnalysisViewModel: ObservableObject {
                         continuationStable: deep.continuationStable,
                         bestPV: deep.bestPV.split(whereSeparator: { $0.isWhitespace }).map(String.init),
                         actualPV: deep.actualPV.split(whereSeparator: { $0.isWhitespace }).map(String.init),
-                        actualLossCp: deep.actualLossCp
+                        actualLossCp: deep.actualLossCp,
+                        actualMate: Self.isPositiveMate(deep.actualScoreText)
                     )
                 } else {
                     engineEvidence = nil
@@ -114,5 +115,13 @@ final class ContextAnalysisViewModel: ObservableObject {
             summary = error.localizedDescription
             diagnosticError = error.localizedDescription
         }
+    }
+
+    private static func isPositiveMate(_ text: String) -> Bool {
+        let parts = text.split(whereSeparator: { $0.isWhitespace })
+        guard parts.count >= 2,
+              parts[0].lowercased() == "mate",
+              let value = Int(parts[1]) else { return false }
+        return value > 0
     }
 }

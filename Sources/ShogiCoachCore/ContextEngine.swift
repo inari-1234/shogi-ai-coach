@@ -1,6 +1,6 @@
 import Foundation
 
-public enum MoveIntent: String, Codable, CaseIterable, Sendable {
+public enum MoveIntent: String, Codable, CaseIterable, Hashable, Sendable {
     case rookPawnResponse = "rook_pawn_response"
     case bishopLineResponse = "bishop_line_response"
     case pieceDefense = "piece_defense"
@@ -19,6 +19,7 @@ public enum MoveIntent: String, Codable, CaseIterable, Sendable {
     case handPieceDeployment = "hand_piece_deployment"
     case outpostCreation = "outpost_creation"
     case matingAttack = "mating_attack"
+    case threatmate = "threatmate"
     case threatmateDefense = "threatmate_defense"
     case kingEscape = "king_escape"
     case controlAddition = "control_addition"
@@ -121,6 +122,10 @@ public struct MoveContextEngineEvidence: Codable, Equatable, Sendable {
     public let bestPV: [String]
     public let actualPV: [String]
     public let actualLossCp: Int?
+    public let actualMate: Bool
+    public let createsThreatmate: Bool
+    public let opponentThreatmateBefore: Bool
+    public let opponentThreatmateAfter: Bool
 
     public init(
         bestMove: String,
@@ -129,7 +134,11 @@ public struct MoveContextEngineEvidence: Codable, Equatable, Sendable {
         continuationStable: Bool,
         bestPV: [String],
         actualPV: [String],
-        actualLossCp: Int?
+        actualLossCp: Int?,
+        actualMate: Bool = false,
+        createsThreatmate: Bool = false,
+        opponentThreatmateBefore: Bool = false,
+        opponentThreatmateAfter: Bool = false
     ) {
         self.bestMove = bestMove
         self.actualMove = actualMove
@@ -138,6 +147,10 @@ public struct MoveContextEngineEvidence: Codable, Equatable, Sendable {
         self.bestPV = bestPV
         self.actualPV = actualPV
         self.actualLossCp = actualLossCp
+        self.actualMate = actualMate
+        self.createsThreatmate = createsThreatmate
+        self.opponentThreatmateBefore = opponentThreatmateBefore
+        self.opponentThreatmateAfter = opponentThreatmateAfter
     }
 }
 
@@ -274,19 +287,123 @@ public struct MoveContextEngine: Sendable {
         if givesCheck {
             facts.append(.init(id: "check", kind: .check, detail: opponent.rawValue))
             effects.append(.init(id: "gives_check", detail: currentEffect.destination.usi))
+            evidence.append(.init(
+                id: "ev_check_continuation",
+                kind: .boardEffect,
+                detail: "current_move_gives_check",
+                supportedIntent: .attackContinuation,
+                weight: 85
+            ))
         }
 
-        if wasInCheck,
-           currentEffect.pieceBefore == .king,
-           !isInCheckAfter {
-            evidence.append(.init(
-                id: "ev_king_escape",
-                kind: .previousMoveCausality,
-                detail: "king_left_check",
-                supportedIntent: .kingEscape,
-                weight: 110
-            ))
+        if wasInCheck, !isInCheckAfter {
+            if currentEffect.pieceBefore == .king {
+                evidence.append(.init(
+                    id: "ev_king_escape",
+                    kind: .previousMoveCausality,
+                    detail: "king_left_check",
+                    supportedIntent: .kingEscape,
+                    weight: 110
+                ))
+            } else {
+                evidence.append(.init(
+                    id: "ev_check_defense",
+                    kind: .previousMoveCausality,
+                    detail: "non_king_move_resolved_check",
+                    supportedIntent: .defense,
+                    weight: 110
+                ))
+            }
             contextChanges.append(.init(id: "check_resolved", detail: ownKingAfter?.usi ?? "-"))
+        }
+
+        if engineEvidence?.actualMate == true, givesCheck {
+            evidence.append(.init(
+                id: "ev_forced_mate",
+                kind: .enginePV,
+                detail: "stable_line_reports_forced_mate",
+                supportedIntent: .matingAttack,
+                weight: 140
+            ))
+        }
+        if engineEvidence?.createsThreatmate == true {
+            evidence.append(.init(
+                id: "ev_threatmate",
+                kind: .enginePV,
+                detail: "engine_verified_threatmate_created",
+                supportedIntent: .threatmate,
+                weight: 125
+            ))
+        }
+        if engineEvidence?.opponentThreatmateBefore == true,
+           engineEvidence?.opponentThreatmateAfter == false {
+            evidence.append(.init(
+                id: "ev_threatmate_defense",
+                kind: .counterfactual,
+                detail: "opponent_threatmate_removed",
+                supportedIntent: .threatmateDefense,
+                weight: 135
+            ))
+        }
+
+        let attackPressureBefore = Self.kingZonePressure(
+            attackingSide: mover,
+            kingSide: opponent,
+            snapshot: beforeCurrent
+        )
+        let attackPressureAfter = Self.kingZonePressure(
+            attackingSide: mover,
+            kingSide: opponent,
+            snapshot: afterCurrent
+        )
+        if !givesCheck, attackPressureAfter >= attackPressureBefore + 2 {
+            evidence.append(.init(
+                id: "ev_attack_preparation",
+                kind: .boardEffect,
+                detail: "opponent_king_zone_pressure:\(attackPressureBefore)->\(attackPressureAfter)",
+                supportedIntent: .attackPreparation,
+                weight: 75
+            ))
+        }
+
+        let dangerBefore = Self.kingZonePressure(
+            attackingSide: opponent,
+            kingSide: mover,
+            snapshot: beforeCurrent
+        )
+        let dangerAfter = Self.kingZonePressure(
+            attackingSide: opponent,
+            kingSide: mover,
+            snapshot: afterCurrent
+        )
+        if !wasInCheck, dangerAfter + 2 <= dangerBefore {
+            evidence.append(.init(
+                id: "ev_defense_pressure_reduction",
+                kind: .boardEffect,
+                detail: "own_king_zone_pressure:\(dangerBefore)->\(dangerAfter)",
+                supportedIntent: .defense,
+                weight: 80
+            ))
+        }
+
+        let defendersBefore = Self.kingZoneControlCount(
+            side: mover,
+            kingSide: mover,
+            snapshot: beforeCurrent
+        )
+        let defendersAfter = Self.kingZoneControlCount(
+            side: mover,
+            kingSide: mover,
+            snapshot: afterCurrent
+        )
+        if defendersAfter >= defendersBefore + 2 {
+            evidence.append(.init(
+                id: "ev_king_safety",
+                kind: .boardEffect,
+                detail: "king_zone_defenders:\(defendersBefore)->\(defendersAfter)",
+                supportedIntent: .kingSafety,
+                weight: 70
+            ))
         }
 
         if let previousEffect,
@@ -313,14 +430,39 @@ public struct MoveContextEngine: Sendable {
             ))
         }
 
+        var newlyAttackedFromPrevious: Set<BoardCoordinate> = []
         if let beforePrevious {
             let newlyAttacked = Self.newlyAttackedFriendlySquares(
                 side: mover,
                 before: beforePrevious,
                 after: beforeCurrent
             )
+            newlyAttackedFromPrevious = newlyAttacked
             for square in newlyAttacked {
                 facts.append(.init(id: "new_attack_\(square.usi)", kind: .newlyAttackedPiece, detail: square.usi))
+            }
+
+            for threatened in newlyAttacked where threatened != currentEffect.source {
+                let beforeDefenders = Self.controlCount(
+                    threatened,
+                    by: mover,
+                    snapshot: beforeCurrent
+                )
+                let afterDefenders = Self.controlCount(
+                    threatened,
+                    by: mover,
+                    snapshot: afterCurrent
+                )
+                if afterDefenders > beforeDefenders {
+                    evidence.append(.init(
+                        id: "ev_piece_defense_\(threatened.usi)",
+                        kind: .previousMoveCausality,
+                        detail: "added_defender_to_newly_attacked_piece:\(threatened.usi)",
+                        supportedIntent: .pieceDefense,
+                        weight: 92
+                    ))
+                    effects.append(.init(id: "added_piece_defender", detail: threatened.usi))
+                }
             }
 
             if let source = currentEffect.source, newlyAttacked.contains(source) {
@@ -355,6 +497,21 @@ public struct MoveContextEngine: Sendable {
             }
         }
 
+        if let previousEffect,
+           previousEffect.side == opponent,
+           previousEffect.capturedPiece != nil,
+           currentEffect.capturedPiece != nil,
+           currentEffect.destination == previousEffect.destination {
+            evidence.append(.init(
+                id: "ev_recapture_exchange",
+                kind: .previousMoveCausality,
+                detail: "immediate_recapture_on:\(currentEffect.destination.usi)",
+                supportedIntent: .postExchangeImprovement,
+                weight: 108
+            ))
+            contextChanges.append(.init(id: "exchange_sequence", detail: currentEffect.destination.usi))
+        }
+
         if currentEffect.isDrop {
             evidence.append(.init(
                 id: "ev_drop_deployment",
@@ -377,6 +534,64 @@ public struct MoveContextEngine: Sendable {
                 detail: "mobility:\(beforeMobility)->\(afterMobility)",
                 supportedIntent: major ? .majorPieceActivation : .pieceActivation,
                 weight: major ? 55 : 40
+            ))
+        }
+
+        if currentEffect.pieceBefore == .king,
+           !wasInCheck,
+           history.count < 40,
+           Self.isHomeCamp(currentEffect.destination, side: mover) {
+            evidence.append(.init(
+                id: "ev_castling_step",
+                kind: .boardEffect,
+                detail: "early_home_camp_king_relocation",
+                supportedIntent: .castling,
+                weight: 90
+            ))
+        }
+
+        if !currentEffect.isDrop,
+           currentEffect.pieceBefore != .pawn,
+           currentEffect.pieceBefore != .king,
+           history.count < 24,
+           let source = currentEffect.source,
+           Self.isHomeCamp(source, side: mover),
+           !Self.isHomeCamp(currentEffect.destination, side: mover) {
+            evidence.append(.init(
+                id: "ev_development",
+                kind: .boardEffect,
+                detail: "early_piece_left_home_camp",
+                supportedIntent: .development,
+                weight: 38
+            ))
+        }
+
+        if Self.preparesContestedExchange(
+            effect: currentEffect,
+            before: beforeCurrent,
+            after: afterCurrent
+        ) {
+            evidence.append(.init(
+                id: "ev_exchange_preparation",
+                kind: .boardEffect,
+                detail: "new_attack_on_defended_enemy_piece",
+                supportedIntent: .exchangePreparation,
+                weight: 62
+            ))
+        }
+
+        let hasCausalResponse = evidence.contains { $0.kind == .previousMoveCausality }
+        if let previousEffect,
+           previousEffect.side == opponent,
+           !newlyAttackedFromPrevious.isEmpty,
+           !hasCausalResponse,
+           Self.chebyshevDistance(previousEffect.destination, currentEffect.destination) >= 4 {
+            evidence.append(.init(
+                id: "ev_tenuki",
+                kind: .previousMoveCausality,
+                detail: "concrete_local_threat_ignored_for_distant_move",
+                supportedIntent: .tenuki,
+                weight: 68
             ))
         }
 
@@ -593,6 +808,96 @@ public struct MoveContextEngine: Sendable {
         !attackers(of: target, by: side, snapshot: snapshot).isEmpty
     }
 
+    private static func kingZonePressure(
+        attackingSide: ShogiSide,
+        kingSide: ShogiSide,
+        snapshot: BoardSnapshot
+    ) -> Int {
+        guard let king = kingSquare(side: kingSide, snapshot: snapshot) else { return 0 }
+        var pressure = 0
+        for file in max(1, king.file - 1)...min(9, king.file + 1) {
+            for rank in max(1, king.rank - 1)...min(9, king.rank + 1) {
+                let square = BoardCoordinate(file: file, rank: rank)
+                if isSquareAttacked(square, by: attackingSide, snapshot: snapshot) {
+                    pressure += 1
+                }
+            }
+        }
+        return pressure
+    }
+
+    private static func kingZoneControlCount(
+        side: ShogiSide,
+        kingSide: ShogiSide,
+        snapshot: BoardSnapshot
+    ) -> Int {
+        guard let king = kingSquare(side: kingSide, snapshot: snapshot) else { return 0 }
+        var controls = 0
+        for file in max(1, king.file - 1)...min(9, king.file + 1) {
+            for rank in max(1, king.rank - 1)...min(9, king.rank + 1) {
+                controls += controlCount(
+                    BoardCoordinate(file: file, rank: rank),
+                    by: side,
+                    snapshot: snapshot
+                )
+            }
+        }
+        return controls
+    }
+
+    private static func controlCount(
+        _ target: BoardCoordinate,
+        by side: ShogiSide,
+        snapshot: BoardSnapshot
+    ) -> Int {
+        snapshot.squares.reduce(into: 0) { count, entry in
+            if entry.value.side == side,
+               controls(from: entry.key, piece: entry.value, target: target, snapshot: snapshot) {
+                count += 1
+            }
+        }
+    }
+
+    private static func isHomeCamp(_ square: BoardCoordinate, side: ShogiSide) -> Bool {
+        side == .black ? square.rank >= 7 : square.rank <= 3
+    }
+
+    private static func preparesContestedExchange(
+        effect: MoveEffect,
+        before: BoardSnapshot,
+        after: BoardSnapshot
+    ) -> Bool {
+        guard let movedPiece = after.piece(at: effect.destination) else { return false }
+        let opponent = opponent(of: effect.side)
+        for (target, targetPiece) in after.squares
+        where targetPiece.side == opponent && targetPiece.kind != .king {
+            let attacksAfter = attacks(
+                from: effect.destination,
+                piece: movedPiece,
+                target: target,
+                snapshot: after
+            )
+            guard attacksAfter else { continue }
+
+            let attackedBefore: Bool
+            if let source = effect.source, let beforePiece = before.piece(at: source) {
+                attackedBefore = attacks(
+                    from: source,
+                    piece: beforePiece,
+                    target: target,
+                    snapshot: before
+                )
+            } else {
+                attackedBefore = false
+            }
+            if !attackedBefore,
+               controlCount(target, by: opponent, snapshot: after) > 0 {
+                return true
+            }
+        }
+        return false
+    }
+
     private static func attackCount(from square: BoardCoordinate, snapshot: BoardSnapshot) -> Int {
         guard let piece = snapshot.piece(at: square) else { return 0 }
         var count = 0
@@ -615,6 +920,15 @@ public struct MoveContextEngine: Sendable {
         snapshot: BoardSnapshot
     ) -> Bool {
         if let occupant = snapshot.piece(at: target), occupant.side == piece.side { return false }
+        return controls(from: from, piece: piece, target: target, snapshot: snapshot)
+    }
+
+    private static func controls(
+        from: BoardCoordinate,
+        piece: BoardPieceState,
+        target: BoardCoordinate,
+        snapshot: BoardSnapshot
+    ) -> Bool {
         let dx = target.file - from.file
         let dy = target.rank - from.rank
         guard dx != 0 || dy != 0 else { return false }
