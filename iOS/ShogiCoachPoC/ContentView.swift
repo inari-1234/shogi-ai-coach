@@ -243,14 +243,16 @@ struct ContentView: View {
             .sheet(isPresented: $showingContinuationSimulation) {
                 ContinuationSimulationScreen(
                     entries: continuation.entries,
-                    contextEntries: contextAnalysis.entries
+                    contextEntries: contextAnalysis.entries,
+                    recommendedExplanations: contextAnalysis.recommendedExplanations
                 )
             }
             .sheet(isPresented: $showingPhaseReview) {
                 PhaseReviewScreen(
                     sections: phaseReview.sections,
                     continuationEntries: continuation.entries,
-                    contextEntries: contextAnalysis.entries
+                    contextEntries: contextAnalysis.entries,
+                    recommendedExplanations: contextAnalysis.recommendedExplanations
                 )
             }
         }

@@ -167,3 +167,13 @@ comparisonStableでない評価差は理由断定へ使わない。追加探索�
 - ContinuationSimulation の旧 coachText から「相手玉へ近づいたので攻め」という幾何フォールバックを削除する。
 - 実戦ルートの第1手（実際の重要手）は ContextExplanationCard を表示し、PV途中手は具体的な盤面変化のみ表示する。
 - schema 8 の ContextPositionInfo に explanation を保持し、Simulator実JSONで最重要回帰の文面・tone・confidence・禁止表現を監査する。
+
+## 14. 第5段階B — 推奨手説明のContext接続
+
+- DeepAnalysisで選ばれた重要局面ごとに、実戦手だけでなくエンジン推奨手も同じ MoveContextEngine へ通す。
+- 推奨手が実戦手と同一なら実戦手のExplanationを共有し、異なる場合は推奨PVを既存engine evidenceとして再利用してContextを判定する。
+- 比較不安定時はengine evidenceだけでIntentを作らない既存境界を維持する。
+- ContextAnalysisViewModel は重要局面ごとの recommendedExplanations を保持する。
+- Continuationの推奨ルート第1手にも ContextExplanationCard を表示する。
+- 実戦/推奨どちらも第1手は「結論→なぜ今→根拠→確度」、PV第2手以降は安全な盤面変化表示とする。
+- schema 8 の各重要局面に recommendedMove / recommendedExplanation を保存し、Simulatorで重要局面3件すべてに説明が生成されることを監査する。

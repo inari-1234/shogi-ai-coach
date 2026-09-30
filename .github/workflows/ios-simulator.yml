@@ -269,6 +269,8 @@ jobs:
           grep -Fq "context_explanation_target_confidence=high" simulator-result.txt
           grep -Fq "context_explanation_target_tone=assertive" simulator-result.txt
           grep -Fq "context_explanation_geometry_language=false" simulator-result.txt
+          grep -Fq "context_recommended_explanation_status=PASS" simulator-result.txt
+          grep -Fq "context_recommended_explanation_count=3" simulator-result.txt
           grep -Fq "terminal_continuation_status=展開シミュレーション PASS" simulator-result.txt
           grep -Fq "terminal_continuation_drop=true" simulator-result.txt
           grep -Fq "terminal_phase_status=フェーズ別振り返り PASS" simulator-result.txt
@@ -316,6 +318,20 @@ jobs:
               assert analysis["confidence"]
               assert isinstance(analysis["evidence"], list)
 
+          recommended = [
+              item for item in positions
+              if item.get("recommendedMove") is not None
+              and item.get("recommendedExplanation") is not None
+          ]
+          assert len(recommended) == 3
+          for item in recommended:
+              explanation = item["recommendedExplanation"]
+              assert explanation["conclusion"]
+              assert explanation["whyNow"]
+              assert explanation["evidenceText"]
+              assert explanation["confidence"] in {"high", "medium", "low", "unresolved"}
+              assert explanation["tone"] in {"assertive", "measured", "tentative", "unresolved"}
+
           target_items = [
               item for item in positions
               if item["analysis"]["move"] == "8h7g"
@@ -355,6 +371,7 @@ jobs:
               "context_schema8_target_precedent=true",
               "context_schema8_explanation=PASS",
               "context_schema8_geometry_language=false",
+              "context_schema8_recommended_explanations=3",
           ]) + "\n"
           Path("simulator-context-audit.txt").write_text(summary, encoding="utf-8")
           print(summary, end="")

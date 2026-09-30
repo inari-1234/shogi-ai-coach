@@ -26,6 +26,7 @@ final class ContextAnalysisViewModel: ObservableObject {
     @Published private(set) var refinementConfidenceChangedCount = 0
     @Published private(set) var refinementIntentChangedCount = 0
     @Published private(set) var refinementError: String?
+    @Published private(set) var recommendedExplanations: [Int: ContextMoveExplanation] = [:]
 
     private let engine: MoveContextEngine
     private let refinementSession = EngineUSISession()
@@ -53,6 +54,7 @@ final class ContextAnalysisViewModel: ObservableObject {
         refinementConfidenceChangedCount = 0
         refinementIntentChangedCount = 0
         refinementError = nil
+        recommendedExplanations = [:]
     }
 
     func prepare(
@@ -154,6 +156,37 @@ final class ContextAnalysisViewModel: ObservableObject {
 
             usedAdditionalEngineSearch = !refinementCompletedPlies.isEmpty
 
+            var recommended: [Int: ContextMoveExplanation] = [:]
+            for deep in deepEntries {
+                guard let move = moveByPly[deep.ply],
+                      let actualEntry = resolved.first(where: { $0.ply == deep.ply }) else {
+                    continue
+                }
+
+                if deep.bestMove == deep.actualMove {
+                    recommended[deep.ply] = actualEntry.explanation
+                    continue
+                }
+
+                let bestEvidence = MoveContextEngineEvidence(
+                    bestMove: deep.bestMove,
+                    actualMove: deep.bestMove,
+                    comparisonStable: deep.comparisonStable,
+                    continuationStable: deep.continuationStable,
+                    bestPV: deep.bestPV.split(whereSeparator: { $0.isWhitespace }).map(String.init),
+                    actualPV: deep.bestPV.split(whereSeparator: { $0.isWhitespace }).map(String.init),
+                    actualLossCp: 0,
+                    actualMate: Self.isPositiveMate(deep.bestScoreText)
+                )
+                let bestAnalysis = try engine.analyze(
+                    positionCommand: move.positionBefore,
+                    move: deep.bestMove,
+                    engineEvidence: bestEvidence
+                )
+                recommended[deep.ply] = ContextExplanationGenerator.make(analysis: bestAnalysis)
+            }
+            recommendedExplanations = recommended
+
             let high = resolved.filter { $0.analysis.confidence == .high }.count
             let medium = resolved.filter { $0.analysis.confidence == .medium }.count
             let low = resolved.filter { $0.analysis.confidence == .low }.count
@@ -170,7 +203,13 @@ final class ContextAnalysisViewModel: ObservableObject {
                 expectedPositions: game.moves.count,
                 completedPositions: resolved.count,
                 positions: resolved.map {
-                    .init(ply: $0.ply, analysis: $0.analysis, explanation: $0.explanation)
+                    .init(
+                        ply: $0.ply,
+                        analysis: $0.analysis,
+                        explanation: $0.explanation,
+                        recommendedMove: deepByPly[$0.ply]?.bestMove,
+                        recommendedExplanation: recommended[$0.ply]
+                    )
                 },
                 knowledgeLoadStatus: knowledgeLoadStatus,
                 knowledgeSourceIDs: knowledgeSourceIDs,
@@ -202,7 +241,8 @@ final class ContextAnalysisViewModel: ObservableObject {
                 "MEDIUM \(medium)",
                 "LOW \(low)",
                 "UNRESOLVED \(unresolved)",
-                refinementText
+                refinementText,
+                "推奨手説明 \(recommended.count)/\(deepEntries.count)"
             ].joined(separator: " / ")
         } catch {
             await refinementSession.endAnalysis()

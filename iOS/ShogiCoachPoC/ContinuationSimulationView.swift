@@ -4,6 +4,7 @@ import ShogiCoachCore
 struct ContinuationSimulationScreen: View {
     let entries: [ContinuationSimulationEntry]
     let contextEntries: [ContextAnalysisEntry]
+    let recommendedExplanations: [Int: ContextMoveExplanation]
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -12,7 +13,8 @@ struct ContinuationSimulationScreen: View {
                 ForEach(entries) { entry in
                     ContinuationPositionPage(
                         entry: entry,
-                        contextEntry: contextEntries.first { $0.ply == entry.ply }
+                        contextEntry: contextEntries.first { $0.ply == entry.ply },
+                        recommendedExplanation: recommendedExplanations[entry.ply]
                     )
                     .padding(.horizontal)
                 }
@@ -32,6 +34,7 @@ struct ContinuationSimulationScreen: View {
 private struct ContinuationPositionPage: View {
     let entry: ContinuationSimulationEntry
     let contextEntry: ContextAnalysisEntry?
+    let recommendedExplanation: ContextMoveExplanation?
 
     @State private var selectedKind: ContinuationRouteKind = .recommended
     @State private var currentStep = 0
@@ -133,9 +136,10 @@ private struct ContinuationPositionPage: View {
 
                         Divider()
 
-                        if selectedKind == .actual,
-                           currentStep == 1,
-                           let explanation = contextEntry?.explanation {
+                        if currentStep == 1,
+                           let explanation = selectedKind == .actual
+                               ? contextEntry?.explanation
+                               : recommendedExplanation {
                             ContextExplanationCard(explanation: explanation)
                         } else {
                             Text("この手で確認できる変化")

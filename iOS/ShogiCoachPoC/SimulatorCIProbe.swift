@@ -792,6 +792,10 @@ enum SimulatorCIProbe {
               contextDiagnostic.contextAnalysis?.knowledgeLoadStatus == "PASS",
               contextDiagnostic.contextAnalysis?.knowledgeSourceIDs == ["denryusen:dr4-hardware2:2024"],
               contextDiagnostic.contextAnalysis?.knowledgeRecordCount == 1281,
+              contextReview.recommendedExplanations.count == deep.entries.count,
+              contextDiagnostic.contextAnalysis?.positions.filter {
+                  $0.recommendedMove != nil && $0.recommendedExplanation != nil
+              }.count == deep.entries.count,
               let targetContextPosition = contextDiagnostic.contextAnalysis?.positions.first(where: {
                   $0.analysis.move == "8h7g" && $0.analysis.previousMove == "8d8e"
               }),
@@ -1461,6 +1465,8 @@ enum SimulatorCIProbe {
             "context_explanation_target_confidence=\(targetContextPosition.explanation.confidence.rawValue)",
             "context_explanation_target_tone=\(targetContextPosition.explanation.tone.rawValue)",
             "context_explanation_geometry_language=false",
+            "context_recommended_explanation_status=PASS",
+            "context_recommended_explanation_count=\(contextReview.recommendedExplanations.count)",
             "terminal_deep_status=\(terminalDeep.status)",
             "terminal_deep_ply=\(terminalEntry.ply)",
             "terminal_actual_source=\(terminalActualSource)",
