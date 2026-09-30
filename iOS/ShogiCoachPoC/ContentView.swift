@@ -249,7 +249,8 @@ struct ContentView: View {
             .sheet(isPresented: $showingPhaseReview) {
                 PhaseReviewScreen(
                     sections: phaseReview.sections,
-                    continuationEntries: continuation.entries
+                    continuationEntries: continuation.entries,
+                    contextEntries: contextAnalysis.entries
                 )
             }
         }
