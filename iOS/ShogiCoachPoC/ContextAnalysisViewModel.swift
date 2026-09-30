@@ -15,7 +15,18 @@ final class ContextAnalysisViewModel: ObservableObject {
     @Published private(set) var diagnosticURL: URL?
     @Published private(set) var diagnosticError: String?
 
-    private let engine = MoveContextEngine()
+    private let engine: MoveContextEngine
+    let knowledgeLoadStatus: String
+    let knowledgeSourceIDs: [String]
+    let knowledgeRecordCount: Int
+
+    init(bundle: Bundle = .main) {
+        let knowledge = ContextKnowledgeStore.load(bundle: bundle)
+        engine = knowledge.engine
+        knowledgeLoadStatus = knowledge.loadStatus
+        knowledgeSourceIDs = knowledge.sourceIDs
+        knowledgeRecordCount = knowledge.recordCount
+    }
 
     func reset() {
         status = "未解析"
@@ -83,6 +94,11 @@ final class ContextAnalysisViewModel: ObservableObject {
             let low = resolved.filter { $0.analysis.confidence == .low }.count
             let unresolved = resolved.filter { $0.analysis.confidence == .unresolved }.count
 
+            let knowledgeMatchedPositions = resolved.filter { entry in
+                entry.analysis.evidence.contains {
+                    $0.kind == .openingBook || $0.kind == .precedent
+                }
+            }.count
             let diagnostic = ShogiDiagnosticDocument.ContextAnalysisInfo(
                 status: "局面文脈解析 PASS",
                 usedAdditionalEngineSearch: false,
@@ -91,6 +107,10 @@ final class ContextAnalysisViewModel: ObservableObject {
                 positions: resolved.map {
                     .init(ply: $0.ply, analysis: $0.analysis)
                 },
+                knowledgeLoadStatus: knowledgeLoadStatus,
+                knowledgeSourceIDs: knowledgeSourceIDs,
+                knowledgeRecordCount: knowledgeRecordCount,
+                knowledgeMatchedPositions: knowledgeMatchedPositions,
                 error: nil
             )
             let outputURL = try DiagnosticExporter.augmentWithContextAnalysis(

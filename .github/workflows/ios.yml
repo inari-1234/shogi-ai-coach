@@ -96,6 +96,9 @@ jobs:
           test -d "$APP"
           test -x "$APP/ShogiCoachPoC"
           test -s "$APP/eval/nn.bin"
+          if [ -f iOS/ShogiCoachPoC/Resources/context-knowledge.json ]; then
+            test -s "$APP/context-knowledge.json"
+          fi
           mkdir -p ipa/Payload
           cp -R "$APP" ipa/Payload/
           (cd ipa && zip -qry ../ShogiCoachPoC-unsigned.ipa Payload)

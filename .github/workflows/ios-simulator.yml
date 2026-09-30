@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   simulator-e2e:
@@ -88,6 +88,25 @@ jobs:
           print(summary, end="")
           PY
 
+      - name: Sync generated compact knowledge into candidate branch
+        if: github.ref_name == 'candidate/build16-context-engine'
+        shell: bash
+        run: |
+          set -euo pipefail
+          RESOURCE='iOS/ShogiCoachPoC/Resources/context-knowledge.json'
+          mkdir -p "$(dirname "$RESOURCE")"
+          cp build/context-knowledge.json "$RESOURCE"
+          if [ -n "$(git status --porcelain -- "$RESOURCE")" ]; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add "$RESOURCE"
+            git commit -m 'Build 16: refresh generated precedent knowledge'
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+            echo 'context_knowledge_repo_sync=UPDATED'
+          else
+            echo 'context_knowledge_repo_sync=UNCHANGED'
+          fi
+
       - name: Core regression tests
         shell: bash
         run: |
@@ -148,6 +167,7 @@ jobs:
           APP='build/SimulatorDerivedData/Build/Products/Release-iphonesimulator/ShogiCoachPoC.app'
           test -d "$APP"
           test -s "$APP/eval/nn.bin"
+          test -s "$APP/context-knowledge.json"
 
           xcrun simctl list devices available --json > simulator-devices.json
           UDID=$(python3 - <<'PY'
@@ -230,6 +250,13 @@ jobs:
           grep -Fq "context_rook_pawn_intent=rook_pawn_response" simulator-result.txt
           grep -Fq "context_bishop_line_intent=bishop_line_response" simulator-result.txt
           grep -Fq "context_geometry_primary=false" simulator-result.txt
+          grep -Fq "context_knowledge_status=PASS" simulator-result.txt
+          grep -Fq "context_knowledge_load=PASS" simulator-result.txt
+          grep -Fq "context_knowledge_source=denryusen:dr4-hardware2:2024" simulator-result.txt
+          grep -Fq "context_knowledge_records=1281" simulator-result.txt
+          grep -Fq "context_knowledge_target_observations=12" simulator-result.txt
+          grep -Fq "context_knowledge_target_intent=rook_pawn_response" simulator-result.txt
+          grep -Fq "context_knowledge_target_precedent=true" simulator-result.txt
           grep -Fq "terminal_continuation_status=展開シミュレーション PASS" simulator-result.txt
           grep -Fq "terminal_continuation_drop=true" simulator-result.txt
           grep -Fq "terminal_phase_status=フェーズ別振り返り PASS" simulator-result.txt

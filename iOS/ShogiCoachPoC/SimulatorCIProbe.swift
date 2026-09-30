@@ -755,6 +755,36 @@ enum SimulatorCIProbe {
             fflush(stdout)
             exit(23)
         }
+
+        let knowledgeRuntime = ContextKnowledgeStore.load()
+        guard knowledgeRuntime.loadStatus == "PASS",
+              knowledgeRuntime.recordCount == 1281,
+              knowledgeRuntime.sourceIDs == ["denryusen:dr4-hardware2:2024"],
+              let knowledgeRookRegression = try? knowledgeRuntime.engine.analyze(
+                positionCommand: "position startpos moves 7g7f 8c8d 2g2f 8d8e",
+                move: "8h7g"
+              ),
+              knowledgeRookRegression.selectedIntent == .rookPawnResponse,
+              knowledgeRookRegression.confidence == .high,
+              let precedentEvidence = knowledgeRookRegression.evidence.first(where: {
+                  $0.kind == .precedent && $0.supportedIntent == .rookPawnResponse
+              }),
+              precedentEvidence.detail.contains("observations=12"),
+              precedentEvidence.detail.contains("raw_knowledge_reinforces=rook_pawn_response"),
+              contextDiagnostic.contextAnalysis?.knowledgeLoadStatus == "PASS",
+              contextDiagnostic.contextAnalysis?.knowledgeSourceIDs == ["denryusen:dr4-hardware2:2024"],
+              contextDiagnostic.contextAnalysis?.knowledgeRecordCount == 1281 else {
+            writeReport([
+                "stage=context_knowledge_failed",
+                "context_status=\(contextStatus)",
+                "context_knowledge_status=FAIL",
+                "context_knowledge_load=\(knowledgeRuntime.loadStatus)",
+                "context_knowledge_records=\(knowledgeRuntime.recordCount)"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("context_knowledge_failed")
+            fflush(stdout)
+            exit(24)
+        }
         SimulatorStage.mark("context_analysis_pass")
 
         let (unstableGame, _) = makeTerminalRegression()
@@ -1304,6 +1334,13 @@ enum SimulatorCIProbe {
             "context_rook_pawn_intent=\(rookPawnRegression.selectedIntent.rawValue)",
             "context_bishop_line_intent=\(bishopLineRegression.selectedIntent.rawValue)",
             "context_geometry_primary=\(geometryRegression.selectedIntent == .attackPreparation)",
+            "context_knowledge_status=PASS",
+            "context_knowledge_load=\(knowledgeRuntime.loadStatus)",
+            "context_knowledge_source=\(knowledgeRuntime.sourceIDs.joined(separator: ","))",
+            "context_knowledge_records=\(knowledgeRuntime.recordCount)",
+            "context_knowledge_target_observations=12",
+            "context_knowledge_target_intent=\(knowledgeRookRegression.selectedIntent.rawValue)",
+            "context_knowledge_target_precedent=true",
             "terminal_deep_status=\(terminalDeep.status)",
             "terminal_deep_ply=\(terminalEntry.ply)",
             "terminal_actual_source=\(terminalActualSource)",

@@ -265,6 +265,10 @@ struct ShogiDiagnosticDocument: Codable {
         let expectedPositions: Int
         let completedPositions: Int
         let positions: [ContextPositionInfo]
+        let knowledgeLoadStatus: String?
+        let knowledgeSourceIDs: [String]?
+        let knowledgeRecordCount: Int?
+        let knowledgeMatchedPositions: Int?
         let error: String?
     }
 
