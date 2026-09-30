@@ -145,3 +145,12 @@ comparisonStableでない評価差は理由断定へ使わない。追加探索�
 - MEDIUMは十分な総スコア、または複数の独立した非geometry根拠種別の組み合わせを要求する。
 - schema 8に refinement policy / candidate plies / completed plies / confidence changed / intent changed / unresolved after / refinement error を追加する。
 - Simulator E2Eでは、初手7六歩のように意味anchorを持たない局面を強制的に追加探索し、探索後もUNRESOLVEDのままであることを回帰確認する。
+
+## 12. 第4段階C — Intent回帰マトリクスとschema 8実値監査
+
+- 既存の実盤面回帰13カテゴリに加え、Resolver契約で8カテゴリ（piece defense / exchange preparation / attack preparation / king safety / development / piece activation / major piece activation / unresolved）を固定し、合計21カテゴリをカバーする。
+- Resolver契約テストは盤面ヒューリスティクスの偶然性ではなく、Evidence→Intent/Confidenceの最終選択規則そのものを検証する。
+- Simulatorの基準棋譜を `7g7f 8c8d 2g2f 8d8e 8h7g` に変更し、最重要回帰を実診断JSONへ含める。
+- schema 8 JSONを `simulator-context-diagnostic.json` としてArtifactへ回収し、Actions上のPython監査で構造と実値を検証する。
+- 最重要局面は selectedIntent=rook_pawn_response、confidence=high、previous_move_causality evidence、precedent evidence（observations=12）の同時成立を要求する。
+- synthetic selective-refinement testはmain diagnosticのコピーを使い、main schema 8 JSONを上書きしない。

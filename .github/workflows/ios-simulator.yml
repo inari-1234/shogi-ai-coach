@@ -202,6 +202,12 @@ jobs:
 
           if [ -s "$REPORT" ]; then cp "$REPORT" simulator-result.txt; else echo "stage=no_report" > simulator-result.txt; fi
           if [ -s "$STAGE" ]; then cp "$STAGE" simulator-stage.txt; else echo "stage=no_stage_file" > simulator-stage.txt; fi
+          CONTEXT_JSON="$CONTAINER/Documents/ci-context-main.json"
+          if [ -s "$CONTEXT_JSON" ]; then
+            cp "$CONTEXT_JSON" simulator-context-diagnostic.json
+          else
+            echo '{}' > simulator-context-diagnostic.json
+          fi
           cat simulator-result.txt
           echo "--- stage trace ---"
           cat simulator-stage.txt
@@ -212,11 +218,11 @@ jobs:
 
           test "$COMPLETE" -eq 1
           grep -Fq "kif_status=PASS" simulator-result.txt
-          grep -Fq "kif_moves=4" simulator-result.txt
+          grep -Fq "kif_moves=5" simulator-result.txt
           grep -Fq "shallow_status=PASS" simulator-result.txt
-          grep -Fq "shallow_count=4" simulator-result.txt
+          grep -Fq "shallow_count=5" simulator-result.txt
           grep -Fq "diagnostic_status=PASS" simulator-result.txt
-          grep -Fq "diagnostic_positions=4" simulator-result.txt
+          grep -Fq "diagnostic_positions=5" simulator-result.txt
           grep -Fq "diagnostic_version=0.8.3" simulator-result.txt
           grep -Fq "diagnostic_build=16" simulator-result.txt
           grep -Fq "deep_status=深掘り PASS" simulator-result.txt
@@ -243,7 +249,7 @@ jobs:
           grep -Fq "phase_schema=7" simulator-result.txt
           grep -Fq "phase_additional_engine=false" simulator-result.txt
           grep -Fq "context_status=局面文脈解析 PASS" simulator-result.txt
-          grep -Fq "context_count=4" simulator-result.txt
+          grep -Fq "context_count=5" simulator-result.txt
           grep -Fq "context_schema=8" simulator-result.txt
           grep -Fq "context_refinement_policy=selective-low-unresolved-v1" simulator-result.txt
           grep -Fq "context_selective_refinement_status=PASS" simulator-result.txt
@@ -279,6 +285,65 @@ jobs:
           grep -Fq "ten_status=実機PASS候補" simulator-result.txt
           grep -Fq "10/10 completed" simulator-result.txt
 
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("simulator-context-diagnostic.json")
+          doc = json.loads(path.read_text(encoding="utf-8"))
+          assert doc["schemaVersion"] == 8
+          assert doc["game"]["moveCount"] == 5
+          context = doc["contextAnalysis"]
+          assert context["status"] == "局面文脈解析 PASS"
+          assert context["completedPositions"] == 5
+          assert context["expectedPositions"] == 5
+          assert context["knowledgeLoadStatus"] == "PASS"
+          assert context["knowledgeSourceIDs"] == ["denryusen:dr4-hardware2:2024"]
+          assert context["knowledgeRecordCount"] == 1281
+          assert context["refinementPolicy"] == "selective-low-unresolved-v1"
+          assert len(context["refinementCompletedPlies"]) <= len(context["refinementCandidatePlies"])
+
+          positions = context["positions"]
+          assert len(positions) == 5
+          for item in positions:
+              analysis = item["analysis"]
+              assert analysis["move"]
+              assert analysis["selectedIntent"]
+              assert analysis["confidence"]
+              assert isinstance(analysis["evidence"], list)
+
+          target = [
+              item["analysis"] for item in positions
+              if item["analysis"]["move"] == "8h7g"
+              and item["analysis"].get("previousMove") == "8d8e"
+          ]
+          assert len(target) == 1
+          analysis = target[0]
+          assert analysis["selectedIntent"] == "rook_pawn_response"
+          assert analysis["confidence"] == "high"
+          assert any(
+              e["kind"] == "previous_move_causality"
+              and e["supportedIntent"] == "rook_pawn_response"
+              for e in analysis["evidence"]
+          )
+          assert any(
+              e["kind"] == "precedent"
+              and e["supportedIntent"] == "rook_pawn_response"
+              and "observations=12" in e["detail"]
+              for e in analysis["evidence"]
+          )
+
+          summary = "\n".join([
+              "context_schema8_audit=PASS",
+              "context_schema8_target_intent=rook_pawn_response",
+              "context_schema8_target_confidence=high",
+              "context_schema8_target_causality=true",
+              "context_schema8_target_precedent=true",
+          ]) + "\n"
+          Path("simulator-context-audit.txt").write_text(summary, encoding="utf-8")
+          print(summary, end="")
+          PY
+
       - name: Upload simulator diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -291,6 +356,8 @@ jobs:
             simulator-result.txt
             simulator-stage.txt
             simulator-system.log
+            simulator-context-diagnostic.json
+            simulator-context-audit.txt
             build/context-knowledge.json
             build/context-knowledge-summary.txt
             build/context-knowledge-build.log

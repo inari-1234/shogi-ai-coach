@@ -158,13 +158,14 @@ enum SimulatorCIProbe {
         let sample = """
         手合割：平手
         1 ７六歩(77)
-        2 ３四歩(33)
+        2 ８四歩(83)
         3 ２六歩(27)
-        4 ８四歩(83)
-        5 投了
+        4 ８五歩(84)
+        5 ７七角(88)
+        6 投了
         """
         let game = try KIFParser.parse(sample)
-        guard game.moves.map(\.usi) == ["7g7f", "3c3d", "2g2f", "8c8d"],
+        guard game.moves.map(\.usi) == ["7g7f", "8c8d", "2g2f", "8d8e", "8h7g"],
               game.termination == "投了" else {
             throw NSError(
                 domain: "ShogiCoach.KIFCI",
@@ -724,6 +725,23 @@ enum SimulatorCIProbe {
             exit(22)
         }
 
+        let contextAuditURL = FileManager.default.urls(
+            for: .documentDirectory,
+            in: .userDomainMask
+        )[0].appendingPathComponent("ci-context-main.json")
+        do {
+            try contextDiagnosticData.write(to: contextAuditURL, options: .atomic)
+        } catch {
+            writeReport([
+                "stage=context_diagnostic_copy_failed",
+                "context_status=FAIL",
+                "context_diagnostic_copy_error=\(error.localizedDescription)"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("context_diagnostic_copy_failed")
+            fflush(stdout)
+            exit(26)
+        }
+
         let contextEngine = MoveContextEngine()
         guard let rookPawnRegression = try? contextEngine.analyze(
                 positionCommand: "position startpos moves 7g7f 8c8d 2g2f 8d8e",
@@ -824,11 +842,28 @@ enum SimulatorCIProbe {
             adaptiveTriggered: false,
             topCandidateGapCp: nil
         )
+        let refinementDiagnosticURL = FileManager.default.urls(
+            for: .documentDirectory,
+            in: .userDomainMask
+        )[0].appendingPathComponent("ci-context-refinement.json")
+        do {
+            try contextDiagnosticData.write(to: refinementDiagnosticURL, options: .atomic)
+        } catch {
+            writeReport([
+                "stage=context_refinement_fixture_copy_failed",
+                "context_selective_refinement_status=FAIL",
+                "context_refinement_fixture_error=\(error.localizedDescription)"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("context_refinement_fixture_copy_failed")
+            fflush(stdout)
+            exit(27)
+        }
+
         let refinementReview = ContextAnalysisViewModel()
         await refinementReview.prepare(
             game: refinementGame,
             deepEntries: [refinementDeep],
-            diagnosticURL: contextReview.diagnosticURL
+            diagnosticURL: refinementDiagnosticURL
         )
         guard refinementReview.status == "局面文脈解析 PASS",
               refinementReview.usedAdditionalEngineSearch,
