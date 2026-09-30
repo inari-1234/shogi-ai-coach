@@ -38,7 +38,20 @@ jobs:
           curl --fail --location --retry 3 --retry-delay 2 \
             'https://denryu-sen.jp/denryusen/dr4_hardware2/kif_dr4_hdw2.zip' \
             --output build/denryusen-dr4-hardware2.zip
-          unzip -q build/denryusen-dr4-hardware2.zip -d build/context-knowledge-source
+          python3 - <<'PY'
+          import zipfile
+          from pathlib import Path
+
+          source = Path("build/denryusen-dr4-hardware2.zip")
+          destination = Path("build/context-knowledge-source")
+          destination.mkdir(parents=True, exist_ok=True)
+          with zipfile.ZipFile(source, metadata_encoding="cp932") as archive:
+              for member in archive.infolist():
+                  target = (destination / member.filename).resolve()
+                  if destination.resolve() not in target.parents and target != destination.resolve():
+                      raise SystemExit(f"unsafe zip path: {member.filename}")
+              archive.extractall(destination)
+          PY
           swift run -c release ContextKnowledgeBuilder -- \
             --input-dir build/context-knowledge-source \
             --output build/context-knowledge.json \
