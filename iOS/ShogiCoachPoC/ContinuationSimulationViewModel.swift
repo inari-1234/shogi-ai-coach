@@ -516,11 +516,11 @@ final class ContinuationSimulationViewModel: ObservableObject {
 
         if effect.isDrop {
             if nearOpponentKing {
-                meanings.append("持駒を相手玉の近くへ投入し、次の攻めに使います")
+                meanings.append("持駒を相手玉の近くへ投入します")
             } else if nearOwnKing {
-                meanings.append("持駒を自玉の近くへ投入し、受けに使いやすくします")
+                meanings.append("持駒を自玉の近くへ投入します")
             } else {
-                meanings.append("持駒を盤上へ投入し、次の働き場所を作ります")
+                meanings.append("持駒を盤上へ投入します")
             }
         }
 
@@ -528,13 +528,13 @@ final class ContinuationSimulationViewModel: ObservableObject {
             if dangerAfter < dangerBefore {
                 meanings.append("玉を相手の利きが少ない側へ動かし、安全度を上げます")
             } else {
-                meanings.append("玉の位置を変え、次の攻防に備えます")
+                meanings.append("玉の位置を変えます")
             }
         } else if effect.capturedPiece != nil {
             if nearOpponentKing {
-                meanings.append("駒を取りながら相手玉の近くへ踏み込みます")
+                meanings.append("駒を取りながら相手玉の近くへ移動します")
             } else {
-                meanings.append("駒交換を進め、交換後の配置と持駒の使い方が次の焦点になります")
+                meanings.append("駒を取り、盤上の駒配置を変えます")
             }
         }
 
@@ -542,25 +542,8 @@ final class ContinuationSimulationViewModel: ObservableObject {
             meanings.append("成ることで駒の働きを強めます")
         }
 
-        if meanings.isEmpty, let source = effect.source {
-            if let opponentKing {
-                let beforeDistance = chebyshevDistance(source, opponentKing)
-                let afterDistance = chebyshevDistance(effect.destination, opponentKing)
-                if afterDistance < beforeDistance {
-                    meanings.append("駒を相手玉側へ進め、攻めに参加しやすくします")
-                }
-            }
-            if meanings.isEmpty, let ownKing {
-                let beforeDistance = chebyshevDistance(source, ownKing)
-                let afterDistance = chebyshevDistance(effect.destination, ownKing)
-                if afterDistance < beforeDistance {
-                    meanings.append("駒を自玉側へ寄せ、守備に使いやすい位置へ移します")
-                }
-            }
-        }
-
         if meanings.isEmpty {
-            meanings.append("駒の位置を変え、次の手で使える利きと配置を整えます")
+            meanings.append("この1手だけでは狙いを断定せず、続く手順と盤面変化を確認します")
         }
 
         return meanings.prefix(2).joined(separator: "。") + "。"

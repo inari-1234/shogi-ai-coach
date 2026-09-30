@@ -154,3 +154,16 @@ comparisonStableでない評価差は理由断定へ使わない。追加探索�
 - schema 8 JSONを `simulator-context-diagnostic.json` としてArtifactへ回収し、Actions上のPython監査で構造と実値を検証する。
 - 最重要局面は selectedIntent=rook_pawn_response、confidence=high、previous_move_causality evidence、precedent evidence（observations=12）の同時成立を要求する。
 - synthetic selective-refinement testはmain diagnosticのコピーを使い、main schema 8 JSONを上書きしない。
+
+## 13. 第5段階A — Context説明文生成層
+
+- 自然言語説明は ContextExplanationGenerator に集約し、UIから意味規則を分離する。
+- 出力は conclusion / whyNow / evidenceText / confidence / tone の5要素。
+- 表示順は「結論 → なぜ今 → 根拠 → 確度」。
+- HIGHのみ断定調、MEDIUMは「意味が強い」、LOWは「狙いが候補」、UNRESOLVEDは明示的に「断定できません」とする。
+- rook_pawn_response は「相手の飛車先の歩の前進に備える」を結論とし、直前の飛車先歩前進との因果を whyNow に出す。
+- precedent がある場合は observation count を抽出し、「同局面・同手の前例N件」を根拠へ出す。
+- geometry evidence は説明根拠へ採用しない。
+- ContinuationSimulation の旧 coachText から「相手玉へ近づいたので攻め」という幾何フォールバックを削除する。
+- 実戦ルートの第1手（実際の重要手）は ContextExplanationCard を表示し、PV途中手は具体的な盤面変化のみ表示する。
+- schema 8 の ContextPositionInfo に explanation を保持し、Simulator実JSONで最重要回帰の文面・tone・confidence・禁止表現を監査する。

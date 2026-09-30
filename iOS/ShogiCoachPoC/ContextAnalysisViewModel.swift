@@ -5,6 +5,10 @@ struct ContextAnalysisEntry: Identifiable {
     let id: Int
     let ply: Int
     let analysis: MoveContextAnalysis
+
+    var explanation: ContextMoveExplanation {
+        ContextExplanationGenerator.make(analysis: analysis)
+    }
 }
 
 @MainActor
@@ -165,7 +169,9 @@ final class ContextAnalysisViewModel: ObservableObject {
                 usedAdditionalEngineSearch: usedAdditionalEngineSearch,
                 expectedPositions: game.moves.count,
                 completedPositions: resolved.count,
-                positions: resolved.map { .init(ply: $0.ply, analysis: $0.analysis) },
+                positions: resolved.map {
+                    .init(ply: $0.ply, analysis: $0.analysis, explanation: $0.explanation)
+                },
                 knowledgeLoadStatus: knowledgeLoadStatus,
                 knowledgeSourceIDs: knowledgeSourceIDs,
                 knowledgeRecordCount: knowledgeRecordCount,

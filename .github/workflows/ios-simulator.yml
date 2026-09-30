@@ -265,6 +265,10 @@ jobs:
           grep -Fq "context_knowledge_target_observations=12" simulator-result.txt
           grep -Fq "context_knowledge_target_intent=rook_pawn_response" simulator-result.txt
           grep -Fq "context_knowledge_target_precedent=true" simulator-result.txt
+          grep -Fq "context_explanation_status=PASS" simulator-result.txt
+          grep -Fq "context_explanation_target_confidence=high" simulator-result.txt
+          grep -Fq "context_explanation_target_tone=assertive" simulator-result.txt
+          grep -Fq "context_explanation_geometry_language=false" simulator-result.txt
           grep -Fq "terminal_continuation_status=展開シミュレーション PASS" simulator-result.txt
           grep -Fq "terminal_continuation_drop=true" simulator-result.txt
           grep -Fq "terminal_phase_status=フェーズ別振り返り PASS" simulator-result.txt
@@ -312,13 +316,15 @@ jobs:
               assert analysis["confidence"]
               assert isinstance(analysis["evidence"], list)
 
-          target = [
-              item["analysis"] for item in positions
+          target_items = [
+              item for item in positions
               if item["analysis"]["move"] == "8h7g"
               and item["analysis"].get("previousMove") == "8d8e"
           ]
-          assert len(target) == 1
-          analysis = target[0]
+          assert len(target_items) == 1
+          target_item = target_items[0]
+          analysis = target_item["analysis"]
+          explanation = target_item["explanation"]
           assert analysis["selectedIntent"] == "rook_pawn_response"
           assert analysis["confidence"] == "high"
           assert any(
@@ -332,6 +338,14 @@ jobs:
               and "observations=12" in e["detail"]
               for e in analysis["evidence"]
           )
+          assert explanation["confidence"] == "high"
+          assert explanation["tone"] == "assertive"
+          assert "飛車先" in explanation["conclusion"]
+          assert "直前" in explanation["whyNow"]
+          assert "前例12件" in explanation["evidenceText"]
+          combined = explanation["conclusion"] + explanation["whyNow"]
+          assert "相手玉側" not in combined
+          assert "攻めに参加" not in combined
 
           summary = "\n".join([
               "context_schema8_audit=PASS",
@@ -339,6 +353,8 @@ jobs:
               "context_schema8_target_confidence=high",
               "context_schema8_target_causality=true",
               "context_schema8_target_precedent=true",
+              "context_schema8_explanation=PASS",
+              "context_schema8_geometry_language=false",
           ]) + "\n"
           Path("simulator-context-audit.txt").write_text(summary, encoding="utf-8")
           print(summary, end="")

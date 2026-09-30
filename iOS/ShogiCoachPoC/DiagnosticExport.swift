@@ -257,6 +257,7 @@ struct ShogiDiagnosticDocument: Codable {
     struct ContextPositionInfo: Codable {
         let ply: Int
         let analysis: MoveContextAnalysis
+        let explanation: ContextMoveExplanation
     }
 
     struct ContextAnalysisInfo: Codable {

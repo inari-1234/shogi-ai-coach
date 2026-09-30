@@ -3,14 +3,18 @@ import ShogiCoachCore
 
 struct ContinuationSimulationScreen: View {
     let entries: [ContinuationSimulationEntry]
+    let contextEntries: [ContextAnalysisEntry]
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
             TabView {
                 ForEach(entries) { entry in
-                    ContinuationPositionPage(entry: entry)
-                        .padding(.horizontal)
+                    ContinuationPositionPage(
+                        entry: entry,
+                        contextEntry: contextEntries.first { $0.ply == entry.ply }
+                    )
+                    .padding(.horizontal)
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: entries.count > 1 ? .automatic : .never))
@@ -27,6 +31,7 @@ struct ContinuationSimulationScreen: View {
 
 private struct ContinuationPositionPage: View {
     let entry: ContinuationSimulationEntry
+    let contextEntry: ContextAnalysisEntry?
 
     @State private var selectedKind: ContinuationRouteKind = .recommended
     @State private var currentStep = 0
@@ -128,11 +133,17 @@ private struct ContinuationPositionPage: View {
 
                         Divider()
 
-                        Text("この手の意味")
-                            .font(.caption.bold())
-                            .foregroundStyle(.secondary)
-                        Text(move.coachText)
-                            .font(.subheadline)
+                        if selectedKind == .actual,
+                           currentStep == 1,
+                           let explanation = contextEntry?.explanation {
+                            ContextExplanationCard(explanation: explanation)
+                        } else {
+                            Text("この手で確認できる変化")
+                                .font(.caption.bold())
+                                .foregroundStyle(.secondary)
+                            Text(move.coachText)
+                                .font(.subheadline)
+                        }
 
                         HStack(spacing: 8) {
                             if move.effect.capturedPiece != nil {
@@ -292,6 +303,53 @@ private struct ContinuationPositionPage: View {
                 currentStep = min(routeCount, currentStep + 1)
             }
             isPlaying = false
+        }
+    }
+}
+
+private struct ContextExplanationCard: View {
+    let explanation: ContextMoveExplanation
+
+    private var confidenceText: String {
+        switch explanation.confidence {
+        case .high: return "確度 HIGH"
+        case .medium: return "確度 MEDIUM"
+        case .low: return "確度 LOW"
+        case .unresolved: return "判定保留"
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            HStack {
+                Text("この手の意味")
+                    .font(.caption.bold())
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(confidenceText)
+                    .font(.caption2.bold())
+                    .foregroundStyle(
+                        explanation.tone == .unresolved || explanation.tone == .tentative
+                            ? .orange
+                            : .secondary
+                    )
+            }
+
+            Text(explanation.conclusion)
+                .font(.subheadline.weight(.semibold))
+
+            Text("なぜ今")
+                .font(.caption.bold())
+                .foregroundStyle(.secondary)
+            Text(explanation.whyNow)
+                .font(.subheadline)
+
+            Text("根拠")
+                .font(.caption.bold())
+                .foregroundStyle(.secondary)
+            Text(explanation.evidenceText)
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 }
