@@ -132,3 +132,16 @@ comparisonStableでない評価差は理由断定へ使わない。追加探索�
 - curatedな意味ラベルを将来追加する場合は、raw生成物とは別の検証済み入力として扱う。
 - 生成JSONは schemaVersion=1、source manifest、build statistics、compact recordsを保持する。
 - この段階では生成JSONをArtifactとして監査し、内容・容量・回帰を確認した後にアプリ同梱へ進む。
+
+## 11. 第4段階B/C — 選択的追加探索とConfidence再評価
+
+- 追加エンジン探索は全局面には行わない。
+- DeepAnalysisViewModel が選んだ最終重要局面（最大5件）のうち、Context confidence が LOW / UNRESOLVED の局面だけを候補とする。
+- さらに既存Deep解析が comparison/continuation 不安定、または finalMovetimeMs < 2400 の場合だけ追加探索する。
+- 追加探索は Adaptive v2 を再利用し、base 1600msまたは2400ms、MultiPVを最低4候補へ広げる。
+- 追加探索後も、geometryだけ・エンジン比較だけでは新しいIntentを生成しない。盤面/因果/知識の非geometry anchorが無ければUNRESOLVEDを維持する。
+- generic engine support は既存の意味候補へだけ付与し、追加後にIntent候補とConfidenceを再計算する。
+- Confidence HIGHは高権威根拠（強いprevious-move causality、mate/threatmate等の強いengine/counterfactual）を必要とする。
+- MEDIUMは十分な総スコア、または複数の独立した非geometry根拠種別の組み合わせを要求する。
+- schema 8に refinement policy / candidate plies / completed plies / confidence changed / intent changed / unresolved after / refinement error を追加する。
+- Simulator E2Eでは、初手7六歩のように意味anchorを持たない局面を強制的に追加探索し、探索後もUNRESOLVEDのままであることを回帰確認する。

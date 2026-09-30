@@ -245,7 +245,9 @@ jobs:
           grep -Fq "context_status=局面文脈解析 PASS" simulator-result.txt
           grep -Fq "context_count=4" simulator-result.txt
           grep -Fq "context_schema=8" simulator-result.txt
-          grep -Fq "context_additional_engine=false" simulator-result.txt
+          grep -Fq "context_refinement_policy=selective-low-unresolved-v1" simulator-result.txt
+          grep -Fq "context_selective_refinement_status=PASS" simulator-result.txt
+          grep -Fq "context_selective_refinement_unresolved=true" simulator-result.txt
           grep -Fq "context_semantics_status=PASS" simulator-result.txt
           grep -Fq "context_rook_pawn_intent=rook_pawn_response" simulator-result.txt
           grep -Fq "context_bishop_line_intent=bishop_line_response" simulator-result.txt

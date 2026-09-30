@@ -89,4 +89,48 @@ final class ContextEngineTests: XCTestCase {
         XCTAssertTrue(analysis.evidence.contains { $0.kind == .enginePV })
         XCTAssertTrue(analysis.evidence.contains { $0.kind == .counterfactual })
     }
+
+    func testConfidenceUsesIndependentEvidenceKindsAndEngineCannotInventIntent() {
+        let lowEvidence = [
+            ContextEvidence(
+                id: "board",
+                kind: .boardEffect,
+                detail: "fixture",
+                supportedIntent: .development,
+                weight: 38
+            )
+        ]
+        let low = ContextIntentResolver.resolve(evidence: lowEvidence)
+        XCTAssertEqual(low.selectedIntent, .development)
+        XCTAssertEqual(low.confidence, .low)
+
+        let reinforced = ContextIntentResolver.resolve(
+            evidence: lowEvidence + [
+                ContextEvidence(
+                    id: "engine",
+                    kind: .enginePV,
+                    detail: "stable line",
+                    supportedIntent: .development,
+                    weight: 12
+                )
+            ]
+        )
+        XCTAssertEqual(reinforced.selectedIntent, .development)
+        XCTAssertEqual(reinforced.confidence, .medium)
+
+        XCTAssertNil(
+            ContextIntentResolver.strongestEngineAnchor(
+                from: [
+                    ContextEvidence(
+                        id: "geometry",
+                        kind: .geometry,
+                        detail: "closer to king",
+                        supportedIntent: .attackPreparation,
+                        weight: 10
+                    )
+                ]
+            )
+        )
+    }
+
 }

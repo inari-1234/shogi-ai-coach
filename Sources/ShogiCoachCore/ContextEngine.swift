@@ -222,6 +222,84 @@ public struct MoveContextAnalysis: Codable, Equatable, Sendable {
     }
 }
 
+public enum ContextIntentResolver {
+    struct Resolution {
+        let candidates: [IntentCandidate]
+        let selectedIntent: MoveIntent
+        let confidence: ContextConfidence
+    }
+
+    static func strongestEngineAnchor(from evidence: [ContextEvidence]) -> MoveIntent? {
+        var grouped: [MoveIntent: Int] = [:]
+        for item in evidence {
+            guard item.weight > 0,
+                  item.supportedIntent != .unresolved,
+                  item.kind == .previousMoveCausality
+                    || item.kind == .boardEffect
+                    || item.kind == .openingBook
+                    || item.kind == .precedent else {
+                continue
+            }
+            grouped[item.supportedIntent, default: 0] += item.weight
+        }
+        let ranked = grouped.sorted {
+            if $0.value == $1.value { return $0.key.rawValue < $1.key.rawValue }
+            return $0.value > $1.value
+        }
+        guard let first = ranked.first, first.value >= 20 else { return nil }
+        if ranked.count > 1, ranked[1].value == first.value { return nil }
+        return first.key
+    }
+
+    static func resolve(evidence: [ContextEvidence]) -> Resolution {
+        var grouped: [MoveIntent: (score: Int, ids: [String])] = [:]
+        for item in evidence where item.supportedIntent != .unresolved {
+            var entry = grouped[item.supportedIntent] ?? (0, [])
+            entry.score += max(0, item.weight)
+            entry.ids.append(item.id)
+            grouped[item.supportedIntent] = entry
+        }
+
+        var candidates = grouped.map {
+            IntentCandidate(intent: $0.key, score: $0.value.score, evidenceIDs: $0.value.ids.sorted())
+        }
+        candidates.sort {
+            if $0.score == $1.score { return $0.intent.rawValue < $1.intent.rawValue }
+            return $0.score > $1.score
+        }
+
+        guard let top = candidates.first, top.score >= 30 else {
+            return Resolution(candidates: candidates, selectedIntent: .unresolved, confidence: .unresolved)
+        }
+
+        let secondScore = candidates.dropFirst().first?.score ?? Int.min
+        let supporting = evidence.filter {
+            $0.supportedIntent == top.intent && $0.weight > 0 && $0.kind != .geometry
+        }
+        let kinds = Set(supporting.map(\.kind))
+        let hasHighAuthority = supporting.contains {
+            ($0.kind == .previousMoveCausality && $0.weight >= 95)
+                || ($0.kind == .enginePV && $0.weight >= 100)
+                || ($0.kind == .counterfactual && $0.weight >= 100)
+        }
+
+        let confidence: ContextConfidence
+        if top.score >= 100, top.score - secondScore >= 15, hasHighAuthority {
+            confidence = .high
+        } else if top.score >= 60 || (top.score >= 45 && kinds.count >= 2) {
+            confidence = .medium
+        } else {
+            confidence = .low
+        }
+
+        return Resolution(
+            candidates: candidates,
+            selectedIntent: top.intent,
+            confidence: confidence
+        )
+    }
+}
+
 public struct MoveContextEngine: Sendable {
     private let knowledgeProvider: any MoveContextKnowledgeProvider
 
@@ -648,47 +726,17 @@ public struct MoveContextEngine: Sendable {
             }
         }
 
-        var grouped: [MoveIntent: (score: Int, ids: [String])] = [:]
-        for item in evidence {
-            var entry = grouped[item.supportedIntent] ?? (0, [])
-            entry.score += item.weight
-            entry.ids.append(item.id)
-            grouped[item.supportedIntent] = entry
-        }
-
-        var candidates = grouped.map {
-            IntentCandidate(intent: $0.key, score: $0.value.score, evidenceIDs: $0.value.ids.sorted())
-        }
-        candidates.sort {
-            if $0.score == $1.score { return $0.intent.rawValue < $1.intent.rawValue }
-            return $0.score > $1.score
-        }
-
-        var selectedIntent: MoveIntent = .unresolved
-        var confidence: ContextConfidence = .unresolved
-        if let top = candidates.first, top.score >= 30 {
-            selectedIntent = top.intent
-            let secondScore = candidates.dropFirst().first?.score ?? Int.min
-            if top.score >= 100 && top.score - secondScore >= 15 {
-                confidence = .high
-            } else if top.score >= 60 {
-                confidence = .medium
-            } else {
-                confidence = .low
-            }
-        }
-
         if let engineEvidence,
            engineEvidence.comparisonStable,
            engineEvidence.actualMove == move,
-           selectedIntent != .unresolved {
-            let engineWeight = engineEvidence.bestMove == move ? 12 : 6
+           let engineAnchor = ContextIntentResolver.strongestEngineAnchor(from: evidence) {
+            let engineWeight = engineEvidence.bestMove == move ? 12 : 8
             let id = engineEvidence.bestMove == move ? "ev_engine_best_match" : "ev_engine_actual_line"
             evidence.append(.init(
                 id: id,
                 kind: .enginePV,
                 detail: engineEvidence.bestMove == move ? "stable_best_move_match" : "stable_actual_move_line",
-                supportedIntent: selectedIntent,
+                supportedIntent: engineAnchor,
                 weight: engineWeight
             ))
             if engineEvidence.bestMove != move {
@@ -696,24 +744,13 @@ public struct MoveContextEngine: Sendable {
                     id: "ev_counterfactual_alternative",
                     kind: .counterfactual,
                     detail: "best=\(engineEvidence.bestMove),actual=\(move),loss=\(engineEvidence.actualLossCp.map(String.init) ?? "-")",
-                    supportedIntent: selectedIntent,
+                    supportedIntent: engineAnchor,
                     weight: 0
                 ))
             }
-
-            if let index = candidates.firstIndex(where: { $0.intent == selectedIntent }) {
-                let refreshedIDs = candidates[index].evidenceIDs + [id]
-                candidates[index] = IntentCandidate(
-                    intent: selectedIntent,
-                    score: candidates[index].score + engineWeight,
-                    evidenceIDs: refreshedIDs.sorted()
-                )
-                candidates.sort {
-                    if $0.score == $1.score { return $0.intent.rawValue < $1.intent.rawValue }
-                    return $0.score > $1.score
-                }
-            }
         }
+
+        let resolution = ContextIntentResolver.resolve(evidence: evidence)
 
         return MoveContextAnalysis(
             move: move,
@@ -722,9 +759,9 @@ public struct MoveContextEngine: Sendable {
             contextChanges: contextChanges,
             effects: effects,
             outcomes: outcomes,
-            intentCandidates: candidates,
-            selectedIntent: selectedIntent,
-            confidence: confidence,
+            intentCandidates: resolution.candidates,
+            selectedIntent: resolution.selectedIntent,
+            confidence: resolution.confidence,
             evidence: evidence
         )
     }

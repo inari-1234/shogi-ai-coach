@@ -152,7 +152,7 @@ struct ContentView: View {
                             }
 
                             analysisStatus = "局面文脈を検証中"
-                            contextAnalysis.prepare(
+                            await contextAnalysis.prepare(
                                 game: game,
                                 deepEntries: deep.entries,
                                 diagnosticURL: phaseReview.diagnosticURL

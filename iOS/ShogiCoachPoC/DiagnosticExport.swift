@@ -269,6 +269,13 @@ struct ShogiDiagnosticDocument: Codable {
         let knowledgeSourceIDs: [String]?
         let knowledgeRecordCount: Int?
         let knowledgeMatchedPositions: Int?
+        let refinementPolicy: String?
+        let refinementCandidatePlies: [Int]?
+        let refinementCompletedPlies: [Int]?
+        let refinementConfidenceChangedCount: Int?
+        let refinementIntentChangedCount: Int?
+        let refinementUnresolvedAfterCount: Int?
+        let refinementError: String?
         let error: String?
     }
 

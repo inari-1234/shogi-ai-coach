@@ -689,7 +689,7 @@ enum SimulatorCIProbe {
         SimulatorStage.mark("phase_review_pass")
 
         let contextReview = ContextAnalysisViewModel()
-        contextReview.prepare(
+        await contextReview.prepare(
             game: kifGame,
             deepEntries: deep.entries,
             diagnosticURL: phaseReview.diagnosticURL
@@ -708,7 +708,7 @@ enum SimulatorCIProbe {
               contextDiagnostic.app.version == "0.8.3",
               contextDiagnostic.app.build == "16",
               contextDiagnostic.contextAnalysis?.status == "局面文脈解析 PASS",
-              contextDiagnostic.contextAnalysis?.usedAdditionalEngineSearch == false,
+              contextDiagnostic.contextAnalysis?.refinementPolicy == ContextAnalysisViewModel.refinementPolicy,
               contextDiagnostic.contextAnalysis?.completedPositions == kifGame.moves.count,
               contextDiagnostic.contextAnalysis?.positions.count == kifGame.moves.count else {
             writeReport([
@@ -785,6 +785,69 @@ enum SimulatorCIProbe {
             fflush(stdout)
             exit(24)
         }
+        let refinementGame = KIFGame(
+            metadata: ["手合割": "平手", "先手": "あなた", "後手": "CPU"],
+            moves: [
+                KIFMove(
+                    ply: 1,
+                    notation: "7g7f",
+                    usi: "7g7f",
+                    positionBefore: "position startpos"
+                )
+            ],
+            termination: nil
+        )
+        let refinementDeep = DeepAnalysisEntry(
+            id: 1,
+            ply: 1,
+            actualMove: "7g7f",
+            shallowBestMove: "2g2f",
+            shallowEstimatedLossCp: nil,
+            bestMove: "2g2f",
+            bestScoreText: "cp 0",
+            actualScoreText: "cp 0",
+            actualLossCp: nil,
+            bestPV: "2g2f 8c8d 2f2e",
+            actualPV: "7g7f 3c3d 2g2f",
+            actualAnalysisSource: "equal-condition",
+            opponentBestReply: "8c8d",
+            candidates: [],
+            elapsedMs: 1,
+            thermalBefore: "nominal",
+            thermalAfter: "nominal",
+            comparisonStable: false,
+            instabilityReasons: ["fixture_unstable"],
+            continuationStable: false,
+            continuationInstabilityReasons: ["fixture_unstable"],
+            analysisAttempts: 1,
+            finalMovetimeMs: 800,
+            adaptiveTriggered: false,
+            topCandidateGapCp: nil
+        )
+        let refinementReview = ContextAnalysisViewModel()
+        await refinementReview.prepare(
+            game: refinementGame,
+            deepEntries: [refinementDeep],
+            diagnosticURL: contextReview.diagnosticURL
+        )
+        guard refinementReview.status == "局面文脈解析 PASS",
+              refinementReview.usedAdditionalEngineSearch,
+              refinementReview.refinementCandidatePlies == [1],
+              refinementReview.refinementCompletedPlies == [1],
+              refinementReview.entries.first?.analysis.selectedIntent == .unresolved,
+              refinementReview.entries.first?.analysis.confidence == .unresolved else {
+            writeReport([
+                "stage=context_selective_refinement_failed",
+                "context_selective_refinement_status=FAIL",
+                "context_selective_candidates=\(refinementReview.refinementCandidatePlies)",
+                "context_selective_completed=\(refinementReview.refinementCompletedPlies)",
+                "context_selective_summary=\(refinementReview.summary)"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("context_selective_refinement_failed")
+            fflush(stdout)
+            exit(25)
+        }
+        SimulatorStage.mark("context_selective_refinement_pass")
         SimulatorStage.mark("context_analysis_pass")
 
         let (unstableGame, _) = makeTerminalRegression()
@@ -1329,7 +1392,14 @@ enum SimulatorCIProbe {
             "context_status=\(contextStatus)",
             "context_count=\(contextCount)",
             "context_schema=\(contextDiagnostic.schemaVersion)",
-            "context_additional_engine=false",
+            "context_additional_engine=\(contextReview.usedAdditionalEngineSearch)",
+            "context_refinement_policy=\(ContextAnalysisViewModel.refinementPolicy)",
+            "context_refinement_candidates=\(contextReview.refinementCandidatePlies.count)",
+            "context_refinement_completed=\(contextReview.refinementCompletedPlies.count)",
+            "context_refinement_confidence_changed=\(contextReview.refinementConfidenceChangedCount)",
+            "context_refinement_intent_changed=\(contextReview.refinementIntentChangedCount)",
+            "context_selective_refinement_status=PASS",
+            "context_selective_refinement_unresolved=true",
             "context_semantics_status=PASS",
             "context_rook_pawn_intent=\(rookPawnRegression.selectedIntent.rawValue)",
             "context_bishop_line_intent=\(bishopLineRegression.selectedIntent.rawValue)",
