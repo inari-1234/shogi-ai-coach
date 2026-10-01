@@ -1,0 +1,114 @@
+{
+  "package": "Build17-4_Safe_Concept_Integration_FROZEN_20261002",
+  "baselineDate": "2026-10-02",
+  "repository": "inari-1234/shogi-ai-coach",
+  "branch": "candidate/build17-4-safe-concept-integration",
+  "upstream": {
+    "build16": {
+      "status": "COMPLETE / FROZEN",
+      "sha": "2ee66f25aba603621565ed8475649a5f70cdb5a4"
+    },
+    "build17_3": {
+      "status": "PASS / FREEZE CANDIDATE",
+      "sha": "00ff5f69a3c19e46aa26d3fe7a38dfbc03212a25"
+    }
+  },
+  "validatedCommit": "484c2596ef5f027738f2cdc0bbf83d65d334e5c8",
+  "validatedSourceHead": "d5e4979baae72b35bebeb6d23ce6abfcafbdbb9c",
+  "verdict": {
+    "build17_4V": "PASS",
+    "build17_4": "COMPLETE / FROZEN"
+  },
+  "implemented": [
+    {
+      "id": "piece_mobility",
+      "layer": "Effect/HumanConcept"
+    },
+    {
+      "id": "escape_route_control",
+      "layer": "Effect/HumanConcept"
+    },
+    {
+      "id": "attack_attacker",
+      "layer": "SubIntent metadata"
+    }
+  ],
+  "staticAudit": {
+    "moveIntentEnumChanged": false,
+    "contextIntentResolverChanged": false,
+    "supportedIntentLinesChanged": false,
+    "intentWeightLinesChanged": false,
+    "newConceptIntentEvidenceAdded": false,
+    "build17_3CorpusChanged": false,
+    "netChangedFiles": [
+      "Sources/ShogiCoachCore/ContextEngine.swift",
+      "Tests/ShogiCoachCoreTests/Build17SafeConceptEffectTests.swift",
+      "Build17/Build17-4_FINAL_REPORT_20261001.md",
+      "Build17/Build17-4_FREEZE_CANDIDATE_MANIFEST_20261001.json"
+    ]
+  },
+  "validation": {
+    "dedicatedTests": {
+      "passed": 5,
+      "total": 5
+    },
+    "xctest": {
+      "passed": 46,
+      "total": 46,
+      "failures": 0
+    },
+    "swiftTesting": {
+      "passed": 16
+    },
+    "deviceBuild": {
+      "result": "PASS",
+      "runId": 36878378602,
+      "ipaSha256": "dd61b0b304834e828d2b5b63cc3d6a12c19db20176a9a6b7832c2e0e8fadc751",
+      "artifactName": "ShogiCoachPoC-iPhone",
+      "artifactDigest": "sha256:2e1f16f5a5eb800a94b66ff7ecffac5c400ee44be2934ff681aeea3fc052fafe"
+    },
+    "simulatorE2E": {
+      "result": "PASS",
+      "runId": 36878378698,
+      "stage": "complete",
+      "contextSemanticsStatus": "PASS",
+      "contextRookPawnIntent": "rook_pawn_response",
+      "contextGeometryPrimary": false,
+      "contextKnowledgeRecords": 1281,
+      "contextSchema8Audit": "PASS",
+      "contextSchema8TargetIntent": "rook_pawn_response",
+      "contextSchema8TargetConfidence": "high"
+    },
+    "lockedRegression": {
+      "position": "position startpos moves 7g7f 8c8d 2g2f 8d8e",
+      "move": "8h7g",
+      "primaryIntent": "rook_pawn_response",
+      "confidence": "high",
+      "contextGeometryPrimary": false,
+      "result": "PASS"
+    },
+    "falsePositiveBlockingIssue": false
+  },
+  "excludedProductionConcepts": [
+    "prophylaxis",
+    "waiting_move",
+    "sabai",
+    "tempo_management",
+    "speed_over_material",
+    "trade_to_transform",
+    "multi_threat",
+    "maintain_counterattack_potential",
+    "deny_ideal_formation",
+    "create_battlefront"
+  ],
+  "pullRequest": {
+    "number": 8,
+    "state": "open",
+    "draft": true,
+    "merged": false
+  },
+  "mainMergePerformed": false,
+  "unresolvedBlockingIssues": [],
+  "nextStage": "Build17-5",
+  "freezeRule": "Any semantic or production-layer change to the three frozen concepts requires a new correction/validation stage. Do not mutate the validated commit."
+}
