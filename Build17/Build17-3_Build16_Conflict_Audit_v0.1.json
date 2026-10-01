@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "0.1",
+  "build": "Build17-3",
+  "build16Authority": {
+    "sha": "2ee66f25aba603621565ed8475649a5f70cdb5a4",
+    "branch": "candidate/build16-context-engine"
+  },
+  "branch": "candidate/build17-3-pilot-corpus",
+  "codeChanged": false,
+  "moveIntentChanged": false,
+  "mainChanged": false,
+  "lockedRegression": {
+    "position": "position startpos moves 7g7f 8c8d 2g2f 8d8e",
+    "move": "8h7g",
+    "expectedIntent": "rook_pawn_response",
+    "expectedConfidence": "HIGH",
+    "result": "PASS",
+    "guard": "piece_mobility and broad response labels remain secondary/adversarial"
+  },
+  "conflicts": [
+    {
+      "concept": "piece_mobility",
+      "build16Intent": "rook_pawn_response / bishop_line_response",
+      "resolution": "Build16 concrete causality wins; concept only explains effect."
+    },
+    {
+      "concept": "attack_attacker",
+      "build16Intent": "capture_threat_response / defense",
+      "resolution": "Keep only as subintent/explanation metadata under existing parent intent."
+    },
+    {
+      "concept": "prophylaxis",
+      "build16Intent": "neutralize_threat / piece_defense / control_block",
+      "resolution": "Downgrade; no new Intent until pre-threat plan suppression is reproducibly verified."
+    },
+    {
+      "concept": "waiting_move",
+      "build16Intent": "tenuki / development",
+      "resolution": "Downgrade; no new Intent because passing-value cannot be reliably separated."
+    },
+    {
+      "concept": "escape_route_control",
+      "build16Intent": "control_addition / mating_attack / threatmate",
+      "resolution": "Keep as HumanConcept/Effect; never override tactical parent intents."
+    }
+  ]
+}
