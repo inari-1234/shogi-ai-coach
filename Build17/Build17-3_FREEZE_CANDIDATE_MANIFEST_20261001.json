@@ -1,0 +1,55 @@
+{
+  "package": "Build17-3_Pilot_Corpus_Concept_Validation_FREEZE_CANDIDATE_20261001",
+  "baselineDate": "2026-10-01",
+  "repository": "inari-1234/shogi-ai-coach",
+  "branch": "candidate/build17-3-pilot-corpus",
+  "parentBuild16SHA": "2ee66f25aba603621565ed8475649a5f70cdb5a4",
+  "componentHeadBeforeManifest": "3be93390c653322a813c1e93b712d9b279a521d2",
+  "build17_2Input": {
+    "name": "Build17-2_Concept_Dictionary_v0.1_FREEZE_CANDIDATE_20261001.zip",
+    "sha256": "68c1322cc441370249791cfd62b0099028e0c08e6e1d5d5cf44c931208c49645"
+  },
+  "verdict": "BUILD17-3 PASS — SAFE PRUNING / FREEZE CANDIDATE",
+  "corpus": {
+    "total": 200,
+    "shikenbishaSubset": 61,
+    "sourceSplit": {
+      "educational": 36,
+      "officialCompact": 164
+    }
+  },
+  "lockedRegression": "PASS",
+  "build16CodeChanged": false,
+  "moveIntentChanged": false,
+  "mainChanged": false,
+  "intentPromotions": [],
+  "retainedActiveCandidates": [
+    "piece_mobility",
+    "escape_route_control"
+  ],
+  "retainedSubintentCandidates": [
+    "attack_attacker"
+  ],
+  "build17_4Proceed": true,
+  "build17_4Scope": [
+    "piece_mobility_effect",
+    "escape_route_control_effect",
+    "attack_attacker_subintent"
+  ],
+  "files": [
+    "Build17/Build17-3_Pilot_Annotation_Schema_v0.1.json",
+    "Build17/Build17-3_Pilot_Requirements_v0.1.json",
+    "Build17/Build17-3_Pilot_Corpus_200_v0.1.json",
+    "Build17/Build17-3_Concept_Exposure_v0.1.json",
+    "Build17/Build17-3_Concept_Validation_Result_v0.1.json",
+    "Build17/Build17-3_False_Positive_Analysis_v0.1.md",
+    "Build17/Build17-3_Build16_Conflict_Audit_v0.1.json",
+    "Build17/Build17-3_Shikenbisha_Subset_v0.1.json",
+    "Build17/Build17-3_Concept_Dictionary_Revision_Proposal_v0.1.json",
+    "Build17/Build17-3_Intent_Promotion_Candidates_v0.1.json",
+    "Build17/Build17-3_Downgrade_Merge_Reject_v0.1.json",
+    "Build17/Build17-3_Build17-4_Implementation_Candidates_v0.1.json",
+    "Build17/Build17-3_FINAL_REPORT_20261001.md"
+  ],
+  "freezeRule": "No code implementation or MoveIntent change is part of this freeze candidate."
+}
