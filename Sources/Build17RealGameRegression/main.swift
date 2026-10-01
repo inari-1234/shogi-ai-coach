@@ -164,6 +164,7 @@ private func stderr(_ message: String) {
 }
 
 private func mandatoryRegressions() throws -> [MandatoryRegressionResult] {
+    stderr("checkpoint=mandatory_start")
     let engine = MoveContextEngine()
 
     stderr("checkpoint=mandatory_A_before_analyze")\n    let analysisA = try engine.analyze(
@@ -415,6 +416,7 @@ private func run() throws {
         if records.count >= options.targetPositions, auditedGames >= options.minGames { break }
 
         let game: KIFGame
+        stderr("checkpoint=parse_game file=\(url.lastPathComponent)")
         do {
             game = try KIFParser.parse(data: Data(contentsOf: url))
             parsedGames += 1
@@ -434,6 +436,7 @@ private func run() throws {
             if records.count >= options.targetPositions, auditedGames + 1 >= options.minGames { break }
 
             let analysis: MoveContextAnalysis
+            stderr("checkpoint=analyze file=\(url.lastPathComponent) ply=\(move.ply) move=\(move.usi)")
             do {
                 analysis = try engine.analyze(
                     positionCommand: move.positionBefore,
