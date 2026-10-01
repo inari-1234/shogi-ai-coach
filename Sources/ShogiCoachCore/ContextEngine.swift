@@ -484,6 +484,38 @@ public struct MoveContextEngine: Sendable {
             ))
         }
 
+        // Build17-4: observable HumanConcept/Effect metadata only.
+        // These signals never add Intent evidence and therefore cannot override Build16 intent resolution.
+        if let source = currentEffect.source,
+           beforeCurrent.piece(at: source) != nil,
+           afterCurrent.piece(at: currentEffect.destination) != nil {
+            let mobilityBefore = Self.attackCount(from: source, snapshot: beforeCurrent)
+            let mobilityAfter = Self.attackCount(from: currentEffect.destination, snapshot: afterCurrent)
+            if mobilityAfter >= mobilityBefore + 2 {
+                effects.append(.init(
+                    id: "piece_mobility",
+                    detail: "attack_squares:\(mobilityBefore)->\(mobilityAfter)"
+                ))
+            }
+        }
+
+        let opponentEscapeBefore = Self.kingEscapeSquareCount(
+            kingSide: opponent,
+            attackingSide: mover,
+            snapshot: beforeCurrent
+        )
+        let opponentEscapeAfter = Self.kingEscapeSquareCount(
+            kingSide: opponent,
+            attackingSide: mover,
+            snapshot: afterCurrent
+        )
+        if opponentEscapeAfter < opponentEscapeBefore {
+            effects.append(.init(
+                id: "escape_route_control",
+                detail: "opponent_escape_squares:\(opponentEscapeBefore)->\(opponentEscapeAfter)"
+            ))
+        }
+
         if let previousEffect,
            previousEffect.side == opponent,
            previousEffect.pieceAfter == .pawn,
@@ -518,6 +550,35 @@ public struct MoveContextEngine: Sendable {
             newlyAttackedFromPrevious = newlyAttacked
             for square in newlyAttacked {
                 facts.append(.init(id: "new_attack_\(square.usi)", kind: .newlyAttackedPiece, detail: square.usi))
+            }
+
+            // attack_attacker is subordinate metadata: a concrete attacker created by the previous
+            // move is itself captured or attacked by the current move. It never contributes Intent weight.
+            let concreteAttackers = Set(
+                newlyAttacked.flatMap {
+                    Self.attackers(of: $0, by: opponent, snapshot: beforeCurrent).map(\.square)
+                }
+            )
+            if let movedPiece = afterCurrent.piece(at: currentEffect.destination) {
+                let counterattacked = concreteAttackers.filter { attackerSquare in
+                    if currentEffect.capturedPiece != nil,
+                       currentEffect.destination == attackerSquare {
+                        return true
+                    }
+                    guard afterCurrent.piece(at: attackerSquare)?.side == opponent else { return false }
+                    return Self.attacks(
+                        from: currentEffect.destination,
+                        piece: movedPiece,
+                        target: attackerSquare,
+                        snapshot: afterCurrent
+                    )
+                }
+                if !counterattacked.isEmpty {
+                    effects.append(.init(
+                        id: "attack_attacker",
+                        detail: counterattacked.map(\.usi).sorted().joined(separator: ",")
+                    ))
+                }
             }
 
             for threatened in newlyAttacked where threatened != currentEffect.source {
@@ -928,6 +989,28 @@ public struct MoveContextEngine: Sendable {
 
     private static func isHomeCamp(_ square: BoardCoordinate, side: ShogiSide) -> Bool {
         side == .black ? square.rank >= 7 : square.rank <= 3
+    }
+
+    private static func kingEscapeSquareCount(
+        kingSide: ShogiSide,
+        attackingSide: ShogiSide,
+        snapshot: BoardSnapshot
+    ) -> Int {
+        guard let king = kingSquare(side: kingSide, snapshot: snapshot) else { return 0 }
+        var count = 0
+        for file in max(1, king.file - 1)...min(9, king.file + 1) {
+            for rank in max(1, king.rank - 1)...min(9, king.rank + 1) {
+                let target = BoardCoordinate(file: file, rank: rank)
+                guard target != king else { continue }
+                if let occupant = snapshot.piece(at: target), occupant.side == kingSide {
+                    continue
+                }
+                if !isSquareAttacked(target, by: attackingSide, snapshot: snapshot) {
+                    count += 1
+                }
+            }
+        }
+        return count
     }
 
     private static func preparesContestedExchange(
