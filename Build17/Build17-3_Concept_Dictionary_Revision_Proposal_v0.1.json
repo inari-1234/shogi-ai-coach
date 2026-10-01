@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "0.1",
+  "build": "Build17-3",
+  "policy": "Prune semantic labels unless positive evidence is independently reproducible.",
+  "statusChanges": [
+    {
+      "conceptId": "preserve_key_piece",
+      "from": "ACTIVE_CANDIDATE",
+      "to": "EXPLANATION_ONLY",
+      "reason": "0 confirmed after key-role requirement; escape from attack is not enough to prove strategic key-piece preservation."
+    },
+    {
+      "conceptId": "deny_ideal_formation",
+      "from": "SUBINTENT_CANDIDATE",
+      "to": "EXPLANATION_ONLY",
+      "reason": "0 confirmed; opponent ideal formation requires source/counterfactual support."
+    },
+    {
+      "conceptId": "create_battlefront",
+      "from": "SUBINTENT_CANDIDATE",
+      "to": "EXPLANATION_ONLY",
+      "reason": "0 confirmed at semantic level; new attack relations alone do not prove battlefront purpose."
+    },
+    {
+      "conceptId": "tempo_management",
+      "from": "ACTIVE_CANDIDATE",
+      "to": "EXPLANATION_ONLY",
+      "reason": "0 confirmed after tightening; too broad without forcing-response/counterfactual evidence."
+    },
+    {
+      "conceptId": "speed_over_material",
+      "from": "ACTIVE_CANDIDATE",
+      "to": "EXPLANATION_ONLY",
+      "reason": "0 confirmed; requires material-versus-forcing-line engine comparison."
+    },
+    {
+      "conceptId": "trade_to_transform",
+      "from": "ACTIVE_CANDIDATE",
+      "to": "EXPLANATION_ONLY",
+      "reason": "0 confirmed; capture alone cannot establish beneficial transformation."
+    },
+    {
+      "conceptId": "prophylaxis",
+      "from": "INTENT_CANDIDATE",
+      "to": "EXPLANATION_ONLY",
+      "reason": "6 pilot positives but 0 confirmed; pre-emptive candidates did not prove plan suppression without counterfactual evidence."
+    },
+    {
+      "conceptId": "multi_threat",
+      "from": "ACTIVE_CANDIDATE",
+      "to": "EXPLANATION_ONLY",
+      "reason": "5 geometry candidates but 0 confirmed; single-best-reply independence not checked."
+    },
+    {
+      "conceptId": "waiting_move",
+      "from": "INTENT_CANDIDATE",
+      "to": "EXPLANATION_ONLY",
+      "reason": "5 positives but 0 confirmed; quiet-move and tenuki boundaries remain unstable without counterfactual evidence."
+    },
+    {
+      "conceptId": "sabai",
+      "from": "ACTIVE_CANDIDATE",
+      "to": "EXPLANATION_ONLY",
+      "reason": "7 positive exposures but 0 confirmed; only 4 strong shikenbisha geometry candidates and post-exchange continuity is unverified."
+    },
+    {
+      "conceptId": "maintain_counterattack_potential",
+      "from": "ACTIVE_CANDIDATE",
+      "to": "EXPLANATION_ONLY",
+      "reason": "0 confirmed; future counterplay is easy to narrativize after the fact."
+    }
+  ],
+  "retained": [
+    "piece_mobility",
+    "shift_battlefront",
+    "attack_attacker",
+    "escape_route_control",
+    "parallel_flexibility",
+    "rook_activation",
+    "bishop_exchange_decision",
+    "rook_exchange_decision",
+    "castle_completion",
+    "respond_to_rapid_attack",
+    "avoid_premature_attack",
+    "invite_then_counter",
+    "formation_order",
+    "opponent_plan_response"
+  ],
+  "newIntentPromotions": [],
+  "newMoveIntentEnumChanges": []
+}
