@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "0.1",
+  "build": "Build17-3",
+  "intentPromotionCandidates": [],
+  "subintentCandidates": [
+    {
+      "conceptId": "attack_attacker",
+      "status": "SUBINTENT_CANDIDATE",
+      "parentIntents": [
+        "capture_threat_response",
+        "defense",
+        "piece_defense"
+      ],
+      "evidence": "6 confirmed causal positives plus negative/adversarial controls",
+      "implementationRule": "Do not add MoveIntent enum in Build17-4; model as subordinate metadata first."
+    }
+  ],
+  "note": "prophylaxis and waiting_move are downgraded from INTENT_CANDIDATE because confirmed positive count is zero."
+}
