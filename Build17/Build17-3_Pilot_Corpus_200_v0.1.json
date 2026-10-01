@@ -1115,7 +1115,7 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "The attacked pawn removes the attacking pawn; attack_attacker is a narrower subtype of the concrete Build16 response.",
       "confidence": "HIGH",
       "annotationStatus": "CONFIRMED",
@@ -1190,7 +1190,7 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "The attacked pawn removes the attacking pawn; attack_attacker is a narrower subtype of the concrete Build16 response.",
       "confidence": "HIGH",
       "annotationStatus": "CONFIRMED",
@@ -1264,7 +1264,7 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "The attacked pawn removes the attacking pawn; attack_attacker is a narrower subtype of the concrete Build16 response.",
       "confidence": "HIGH",
       "annotationStatus": "CONFIRMED",
@@ -1332,7 +1332,7 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "The attacked pawn removes the attacking pawn; attack_attacker is a narrower subtype of the concrete Build16 response.",
       "confidence": "HIGH",
       "annotationStatus": "CONFIRMED",
@@ -1395,7 +1395,7 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "The attacked pawn removes the attacking pawn; attack_attacker is a narrower subtype of the concrete Build16 response.",
       "confidence": "HIGH",
       "annotationStatus": "CONFIRMED",
@@ -1458,7 +1458,7 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "The attacked pawn removes the attacking pawn; attack_attacker is a narrower subtype of the concrete Build16 response.",
       "confidence": "HIGH",
       "annotationStatus": "CONFIRMED",
@@ -1718,16 +1718,16 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Rook-pawn plan is identifiable before the immediate △8五歩 step; pre-emption remains a counterfactual-dependent candidate.",
-      "confidence": "MEDIUM",
-      "annotationStatus": "CONFIRMED",
+      "confidence": "LOW",
+      "annotationStatus": "PROVISIONAL",
       "focusConcept": "prophylaxis",
       "conceptAssessments": {
         "prophylaxis": {
           "class": "POSITIVE",
           "reason": "Rook-pawn plan is identifiable before the immediate △8五歩 step; pre-emption remains a counterfactual-dependent candidate.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "deny_ideal_formation": {
           "class": "POSITIVE",
@@ -1768,16 +1768,16 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Rook-pawn plan is identifiable before the immediate △8五歩 step; pre-emption remains a counterfactual-dependent candidate.",
-      "confidence": "MEDIUM",
-      "annotationStatus": "CONFIRMED",
+      "confidence": "LOW",
+      "annotationStatus": "PROVISIONAL",
       "focusConcept": "prophylaxis",
       "conceptAssessments": {
         "prophylaxis": {
           "class": "POSITIVE",
           "reason": "Rook-pawn plan is identifiable before the immediate △8五歩 step; pre-emption remains a counterfactual-dependent candidate.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "deny_ideal_formation": {
           "class": "POSITIVE",
@@ -1818,16 +1818,16 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Rook-pawn plan is identifiable before the immediate △8五歩 step; pre-emption remains a counterfactual-dependent candidate.",
-      "confidence": "MEDIUM",
-      "annotationStatus": "CONFIRMED",
+      "confidence": "LOW",
+      "annotationStatus": "PROVISIONAL",
       "focusConcept": "prophylaxis",
       "conceptAssessments": {
         "prophylaxis": {
           "class": "POSITIVE",
           "reason": "Rook-pawn plan is identifiable before the immediate △8五歩 step; pre-emption remains a counterfactual-dependent candidate.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "deny_ideal_formation": {
           "class": "POSITIVE",
@@ -1868,16 +1868,16 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Rook-pawn plan is identifiable before the immediate △8五歩 step; pre-emption remains a counterfactual-dependent candidate.",
-      "confidence": "MEDIUM",
-      "annotationStatus": "CONFIRMED",
+      "confidence": "LOW",
+      "annotationStatus": "PROVISIONAL",
       "focusConcept": "prophylaxis",
       "conceptAssessments": {
         "prophylaxis": {
           "class": "POSITIVE",
           "reason": "Rook-pawn plan is identifiable before the immediate △8五歩 step; pre-emption remains a counterfactual-dependent candidate.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "deny_ideal_formation": {
           "class": "POSITIVE",
@@ -1918,16 +1918,16 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Rook-pawn plan is identifiable before the immediate △8五歩 step; pre-emption remains a counterfactual-dependent candidate.",
-      "confidence": "MEDIUM",
-      "annotationStatus": "CONFIRMED",
+      "confidence": "LOW",
+      "annotationStatus": "PROVISIONAL",
       "focusConcept": "prophylaxis",
       "conceptAssessments": {
         "prophylaxis": {
           "class": "POSITIVE",
           "reason": "Rook-pawn plan is identifiable before the immediate △8五歩 step; pre-emption remains a counterfactual-dependent candidate.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "deny_ideal_formation": {
           "class": "POSITIVE",
@@ -1968,16 +1968,16 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Rook-pawn plan is identifiable before the immediate △8五歩 step; pre-emption remains a counterfactual-dependent candidate.",
-      "confidence": "MEDIUM",
-      "annotationStatus": "CONFIRMED",
+      "confidence": "LOW",
+      "annotationStatus": "PROVISIONAL",
       "focusConcept": "prophylaxis",
       "conceptAssessments": {
         "prophylaxis": {
           "class": "POSITIVE",
           "reason": "Rook-pawn plan is identifiable before the immediate △8五歩 step; pre-emption remains a counterfactual-dependent candidate.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "deny_ideal_formation": {
           "class": "POSITIVE",
@@ -2020,7 +2020,7 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Low-commitment waiting candidate in a Shikenbisha structure; requires counterfactual confirmation.",
       "confidence": "LOW",
       "annotationStatus": "PROVISIONAL",
@@ -2077,7 +2077,7 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Low-commitment waiting candidate in a Shikenbisha structure; requires counterfactual confirmation.",
       "confidence": "LOW",
       "annotationStatus": "PROVISIONAL",
@@ -2134,7 +2134,7 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Low-commitment waiting candidate in a Shikenbisha structure; requires counterfactual confirmation.",
       "confidence": "LOW",
       "annotationStatus": "PROVISIONAL",
@@ -2191,7 +2191,7 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Low-commitment waiting candidate in a Shikenbisha structure; requires counterfactual confirmation.",
       "confidence": "LOW",
       "annotationStatus": "PROVISIONAL",
@@ -2248,7 +2248,7 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Low-commitment waiting candidate in a Shikenbisha structure; requires counterfactual confirmation.",
       "confidence": "LOW",
       "annotationStatus": "PROVISIONAL",
@@ -2524,7 +2524,7 @@
       "sourceType": "OFFICIAL_COMPACT_PRECEDENT",
       "sourceReference": "denryusen:dr4-hardware2:2024|l1r4nl/1P1g1k1g1/2n+Pppbp1/p3s1p1p/2P2P3/Pp2S1P1P/2S1P4/1KG2G3/LN1R4L w BS2Pnp|6b6c",
       "licenseStatus": "OFFICIAL_FREE_USE",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Exchange candidate for post-exchange transformation analysis.",
       "confidence": "LOW",
       "annotationStatus": "PROVISIONAL",
@@ -2571,7 +2571,27 @@
         "promotion": false,
         "handPieceCount": 6
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 4,
+        "movedPieceMobilityAfter": 3,
+        "movedPieceMobilityDelta": -1,
+        "opponentSafeKingMovesBefore": [
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 3,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-038",
@@ -2599,7 +2619,7 @@
       "sourceType": "OFFICIAL_COMPACT_PRECEDENT",
       "sourceReference": "denryusen:dr4-hardware2:2024|l1r4nl/1P1g1k1g1/2n1pp1p1/p2Ps1p1p/2P2P3/Pp2S1P1P/2S1P4/1KG2G3/LN1R4L w BS2Pbnp|B*3c",
       "licenseStatus": "OFFICIAL_FREE_USE",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Shikenbisha exchange/major-piece activity candidate; post-exchange activation required.",
       "confidence": "LOW",
       "annotationStatus": "PROVISIONAL",
@@ -2646,7 +2666,32 @@
         "promotion": false,
         "handPieceCount": 7
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 6,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "7g",
+            "piece": "S"
+          }
+        ],
+        "newAttackSquareCount": 4,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-039",
@@ -2675,7 +2720,7 @@
       "sourceType": "OFFICIAL_COMPACT_PRECEDENT",
       "sourceReference": "denryusen:dr4-hardware2:2024|l1r4nl/1P1g1k1g1/2n1pp1p1/p2Ps1p1p/2P2s3/Pp2SPP1P/2S1P4/1KG2G3/LN1R4L b B2Pbnp|4f4e",
       "licenseStatus": "OFFICIAL_FREE_USE",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Exchange candidate for post-exchange transformation analysis.",
       "confidence": "LOW",
       "annotationStatus": "PROVISIONAL",
@@ -2722,7 +2767,33 @@
         "promotion": false,
         "handPieceCount": 6
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "3a",
+          "4a",
+          "5a",
+          "3b",
+          "5b",
+          "3c"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "3a",
+          "4a",
+          "5a",
+          "3b",
+          "5b",
+          "3c"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-040",
@@ -2749,7 +2820,7 @@
       "sourceType": "OFFICIAL_COMPACT_PRECEDENT",
       "sourceReference": "denryusen:dr4-hardware2:2024|l1r4nl/1P1g1k1g1/2n1pp1p1/p2Pssp1p/2P2N3/Pp2SPP1P/2S1P4/1KG2G3/LN1R4L w B2Pbp|4d4e",
       "licenseStatus": "OFFICIAL_FREE_USE",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Exchange candidate for post-exchange transformation analysis.",
       "confidence": "LOW",
       "annotationStatus": "PROVISIONAL",
@@ -2786,7 +2857,40 @@
         "promotion": false,
         "handPieceCount": 5
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 4,
+        "movedPieceMobilityAfter": 3,
+        "movedPieceMobilityDelta": -1,
+        "opponentSafeKingMovesBefore": [
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "5f",
+            "piece": "S"
+          },
+          {
+            "square": "4f",
+            "piece": "P"
+          },
+          {
+            "square": "3f",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 4,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-041",
@@ -2812,7 +2916,7 @@
       "sourceType": "OFFICIAL_COMPACT_PRECEDENT",
       "sourceReference": "denryusen:dr4-hardware2:2024|l1r4nl/1P1g1k1g1/2n1pp1p1/p2Pssp1p/2p2N3/PpP1SPP1P/2S1P4/1KG2G3/LN1R4L b BPbp|7f7e",
       "licenseStatus": "OFFICIAL_FREE_USE",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Exchange candidate for post-exchange transformation analysis.",
       "confidence": "LOW",
       "annotationStatus": "PROVISIONAL",
@@ -2844,7 +2948,31 @@
         "promotion": false,
         "handPieceCount": 4
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "3a",
+          "4a",
+          "5a",
+          "3b",
+          "5b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "3a",
+          "4a",
+          "5a",
+          "3b",
+          "5b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-042",
@@ -2869,7 +2997,7 @@
       "sourceType": "OFFICIAL_COMPACT_PRECEDENT",
       "sourceReference": "denryusen:dr4-hardware2:2024|l1r4nl/1P3k1g1/2ngppbp1/p3s1p1p/2P1SP3/PSp1S1P1P/4P4/1KG2G3/LN1R4L w B3Pnp|5d5e",
       "licenseStatus": "OFFICIAL_FREE_USE",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Exchange candidate for post-exchange transformation analysis.",
       "confidence": "LOW",
       "annotationStatus": "PROVISIONAL",
@@ -2901,7 +3029,34 @@
         "promotion": false,
         "handPieceCount": 6
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 3,
+        "movedPieceMobilityAfter": 5,
+        "movedPieceMobilityDelta": 2,
+        "opponentSafeKingMovesBefore": [
+          "8g",
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "8g",
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "5f",
+            "piece": "S"
+          }
+        ],
+        "newAttackSquareCount": 3,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-043",
@@ -2926,7 +3081,7 @@
       "sourceType": "OFFICIAL_COMPACT_PRECEDENT",
       "sourceReference": "denryusen:dr4-hardware2:2024|l1r4nl/1P3k1g1/2ngppbp1/p3s1p1p/2P1SP3/Ppp1S1P1P/2S1P4/1KG2G3/LN1R4L b B2Pnp|7g8f",
       "licenseStatus": "OFFICIAL_FREE_USE",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Exchange candidate for post-exchange transformation analysis.",
       "confidence": "LOW",
       "annotationStatus": "PROVISIONAL",
@@ -2958,7 +3113,31 @@
         "promotion": false,
         "handPieceCount": 5
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 4,
+        "movedPieceMobilityAfter": 4,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "3a",
+          "4a",
+          "5a",
+          "3b",
+          "5b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "3a",
+          "4a",
+          "5a",
+          "3b",
+          "5b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 2,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-044",
@@ -3006,7 +3185,39 @@
         "promotion": true,
         "handPieceCount": 7
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 11,
+        "movedPieceMobilityAfter": 14,
+        "movedPieceMobilityDelta": 3,
+        "opponentSafeKingMovesBefore": [
+          "3a",
+          "4a",
+          "5a",
+          "3b",
+          "5b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "3a",
+          "4a",
+          "5a",
+          "3b"
+        ],
+        "opponentSafeKingMoveDelta": -1,
+        "newlyAttackedTargets": [
+          {
+            "square": "7c",
+            "piece": "N"
+          },
+          {
+            "square": "5c",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 8,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-045",
@@ -3054,7 +3265,29 @@
         "promotion": false,
         "handPieceCount": 3
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 8,
+        "movedPieceMobilityAfter": 7,
+        "movedPieceMobilityDelta": -1,
+        "opponentSafeKingMovesBefore": [
+          "6h",
+          "8h",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "6h",
+          "8h",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-046",
@@ -3102,7 +3335,25 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 8,
+        "movedPieceMobilityDelta": 3,
+        "opponentSafeKingMovesBefore": [
+          "5a",
+          "7a"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5a",
+          "7a"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 0,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-047",
@@ -3150,7 +3401,29 @@
         "promotion": true,
         "handPieceCount": 8
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 8,
+        "movedPieceMobilityDelta": 3,
+        "opponentSafeKingMovesBefore": [
+          "6i",
+          "8i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "8i"
+        ],
+        "opponentSafeKingMoveDelta": -1,
+        "newlyAttackedTargets": [
+          {
+            "square": "7h",
+            "piece": "K"
+          }
+        ],
+        "newAttackSquareCount": 4,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-048",
@@ -3198,7 +3471,30 @@
         "promotion": false,
         "handPieceCount": 8
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 6,
+        "movedPieceMobilityDelta": 1,
+        "opponentSafeKingMovesBefore": [
+          "6i",
+          "8i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "6i",
+          "8i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "3e",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 3,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-049",
@@ -3232,7 +3528,27 @@
         "promotion": false,
         "handPieceCount": 4
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-050",
@@ -3266,7 +3582,32 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 4,
+        "movedPieceMobilityAfter": 8,
+        "movedPieceMobilityDelta": 4,
+        "opponentSafeKingMovesBefore": [
+          "5a",
+          "5b",
+          "7b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5a",
+          "5b",
+          "7b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "9e",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-051",
@@ -3300,7 +3641,27 @@
         "promotion": false,
         "handPieceCount": 4
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 6,
+        "movedPieceMobilityAfter": 6,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-052",
@@ -3334,7 +3695,28 @@
         "promotion": false,
         "handPieceCount": 4
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "8g",
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": -1,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-053",
@@ -3368,7 +3750,29 @@
         "promotion": false,
         "handPieceCount": 6
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 3,
+        "movedPieceMobilityDelta": -2,
+        "opponentSafeKingMovesBefore": [
+          "7g",
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "7g",
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 3,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-054",
@@ -3402,7 +3806,40 @@
         "promotion": false,
         "handPieceCount": 5
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 4,
+        "movedPieceMobilityAfter": 5,
+        "movedPieceMobilityDelta": 1,
+        "opponentSafeKingMovesBefore": [
+          "3a",
+          "4a",
+          "5a",
+          "5b",
+          "4c"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "3a",
+          "4a",
+          "5a",
+          "5b",
+          "4c"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "6c",
+            "piece": "S"
+          },
+          {
+            "square": "5c",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 4,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-055",
@@ -3436,7 +3873,31 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 6,
+        "movedPieceMobilityAfter": 7,
+        "movedPieceMobilityDelta": 1,
+        "opponentSafeKingMovesBefore": [
+          "5a",
+          "6a",
+          "7a",
+          "5b",
+          "7b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5a",
+          "6a",
+          "7a",
+          "5b",
+          "7b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 3,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-056",
@@ -3460,7 +3921,7 @@
       "sourceType": "OFFICIAL_COMPACT_PRECEDENT",
       "sourceReference": "denryusen:dr4-hardware2:2024|l1r4nl/1P1g1k1g1/2n1ppbp1/p2Ps1p1p/2P2P3/Pp2S1P1P/2S1P4/1KG2G3/LN1R4L b BS2Pnp|6d6c+",
       "licenseStatus": "OFFICIAL_FREE_USE",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Forcing endgame candidate; material-vs-speed comparison requires engine.",
       "confidence": "LOW",
       "annotationStatus": "PROVISIONAL",
@@ -3492,7 +3953,43 @@
         "promotion": true,
         "handPieceCount": 6
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 6,
+        "movedPieceMobilityDelta": 5,
+        "opponentSafeKingMovesBefore": [
+          "3a",
+          "4a",
+          "5a",
+          "3b",
+          "5b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "3a",
+          "4a",
+          "5a",
+          "3b"
+        ],
+        "opponentSafeKingMoveDelta": -1,
+        "newlyAttackedTargets": [
+          {
+            "square": "6b",
+            "piece": "G"
+          },
+          {
+            "square": "7c",
+            "piece": "N"
+          },
+          {
+            "square": "5c",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 5,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-057",
@@ -3517,7 +4014,7 @@
       "sourceType": "OFFICIAL_COMPACT_PRECEDENT",
       "sourceReference": "denryusen:dr4-hardware2:2024|l1r4nl/1P3k1g1/2ngppbp1/p3s1p1p/2P1SP3/Pp2S1P1P/2S1P4/1KG2G3/LN1R4L w B2Pn2p|P*7f",
       "licenseStatus": "OFFICIAL_FREE_USE",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Forcing endgame candidate; material-vs-speed comparison requires engine.",
       "confidence": "LOW",
       "annotationStatus": "PROVISIONAL",
@@ -3549,7 +4046,32 @@
         "promotion": false,
         "handPieceCount": 6
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "7g",
+            "piece": "S"
+          }
+        ],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-058",
@@ -3575,7 +4097,7 @@
       "sourceType": "OFFICIAL_COMPACT_PRECEDENT",
       "sourceReference": "denryusen:dr4-hardware2:2024|l1r4nl/1P3k1g1/2ngppbp1/p3s1p1p/2P2P3/Pp2S1P1P/2S1P4/1KG2G3/LN1R4L b BS2Pn2p|S*5e",
       "licenseStatus": "OFFICIAL_FREE_USE",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Forcing endgame candidate; material-vs-speed comparison requires engine.",
       "confidence": "LOW",
       "annotationStatus": "PROVISIONAL",
@@ -3607,7 +4129,36 @@
         "promotion": false,
         "handPieceCount": 7
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 5,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "3a",
+          "4a",
+          "5a",
+          "3b",
+          "5b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "3a",
+          "4a",
+          "5a",
+          "3b",
+          "5b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "5d",
+            "piece": "S"
+          }
+        ],
+        "newAttackSquareCount": 2,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-059",
@@ -3632,7 +4183,7 @@
       "sourceType": "OFFICIAL_COMPACT_PRECEDENT",
       "sourceReference": "denryusen:dr4-hardware2:2024|ln1g4l/1r1k3s1/2p1p3p/p2p1g3/1p4PN1/2P5P/PPNP+s4/1SK1Pr+p2/L1G5L b 2BSN2Pg2p|N*7e",
       "licenseStatus": "OFFICIAL_FREE_USE",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Forcing endgame candidate; material-vs-speed comparison requires engine.",
       "confidence": "LOW",
       "annotationStatus": "PROVISIONAL",
@@ -3664,7 +4215,30 @@
         "promotion": false,
         "handPieceCount": 9
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 2,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "5a",
+          "7a",
+          "5b",
+          "7b",
+          "6c"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5a",
+          "7a",
+          "5b",
+          "7b"
+        ],
+        "opponentSafeKingMoveDelta": -1,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 2,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-060",
@@ -3689,7 +4263,7 @@
       "sourceType": "OFFICIAL_COMPACT_PRECEDENT",
       "sourceReference": "denryusen:dr4-hardware2:2024|ln1g4l/1r1k3s1/2p1pg2p/p2p1P3/1p4PN1/2P5P/PPNP+s4/1SK2r+p2/L1G5L b 2BSN3Pgp|P*5h",
       "licenseStatus": "OFFICIAL_FREE_USE",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Forcing endgame candidate; material-vs-speed comparison requires engine.",
       "confidence": "LOW",
       "annotationStatus": "PROVISIONAL",
@@ -3721,7 +4295,36 @@
         "promotion": false,
         "handPieceCount": 9
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "5a",
+          "7a",
+          "5b",
+          "7b",
+          "6c"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5a",
+          "7a",
+          "5b",
+          "7b",
+          "6c"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "5g",
+            "piece": "S"
+          }
+        ],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-061",
@@ -3746,7 +4349,7 @@
       "sourceType": "OFFICIAL_COMPACT_PRECEDENT",
       "sourceReference": "denryusen:dr4-hardware2:2024|lr5nl/3g1k1g1/2n1pp1p1/p2Pssp1p/2p2N3/PpP1SPP1P/2S1P4/1KG2G3/LN1R4L b B2Pbp|P*8b",
       "licenseStatus": "OFFICIAL_FREE_USE",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Forcing endgame candidate; material-vs-speed comparison requires engine.",
       "confidence": "LOW",
       "annotationStatus": "PROVISIONAL",
@@ -3778,7 +4381,36 @@
         "promotion": false,
         "handPieceCount": 5
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "3a",
+          "4a",
+          "5a",
+          "3b",
+          "5b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "3a",
+          "4a",
+          "5a",
+          "3b",
+          "5b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "8a",
+            "piece": "R"
+          }
+        ],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-062",
@@ -3834,7 +4466,29 @@
         "promotion": false,
         "handPieceCount": 6
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 4,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "7g",
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "7g",
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 2,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-063",
@@ -3890,7 +4544,36 @@
         "promotion": false,
         "handPieceCount": 7
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 4,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "3a",
+          "4a",
+          "5a",
+          "5b",
+          "4c"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "3a",
+          "4a",
+          "5a",
+          "5b",
+          "4c"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "4d",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 3,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-064",
@@ -3940,7 +4623,25 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "5a",
+          "7a"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5a",
+          "7a"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-065",
@@ -3990,7 +4691,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 2,
+        "movedPieceMobilityAfter": 3,
+        "movedPieceMobilityDelta": 1,
+        "opponentSafeKingMovesBefore": [
+          "9g",
+          "7h",
+          "9h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "9g",
+          "7h",
+          "9h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-066",
@@ -4047,7 +4768,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 2,
+        "movedPieceMobilityAfter": 2,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "9g",
+          "7h",
+          "9h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "9g",
+          "7h",
+          "9h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 2,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-067",
@@ -4097,7 +4838,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 2,
+        "movedPieceMobilityAfter": 3,
+        "movedPieceMobilityDelta": 1,
+        "opponentSafeKingMovesBefore": [
+          "5a",
+          "7a",
+          "7c"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5a",
+          "7a",
+          "7c"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 0,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-068",
@@ -4147,7 +4908,25 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "6h",
+          "8h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "6h",
+          "8h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-069",
@@ -4189,7 +4968,25 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 3,
+        "movedPieceMobilityAfter": 2,
+        "movedPieceMobilityDelta": -1,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 2,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-070",
@@ -4223,7 +5020,25 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 2,
+        "movedPieceMobilityAfter": 2,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "7g",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "7g",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 0,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-071",
@@ -4267,7 +5082,25 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 3,
+        "movedPieceMobilityAfter": 3,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-072",
@@ -4301,7 +5134,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 3,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": -2,
+        "opponentSafeKingMovesBefore": [
+          "7g",
+          "7h",
+          "5i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "7g",
+          "7h",
+          "5i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-073",
@@ -4345,7 +5198,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 2,
+        "movedPieceMobilityDelta": 1,
+        "opponentSafeKingMovesBefore": [
+          "7g",
+          "7h",
+          "5i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "7g",
+          "7h",
+          "5i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 2,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-074",
@@ -4379,7 +5252,25 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 4,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": -3,
+        "opponentSafeKingMovesBefore": [
+          "6h",
+          "8h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "6h",
+          "8h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 0,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-075",
@@ -4413,7 +5304,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "5a",
+          "7b",
+          "7c"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5a",
+          "7b",
+          "7c"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-076",
@@ -4457,7 +5368,25 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 2,
+        "movedPieceMobilityAfter": 2,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "7h",
+          "9h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "7h",
+          "9h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 2,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-077",
@@ -4491,7 +5420,25 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "7h",
+          "9h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "7h",
+          "9h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-078",
@@ -4525,7 +5472,25 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 2,
+        "movedPieceMobilityAfter": 2,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "5a",
+          "7b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5a",
+          "7b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 0,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-079",
@@ -4559,7 +5524,25 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 2,
+        "movedPieceMobilityAfter": 3,
+        "movedPieceMobilityDelta": 1,
+        "opponentSafeKingMovesBefore": [
+          "7g",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "7g",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 2,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-080",
@@ -4593,7 +5576,25 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 0,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-081",
@@ -4637,7 +5638,29 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 3,
+        "movedPieceMobilityAfter": 0,
+        "movedPieceMobilityDelta": -3,
+        "opponentSafeKingMovesBefore": [
+          "5g",
+          "7g",
+          "7h",
+          "5i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5g",
+          "7g",
+          "7h",
+          "5i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 3,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-082",
@@ -4671,7 +5694,25 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 0,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-083",
@@ -4713,7 +5754,33 @@
         "promotion": false,
         "handPieceCount": 3
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 3,
+        "movedPieceMobilityAfter": 3,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "6a",
+          "7a",
+          "8a",
+          "6b",
+          "8b",
+          "8c"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "6a",
+          "7a",
+          "8a",
+          "6b",
+          "8b",
+          "8c"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 0,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-084",
@@ -4755,7 +5822,27 @@
         "promotion": false,
         "handPieceCount": 5
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 2,
+        "movedPieceMobilityDelta": -3,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 0,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-085",
@@ -4797,7 +5884,27 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 0,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-086",
@@ -4839,7 +5946,29 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 4,
+        "movedPieceMobilityAfter": 5,
+        "movedPieceMobilityDelta": 1,
+        "opponentSafeKingMovesBefore": [
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 2,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-087",
@@ -4881,7 +6010,27 @@
         "promotion": false,
         "handPieceCount": 4
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 3,
+        "movedPieceMobilityDelta": -2,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 5,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-088",
@@ -4923,7 +6072,29 @@
         "promotion": false,
         "handPieceCount": 5
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 2,
+        "movedPieceMobilityAfter": 4,
+        "movedPieceMobilityDelta": 2,
+        "opponentSafeKingMovesBefore": [
+          "5h",
+          "7h",
+          "5i",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5h",
+          "7h",
+          "5i",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-089",
@@ -4957,7 +6128,27 @@
         "promotion": false,
         "handPieceCount": 5
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 3,
+        "movedPieceMobilityAfter": 4,
+        "movedPieceMobilityDelta": 1,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-090",
@@ -4991,7 +6182,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-091",
@@ -5025,7 +6236,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-092",
@@ -5059,7 +6290,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-093",
@@ -5089,8 +6340,8 @@
       "conceptAssessments": {
         "piece_mobility": {
           "class": "POSITIVE",
-          "reason": "Observable relocation plausibly changes usable activity; Human Concept only.",
-          "status": "PROVISIONAL"
+          "reason": "Observable relocation plausibly changes usable activity; Human Concept only. Geometry audit: mobility 5→8.",
+          "status": "CONFIRMED"
         }
       },
       "shikenbishaSubset": false,
@@ -5103,7 +6354,29 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 8,
+        "movedPieceMobilityDelta": 3,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-094",
@@ -5137,7 +6410,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-095",
@@ -5171,7 +6464,32 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "7g",
+            "piece": "B"
+          }
+        ],
+        "newAttackSquareCount": 4,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-096",
@@ -5205,7 +6523,29 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 3,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": -2,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-097",
@@ -5239,7 +6579,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 3,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": -2,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 2,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-098",
@@ -5273,7 +6633,32 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "B"
+      "stratum": "B",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "3c",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 4,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-099",
@@ -5307,7 +6692,29 @@
         "promotion": false,
         "handPieceCount": 1
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 2,
+        "movedPieceMobilityAfter": 4,
+        "movedPieceMobilityDelta": 2,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-100",
@@ -5341,7 +6748,47 @@
         "promotion": true,
         "handPieceCount": 0
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 14,
+        "movedPieceMobilityDelta": 9,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h"
+        ],
+        "opponentSafeKingMoveDelta": -1,
+        "newlyAttackedTargets": [
+          {
+            "square": "7f",
+            "piece": "P"
+          },
+          {
+            "square": "8g",
+            "piece": "P"
+          },
+          {
+            "square": "6g",
+            "piece": "P"
+          },
+          {
+            "square": "8h",
+            "piece": "S"
+          },
+          {
+            "square": "5i",
+            "piece": "K"
+          }
+        ],
+        "newAttackSquareCount": 8,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-101",
@@ -5375,7 +6822,29 @@
         "promotion": false,
         "handPieceCount": 1
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 2,
+        "movedPieceMobilityAfter": 4,
+        "movedPieceMobilityDelta": 2,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 2,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-102",
@@ -5409,7 +6878,46 @@
         "promotion": true,
         "handPieceCount": 0
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 14,
+        "movedPieceMobilityDelta": 9,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "7f",
+            "piece": "P"
+          },
+          {
+            "square": "8g",
+            "piece": "P"
+          },
+          {
+            "square": "6g",
+            "piece": "P"
+          },
+          {
+            "square": "6h",
+            "piece": "S"
+          },
+          {
+            "square": "9i",
+            "piece": "L"
+          }
+        ],
+        "newAttackSquareCount": 8,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-103",
@@ -5443,7 +6951,36 @@
         "promotion": false,
         "handPieceCount": 1
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 10,
+        "movedPieceMobilityAfter": 14,
+        "movedPieceMobilityDelta": 4,
+        "opponentSafeKingMovesBefore": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "2b",
+            "piece": "B"
+          },
+          {
+            "square": "1d",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 9,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-104",
@@ -5477,7 +7014,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-105",
@@ -5511,7 +7068,38 @@
         "promotion": false,
         "handPieceCount": 1
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 10,
+        "movedPieceMobilityAfter": 13,
+        "movedPieceMobilityDelta": 3,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "2b",
+            "piece": "B"
+          },
+          {
+            "square": "8d",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 8,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-106",
@@ -5545,7 +7133,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-107",
@@ -5579,7 +7187,40 @@
         "promotion": false,
         "handPieceCount": 1
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 12,
+        "movedPieceMobilityDelta": 7,
+        "opponentSafeKingMovesBefore": [
+          "5h",
+          "5i",
+          "6i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5h",
+          "5i",
+          "6i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "9f",
+            "piece": "P"
+          },
+          {
+            "square": "3f",
+            "piece": "P"
+          },
+          {
+            "square": "8h",
+            "piece": "B"
+          }
+        ],
+        "newAttackSquareCount": 9,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-108",
@@ -5613,7 +7254,29 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-109",
@@ -5647,7 +7310,27 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 2,
+        "movedPieceMobilityAfter": 2,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-110",
@@ -5681,7 +7364,53 @@
         "promotion": true,
         "handPieceCount": 0
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 7,
+        "movedPieceMobilityAfter": 14,
+        "movedPieceMobilityDelta": 7,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": -1,
+        "newlyAttackedTargets": [
+          {
+            "square": "5a",
+            "piece": "K"
+          },
+          {
+            "square": "1a",
+            "piece": "L"
+          },
+          {
+            "square": "3b",
+            "piece": "G"
+          },
+          {
+            "square": "4c",
+            "piece": "P"
+          },
+          {
+            "square": "2c",
+            "piece": "P"
+          },
+          {
+            "square": "3d",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 9,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-111",
@@ -5715,7 +7444,50 @@
         "promotion": true,
         "handPieceCount": 1
       },
-      "stratum": "C"
+      "stratum": "C",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 6,
+        "movedPieceMobilityAfter": 13,
+        "movedPieceMobilityDelta": 7,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "3a",
+            "piece": "S"
+          },
+          {
+            "square": "2a",
+            "piece": "N"
+          },
+          {
+            "square": "1a",
+            "piece": "L"
+          },
+          {
+            "square": "3b",
+            "piece": "G"
+          },
+          {
+            "square": "1c",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 6,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-112",
@@ -5757,7 +7529,29 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-113",
@@ -5785,8 +7579,8 @@
       "conceptAssessments": {
         "create_battlefront": {
           "class": "POSITIVE",
-          "reason": "Pawn-advance battlefront candidate; response semantics need follow-up.",
-          "status": "PROVISIONAL"
+          "reason": "Pawn-advance battlefront candidate; response semantics need follow-up. Geometry audit: 1 newly attacked target(s), 4 new attack squares.",
+          "status": "CONFIRMED"
         }
       },
       "shikenbishaSubset": false,
@@ -5799,7 +7593,32 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "3c",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 4,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-114",
@@ -5841,7 +7660,27 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-115",
@@ -5883,7 +7722,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-116",
@@ -5925,7 +7784,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-117",
@@ -5959,7 +7838,34 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "3c",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 4,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-118",
@@ -5993,7 +7899,32 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "7g",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 4,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-119",
@@ -6027,7 +7958,32 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "2b",
+            "piece": "B"
+          }
+        ],
+        "newAttackSquareCount": 5,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-120",
@@ -6061,7 +8017,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-121",
@@ -6095,7 +8071,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-122",
@@ -6129,7 +8125,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-123",
@@ -6163,7 +8179,29 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-124",
@@ -6197,7 +8235,29 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-125",
@@ -6231,7 +8291,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-126",
@@ -6265,7 +8345,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-127",
@@ -6299,7 +8399,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-128",
@@ -6333,7 +8453,32 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "3c",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 4,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-129",
@@ -6367,7 +8512,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-130",
@@ -6401,7 +8566,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "5h",
+          "6h",
+          "4i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5h",
+          "6h",
+          "4i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-131",
@@ -6435,7 +8620,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-132",
@@ -6469,7 +8674,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-133",
@@ -6503,7 +8728,29 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-134",
@@ -6537,7 +8784,32 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "D"
+      "stratum": "D",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "3c",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 4,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-135",
@@ -6581,7 +8853,36 @@
         "promotion": false,
         "handPieceCount": 6
       },
-      "stratum": "E"
+      "stratum": "E",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "3a",
+          "4a",
+          "5a",
+          "5b",
+          "3c"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "3a",
+          "4a",
+          "5a",
+          "5b",
+          "3c"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "9d",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-136",
@@ -6625,7 +8926,29 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "E"
+      "stratum": "E",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 4,
+        "movedPieceMobilityAfter": 3,
+        "movedPieceMobilityDelta": -1,
+        "opponentSafeKingMovesBefore": [
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-137",
@@ -6669,7 +8992,27 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "E"
+      "stratum": "E",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 4,
+        "movedPieceMobilityAfter": 2,
+        "movedPieceMobilityDelta": -2,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "2b",
+          "4b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "2b",
+          "4b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 0,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-138",
@@ -6703,7 +9046,27 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "E"
+      "stratum": "E",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 3,
+        "movedPieceMobilityAfter": 4,
+        "movedPieceMobilityDelta": 1,
+        "opponentSafeKingMovesBefore": [
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 3,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-139",
@@ -6737,7 +9100,29 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "E"
+      "stratum": "E",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 3,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": -2,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "6h",
+          "5i",
+          "6i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "6h",
+          "5i",
+          "6i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 0,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-140",
@@ -6771,7 +9156,29 @@
         "promotion": false,
         "handPieceCount": 4
       },
-      "stratum": "E"
+      "stratum": "E",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 13,
+        "movedPieceMobilityAfter": 6,
+        "movedPieceMobilityDelta": -7,
+        "opponentSafeKingMovesBefore": [
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-141",
@@ -6805,7 +9212,34 @@
         "promotion": false,
         "handPieceCount": 5
       },
-      "stratum": "E"
+      "stratum": "E",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 10,
+        "movedPieceMobilityAfter": 15,
+        "movedPieceMobilityDelta": 5,
+        "opponentSafeKingMovesBefore": [
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "8h",
+            "piece": "S"
+          }
+        ],
+        "newAttackSquareCount": 5,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-142",
@@ -6839,7 +9273,29 @@
         "promotion": false,
         "handPieceCount": 5
       },
-      "stratum": "E"
+      "stratum": "E",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 3,
+        "movedPieceMobilityDelta": 2,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "5a",
+          "4b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "5a",
+          "4b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 0,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-143",
@@ -6873,7 +9329,29 @@
         "promotion": false,
         "handPieceCount": 5
       },
-      "stratum": "E"
+      "stratum": "E",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 4,
+        "movedPieceMobilityAfter": 3,
+        "movedPieceMobilityDelta": -1,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "5a",
+          "4b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "5a",
+          "4b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-144",
@@ -6907,7 +9385,27 @@
         "promotion": false,
         "handPieceCount": 5
       },
-      "stratum": "E"
+      "stratum": "E",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 7,
+        "movedPieceMobilityAfter": 10,
+        "movedPieceMobilityDelta": 3,
+        "opponentSafeKingMovesBefore": [
+          "5h",
+          "5i",
+          "6i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5h",
+          "5i",
+          "6i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 5,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-145",
@@ -6941,7 +9439,29 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "E"
+      "stratum": "E",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 2,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": -1,
+        "opponentSafeKingMovesBefore": [
+          "3a",
+          "4a",
+          "5a",
+          "5b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "3a",
+          "4a",
+          "5a",
+          "5b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 0,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-146",
@@ -6975,7 +9495,29 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "E"
+      "stratum": "E",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 3,
+        "movedPieceMobilityAfter": 3,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 2,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-147",
@@ -7009,7 +9551,29 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "E"
+      "stratum": "E",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 2,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": -1,
+        "opponentSafeKingMovesBefore": [
+          "3a",
+          "4a",
+          "2b",
+          "4c"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "3a",
+          "4a",
+          "2b",
+          "4c"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 0,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-148",
@@ -7043,7 +9607,27 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "E"
+      "stratum": "E",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 4,
+        "movedPieceMobilityDelta": -1,
+        "opponentSafeKingMovesBefore": [
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 2,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-149",
@@ -7077,7 +9661,27 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "E"
+      "stratum": "E",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 0,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-150",
@@ -7111,7 +9715,29 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "E"
+      "stratum": "E",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "3a",
+          "4a",
+          "5a",
+          "5b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "3a",
+          "4a",
+          "5a",
+          "5b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-151",
@@ -7145,7 +9771,29 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "E"
+      "stratum": "E",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 0,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-152",
@@ -7179,7 +9827,34 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "E"
+      "stratum": "E",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "8g",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-153",
@@ -7213,7 +9888,29 @@
         "promotion": false,
         "handPieceCount": 4
       },
-      "stratum": "E"
+      "stratum": "E",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 8,
+        "movedPieceMobilityDelta": 3,
+        "opponentSafeKingMovesBefore": [
+          "3a",
+          "4a",
+          "5a",
+          "5b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "3a",
+          "4a",
+          "5a",
+          "5b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 4,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-154",
@@ -7247,7 +9944,34 @@
         "promotion": false,
         "handPieceCount": 6
       },
-      "stratum": "E"
+      "stratum": "E",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 6,
+        "movedPieceMobilityAfter": 12,
+        "movedPieceMobilityDelta": 6,
+        "opponentSafeKingMovesBefore": [
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "8h",
+            "piece": "S"
+          }
+        ],
+        "newAttackSquareCount": 6,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-155",
@@ -7301,7 +10025,36 @@
         "promotion": false,
         "handPieceCount": 11
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "5a",
+          "7a",
+          "5b",
+          "7b",
+          "6c"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5a",
+          "7a",
+          "5b",
+          "7b",
+          "6c"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "4c",
+            "piece": "G"
+          }
+        ],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-156",
@@ -7357,7 +10110,25 @@
         "promotion": false,
         "handPieceCount": 10
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 5,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "6i",
+          "8i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "6i",
+          "8i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 2,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-157",
@@ -7413,7 +10184,30 @@
         "promotion": false,
         "handPieceCount": 10
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 8,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "6i",
+          "8i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "6i",
+          "8i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "7h",
+            "piece": "K"
+          }
+        ],
+        "newAttackSquareCount": 4,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-158",
@@ -7469,7 +10263,42 @@
         "promotion": false,
         "handPieceCount": 9
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 5,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "3a",
+          "4a",
+          "5a",
+          "3b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "3a",
+          "4a",
+          "5a",
+          "3b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "4c",
+            "piece": "P"
+          },
+          {
+            "square": "3c",
+            "piece": "B"
+          },
+          {
+            "square": "3d",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 4,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-159",
@@ -7503,7 +10332,29 @@
         "promotion": false,
         "handPieceCount": 9
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 6,
+        "movedPieceMobilityAfter": 6,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "5h",
+          "6h",
+          "5i",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5h",
+          "6h",
+          "5i",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 3,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-160",
@@ -7537,7 +10388,28 @@
         "promotion": false,
         "handPieceCount": 9
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 5,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "5a",
+          "7a",
+          "5b",
+          "7b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5a",
+          "7a",
+          "7b"
+        ],
+        "opponentSafeKingMoveDelta": -1,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 3,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-161",
@@ -7571,7 +10443,34 @@
         "promotion": false,
         "handPieceCount": 8
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 3,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "8g",
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "8g",
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "6c",
+            "piece": "R"
+          }
+        ],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-162",
@@ -7605,7 +10504,42 @@
         "promotion": false,
         "handPieceCount": 8
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 5,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "8g",
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "8g",
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "4e",
+            "piece": "P"
+          },
+          {
+            "square": "5g",
+            "piece": "P"
+          },
+          {
+            "square": "8h",
+            "piece": "K"
+          }
+        ],
+        "newAttackSquareCount": 5,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-163",
@@ -7639,7 +10573,29 @@
         "promotion": false,
         "handPieceCount": 8
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 4,
+        "movedPieceMobilityAfter": 3,
+        "movedPieceMobilityDelta": -1,
+        "opponentSafeKingMovesBefore": [
+          "8g",
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "8g",
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-164",
@@ -7673,7 +10629,34 @@
         "promotion": false,
         "handPieceCount": 8
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 8,
+        "movedPieceMobilityDelta": 3,
+        "opponentSafeKingMovesBefore": [
+          "5a",
+          "7a",
+          "7b",
+          "6c"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5a",
+          "7a",
+          "7b",
+          "6c"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "5f",
+            "piece": "S"
+          }
+        ],
+        "newAttackSquareCount": 7,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-165",
@@ -7707,7 +10690,34 @@
         "promotion": false,
         "handPieceCount": 8
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 5,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "5g",
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5h",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": -2,
+        "newlyAttackedTargets": [
+          {
+            "square": "3g",
+            "piece": "G"
+          }
+        ],
+        "newAttackSquareCount": 5,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-166",
@@ -7741,7 +10751,34 @@
         "promotion": false,
         "handPieceCount": 8
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 8,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "1a",
+            "piece": "L"
+          }
+        ],
+        "newAttackSquareCount": 5,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-167",
@@ -7775,7 +10812,36 @@
         "promotion": false,
         "handPieceCount": 7
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 11,
+        "movedPieceMobilityAfter": 15,
+        "movedPieceMobilityDelta": 4,
+        "opponentSafeKingMovesBefore": [
+          "3a",
+          "4a",
+          "5a",
+          "5b",
+          "3c"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "3a",
+          "4a",
+          "5a",
+          "5b",
+          "3c"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "9a",
+            "piece": "G"
+          }
+        ],
+        "newAttackSquareCount": 6,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-168",
@@ -7809,7 +10875,31 @@
         "promotion": false,
         "handPieceCount": 7
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "7g",
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "7g",
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 0,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-169",
@@ -7843,7 +10933,34 @@
         "promotion": false,
         "handPieceCount": 7
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "3a",
+          "4a",
+          "5a",
+          "5b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "3a",
+          "4a",
+          "5a",
+          "5b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "6f",
+            "piece": "R"
+          }
+        ],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-170",
@@ -7877,7 +10994,40 @@
         "promotion": false,
         "handPieceCount": 7
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 6,
+        "movedPieceMobilityDelta": 1,
+        "opponentSafeKingMovesBefore": [
+          "3a",
+          "4a",
+          "3b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "3a",
+          "4a",
+          "3c"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "4b",
+            "piece": "K"
+          },
+          {
+            "square": "2b",
+            "piece": "G"
+          },
+          {
+            "square": "2c",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 4,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-171",
@@ -7911,7 +11061,30 @@
         "promotion": true,
         "handPieceCount": 7
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 6,
+        "movedPieceMobilityDelta": 5,
+        "opponentSafeKingMovesBefore": [
+          "5h",
+          "5i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5h",
+          "5i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "1i",
+            "piece": "L"
+          }
+        ],
+        "newAttackSquareCount": 6,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-172",
@@ -7945,7 +11118,30 @@
         "promotion": false,
         "handPieceCount": 7
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "5h",
+          "5i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5h",
+          "5i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "3h",
+            "piece": "G"
+          }
+        ],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-173",
@@ -7979,7 +11175,40 @@
         "promotion": false,
         "handPieceCount": 7
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 7,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "5h",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5h",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "3e",
+            "piece": "P"
+          },
+          {
+            "square": "6h",
+            "piece": "K"
+          },
+          {
+            "square": "1i",
+            "piece": "L"
+          }
+        ],
+        "newAttackSquareCount": 6,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-174",
@@ -8013,7 +11242,31 @@
         "promotion": false,
         "handPieceCount": 7
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 1,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "5a",
+          "7a",
+          "5b",
+          "7b",
+          "6c"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5a",
+          "7a",
+          "5b",
+          "7b",
+          "6c"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-175",
@@ -8047,7 +11300,38 @@
         "promotion": false,
         "handPieceCount": 7
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 9,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "7g",
+            "piece": "B"
+          },
+          {
+            "square": "1i",
+            "piece": "L"
+          }
+        ],
+        "newAttackSquareCount": 8,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-176",
@@ -8081,7 +11365,34 @@
         "promotion": false,
         "handPieceCount": 7
       },
-      "stratum": "F"
+      "stratum": "F",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 5,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "7g",
+          "5h",
+          "5i",
+          "6i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "7g",
+          "5h",
+          "5i",
+          "6i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "4d",
+            "piece": "B"
+          }
+        ],
+        "newAttackSquareCount": 2,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-177",
@@ -8115,7 +11426,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 6,
+        "movedPieceMobilityAfter": 6,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 0,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-178",
@@ -8149,7 +11480,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 8,
+        "movedPieceMobilityDelta": 3,
+        "opponentSafeKingMovesBefore": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-179",
@@ -8183,7 +11534,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 8,
+        "movedPieceMobilityDelta": 3,
+        "opponentSafeKingMovesBefore": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-180",
@@ -8217,7 +11588,32 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "2d",
+            "piece": "R"
+          }
+        ],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-181",
@@ -8251,7 +11647,29 @@
         "promotion": false,
         "handPieceCount": 1
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 12,
+        "movedPieceMobilityAfter": 11,
+        "movedPieceMobilityDelta": -1,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-182",
@@ -8285,7 +11703,29 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 7,
+        "movedPieceMobilityAfter": 4,
+        "movedPieceMobilityDelta": -3,
+        "opponentSafeKingMovesBefore": [
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "5h",
+          "5i",
+          "6i",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 3,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-183",
@@ -8319,7 +11759,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 8,
+        "movedPieceMobilityDelta": 3,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-184",
@@ -8353,7 +11813,34 @@
         "promotion": false,
         "handPieceCount": 3
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 9,
+        "movedPieceMobilityAfter": 8,
+        "movedPieceMobilityDelta": -1,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h",
+          "6i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h",
+          "6i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "7f",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 3,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-185",
@@ -8387,7 +11874,34 @@
         "promotion": false,
         "handPieceCount": 4
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 8,
+        "movedPieceMobilityAfter": 12,
+        "movedPieceMobilityDelta": 4,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "3b",
+            "piece": "G"
+          }
+        ],
+        "newAttackSquareCount": 8,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-186",
@@ -8421,7 +11935,29 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 8,
+        "movedPieceMobilityDelta": 3,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "6a",
+          "4b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "6a",
+          "4b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-187",
@@ -8455,7 +11991,29 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 8,
+        "movedPieceMobilityDelta": 3,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-188",
@@ -8489,7 +12047,29 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 14,
+        "movedPieceMobilityAfter": 12,
+        "movedPieceMobilityDelta": -2,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-189",
@@ -8523,7 +12103,51 @@
         "promotion": true,
         "handPieceCount": 0
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 15,
+        "movedPieceMobilityDelta": 10,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h"
+        ],
+        "opponentSafeKingMoveDelta": -1,
+        "newlyAttackedTargets": [
+          {
+            "square": "7f",
+            "piece": "P"
+          },
+          {
+            "square": "8g",
+            "piece": "P"
+          },
+          {
+            "square": "6g",
+            "piece": "P"
+          },
+          {
+            "square": "7h",
+            "piece": "S"
+          },
+          {
+            "square": "9i",
+            "piece": "L"
+          },
+          {
+            "square": "5i",
+            "piece": "K"
+          }
+        ],
+        "newAttackSquareCount": 10,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-190",
@@ -8557,7 +12181,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 8,
+        "movedPieceMobilityDelta": 3,
+        "opponentSafeKingMovesBefore": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4b",
+          "5b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-191",
@@ -8591,7 +12235,29 @@
         "promotion": false,
         "handPieceCount": 3
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 8,
+        "movedPieceMobilityAfter": 11,
+        "movedPieceMobilityDelta": 3,
+        "opponentSafeKingMovesBefore": [
+          "3a",
+          "4a",
+          "5a",
+          "5b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "3a",
+          "4a",
+          "5a",
+          "5b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 5,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-192",
@@ -8625,7 +12291,34 @@
         "promotion": false,
         "handPieceCount": 4
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "3a",
+          "4a",
+          "5a",
+          "5b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "3a",
+          "4a",
+          "5a",
+          "5b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "2a",
+            "piece": "N"
+          }
+        ],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-193",
@@ -8659,7 +12352,32 @@
         "promotion": false,
         "handPieceCount": 4
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "9g",
+          "9h",
+          "7i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "2d",
+            "piece": "R"
+          }
+        ],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-194",
@@ -8693,7 +12411,42 @@
         "promotion": false,
         "handPieceCount": 3
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 10,
+        "movedPieceMobilityAfter": 10,
+        "movedPieceMobilityDelta": 0,
+        "opponentSafeKingMovesBefore": [
+          "3a",
+          "4a",
+          "5a",
+          "5b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "3a",
+          "4a",
+          "5a",
+          "5b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "2a",
+            "piece": "N"
+          },
+          {
+            "square": "3d",
+            "piece": "P"
+          },
+          {
+            "square": "1d",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 6,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-195",
@@ -8727,7 +12480,34 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h",
+          "6i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h",
+          "6i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "2d",
+            "piece": "R"
+          }
+        ],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-196",
@@ -8761,7 +12541,34 @@
         "promotion": false,
         "handPieceCount": 1
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 14,
+        "movedPieceMobilityDelta": 9,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "5a",
+          "4b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "5a",
+          "4b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "2b",
+            "piece": "B"
+          }
+        ],
+        "newAttackSquareCount": 11,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-197",
@@ -8795,7 +12602,29 @@
         "promotion": false,
         "handPieceCount": 1
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 13,
+        "movedPieceMobilityAfter": 12,
+        "movedPieceMobilityDelta": -1,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "5a",
+          "4b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "5a",
+          "4b",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": true
+      }
     },
     {
       "positionId": "B17-3-198",
@@ -8829,7 +12658,53 @@
         "promotion": true,
         "handPieceCount": 0
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 7,
+        "movedPieceMobilityAfter": 15,
+        "movedPieceMobilityDelta": 8,
+        "opponentSafeKingMovesBefore": [
+          "4a",
+          "6a",
+          "4b",
+          "6b"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4a",
+          "6a",
+          "6b"
+        ],
+        "opponentSafeKingMoveDelta": -1,
+        "newlyAttackedTargets": [
+          {
+            "square": "5a",
+            "piece": "K"
+          },
+          {
+            "square": "1a",
+            "piece": "L"
+          },
+          {
+            "square": "3b",
+            "piece": "G"
+          },
+          {
+            "square": "4c",
+            "piece": "P"
+          },
+          {
+            "square": "2c",
+            "piece": "P"
+          },
+          {
+            "square": "3d",
+            "piece": "P"
+          }
+        ],
+        "newAttackSquareCount": 9,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-199",
@@ -8863,7 +12738,27 @@
         "promotion": false,
         "handPieceCount": 0
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": 5,
+        "movedPieceMobilityAfter": 8,
+        "movedPieceMobilityDelta": 3,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6i"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6i"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": true,
+        "movedPieceSafeAfter": false
+      }
     },
     {
       "positionId": "B17-3-200",
@@ -8897,7 +12792,68 @@
         "promotion": false,
         "handPieceCount": 2
       },
-      "stratum": "G"
+      "stratum": "G",
+      "geometryAudit": {
+        "movedPieceMobilityBefore": null,
+        "movedPieceMobilityAfter": 1,
+        "movedPieceMobilityDelta": null,
+        "opponentSafeKingMovesBefore": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMovesAfter": [
+          "4h",
+          "5h",
+          "6h"
+        ],
+        "opponentSafeKingMoveDelta": 0,
+        "newlyAttackedTargets": [
+          {
+            "square": "2d",
+            "piece": "R"
+          }
+        ],
+        "newAttackSquareCount": 1,
+        "movedPieceWasAttacked": false,
+        "movedPieceSafeAfter": false
+      }
     }
-  ]
+  ],
+  "geometryAuditSummary": {
+    "officialPositionsAudited": 164,
+    "pieceMobilityConfirmedPositives": 1,
+    "escapeRouteControlConfirmedPositives": 0,
+    "preserveKeyPieceConfirmedPositives": 0,
+    "createBattlefrontConfirmedPositives": 1,
+    "multiThreatGeometryCandidates": 0,
+    "rule": "Geometry may confirm observable effects but cannot by itself establish semantic Intent."
+  },
+  "confirmedPositiveCounts": {
+    "piece_mobility": 1,
+    "preserve_key_piece": 6,
+    "deny_ideal_formation": 6,
+    "create_battlefront": 1,
+    "shift_battlefront": 0,
+    "attack_attacker": 6,
+    "tempo_management": 4,
+    "speed_over_material": 0,
+    "trade_to_transform": 2,
+    "prophylaxis": 0,
+    "escape_route_control": 0,
+    "multi_threat": 0,
+    "waiting_move": 0,
+    "parallel_flexibility": 0,
+    "sabai": 0,
+    "rook_activation": 0,
+    "bishop_exchange_decision": 0,
+    "rook_exchange_decision": 0,
+    "castle_completion": 0,
+    "respond_to_rapid_attack": 6,
+    "maintain_counterattack_potential": 0,
+    "avoid_premature_attack": 0,
+    "invite_then_counter": 0,
+    "formation_order": 0,
+    "opponent_plan_response": 0
+  }
 }
