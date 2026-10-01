@@ -190,53 +190,73 @@ public enum ContextExplanationGenerator {
             return nil
         }
 
-        if !suppressingConceptIDs.contains("attack_attacker"),
-           let effect = analysis.effects.first(where: { $0.id == "attack_attacker" }),
-           permitsAttackAttackerSupplement(for: analysis.selectedIntent) {
-            return ContextConceptSupplement(
-                conceptID: effect.id,
-                text: "同時に、直前に攻撃を作った相手駒そのものにも対応しています。",
-                evidenceText: "attacker_squares:\(effect.detail)"
-            )
+        let candidates: [String]
+        switch analysis.selectedIntent {
+        case .captureThreatResponse, .pieceDefense, .defense, .neutralizeThreat:
+            candidates = ["attack_attacker", "piece_mobility", "escape_route_control"]
+        case .attackContinuation, .attackPreparation, .matingAttack, .threatmate, .controlAddition, .outpostCreation:
+            candidates = ["escape_route_control", "piece_mobility", "attack_attacker"]
+        default:
+            candidates = ["piece_mobility", "attack_attacker", "escape_route_control"]
         }
 
-        if !suppressingConceptIDs.contains("escape_route_control"),
-           let effect = analysis.effects.first(where: { $0.id == "escape_route_control" }),
-           permitsEscapeRouteSupplement(for: analysis.selectedIntent) {
-            let text: String
-            if let counts = transitionCounts(
-                from: effect.detail,
-                prefix: "opponent_escape_squares:"
-            ), counts.before > counts.after {
-                let reduced = counts.before - counts.after
-                text = "同時に、相手玉の安全な逃げ場所が\(reduced)つ減っています。"
-            } else {
-                text = "同時に、相手玉の安全な逃げ場所も減っています。"
-            }
-            return ContextConceptSupplement(
-                conceptID: effect.id,
-                text: text,
-                evidenceText: effect.detail
-            )
-        }
+        for conceptID in candidates where !suppressingConceptIDs.contains(conceptID) {
+            switch conceptID {
+            case "attack_attacker":
+                guard let effect = analysis.effects.first(where: { $0.id == conceptID }),
+                      permitsAttackAttackerSupplement(for: analysis.selectedIntent) else {
+                    continue
+                }
+                return ContextConceptSupplement(
+                    conceptID: effect.id,
+                    text: "同時に、直前に攻撃を作った相手駒そのものにも対応しています。",
+                    evidenceText: "attacker_squares:\(effect.detail)"
+                )
 
-        if !suppressingConceptIDs.contains("piece_mobility"),
-           let effect = analysis.effects.first(where: { $0.id == "piece_mobility" }),
-           permitsPieceMobilitySupplement(for: analysis.selectedIntent) {
-            let text: String
-            if let counts = transitionCounts(
-                from: effect.detail,
-                prefix: "attack_squares:"
-            ), counts.after > counts.before {
-                text = "同時に、この手で動かした駒が利かせられるマスも\(counts.before)から\(counts.after)に増えています。"
-            } else {
-                text = "同時に、この手で動かした駒の利かせられるマスも増えています。"
+            case "escape_route_control":
+                guard let effect = analysis.effects.first(where: { $0.id == conceptID }),
+                      permitsEscapeRouteSupplement(for: analysis.selectedIntent) else {
+                    continue
+                }
+                let text: String
+                if let counts = transitionCounts(
+                    from: effect.detail,
+                    prefix: "opponent_escape_squares:"
+                ), counts.before > counts.after {
+                    let reduced = counts.before - counts.after
+                    text = "同時に、相手玉の安全な逃げ場所が\(reduced)つ減っています。"
+                } else {
+                    text = "同時に、相手玉の安全な逃げ場所も減っています。"
+                }
+                return ContextConceptSupplement(
+                    conceptID: effect.id,
+                    text: text,
+                    evidenceText: effect.detail
+                )
+
+            case "piece_mobility":
+                guard let effect = analysis.effects.first(where: { $0.id == conceptID }),
+                      permitsPieceMobilitySupplement(for: analysis.selectedIntent) else {
+                    continue
+                }
+                let text: String
+                if let counts = transitionCounts(
+                    from: effect.detail,
+                    prefix: "attack_squares:"
+                ), counts.after > counts.before {
+                    text = "同時に、この手で動かした駒が利かせられるマスも\(counts.before)から\(counts.after)に増えています。"
+                } else {
+                    text = "同時に、この手で動かした駒の利かせられるマスも増えています。"
+                }
+                return ContextConceptSupplement(
+                    conceptID: effect.id,
+                    text: text,
+                    evidenceText: effect.detail
+                )
+
+            default:
+                continue
             }
-            return ContextConceptSupplement(
-                conceptID: effect.id,
-                text: text,
-                evidenceText: effect.detail
-            )
         }
 
         return nil
