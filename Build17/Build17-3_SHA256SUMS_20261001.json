@@ -1,0 +1,22 @@
+{
+  "package": "Build17-3_Pilot_Corpus_Concept_Validation_FREEZE_CANDIDATE_20261001",
+  "baselineDate": "2026-10-01",
+  "algorithm": "SHA-256",
+  "build16Parent": "2ee66f25aba603621565ed8475649a5f70cdb5a4",
+  "files": {
+    "Build17/Build17-3_Pilot_Annotation_Schema_v0.1.json": "45177fdb6827b1336e62f90531c9f77af6d96da74e81acc0e4fa0954f670b0aa",
+    "Build17/Build17-3_Pilot_Requirements_v0.1.json": "9140876390b7e3dce782053d5d5c91962338eca05c2eeaddad5bff8c6cf47345",
+    "Build17/Build17-3_Pilot_Corpus_200_v0.1.json": "e95f091d146bba775ff5a904edb80527adf0466e7220c4a52e967215c319f51a",
+    "Build17/Build17-3_Concept_Exposure_v0.1.json": "a68bb7e0ce089f769fd754708e568c7582430f80376908a330933940be447877",
+    "Build17/Build17-3_Concept_Validation_Result_v0.1.json": "543edf233865c61379f401169ce1f47d042b3d08e27c3cddbd8fbba8091be0e8",
+    "Build17/Build17-3_False_Positive_Analysis_v0.1.md": "1decaeef7db78e749dbb0a05ade8479cbf86d4f3710d188359b16e8149e2b1ee",
+    "Build17/Build17-3_Build16_Conflict_Audit_v0.1.json": "ca539ee65e7df800c80ede27d934464ae88070b26014c1f92d201d7aaf7f2e04",
+    "Build17/Build17-3_Shikenbisha_Subset_v0.1.json": "23b82f6dfd378008fa0299e2e3b63ddbce26a14ba8989f9b8d79cebbd1e6ec82",
+    "Build17/Build17-3_Concept_Dictionary_Revision_Proposal_v0.1.json": "f3dbdb91ee88e244015008cfac571c3fdf7197cdf07849b5bf55ce5351317298",
+    "Build17/Build17-3_Intent_Promotion_Candidates_v0.1.json": "a2e40b5377085250eba3fa1ce35d18f89abc0ce6363286ceccc7fc306fff30ea",
+    "Build17/Build17-3_Downgrade_Merge_Reject_v0.1.json": "ae4f3bbb484c2fe41786ae58b76a66485287e1f91f4931c91b10a81a8e54ccbf",
+    "Build17/Build17-3_Build17-4_Implementation_Candidates_v0.1.json": "0ee705c84064194e3a305c24a01eef82ef392b0d7a776f88f8b8ad5440fe4d99",
+    "Build17/Build17-3_FINAL_REPORT_20261001.md": "9bc19aae5f3f24dcbb14fc52d4232803cb80a69c6139d11ac633650f0a8ade0d",
+    "Build17/Build17-3_FREEZE_CANDIDATE_MANIFEST_20261001.json": "b557c7a1050b15bcf7d8257ae0f4fba150a948e6198593aee3d94a8d327b0bc3"
+  }
+}
