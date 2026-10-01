@@ -1,0 +1,113 @@
+{
+  "package": "Build17-5_Safe_Concept_Explanation_Integration_FREEZE_CANDIDATE_20261002",
+  "baselineDate": "2026-10-02",
+  "repository": "inari-1234/shogi-ai-coach",
+  "branch": "candidate/build17-5-safe-concept-explanation",
+  "upstream": {
+    "build17_4": {
+      "status": "COMPLETE / FROZEN",
+      "sha": "484c2596ef5f027738f2cdc0bbf83d65d334e5c8"
+    }
+  },
+  "validatedSourceHead": "6218bfd3f43c70c2fcd76c63fc3e078cabac0013",
+  "verdict": "Build17-5 PASS / FREEZE CANDIDATE",
+  "implementedConcepts": [
+    {
+      "id": "piece_mobility",
+      "role": "optional observed-effect supplement"
+    },
+    {
+      "id": "escape_route_control",
+      "role": "optional observed-effect supplement"
+    },
+    {
+      "id": "attack_attacker",
+      "role": "optional subordinate-response supplement"
+    }
+  ],
+  "explanationPolicy": {
+    "primaryIntentRemainsAuthority": true,
+    "conceptCanAlterIntent": false,
+    "conceptCanAlterConfidence": false,
+    "maxSupplementsPerMove": 1,
+    "lowOrUnresolvedSuppressed": true,
+    "consecutiveSameConceptSuppressed": true,
+    "internalConceptIDsShownInNormalUI": false
+  },
+  "staticAudit": {
+    "contextEngineBlobUnchanged": true,
+    "moveIntentChanged": false,
+    "contextIntentResolverChanged": false,
+    "intentEvidenceWeightsChanged": false,
+    "conceptDetectionLogicChanged": false,
+    "build17_3CorpusChanged": false,
+    "knowledgeChanged": false,
+    "workflowsChanged": false,
+    "sourceChangedFiles": [
+      "Sources/ShogiCoachCore/ContextExplanation.swift",
+      "Tests/ShogiCoachCoreTests/Build17SafeConceptExplanationTests.swift",
+      "iOS/ShogiCoachPoC/ContextAnalysisViewModel.swift",
+      "iOS/ShogiCoachPoC/ContinuationSimulationView.swift"
+    ]
+  },
+  "validation": {
+    "dedicatedTests": {
+      "passed": 14,
+      "total": 14
+    },
+    "xctest": {
+      "passed": 60,
+      "total": 60,
+      "failures": 0,
+      "existingBaselinePassed": 46,
+      "newBuild17_5Passed": 14
+    },
+    "swiftTesting": {
+      "passed": 16
+    },
+    "staticVerify": "PASS",
+    "deviceBuild": {
+      "result": "PASS",
+      "runId": 36888674213,
+      "ipaSha256": "435a360f7282a67cc2450c41fd7ca681180eec282c331544ae0751fd9680b73a",
+      "artifactName": "ShogiCoachPoC-iPhone",
+      "artifactDigest": "sha256:81fe75f301cbb31c6e1e4452917fd41b02eb64512fd743789ecabd05c3e82844"
+    },
+    "simulatorE2E": {
+      "result": "PASS",
+      "runId": 36888674302,
+      "stage": "complete",
+      "contextSemanticsStatus": "PASS",
+      "contextRookPawnIntent": "rook_pawn_response",
+      "contextGeometryPrimary": false,
+      "contextKnowledgeRecords": 1281,
+      "contextSchema8Audit": "PASS",
+      "contextSchema8TargetIntent": "rook_pawn_response",
+      "contextSchema8TargetConfidence": "high",
+      "artifactDigest": "sha256:9210c7d25baf2d4ebdca5b3022bddab9c433805fbe72f6c6564c11cd4cd13f30"
+    },
+    "lockedRegression": {
+      "position": "position startpos moves 7g7f 8c8d 2g2f 8d8e",
+      "move": "8h7g",
+      "primaryIntent": "rook_pawn_response",
+      "confidence": "high",
+      "contextGeometryPrimary": false,
+      "result": "PASS"
+    },
+    "falseExplanationBlockingIssue": false
+  },
+  "ui": {
+    "changed": true,
+    "scope": "optional supplement row only",
+    "majorRedesign": false
+  },
+  "initialTestCorrection": {
+    "productionBug": false,
+    "issue": "multi-concept real-position fixture expected piece_mobility even though frozen detection also emitted attack_attacker",
+    "action": "changed test to single-concept fixture; production code unchanged"
+  },
+  "mainMergePerformed": false,
+  "unresolvedBlockingIssues": [],
+  "nextStage": "Build17-5V",
+  "packagingRule": "Report/manifest commit is documentation-only; final-head regression is required after packaging."
+}
