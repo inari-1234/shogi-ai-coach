@@ -1,0 +1,59 @@
+{
+  "package": "Build17-4_Safe_Concept_Integration_FREEZE_CANDIDATE_20261001",
+  "baselineDate": "2026-10-01",
+  "repository": "inari-1234/shogi-ai-coach",
+  "branch": "candidate/build17-4-safe-concept-integration",
+  "parentBuild17_3Head": "00ff5f69a3c19e46aa26d3fe7a38dfbc03212a25",
+  "validatedSourceHead": "d5e4979baae72b35bebeb6d23ce6abfcafbdbb9c",
+  "verdict": "BUILD17-4 PASS — FREEZE CANDIDATE",
+  "implemented": [
+    {
+      "id": "piece_mobility",
+      "layer": "Effect/HumanConcept"
+    },
+    {
+      "id": "escape_route_control",
+      "layer": "Effect/HumanConcept"
+    },
+    {
+      "id": "attack_attacker",
+      "layer": "SubIntent metadata"
+    }
+  ],
+  "guards": {
+    "moveIntentEnumChanged": false,
+    "contextIntentResolverChanged": false,
+    "newConceptIntentEvidenceAdded": false,
+    "uiChanged": false,
+    "trainingPerformed": false,
+    "explanationOnlyAutoLabelsAdded": false
+  },
+  "validation": {
+    "dedicatedTests": "5/5 PASS",
+    "xctest": "46/46 PASS",
+    "swiftTesting": "16 PASS",
+    "deviceBuild": "PASS",
+    "simulatorBuild": "PASS",
+    "simulatorE2E": "PASS",
+    "compactKnowledgeRecords": 1281,
+    "lockedRegression": {
+      "move": "8h7g",
+      "previousMove": "8d8e",
+      "expectedIntent": "rook_pawn_response",
+      "confidence": "high",
+      "result": "PASS"
+    }
+  },
+  "pullRequest": {
+    "number": 8,
+    "draft": true,
+    "merged": false
+  },
+  "files": [
+    "Sources/ShogiCoachCore/ContextEngine.swift",
+    "Tests/ShogiCoachCoreTests/Build17SafeConceptEffectTests.swift",
+    "Build17/Build17-4_FINAL_REPORT_20261001.md",
+    "Build17/Build17-4_FREEZE_CANDIDATE_MANIFEST_20261001.json"
+  ],
+  "packagingRule": "Report/manifest commit is documentation-only; source validation is anchored to validatedSourceHead and must be followed by final-head regression."
+}
