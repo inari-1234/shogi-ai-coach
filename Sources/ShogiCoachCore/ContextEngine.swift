@@ -272,7 +272,7 @@ public enum ContextIntentResolver {
             return Resolution(candidates: candidates, selectedIntent: .unresolved, confidence: .unresolved)
         }
 
-        let secondScore = candidates.dropFirst().first?.score ?? Int.min
+        let secondScore = candidates.dropFirst().first?.score
         let supporting = evidence.filter {
             $0.supportedIntent == top.intent && $0.weight > 0 && $0.kind != .geometry
         }
@@ -283,8 +283,10 @@ public enum ContextIntentResolver {
                 || ($0.kind == .counterfactual && $0.weight >= 100)
         }
 
+        let hasClearLead = secondScore.map { top.score - $0 >= 15 } ?? true
+
         let confidence: ContextConfidence
-        if top.score >= 100, top.score - secondScore >= 15, hasHighAuthority {
+        if top.score >= 100, hasClearLead, hasHighAuthority {
             confidence = .high
         } else if top.score >= 60 || (top.score >= 45 && kinds.count >= 2) {
             confidence = .medium
