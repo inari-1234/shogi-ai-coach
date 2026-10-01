@@ -4,7 +4,7 @@
 Repository: inari-1234/shogi-ai-coach
 Branch: candidate/build17-5-safe-concept-explanation
 Build17-4 Frozen authority: 484c2596ef5f027738f2cdc0bbf83d65d334e5c8
-Validated source head: 6218bfd3f43c70c2fcd76c63fc3e078cabac0013
+Validated source head: afa07c1d347ddb9c3603e8d770829e293b2e7297
 
 ## 判定
 
@@ -36,7 +36,11 @@ ContextMoveExplanationに optional conceptSupplement を追加した。
 - HIGH / MEDIUM のみ補足候補
 - LOW / UNRESOLVED は補足なし
 - 1局面最大1Concept
-- 優先順: attack_attacker > escape_route_control > piece_mobility
+- 複数Concept時の優先順位はPrimary Intent別に決定
+  - capture_threat_response / piece_defense / defense / neutralize_threat: attack_attacker優先
+  - attack_continuation / attack_preparation / mating_attack / threatmate / control_addition / outpost_creation: escape_route_control優先
+  - その他: piece_mobility優先
+- 許可されないConceptはIntent gateでスキップし、次候補へフォールバック
 - Intent別に補足を出してよい範囲を限定
 - piece_activation / major_piece_activation等、主説明と重複する場合はpiece_mobility補足を抑制
 - 内部Concept名は通常UIへ表示しない
@@ -74,12 +78,13 @@ Build17SafeConceptExplanationTests:
 - 無関係なdevelopmentへescape_route_control補足なし
 
 初回テストでは、実盤面fixture 8h2b+ がFrozen判定上 piece_mobility と attack_attacker を同時に持つことをテスト側が見落として1ケースFAILした。
-実装のIntent境界問題ではなく、複数Concept時により具体的なattack_attackerを1件だけ選ぶ設計どおりの挙動だった。
-production codeは変更せず、piece_mobility単独fixtureへテストを修正し、全回帰PASSを確認した。
+その後、複数Concept時の「最も説明価値の高い1件」をPrimary Intentに合わせて選ぶ設計へ改善した。bishop_line_responseではpiece_mobilityを優先し、capture/defense系ではattack_attacker、attack系ではescape_route_controlを優先する。
+専用テストは実盤面fixtureへ戻し、2Concept同時成立を確認した上で、主Intentを維持しつつpiece_mobilityだけが補足に選ばれることを固定した。
+この変更は説明レイヤ内のみで、Build17-4 Frozen Concept検出ロジック・Intent resolver・Intent evidenceには触れていない。
 
 ## Swift全回帰
 
-Validated source head 6218bfd3f43c70c2fcd76c63fc3e078cabac0013:
+Validated source head afa07c1d347ddb9c3603e8d770829e293b2e7297:
 
 - XCTest: **60 / 60 PASS**
   - Build17-4以前の既存46件: PASS
@@ -90,23 +95,23 @@ Validated source head 6218bfd3f43c70c2fcd76c63fc3e078cabac0013:
 
 ## iOS Device Build
 
-GitHub Actions run: 36888674213
-Head SHA: 6218bfd3f43c70c2fcd76c63fc3e078cabac0013
+GitHub Actions run: 36890943386
+Head SHA: afa07c1d347ddb9c3603e8d770829e293b2e7297
 
 - Core regression: PASS
 - Xcode project generation: PASS
 - unsigned iPhone build: PASS
 - BUILD SUCCEEDED
 - IPA packaging: PASS
-- IPA SHA-256: 435a360f7282a67cc2450c41fd7ca681180eec282c331544ae0751fd9680b73a
+- IPA SHA-256: ca1b671fccf9c2f0847f0f4a2c1afca8d6410ab1ff80bdd082c5a29a05ceb747
 - artifact upload: PASS
 - artifact: ShogiCoachPoC-iPhone
-- artifact digest: sha256:81fe75f301cbb31c6e1e4452917fd41b02eb64512fd743789ecabd05c3e82844
+- artifact digest: sha256:ce5eea9ca173e5e2937b8c07902becbd347e033b3c979f7cee317282779e1a1b
 
 ## iOS Simulator E2E
 
-GitHub Actions run: 36888674302
-Head SHA: 6218bfd3f43c70c2fcd76c63fc3e078cabac0013
+GitHub Actions run: 36890943355
+Head SHA: afa07c1d347ddb9c3603e8d770829e293b2e7297
 
 - official Denryusen KIF再取得: PASS
 - compact knowledge generation: PASS
@@ -123,7 +128,7 @@ Head SHA: 6218bfd3f43c70c2fcd76c63fc3e078cabac0013
 - context_schema8_audit=PASS
 - context_schema8_target_intent=rook_pawn_response
 - context_schema8_target_confidence=high
-- simulator artifact digest: sha256:9210c7d25baf2d4ebdca5b3022bddab9c433805fbe72f6c6564c11cd4cd13f30
+- simulator artifact digest: sha256:3516d31c95b916d431abe76785e2e00e5e8eccf9193b5f9a60e6c5bebc4be7b9
 
 ## Locked Regression
 
@@ -173,6 +178,8 @@ Validated source headまでのnet code/test/UI変更は4ファイルのみ。
 
 重大False Explanation: **なし**
 
+複数Concept同時成立時はPrimary Intent別の優先順位で1件に絞る。これにより、capture/defense系でattacker対応、attack系で逃げ道制限、その他で可動域変化を優先し、主説明と補足の意味的整合を高めた。
+
 確認済み:
 
 - Concept補足に目的断定語を入れていない
@@ -186,6 +193,8 @@ Validated source headまでのnet code/test/UI変更は4ファイルのみ。
 - 内部Concept名は通常UIへ表示しない
 
 Build17-6では実戦棋譜による頻度・反復・自然さを追加回帰する。
+
+なお、packaging後の再検証中に同一ブランチへ intent-aware priority commit が追加され、旧Simulator runはworkflow concurrencyによりcancelされた。差分を独立監査し、説明レイヤ1ファイルのみの変更であることを確認後、実盤面テストを追加して新source HEADでDevice / Simulatorを再PASSさせた。
 
 ## UI変更
 
@@ -209,7 +218,7 @@ Build17-6で行う実戦棋譜の大規模False Explanation Regressionは次工�
 ## Packaging rule
 
 このreport / manifest追加コミットはdocumentation-onlyとする。
-実装authorityはvalidated source head 6218bfd3f43c70c2fcd76c63fc3e078cabac0013。
+実装authorityはvalidated source head afa07c1d347ddb9c3603e8d770829e293b2e7297。
 packaging後の最終HEADについてもGitHub Actions全回帰を再実行し、PASS後にのみBuild17-5 PASS / FREEZE CANDIDATEを確定する。
 
 ## 次工程

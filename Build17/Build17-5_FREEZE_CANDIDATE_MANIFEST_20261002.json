@@ -9,7 +9,7 @@
       "sha": "484c2596ef5f027738f2cdc0bbf83d65d334e5c8"
     }
   },
-  "validatedSourceHead": "6218bfd3f43c70c2fcd76c63fc3e078cabac0013",
+  "validatedSourceHead": "afa07c1d347ddb9c3603e8d770829e293b2e7297",
   "verdict": "Build17-5 PASS / FREEZE CANDIDATE",
   "implementedConcepts": [
     {
@@ -32,7 +32,25 @@
     "maxSupplementsPerMove": 1,
     "lowOrUnresolvedSuppressed": true,
     "consecutiveSameConceptSuppressed": true,
-    "internalConceptIDsShownInNormalUI": false
+    "internalConceptIDsShownInNormalUI": false,
+    "priorityPolicy": "primary-intent-aware",
+    "priorityFamilies": {
+      "captureDefense": [
+        "attack_attacker",
+        "piece_mobility",
+        "escape_route_control"
+      ],
+      "attack": [
+        "escape_route_control",
+        "piece_mobility",
+        "attack_attacker"
+      ],
+      "default": [
+        "piece_mobility",
+        "attack_attacker",
+        "escape_route_control"
+      ]
+    }
   },
   "staticAudit": {
     "contextEngineBlobUnchanged": true,
@@ -68,14 +86,14 @@
     "staticVerify": "PASS",
     "deviceBuild": {
       "result": "PASS",
-      "runId": 36888674213,
-      "ipaSha256": "435a360f7282a67cc2450c41fd7ca681180eec282c331544ae0751fd9680b73a",
+      "runId": 36890943386,
+      "ipaSha256": "ca1b671fccf9c2f0847f0f4a2c1afca8d6410ab1ff80bdd082c5a29a05ceb747",
       "artifactName": "ShogiCoachPoC-iPhone",
-      "artifactDigest": "sha256:81fe75f301cbb31c6e1e4452917fd41b02eb64512fd743789ecabd05c3e82844"
+      "artifactDigest": "sha256:ce5eea9ca173e5e2937b8c07902becbd347e033b3c979f7cee317282779e1a1b"
     },
     "simulatorE2E": {
       "result": "PASS",
-      "runId": 36888674302,
+      "runId": 36890943355,
       "stage": "complete",
       "contextSemanticsStatus": "PASS",
       "contextRookPawnIntent": "rook_pawn_response",
@@ -84,7 +102,8 @@
       "contextSchema8Audit": "PASS",
       "contextSchema8TargetIntent": "rook_pawn_response",
       "contextSchema8TargetConfidence": "high",
-      "artifactDigest": "sha256:9210c7d25baf2d4ebdca5b3022bddab9c433805fbe72f6c6564c11cd4cd13f30"
+      "contextSchema8GeometryLanguage": false,
+      "artifactDigest": "sha256:3516d31c95b916d431abe76785e2e00e5e8eccf9193b5f9a60e6c5bebc4be7b9"
     },
     "lockedRegression": {
       "position": "position startpos moves 7g7f 8c8d 2g2f 8d8e",
@@ -103,11 +122,20 @@
   },
   "initialTestCorrection": {
     "productionBug": false,
-    "issue": "multi-concept real-position fixture expected piece_mobility even though frozen detection also emitted attack_attacker",
-    "action": "changed test to single-concept fixture; production code unchanged"
+    "issue": "real 8h2b+ position contains both piece_mobility and attack_attacker; initial global priority selected attack_attacker",
+    "action": "adopted primary-intent-aware supplement priority and restored the dedicated test to the real multi-concept position"
   },
   "mainMergePerformed": false,
   "unresolvedBlockingIssues": [],
   "nextStage": "Build17-5V",
-  "packagingRule": "Report/manifest commit is documentation-only; final-head regression is required after packaging."
+  "packagingRule": "Report/manifest commit is documentation-only; final-head regression is required after packaging.",
+  "concurrentBranchAudit": {
+    "detectedCommit": "821dbceb06be85bf4d57a74a6682ca1f67ae533e",
+    "scope": [
+      "Sources/ShogiCoachCore/ContextExplanation.swift"
+    ],
+    "upstreamFrozenLogicChanged": false,
+    "acceptedAfterIndependentAudit": true,
+    "validatedSourceHead": "afa07c1d347ddb9c3603e8d770829e293b2e7297"
+  }
 }
