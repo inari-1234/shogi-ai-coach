@@ -1,0 +1,105 @@
+{
+  "stage": "Build17-6 Real-game E2E / False Explanation Regression",
+  "baselineDate": "2026-10-02",
+  "verdict": "FAIL — CORRECTION REQUIRED",
+  "frozenAuthority": "50c136086751e39016c6fecde31c93d8e0088d2a",
+  "validationHead": "4f055837f87ba40a3a9fa4c49eaf9744f3020128",
+  "authoritativeFailureRun": 36936518475,
+  "classification": {
+    "primary": "Build16 Intent problem",
+    "build17_5ExplanationSelectionProblem": false,
+    "build17_5UISuppressionProblem": false,
+    "build17_4ConceptDetectionProblem": false,
+    "build17_4ReopenRequired": false,
+    "dataInsufficiencyIsPrimaryCause": false
+  },
+  "blockingFailure": {
+    "type": "runtime arithmetic overflow trap",
+    "processResult": "Trace/BPT trap: 5 / exit 133",
+    "completedPositionsBeforeFailure": 118,
+    "failurePositionOrdinal": 119,
+    "failurePly": 59,
+    "previousMove": "B*8g",
+    "currentMove": "9h8h",
+    "sourceFile": "Sources/ShogiCoachCore/ContextEngine.swift",
+    "unsafeCode": [
+      {
+        "line": 275,
+        "code": "let secondScore = candidates.dropFirst().first?.score ?? Int.min"
+      },
+      {
+        "line": 287,
+        "code": "if top.score >= 100, top.score - secondScore >= 15, hasHighAuthority {"
+      }
+    ],
+    "mechanism": "When there is one Intent candidate, secondScore becomes Int.min. If the top score is at least 100, evaluation reaches top.score - Int.min, which cannot be represented by Swift Int and traps on overflow.",
+    "whyExistingTestsMissedIt": "Existing single-candidate resolver matrix fixtures use top scores below 100 (for example 92, 75, 70, 62, 55, 40, 38), so the first high-confidence condition short-circuits before the unsafe subtraction.",
+    "rootCauseAssessment": "Static defect is confirmed. The real-game failure is strongly correlated with the exact trigger path; the release trap did not emit a symbolic stack trace."
+  },
+  "regressionStatus": {
+    "mandatoryA": "PASS",
+    "mandatoryB": "PASS",
+    "xctest": "60/60 PASS",
+    "swiftTesting": "16 PASS",
+    "staticVerify": "PASS",
+    "deviceBuild": {
+      "result": "PASS",
+      "runId": 36936518711
+    },
+    "simulatorBuildAndE2E": {
+      "result": "PASS",
+      "runId": 36936518506,
+      "stage": "complete",
+      "contextSemantics": "PASS",
+      "lockedIntent": "rook_pawn_response",
+      "lockedConfidence": "high",
+      "contextGeometryPrimary": false,
+      "knowledgeRecords": 1281
+    }
+  },
+  "falseExplanationAudit": {
+    "finalBlockingFalseExplanationCount": null,
+    "conceptSupplementRate": null,
+    "pieceMobilityCount": null,
+    "escapeRouteControlCount": null,
+    "attackAttackerCount": null,
+    "repetitionAudit": "INCOMPLETE",
+    "beginnerReadabilityAudit": "INCOMPLETE",
+    "reason": "The process trapped before final audit serialization. Null must not be interpreted as zero."
+  },
+  "frozenBoundaryAudit": {
+    "productionContextEngineModified": false,
+    "productionContextExplanationModified": false,
+    "build17_4ConceptDetectionModified": false,
+    "build17_5ExplanationLogicModified": false,
+    "mainMerged": false,
+    "branchDiffFromFrozenAuthority": [
+      ".github/workflows/build17-6-real-game-regression.yml",
+      "Package.swift",
+      "Sources/Build17RealGameRegression/main.swift"
+    ]
+  },
+  "correctionDesign": {
+    "recommendedStage": "Build16-R1 ContextIntentResolver Single-Candidate Overflow Correction",
+    "scope": [
+      "Sources/ShogiCoachCore/ContextEngine.swift",
+      "Tests/ShogiCoachCoreTests/ContextIntentResolutionMatrixTests.swift",
+      "exact real-game regression fixture for the failing position"
+    ],
+    "principle": "Do not alter Intent ranking, evidence weights, Concept detection, or Build17-5 supplement policy. Replace the Int.min sentinel subtraction with explicit no-runner-up handling.",
+    "safeShape": [
+      "If a second candidate exists, compute the normal score-gap comparison.",
+      "If no second candidate exists, treat the top candidate as having a clear lead without subtracting a sentinel."
+    ],
+    "requiredRegression": [
+      "single high-authority candidate with score >= 100 does not trap",
+      "existing multi-candidate score-gap semantics stay unchanged",
+      "exact ply-59 real-game position does not trap",
+      "Locked Regression A remains PASS",
+      "Mandatory B remains PASS",
+      "XCTest / Swift Testing / STATIC_VERIFY remain PASS",
+      "Device and Simulator remain PASS",
+      "then resume Build17-6 and rerun at least 240 positions"
+    ]
+  }
+}
