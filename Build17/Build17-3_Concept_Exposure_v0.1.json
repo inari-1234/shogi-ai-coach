@@ -1,0 +1,169 @@
+{
+  "schemaVersion": "0.1",
+  "build": "Build17-3",
+  "totalPositions": 200,
+  "shikenbishaPositions": 61,
+  "strata": {
+    "A": 36,
+    "B": 28,
+    "C": 32,
+    "D": 30,
+    "E": 20,
+    "F": 30,
+    "G": 24
+  },
+  "conceptCounts": {
+    "piece_mobility": {
+      "POSITIVE": 6,
+      "NEGATIVE": 3,
+      "ADVERSARIAL": 17
+    },
+    "preserve_key_piece": {
+      "POSITIVE": 11,
+      "NEGATIVE": 3,
+      "ADVERSARIAL": 3
+    },
+    "deny_ideal_formation": {
+      "POSITIVE": 6,
+      "NEGATIVE": 4,
+      "ADVERSARIAL": 4
+    },
+    "create_battlefront": {
+      "POSITIVE": 5,
+      "NEGATIVE": 3,
+      "ADVERSARIAL": 3
+    },
+    "shift_battlefront": {
+      "POSITIVE": 3,
+      "NEGATIVE": 3,
+      "ADVERSARIAL": 4
+    },
+    "attack_attacker": {
+      "POSITIVE": 6,
+      "NEGATIVE": 3,
+      "ADVERSARIAL": 3
+    },
+    "tempo_management": {
+      "POSITIVE": 9,
+      "NEGATIVE": 4,
+      "ADVERSARIAL": 4
+    },
+    "speed_over_material": {
+      "POSITIVE": 6,
+      "NEGATIVE": 3,
+      "ADVERSARIAL": 4
+    },
+    "trade_to_transform": {
+      "POSITIVE": 8,
+      "NEGATIVE": 3,
+      "ADVERSARIAL": 3
+    },
+    "prophylaxis": {
+      "POSITIVE": 6,
+      "NEGATIVE": 5,
+      "ADVERSARIAL": 5
+    },
+    "escape_route_control": {
+      "POSITIVE": 6,
+      "NEGATIVE": 3,
+      "ADVERSARIAL": 9
+    },
+    "multi_threat": {
+      "POSITIVE": 5,
+      "NEGATIVE": 3,
+      "ADVERSARIAL": 9
+    },
+    "waiting_move": {
+      "POSITIVE": 5,
+      "NEGATIVE": 5,
+      "ADVERSARIAL": 5
+    },
+    "parallel_flexibility": {
+      "POSITIVE": 5,
+      "NEGATIVE": 4,
+      "ADVERSARIAL": 5
+    },
+    "sabai": {
+      "POSITIVE": 7,
+      "NEGATIVE": 4,
+      "ADVERSARIAL": 4
+    },
+    "rook_activation": {
+      "POSITIVE": 0,
+      "NEGATIVE": 2,
+      "ADVERSARIAL": 2
+    },
+    "bishop_exchange_decision": {
+      "POSITIVE": 0,
+      "NEGATIVE": 1,
+      "ADVERSARIAL": 2
+    },
+    "rook_exchange_decision": {
+      "POSITIVE": 0,
+      "NEGATIVE": 1,
+      "ADVERSARIAL": 2
+    },
+    "castle_completion": {
+      "POSITIVE": 0,
+      "NEGATIVE": 2,
+      "ADVERSARIAL": 2
+    },
+    "respond_to_rapid_attack": {
+      "POSITIVE": 6,
+      "NEGATIVE": 3,
+      "ADVERSARIAL": 4
+    },
+    "maintain_counterattack_potential": {
+      "POSITIVE": 11,
+      "NEGATIVE": 4,
+      "ADVERSARIAL": 4
+    },
+    "avoid_premature_attack": {
+      "POSITIVE": 0,
+      "NEGATIVE": 3,
+      "ADVERSARIAL": 3
+    },
+    "invite_then_counter": {
+      "POSITIVE": 6,
+      "NEGATIVE": 4,
+      "ADVERSARIAL": 5
+    },
+    "formation_order": {
+      "POSITIVE": 0,
+      "NEGATIVE": 3,
+      "ADVERSARIAL": 6
+    },
+    "opponent_plan_response": {
+      "POSITIVE": 0,
+      "NEGATIVE": 2,
+      "ADVERSARIAL": 12
+    }
+  },
+  "confirmedPositiveCounts": {
+    "piece_mobility": 6,
+    "preserve_key_piece": 0,
+    "deny_ideal_formation": 0,
+    "create_battlefront": 0,
+    "shift_battlefront": 0,
+    "attack_attacker": 6,
+    "tempo_management": 0,
+    "speed_over_material": 0,
+    "trade_to_transform": 0,
+    "prophylaxis": 0,
+    "escape_route_control": 6,
+    "multi_threat": 0,
+    "waiting_move": 0,
+    "parallel_flexibility": 0,
+    "sabai": 0,
+    "rook_activation": 0,
+    "bishop_exchange_decision": 0,
+    "rook_exchange_decision": 0,
+    "castle_completion": 0,
+    "respond_to_rapid_attack": 6,
+    "maintain_counterattack_potential": 0,
+    "avoid_premature_attack": 0,
+    "invite_then_counter": 0,
+    "formation_order": 0,
+    "opponent_plan_response": 0
+  }
+}
