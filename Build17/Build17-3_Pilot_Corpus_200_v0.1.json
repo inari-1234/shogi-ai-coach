@@ -96,12 +96,12 @@
     },
     "escape_route_control": {
       "POSITIVE": 6,
-      "NEGATIVE": 1,
+      "NEGATIVE": 3,
       "ADVERSARIAL": 9
     },
     "multi_threat": {
       "POSITIVE": 5,
-      "NEGATIVE": 2,
+      "NEGATIVE": 3,
       "ADVERSARIAL": 9
     },
     "waiting_move": {
@@ -193,7 +193,9 @@
         "respond_to_rapid_attack",
         "shift_battlefront",
         "tempo_management",
-        "waiting_move"
+        "waiting_move",
+        "escape_route_control",
+        "multi_threat"
       ],
       "expectedIntent": "rook_pawn_response",
       "expectedHumanConcepts": [
@@ -282,6 +284,16 @@
           "class": "NEGATIVE",
           "reason": "Negative control for formation_order: required evidence is absent.",
           "status": "CONFIRMED"
+        },
+        "escape_route_control": {
+          "class": "NEGATIVE",
+          "status": "CONFIRMED",
+          "reason": "Negative control for escape_route_control: concept-specific required evidence is absent."
+        },
+        "multi_threat": {
+          "class": "NEGATIVE",
+          "status": "CONFIRMED",
+          "reason": "Negative control for multi_threat: concept-specific required evidence is absent."
         }
       },
       "shikenbishaSubset": false,
@@ -309,7 +321,8 @@
         "respond_to_rapid_attack",
         "shift_battlefront",
         "tempo_management",
-        "waiting_move"
+        "waiting_move",
+        "escape_route_control"
       ],
       "expectedIntent": "rook_pawn_response",
       "expectedHumanConcepts": [
@@ -398,6 +411,11 @@
           "class": "NEGATIVE",
           "reason": "Negative control for formation_order: required evidence is absent.",
           "status": "CONFIRMED"
+        },
+        "escape_route_control": {
+          "class": "NEGATIVE",
+          "status": "CONFIRMED",
+          "reason": "Negative control for escape_route_control: concept-specific required evidence is absent."
         }
       },
       "shikenbishaSubset": false,
