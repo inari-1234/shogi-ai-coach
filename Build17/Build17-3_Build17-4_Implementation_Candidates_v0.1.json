@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "0.1",
+  "build": "Build17-3",
+  "build17_4Candidates": [
+    {
+      "id": "piece_mobility_effect",
+      "layer": "Effect/HumanConcept",
+      "sourceConcept": "piece_mobility",
+      "priority": "P0",
+      "guard": "Must not select/override primary MoveIntent; expose measured before/after mobility only."
+    },
+    {
+      "id": "escape_route_control_effect",
+      "layer": "Effect/HumanConcept",
+      "sourceConcept": "escape_route_control",
+      "priority": "P0",
+      "guard": "Use opponent safe-king-move delta; tactical parent intents retain priority."
+    },
+    {
+      "id": "attack_attacker_subintent",
+      "layer": "SubIntent metadata",
+      "sourceConcept": "attack_attacker",
+      "priority": "P1",
+      "guard": "Only when a concrete attacking piece and its threat are identified; parent Build16 intent remains capture_threat_response/defense/piece_defense."
+    },
+    {
+      "id": "semantic_hold_bucket",
+      "layer": "ExplanationOnly",
+      "sourceConcepts": [
+        "prophylaxis",
+        "waiting_move",
+        "sabai",
+        "tempo_management",
+        "speed_over_material",
+        "trade_to_transform",
+        "multi_threat",
+        "maintain_counterattack_potential",
+        "deny_ideal_formation",
+        "create_battlefront"
+      ],
+      "priority": "HOLD",
+      "guard": "No automatic production labels until a later corpus adds independently confirmed positives/counterfactual checks."
+    }
+  ],
+  "moveIntentEnumChange": false
+}
