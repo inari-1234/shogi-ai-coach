@@ -1,0 +1,113 @@
+name: Build17-6 Real-game Regression
+
+on:
+  push:
+    branches:
+      - 'candidate/build17-6-real-game-e2e'
+  workflow_dispatch:
+
+concurrency:
+  group: build17-6-real-game-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  real-game-regression:
+    runs-on: macos-15
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch official Denryusen KIF fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/build17-6-kif
+          curl --fail --location --retry 3 --retry-delay 2 \
+            'https://denryu-sen.jp/denryusen/dr4_hardware2/kif_dr4_hdw2.zip' \
+            --output build/build17-6-denryusen.zip
+          python3 - <<'PY'
+          import zipfile
+          from pathlib import Path
+
+          source = Path("build/build17-6-denryusen.zip")
+          destination = Path("build/build17-6-kif").resolve()
+          with zipfile.ZipFile(source, metadata_encoding="cp932") as archive:
+              for member in archive.infolist():
+                  target = (destination / member.filename).resolve()
+                  if destination not in target.parents and target != destination:
+                      raise SystemExit(f"unsafe zip path: {member.filename}")
+              archive.extractall(destination)
+          print(f"kif_files={len(list(destination.rglob('*.kif')))}")
+          PY
+
+      - name: Run Build17-6 real-game audit
+        shell: bash
+        run: |
+          set -o pipefail
+          swift run -c release Build17RealGameRegression -- \
+            --input-dir build/build17-6-kif \
+            --output-json build/Build17-6_REAL_GAME_AUDIT.json \
+            --output-markdown build/Build17-6_REAL_GAME_AUDIT.md \
+            --target-positions 240 \
+            --max-positions-per-game 60 \
+            --min-games 4 \
+            --max-ply 100 \
+            --source-id 'denryusen:dr4-hardware2:2024' \
+            --source-title '第2回マイナビニュース杯電竜戦統一ハードウェア戦' \
+            --source-url 'https://denryu-sen.jp/denryusen/dr4_hardware2/dr1_live.php' \
+            --rights-note '公式ページ: 棋譜利用は制限等ありませんので、ご自由にお使いください。' \
+            --retrieved-date '2026-10-02' \
+            2>&1 | tee build/build17-6-real-game.log
+
+      - name: Validate audit output
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          doc = json.loads(Path("build/Build17-6_REAL_GAME_AUDIT.json").read_text(encoding="utf-8"))
+          s = doc["summary"]
+          f = s["frequency"]
+          assert doc["schemaVersion"] == 1
+          assert s["auditedGames"] >= 4
+          assert s["auditedPositions"] >= 200
+          assert s["blockingIssueCount"] == 0
+          assert f["residualConsecutiveRepeatCount"] == 0
+          assert all(item["passed"] for item in s["mandatoryRegressions"])
+          assert {item["id"] for item in s["mandatoryRegressions"]} == {
+              "A_locked_rook_pawn_response",
+              "B_bishop_line_multi_concept_priority",
+          }
+          print("build17_6_output_validation=PASS")
+          print("build17_6_games=", s["auditedGames"])
+          print("build17_6_positions=", s["auditedPositions"])
+          print("build17_6_supplement_rate=", f["supplementRate"])
+          print("build17_6_blocking_issues=", s["blockingIssueCount"])
+          PY
+
+      - name: Swift regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          swift test 2>&1 | tee build/swift-test.log
+          ./scripts/verify.sh 2>&1 | tee build/static-verify.log
+
+      - name: Upload Build17-6 audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build17-6-real-game-audit
+          path: |
+            build/Build17-6_REAL_GAME_AUDIT.json
+            build/Build17-6_REAL_GAME_AUDIT.md
+            build/build17-6-real-game.log
+            build/swift-test.log
+            build/static-verify.log
+          if-no-files-found: ignore
+          retention-days: 14
