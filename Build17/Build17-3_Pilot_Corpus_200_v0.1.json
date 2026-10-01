@@ -47,7 +47,7 @@
     "piece_mobility": {
       "POSITIVE": 6,
       "NEGATIVE": 3,
-      "ADVERSARIAL": 12
+      "ADVERSARIAL": 17
     },
     "preserve_key_piece": {
       "POSITIVE": 11,
@@ -96,13 +96,13 @@
     },
     "escape_route_control": {
       "POSITIVE": 6,
-      "NEGATIVE": 3,
-      "ADVERSARIAL": 3
+      "NEGATIVE": 1,
+      "ADVERSARIAL": 9
     },
     "multi_threat": {
       "POSITIVE": 5,
-      "NEGATIVE": 3,
-      "ADVERSARIAL": 4
+      "NEGATIVE": 2,
+      "ADVERSARIAL": 9
     },
     "waiting_move": {
       "POSITIVE": 5,
@@ -1129,7 +1129,7 @@
         "preserve_key_piece": {
           "class": "POSITIVE",
           "reason": "Educational fixture supports this secondary Human Concept.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "maintain_counterattack_potential": {
           "class": "POSITIVE",
@@ -1204,7 +1204,7 @@
         "preserve_key_piece": {
           "class": "POSITIVE",
           "reason": "Educational fixture supports this secondary Human Concept.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "maintain_counterattack_potential": {
           "class": "POSITIVE",
@@ -1278,7 +1278,7 @@
         "preserve_key_piece": {
           "class": "POSITIVE",
           "reason": "Educational fixture supports this secondary Human Concept.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "maintain_counterattack_potential": {
           "class": "POSITIVE",
@@ -1346,7 +1346,7 @@
         "preserve_key_piece": {
           "class": "POSITIVE",
           "reason": "Educational fixture supports this secondary Human Concept.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "maintain_counterattack_potential": {
           "class": "POSITIVE",
@@ -1409,7 +1409,7 @@
         "preserve_key_piece": {
           "class": "POSITIVE",
           "reason": "Educational fixture supports this secondary Human Concept.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "maintain_counterattack_potential": {
           "class": "POSITIVE",
@@ -1472,7 +1472,7 @@
         "preserve_key_piece": {
           "class": "POSITIVE",
           "reason": "Educational fixture supports this secondary Human Concept.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "maintain_counterattack_potential": {
           "class": "POSITIVE",
@@ -1518,7 +1518,7 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "A concrete local threat is ignored to play elsewhere: tenuki, not waiting.",
       "confidence": "HIGH",
       "annotationStatus": "CONFIRMED",
@@ -1532,7 +1532,7 @@
         "tempo_management": {
           "class": "POSITIVE",
           "reason": "Educational fixture supports this secondary Human Concept.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "shift_battlefront": {
           "class": "ADVERSARIAL",
@@ -1568,7 +1568,7 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "A concrete local threat is ignored to play elsewhere: tenuki, not waiting.",
       "confidence": "HIGH",
       "annotationStatus": "CONFIRMED",
@@ -1582,7 +1582,7 @@
         "tempo_management": {
           "class": "POSITIVE",
           "reason": "Educational fixture supports this secondary Human Concept.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "shift_battlefront": {
           "class": "ADVERSARIAL",
@@ -1618,7 +1618,7 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "A concrete local threat is ignored to play elsewhere: tenuki, not waiting.",
       "confidence": "HIGH",
       "annotationStatus": "CONFIRMED",
@@ -1632,7 +1632,7 @@
         "tempo_management": {
           "class": "POSITIVE",
           "reason": "Educational fixture supports this secondary Human Concept.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "shift_battlefront": {
           "class": "ADVERSARIAL",
@@ -1668,7 +1668,7 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "A concrete local threat is ignored to play elsewhere: tenuki, not waiting.",
       "confidence": "HIGH",
       "annotationStatus": "CONFIRMED",
@@ -1682,7 +1682,7 @@
         "tempo_management": {
           "class": "POSITIVE",
           "reason": "Educational fixture supports this secondary Human Concept.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "shift_battlefront": {
           "class": "ADVERSARIAL",
@@ -1732,7 +1732,7 @@
         "deny_ideal_formation": {
           "class": "POSITIVE",
           "reason": "Educational fixture supports this secondary Human Concept.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "formation_order": {
           "class": "ADVERSARIAL",
@@ -1782,7 +1782,7 @@
         "deny_ideal_formation": {
           "class": "POSITIVE",
           "reason": "Educational fixture supports this secondary Human Concept.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "formation_order": {
           "class": "ADVERSARIAL",
@@ -1832,7 +1832,7 @@
         "deny_ideal_formation": {
           "class": "POSITIVE",
           "reason": "Educational fixture supports this secondary Human Concept.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "formation_order": {
           "class": "ADVERSARIAL",
@@ -1882,7 +1882,7 @@
         "deny_ideal_formation": {
           "class": "POSITIVE",
           "reason": "Educational fixture supports this secondary Human Concept.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "formation_order": {
           "class": "ADVERSARIAL",
@@ -1932,7 +1932,7 @@
         "deny_ideal_formation": {
           "class": "POSITIVE",
           "reason": "Educational fixture supports this secondary Human Concept.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "formation_order": {
           "class": "ADVERSARIAL",
@@ -1982,7 +1982,7 @@
         "deny_ideal_formation": {
           "class": "POSITIVE",
           "reason": "Educational fixture supports this secondary Human Concept.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "formation_order": {
           "class": "ADVERSARIAL",
@@ -2304,7 +2304,7 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Bishop exchange in Shikenbisha is not sufficient for sabai; post-exchange activation is unverified.",
       "confidence": "HIGH",
       "annotationStatus": "CONFIRMED",
@@ -2318,7 +2318,7 @@
         "trade_to_transform": {
           "class": "POSITIVE",
           "reason": "Educational fixture supports this secondary Human Concept.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "piece_mobility": {
           "class": "ADVERSARIAL",
@@ -2360,7 +2360,7 @@
       "sourceType": "SYNTHETIC_EDUCATIONAL",
       "sourceReference": "Build17-3 original educational fixture",
       "licenseStatus": "ORIGINAL_NO_EXTERNAL_COPYRIGHT",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Bishop exchange in Shikenbisha is not sufficient for sabai; post-exchange activation is unverified.",
       "confidence": "HIGH",
       "annotationStatus": "CONFIRMED",
@@ -2374,7 +2374,7 @@
         "trade_to_transform": {
           "class": "POSITIVE",
           "reason": "Educational fixture supports this secondary Human Concept.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         },
         "piece_mobility": {
           "class": "ADVERSARIAL",
@@ -2807,7 +2807,8 @@
         "maintain_counterattack_potential",
         "rook_activation",
         "sabai",
-        "trade_to_transform"
+        "trade_to_transform",
+        "multi_threat"
       ],
       "expectedIntent": "unresolved",
       "expectedHumanConcepts": [
@@ -2845,6 +2846,11 @@
           "class": "ADVERSARIAL",
           "reason": "Adversarial control for rook_activation: superficial similarity exists but a stronger explanation or missing fact blocks the label.",
           "status": "CONFIRMED"
+        },
+        "multi_threat": {
+          "class": "POSITIVE",
+          "status": "PROVISIONAL",
+          "reason": "Geometry found 3 newly attacked targets; independence under one best reply is not yet verified."
         }
       },
       "shikenbishaSubset": true,
@@ -2985,7 +2991,8 @@
       "candidateConcepts": [
         "maintain_counterattack_potential",
         "sabai",
-        "trade_to_transform"
+        "trade_to_transform",
+        "piece_mobility"
       ],
       "expectedIntent": "unresolved",
       "expectedHumanConcepts": [
@@ -3017,6 +3024,11 @@
           "class": "NEGATIVE",
           "reason": "Negative control for maintain_counterattack_potential: required evidence is absent.",
           "status": "CONFIRMED"
+        },
+        "piece_mobility": {
+          "class": "POSITIVE",
+          "status": "CONFIRMED",
+          "reason": "Independent geometry audit confirms moved-piece pseudo-mobility 3→5; treated as Effect/HumanConcept only."
         }
       },
       "shikenbishaSubset": true,
@@ -3149,7 +3161,10 @@
       "currentMove": "6i6c+",
       "candidateConcepts": [
         "maintain_counterattack_potential",
-        "trade_to_transform"
+        "trade_to_transform",
+        "piece_mobility",
+        "escape_route_control",
+        "multi_threat"
       ],
       "expectedIntent": "unresolved",
       "expectedHumanConcepts": [],
@@ -3158,7 +3173,7 @@
       "sourceType": "OFFICIAL_COMPACT_PRECEDENT",
       "sourceReference": "denryusen:dr4-hardware2:2024|l1r4nl/1P3k1g1/2ngppbp1/p5p1p/2P1sP3/PSp1S1P1P/4P4/1KG2G3/LN1R4L b B3Psnp|6i6c+",
       "licenseStatus": "OFFICIAL_FREE_USE",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Official compact precedent; previous-move history is unavailable, so semantic intent is not inferred from geometry alone.",
       "confidence": "UNRESOLVED",
       "annotationStatus": "UNRESOLVED",
@@ -3173,6 +3188,21 @@
           "class": "NEGATIVE",
           "reason": "Negative control for maintain_counterattack_potential: required evidence is absent.",
           "status": "CONFIRMED"
+        },
+        "piece_mobility": {
+          "class": "POSITIVE",
+          "status": "CONFIRMED",
+          "reason": "Independent geometry audit confirms moved-piece pseudo-mobility 11→14; treated as Effect/HumanConcept only."
+        },
+        "escape_route_control": {
+          "class": "POSITIVE",
+          "status": "CONFIRMED",
+          "reason": "Independent geometry audit confirms opponent safe king moves 5→4."
+        },
+        "multi_threat": {
+          "class": "POSITIVE",
+          "status": "PROVISIONAL",
+          "reason": "Geometry found 2 newly attacked targets; independence under one best reply is not yet verified."
         }
       },
       "shikenbishaSubset": true,
@@ -3299,7 +3329,8 @@
       "currentMove": "8h7g",
       "candidateConcepts": [
         "maintain_counterattack_potential",
-        "trade_to_transform"
+        "trade_to_transform",
+        "piece_mobility"
       ],
       "expectedIntent": "unresolved",
       "expectedHumanConcepts": [],
@@ -3323,6 +3354,11 @@
           "class": "ADVERSARIAL",
           "reason": "Adversarial control for maintain_counterattack_potential: superficial similarity exists but a stronger explanation or missing fact blocks the label.",
           "status": "CONFIRMED"
+        },
+        "piece_mobility": {
+          "class": "POSITIVE",
+          "status": "CONFIRMED",
+          "reason": "Independent geometry audit confirms moved-piece pseudo-mobility 5→8; treated as Effect/HumanConcept only."
         }
       },
       "shikenbishaSubset": true,
@@ -3365,7 +3401,9 @@
       "currentMove": "4h5h+",
       "candidateConcepts": [
         "maintain_counterattack_potential",
-        "trade_to_transform"
+        "trade_to_transform",
+        "piece_mobility",
+        "escape_route_control"
       ],
       "expectedIntent": "unresolved",
       "expectedHumanConcepts": [],
@@ -3389,6 +3427,16 @@
           "class": "ADVERSARIAL",
           "reason": "Adversarial control for maintain_counterattack_potential: superficial similarity exists but a stronger explanation or missing fact blocks the label.",
           "status": "CONFIRMED"
+        },
+        "piece_mobility": {
+          "class": "POSITIVE",
+          "status": "CONFIRMED",
+          "reason": "Independent geometry audit confirms moved-piece pseudo-mobility 5→8; treated as Effect/HumanConcept only."
+        },
+        "escape_route_control": {
+          "class": "POSITIVE",
+          "status": "CONFIRMED",
+          "reason": "Independent geometry audit confirms opponent safe king moves 2→1."
         }
       },
       "shikenbishaSubset": true,
@@ -3558,7 +3606,9 @@
       "sideToMove": "BLACK",
       "previousMove": null,
       "currentMove": "8h7g",
-      "candidateConcepts": [],
+      "candidateConcepts": [
+        "piece_mobility"
+      ],
       "expectedIntent": "unresolved",
       "expectedHumanConcepts": [],
       "expectedWhyNowTriggers": [],
@@ -3571,7 +3621,13 @@
       "confidence": "UNRESOLVED",
       "annotationStatus": "UNRESOLVED",
       "focusConcept": null,
-      "conceptAssessments": {},
+      "conceptAssessments": {
+        "piece_mobility": {
+          "class": "POSITIVE",
+          "status": "CONFIRMED",
+          "reason": "Independent geometry audit confirms moved-piece pseudo-mobility 4→8; treated as Effect/HumanConcept only."
+        }
+      },
       "shikenbishaSubset": true,
       "sourceObservationCount": 2,
       "features": {
@@ -3671,7 +3727,9 @@
       "sideToMove": "WHITE",
       "previousMove": null,
       "currentMove": "8e8f",
-      "candidateConcepts": [],
+      "candidateConcepts": [
+        "escape_route_control"
+      ],
       "expectedIntent": "unresolved",
       "expectedHumanConcepts": [],
       "expectedWhyNowTriggers": [],
@@ -3684,7 +3742,13 @@
       "confidence": "UNRESOLVED",
       "annotationStatus": "UNRESOLVED",
       "focusConcept": null,
-      "conceptAssessments": {},
+      "conceptAssessments": {
+        "escape_route_control": {
+          "class": "POSITIVE",
+          "status": "CONFIRMED",
+          "reason": "Independent geometry audit confirms opponent safe king moves 4→3."
+        }
+      },
       "shikenbishaSubset": true,
       "sourceObservationCount": 5,
       "features": {
@@ -3782,7 +3846,9 @@
       "sideToMove": "BLACK",
       "previousMove": null,
       "currentMove": "5e6d",
-      "candidateConcepts": [],
+      "candidateConcepts": [
+        "multi_threat"
+      ],
       "expectedIntent": "unresolved",
       "expectedHumanConcepts": [],
       "expectedWhyNowTriggers": [],
@@ -3790,12 +3856,18 @@
       "sourceType": "OFFICIAL_COMPACT_PRECEDENT",
       "sourceReference": "denryusen:dr4-hardware2:2024|lr5nl/3g1kg2/3sp1sp1/p2s1pp1p/1pp1S2P1/P1P2PP1P/1P2P1N2/1KG2G3/LN1R4L b BN2Pb|5e6d",
       "licenseStatus": "OFFICIAL_FREE_USE",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Official compact precedent; previous-move history is unavailable, so semantic intent is not inferred from geometry alone.",
       "confidence": "UNRESOLVED",
       "annotationStatus": "UNRESOLVED",
       "focusConcept": null,
-      "conceptAssessments": {},
+      "conceptAssessments": {
+        "multi_threat": {
+          "class": "POSITIVE",
+          "status": "PROVISIONAL",
+          "reason": "Geometry found 2 newly attacked targets; independence under one best reply is not yet verified."
+        }
+      },
       "shikenbishaSubset": true,
       "sourceObservationCount": 3,
       "features": {
@@ -3933,14 +4005,14 @@
           "status": "PROVISIONAL"
         },
         "escape_route_control": {
-          "class": "NEGATIVE",
-          "reason": "Negative control for escape_route_control: required evidence is absent.",
-          "status": "CONFIRMED"
+          "class": "POSITIVE",
+          "status": "CONFIRMED",
+          "reason": "Independent geometry audit confirms opponent safe king moves 5→4."
         },
         "multi_threat": {
-          "class": "NEGATIVE",
-          "reason": "Negative control for multi_threat: required evidence is absent.",
-          "status": "CONFIRMED"
+          "class": "POSITIVE",
+          "status": "PROVISIONAL",
+          "reason": "Geometry found 3 newly attacked targets; independence under one best reply is not yet verified."
         }
       },
       "shikenbishaSubset": true,
@@ -4026,9 +4098,9 @@
           "status": "PROVISIONAL"
         },
         "multi_threat": {
-          "class": "POSITIVE",
-          "reason": "Potential independent multi-threat candidate; best reply must be tested.",
-          "status": "PROVISIONAL"
+          "class": "ADVERSARIAL",
+          "status": "CONFIRMED",
+          "reason": "Multi-threat rejected: fewer than two newly attacked concrete targets in geometry audit."
         },
         "escape_route_control": {
           "class": "NEGATIVE",
@@ -4109,14 +4181,14 @@
           "status": "PROVISIONAL"
         },
         "escape_route_control": {
-          "class": "POSITIVE",
-          "reason": "Endgame control candidate; king escape-square delta still needs validator.",
-          "status": "PROVISIONAL"
+          "class": "ADVERSARIAL",
+          "status": "CONFIRMED",
+          "reason": "Escape-route label rejected: opponent safe king-move count did not decrease."
         },
         "multi_threat": {
-          "class": "POSITIVE",
-          "reason": "Potential independent multi-threat candidate; best reply must be tested.",
-          "status": "PROVISIONAL"
+          "class": "ADVERSARIAL",
+          "status": "CONFIRMED",
+          "reason": "Multi-threat rejected: fewer than two newly attacked concrete targets in geometry audit."
         }
       },
       "shikenbishaSubset": true,
@@ -4195,14 +4267,14 @@
           "status": "PROVISIONAL"
         },
         "multi_threat": {
-          "class": "POSITIVE",
-          "reason": "Potential independent multi-threat candidate; best reply must be tested.",
-          "status": "PROVISIONAL"
+          "class": "ADVERSARIAL",
+          "status": "CONFIRMED",
+          "reason": "Multi-threat rejected: fewer than two newly attacked concrete targets in geometry audit."
         },
         "escape_route_control": {
-          "class": "NEGATIVE",
-          "reason": "Negative control for escape_route_control: required evidence is absent.",
-          "status": "CONFIRMED"
+          "class": "POSITIVE",
+          "status": "CONFIRMED",
+          "reason": "Independent geometry audit confirms opponent safe king moves 5→4."
         }
       },
       "shikenbishaSubset": true,
@@ -4275,9 +4347,9 @@
           "status": "PROVISIONAL"
         },
         "multi_threat": {
-          "class": "POSITIVE",
-          "reason": "Potential independent multi-threat candidate; best reply must be tested.",
-          "status": "PROVISIONAL"
+          "class": "ADVERSARIAL",
+          "status": "CONFIRMED",
+          "reason": "Multi-threat rejected: fewer than two newly attacked concrete targets in geometry audit."
         },
         "escape_route_control": {
           "class": "ADVERSARIAL",
@@ -4361,9 +4433,9 @@
           "status": "PROVISIONAL"
         },
         "multi_threat": {
-          "class": "POSITIVE",
-          "reason": "Potential independent multi-threat candidate; best reply must be tested.",
-          "status": "PROVISIONAL"
+          "class": "ADVERSARIAL",
+          "status": "CONFIRMED",
+          "reason": "Multi-threat rejected: fewer than two newly attacked concrete targets in geometry audit."
         },
         "escape_route_control": {
           "class": "ADVERSARIAL",
@@ -4441,9 +4513,9 @@
       "focusConcept": "escape_route_control",
       "conceptAssessments": {
         "escape_route_control": {
-          "class": "POSITIVE",
-          "reason": "Endgame control candidate; king escape-square delta still needs validator.",
-          "status": "PROVISIONAL"
+          "class": "ADVERSARIAL",
+          "status": "CONFIRMED",
+          "reason": "Escape-route label rejected: opponent safe king-move count did not decrease."
         },
         "speed_over_material": {
           "class": "NEGATIVE",
@@ -4519,9 +4591,9 @@
       "focusConcept": "escape_route_control",
       "conceptAssessments": {
         "escape_route_control": {
-          "class": "POSITIVE",
-          "reason": "Endgame control candidate; king escape-square delta still needs validator.",
-          "status": "PROVISIONAL"
+          "class": "ADVERSARIAL",
+          "status": "CONFIRMED",
+          "reason": "Escape-route label rejected: opponent safe king-move count did not decrease."
         },
         "speed_over_material": {
           "class": "NEGATIVE",
@@ -4743,9 +4815,9 @@
       "focusConcept": "piece_mobility",
       "conceptAssessments": {
         "piece_mobility": {
-          "class": "POSITIVE",
-          "reason": "Observable relocation plausibly changes usable activity; Human Concept only.",
-          "status": "PROVISIONAL"
+          "class": "ADVERSARIAL",
+          "status": "CONFIRMED",
+          "reason": "Mobility label rejected: independent geometry audit did not show a >=2 mobility increase."
         },
         "preserve_key_piece": {
           "class": "POSITIVE",
@@ -5067,9 +5139,9 @@
       "focusConcept": "piece_mobility",
       "conceptAssessments": {
         "piece_mobility": {
-          "class": "POSITIVE",
-          "reason": "Observable relocation plausibly changes usable activity; Human Concept only.",
-          "status": "PROVISIONAL"
+          "class": "ADVERSARIAL",
+          "status": "CONFIRMED",
+          "reason": "Mobility label rejected: independent geometry audit did not show a >=2 mobility increase."
         }
       },
       "shikenbishaSubset": true,
@@ -5183,9 +5255,9 @@
       "focusConcept": "piece_mobility",
       "conceptAssessments": {
         "piece_mobility": {
-          "class": "POSITIVE",
-          "reason": "Observable relocation plausibly changes usable activity; Human Concept only.",
-          "status": "PROVISIONAL"
+          "class": "ADVERSARIAL",
+          "status": "CONFIRMED",
+          "reason": "Mobility label rejected: independent geometry audit did not show a >=2 mobility increase."
         }
       },
       "shikenbishaSubset": true,
@@ -5353,9 +5425,9 @@
       "focusConcept": "piece_mobility",
       "conceptAssessments": {
         "piece_mobility": {
-          "class": "POSITIVE",
-          "reason": "Observable relocation plausibly changes usable activity; Human Concept only.",
-          "status": "PROVISIONAL"
+          "class": "ADVERSARIAL",
+          "status": "CONFIRMED",
+          "reason": "Mobility label rejected: independent geometry audit did not show a >=2 mobility increase."
         }
       },
       "shikenbishaSubset": true,
@@ -5623,9 +5695,9 @@
       "focusConcept": "piece_mobility",
       "conceptAssessments": {
         "piece_mobility": {
-          "class": "POSITIVE",
-          "reason": "Observable relocation plausibly changes usable activity; Human Concept only.",
-          "status": "PROVISIONAL"
+          "class": "ADVERSARIAL",
+          "status": "CONFIRMED",
+          "reason": "Mobility label rejected: independent geometry audit did not show a >=2 mobility increase."
         }
       },
       "shikenbishaSubset": true,
@@ -6724,7 +6796,10 @@
       "sideToMove": "WHITE",
       "previousMove": null,
       "currentMove": "2b7g+",
-      "candidateConcepts": [],
+      "candidateConcepts": [
+        "escape_route_control",
+        "multi_threat"
+      ],
       "expectedIntent": "unresolved",
       "expectedHumanConcepts": [],
       "expectedWhyNowTriggers": [],
@@ -6732,12 +6807,23 @@
       "sourceType": "OFFICIAL_COMPACT_PRECEDENT",
       "sourceReference": "denryusen:dr4-hardware2:2024|lnsgk1snl/1r4gb1/p1pppp1pp/6p2/1p5P1/2P6/PPBPPPP1P/1S5R1/LN1GKGSNL w -|2b7g+",
       "licenseStatus": "OFFICIAL_FREE_USE",
-      "engineCheckStatus": "NOT_RUN",
+      "engineCheckStatus": "REQUIRED_NOT_AVAILABLE",
       "humanReasoningNote": "Official compact precedent; previous-move history is unavailable, so semantic intent is not inferred from geometry alone.",
       "confidence": "UNRESOLVED",
       "annotationStatus": "UNRESOLVED",
       "focusConcept": null,
-      "conceptAssessments": {},
+      "conceptAssessments": {
+        "escape_route_control": {
+          "class": "POSITIVE",
+          "status": "CONFIRMED",
+          "reason": "Independent geometry audit confirms opponent safe king moves 3→2."
+        },
+        "multi_threat": {
+          "class": "POSITIVE",
+          "status": "PROVISIONAL",
+          "reason": "Geometry found 5 newly attacked targets; independence under one best reply is not yet verified."
+        }
+      },
       "shikenbishaSubset": false,
       "sourceObservationCount": 33,
       "features": {
@@ -7580,7 +7666,7 @@
         "create_battlefront": {
           "class": "POSITIVE",
           "reason": "Pawn-advance battlefront candidate; response semantics need follow-up. Geometry audit: 1 newly attacked target(s), 4 new attack squares.",
-          "status": "CONFIRMED"
+          "status": "PROVISIONAL"
         }
       },
       "shikenbishaSubset": false,
@@ -10085,9 +10171,9 @@
       "focusConcept": "escape_route_control",
       "conceptAssessments": {
         "escape_route_control": {
-          "class": "POSITIVE",
-          "reason": "Endgame control candidate; king escape-square delta still needs validator.",
-          "status": "PROVISIONAL"
+          "class": "ADVERSARIAL",
+          "status": "CONFIRMED",
+          "reason": "Escape-route label rejected: opponent safe king-move count did not decrease."
         },
         "speed_over_material": {
           "class": "ADVERSARIAL",
@@ -10159,9 +10245,9 @@
       "focusConcept": "escape_route_control",
       "conceptAssessments": {
         "escape_route_control": {
-          "class": "POSITIVE",
-          "reason": "Endgame control candidate; king escape-square delta still needs validator.",
-          "status": "PROVISIONAL"
+          "class": "ADVERSARIAL",
+          "status": "CONFIRMED",
+          "reason": "Escape-route label rejected: opponent safe king-move count did not decrease."
         },
         "speed_over_material": {
           "class": "ADVERSARIAL",
@@ -10238,9 +10324,9 @@
       "focusConcept": "escape_route_control",
       "conceptAssessments": {
         "escape_route_control": {
-          "class": "POSITIVE",
-          "reason": "Endgame control candidate; king escape-square delta still needs validator.",
-          "status": "PROVISIONAL"
+          "class": "ADVERSARIAL",
+          "status": "CONFIRMED",
+          "reason": "Escape-route label rejected: opponent safe king-move count did not decrease."
         },
         "speed_over_material": {
           "class": "ADVERSARIAL",
@@ -12822,25 +12908,26 @@
   ],
   "geometryAuditSummary": {
     "officialPositionsAudited": 164,
-    "pieceMobilityConfirmedPositives": 1,
-    "escapeRouteControlConfirmedPositives": 0,
+    "pieceMobilityConfirmedPositives": 6,
+    "escapeRouteControlConfirmedPositives": 6,
     "preserveKeyPieceConfirmedPositives": 0,
     "createBattlefrontConfirmedPositives": 1,
     "multiThreatGeometryCandidates": 0,
-    "rule": "Geometry may confirm observable effects but cannot by itself establish semantic Intent."
+    "rule": "Geometry may confirm observable effects but cannot by itself establish semantic Intent.",
+    "multiThreatProvisionalGeometryPositives": 5
   },
   "confirmedPositiveCounts": {
-    "piece_mobility": 1,
-    "preserve_key_piece": 6,
-    "deny_ideal_formation": 6,
-    "create_battlefront": 1,
+    "piece_mobility": 6,
+    "preserve_key_piece": 0,
+    "deny_ideal_formation": 0,
+    "create_battlefront": 0,
     "shift_battlefront": 0,
     "attack_attacker": 6,
-    "tempo_management": 4,
+    "tempo_management": 0,
     "speed_over_material": 0,
-    "trade_to_transform": 2,
+    "trade_to_transform": 0,
     "prophylaxis": 0,
-    "escape_route_control": 0,
+    "escape_route_control": 6,
     "multi_threat": 0,
     "waiting_move": 0,
     "parallel_flexibility": 0,
@@ -12855,5 +12942,23 @@
     "invite_then_counter": 0,
     "formation_order": 0,
     "opponent_plan_response": 0
+  },
+  "validationInterpretation": {
+    "note": "Exposure minima remain satisfied, but production retention is based on confirmed positives and false-positive risk, not exposure counts alone.",
+    "confirmedStrongConcepts": [
+      "piece_mobility",
+      "attack_attacker",
+      "escape_route_control",
+      "respond_to_rapid_attack"
+    ],
+    "highRiskWithoutConfirmedPositive": [
+      "prophylaxis",
+      "waiting_move",
+      "sabai",
+      "speed_over_material",
+      "multi_threat",
+      "tempo_management",
+      "trade_to_transform"
+    ]
   }
 }
