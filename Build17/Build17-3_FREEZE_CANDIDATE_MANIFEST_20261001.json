@@ -49,7 +49,9 @@
     "Build17/Build17-3_Intent_Promotion_Candidates_v0.1.json",
     "Build17/Build17-3_Downgrade_Merge_Reject_v0.1.json",
     "Build17/Build17-3_Build17-4_Implementation_Candidates_v0.1.json",
-    "Build17/Build17-3_FINAL_REPORT_20261001.md"
+    "Build17/Build17-3_FINAL_REPORT_20261001.md",
+    "Build17/Build17-3_SHA256SUMS_20261001.json"
   ],
-  "freezeRule": "No code implementation or MoveIntent change is part of this freeze candidate."
+  "freezeRule": "No code implementation or MoveIntent change is part of this freeze candidate.",
+  "integrityFile": "Build17/Build17-3_SHA256SUMS_20261001.json"
 }
