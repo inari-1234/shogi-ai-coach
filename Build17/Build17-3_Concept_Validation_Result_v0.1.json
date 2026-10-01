@@ -1,0 +1,406 @@
+{
+  "schemaVersion": "0.1",
+  "build": "Build17-3",
+  "results": [
+    {
+      "conceptId": "piece_mobility",
+      "previousStatus": "ACTIVE_CANDIDATE",
+      "recommendedStatus": "ACTIVE_CANDIDATE",
+      "exposures": {
+        "POSITIVE": 6,
+        "NEGATIVE": 3,
+        "ADVERSARIAL": 17
+      },
+      "confirmedPositive": 6,
+      "SemanticDistinctness": "HIGH",
+      "DetectionFeasibility": "HIGH",
+      "ExplanationValue": "VERY_HIGH",
+      "FalsePositiveRisk": "MEDIUM",
+      "reason": "6 geometry-confirmed positives; concrete causal intents still outrank it."
+    },
+    {
+      "conceptId": "preserve_key_piece",
+      "previousStatus": "ACTIVE_CANDIDATE",
+      "recommendedStatus": "EXPLANATION_ONLY",
+      "exposures": {
+        "POSITIVE": 11,
+        "NEGATIVE": 3,
+        "ADVERSARIAL": 3
+      },
+      "confirmedPositive": 0,
+      "SemanticDistinctness": "HIGH",
+      "DetectionFeasibility": "LOW_MEDIUM",
+      "ExplanationValue": "HIGH",
+      "FalsePositiveRisk": "HIGH",
+      "reason": "0 confirmed after key-role requirement; escape from attack is not enough to prove strategic key-piece preservation."
+    },
+    {
+      "conceptId": "deny_ideal_formation",
+      "previousStatus": "SUBINTENT_CANDIDATE",
+      "recommendedStatus": "EXPLANATION_ONLY",
+      "exposures": {
+        "POSITIVE": 6,
+        "NEGATIVE": 4,
+        "ADVERSARIAL": 4
+      },
+      "confirmedPositive": 0,
+      "SemanticDistinctness": "MEDIUM_HIGH",
+      "DetectionFeasibility": "LOW",
+      "ExplanationValue": "HIGH",
+      "FalsePositiveRisk": "VERY_HIGH",
+      "reason": "0 confirmed; opponent ideal formation requires source/counterfactual support."
+    },
+    {
+      "conceptId": "create_battlefront",
+      "previousStatus": "SUBINTENT_CANDIDATE",
+      "recommendedStatus": "EXPLANATION_ONLY",
+      "exposures": {
+        "POSITIVE": 5,
+        "NEGATIVE": 3,
+        "ADVERSARIAL": 3
+      },
+      "confirmedPositive": 0,
+      "SemanticDistinctness": "HIGH",
+      "DetectionFeasibility": "MEDIUM",
+      "ExplanationValue": "HIGH",
+      "FalsePositiveRisk": "HIGH",
+      "reason": "0 confirmed at semantic level; new attack relations alone do not prove battlefront purpose."
+    },
+    {
+      "conceptId": "shift_battlefront",
+      "previousStatus": "EXPLANATION_ONLY",
+      "recommendedStatus": "EXPLANATION_ONLY",
+      "exposures": {
+        "POSITIVE": 3,
+        "NEGATIVE": 3,
+        "ADVERSARIAL": 4
+      },
+      "confirmedPositive": 0,
+      "SemanticDistinctness": "MEDIUM",
+      "DetectionFeasibility": "LOW",
+      "ExplanationValue": "MEDIUM",
+      "FalsePositiveRisk": "VERY_HIGH",
+      "reason": "Build17-2 status retained; Pilot did not justify promotion."
+    },
+    {
+      "conceptId": "attack_attacker",
+      "previousStatus": "SUBINTENT_CANDIDATE",
+      "recommendedStatus": "SUBINTENT_CANDIDATE",
+      "exposures": {
+        "POSITIVE": 6,
+        "NEGATIVE": 3,
+        "ADVERSARIAL": 3
+      },
+      "confirmedPositive": 6,
+      "SemanticDistinctness": "HIGH",
+      "DetectionFeasibility": "HIGH",
+      "ExplanationValue": "HIGH",
+      "FalsePositiveRisk": "LOW_MEDIUM",
+      "reason": "6 confirmed causal fixtures; clean parent boundary under capture_threat_response/defense."
+    },
+    {
+      "conceptId": "tempo_management",
+      "previousStatus": "ACTIVE_CANDIDATE",
+      "recommendedStatus": "EXPLANATION_ONLY",
+      "exposures": {
+        "POSITIVE": 9,
+        "NEGATIVE": 4,
+        "ADVERSARIAL": 4
+      },
+      "confirmedPositive": 0,
+      "SemanticDistinctness": "HIGH",
+      "DetectionFeasibility": "LOW_MEDIUM",
+      "ExplanationValue": "HIGH",
+      "FalsePositiveRisk": "VERY_HIGH",
+      "reason": "0 confirmed after tightening; too broad without forcing-response/counterfactual evidence."
+    },
+    {
+      "conceptId": "speed_over_material",
+      "previousStatus": "ACTIVE_CANDIDATE",
+      "recommendedStatus": "EXPLANATION_ONLY",
+      "exposures": {
+        "POSITIVE": 6,
+        "NEGATIVE": 3,
+        "ADVERSARIAL": 4
+      },
+      "confirmedPositive": 0,
+      "SemanticDistinctness": "HIGH",
+      "DetectionFeasibility": "LOW_MEDIUM",
+      "ExplanationValue": "HIGH",
+      "FalsePositiveRisk": "HIGH",
+      "reason": "0 confirmed; requires material-versus-forcing-line engine comparison."
+    },
+    {
+      "conceptId": "trade_to_transform",
+      "previousStatus": "ACTIVE_CANDIDATE",
+      "recommendedStatus": "EXPLANATION_ONLY",
+      "exposures": {
+        "POSITIVE": 8,
+        "NEGATIVE": 3,
+        "ADVERSARIAL": 3
+      },
+      "confirmedPositive": 0,
+      "SemanticDistinctness": "HIGH",
+      "DetectionFeasibility": "LOW_MEDIUM",
+      "ExplanationValue": "HIGH",
+      "FalsePositiveRisk": "HIGH",
+      "reason": "0 confirmed; capture alone cannot establish beneficial transformation."
+    },
+    {
+      "conceptId": "prophylaxis",
+      "previousStatus": "INTENT_CANDIDATE",
+      "recommendedStatus": "EXPLANATION_ONLY",
+      "exposures": {
+        "POSITIVE": 6,
+        "NEGATIVE": 5,
+        "ADVERSARIAL": 5
+      },
+      "confirmedPositive": 0,
+      "SemanticDistinctness": "HIGH",
+      "DetectionFeasibility": "LOW",
+      "ExplanationValue": "VERY_HIGH",
+      "FalsePositiveRisk": "VERY_HIGH",
+      "reason": "6 pilot positives but 0 confirmed; pre-emptive candidates did not prove plan suppression without counterfactual evidence."
+    },
+    {
+      "conceptId": "escape_route_control",
+      "previousStatus": "ACTIVE_CANDIDATE",
+      "recommendedStatus": "ACTIVE_CANDIDATE",
+      "exposures": {
+        "POSITIVE": 6,
+        "NEGATIVE": 3,
+        "ADVERSARIAL": 9
+      },
+      "confirmedPositive": 6,
+      "SemanticDistinctness": "HIGH",
+      "DetectionFeasibility": "HIGH",
+      "ExplanationValue": "HIGH",
+      "FalsePositiveRisk": "LOW",
+      "reason": "6 geometry-confirmed reductions in opponent safe king moves."
+    },
+    {
+      "conceptId": "multi_threat",
+      "previousStatus": "ACTIVE_CANDIDATE",
+      "recommendedStatus": "EXPLANATION_ONLY",
+      "exposures": {
+        "POSITIVE": 5,
+        "NEGATIVE": 3,
+        "ADVERSARIAL": 9
+      },
+      "confirmedPositive": 0,
+      "SemanticDistinctness": "HIGH",
+      "DetectionFeasibility": "MEDIUM",
+      "ExplanationValue": "HIGH",
+      "FalsePositiveRisk": "MEDIUM_HIGH",
+      "reason": "5 geometry candidates but 0 confirmed; single-best-reply independence not checked."
+    },
+    {
+      "conceptId": "waiting_move",
+      "previousStatus": "INTENT_CANDIDATE",
+      "recommendedStatus": "EXPLANATION_ONLY",
+      "exposures": {
+        "POSITIVE": 5,
+        "NEGATIVE": 5,
+        "ADVERSARIAL": 5
+      },
+      "confirmedPositive": 0,
+      "SemanticDistinctness": "MEDIUM_HIGH",
+      "DetectionFeasibility": "LOW",
+      "ExplanationValue": "MEDIUM_HIGH",
+      "FalsePositiveRisk": "VERY_HIGH",
+      "reason": "5 positives but 0 confirmed; quiet-move and tenuki boundaries remain unstable without counterfactual evidence."
+    },
+    {
+      "conceptId": "parallel_flexibility",
+      "previousStatus": "EXPLANATION_ONLY",
+      "recommendedStatus": "EXPLANATION_ONLY",
+      "exposures": {
+        "POSITIVE": 5,
+        "NEGATIVE": 4,
+        "ADVERSARIAL": 5
+      },
+      "confirmedPositive": 0,
+      "SemanticDistinctness": "MEDIUM",
+      "DetectionFeasibility": "LOW",
+      "ExplanationValue": "MEDIUM_HIGH",
+      "FalsePositiveRisk": "VERY_HIGH",
+      "reason": "Build17-2 status retained; Pilot did not justify promotion."
+    },
+    {
+      "conceptId": "sabai",
+      "previousStatus": "ACTIVE_CANDIDATE",
+      "recommendedStatus": "EXPLANATION_ONLY",
+      "exposures": {
+        "POSITIVE": 7,
+        "NEGATIVE": 4,
+        "ADVERSARIAL": 4
+      },
+      "confirmedPositive": 0,
+      "SemanticDistinctness": "HIGH",
+      "DetectionFeasibility": "LOW_MEDIUM",
+      "ExplanationValue": "VERY_HIGH",
+      "FalsePositiveRisk": "VERY_HIGH",
+      "reason": "7 positive exposures but 0 confirmed; only 4 strong shikenbisha geometry candidates and post-exchange continuity is unverified."
+    },
+    {
+      "conceptId": "rook_activation",
+      "previousStatus": "MERGE_WITH_EXISTING",
+      "recommendedStatus": "MERGE_WITH_EXISTING",
+      "exposures": {
+        "POSITIVE": 0,
+        "NEGATIVE": 2,
+        "ADVERSARIAL": 2
+      },
+      "confirmedPositive": 0,
+      "SemanticDistinctness": "LOW",
+      "DetectionFeasibility": "HIGH",
+      "ExplanationValue": "HIGH",
+      "FalsePositiveRisk": "LOW",
+      "reason": "Build17-2 status retained; Pilot did not justify promotion."
+    },
+    {
+      "conceptId": "bishop_exchange_decision",
+      "previousStatus": "REJECTED",
+      "recommendedStatus": "REJECTED",
+      "exposures": {
+        "POSITIVE": 0,
+        "NEGATIVE": 1,
+        "ADVERSARIAL": 2
+      },
+      "confirmedPositive": 0,
+      "SemanticDistinctness": "LOW",
+      "DetectionFeasibility": "MEDIUM",
+      "ExplanationValue": "MEDIUM",
+      "FalsePositiveRisk": "HIGH",
+      "reason": "Build17-2 status retained; Pilot did not justify promotion."
+    },
+    {
+      "conceptId": "rook_exchange_decision",
+      "previousStatus": "REJECTED",
+      "recommendedStatus": "REJECTED",
+      "exposures": {
+        "POSITIVE": 0,
+        "NEGATIVE": 1,
+        "ADVERSARIAL": 2
+      },
+      "confirmedPositive": 0,
+      "SemanticDistinctness": "LOW",
+      "DetectionFeasibility": "MEDIUM",
+      "ExplanationValue": "MEDIUM",
+      "FalsePositiveRisk": "HIGH",
+      "reason": "Build17-2 status retained; Pilot did not justify promotion."
+    },
+    {
+      "conceptId": "castle_completion",
+      "previousStatus": "MERGE_WITH_EXISTING",
+      "recommendedStatus": "MERGE_WITH_EXISTING",
+      "exposures": {
+        "POSITIVE": 0,
+        "NEGATIVE": 2,
+        "ADVERSARIAL": 2
+      },
+      "confirmedPositive": 0,
+      "SemanticDistinctness": "LOW",
+      "DetectionFeasibility": "HIGH",
+      "ExplanationValue": "HIGH",
+      "FalsePositiveRisk": "LOW",
+      "reason": "Build17-2 status retained; Pilot did not justify promotion."
+    },
+    {
+      "conceptId": "respond_to_rapid_attack",
+      "previousStatus": "EXPLANATION_ONLY",
+      "recommendedStatus": "EXPLANATION_ONLY",
+      "exposures": {
+        "POSITIVE": 6,
+        "NEGATIVE": 3,
+        "ADVERSARIAL": 4
+      },
+      "confirmedPositive": 6,
+      "SemanticDistinctness": "MEDIUM",
+      "DetectionFeasibility": "MEDIUM",
+      "ExplanationValue": "HIGH",
+      "FalsePositiveRisk": "MEDIUM_HIGH",
+      "reason": "Build17-2 status retained; Pilot did not justify promotion."
+    },
+    {
+      "conceptId": "maintain_counterattack_potential",
+      "previousStatus": "ACTIVE_CANDIDATE",
+      "recommendedStatus": "EXPLANATION_ONLY",
+      "exposures": {
+        "POSITIVE": 11,
+        "NEGATIVE": 4,
+        "ADVERSARIAL": 4
+      },
+      "confirmedPositive": 0,
+      "SemanticDistinctness": "HIGH",
+      "DetectionFeasibility": "LOW",
+      "ExplanationValue": "HIGH",
+      "FalsePositiveRisk": "VERY_HIGH",
+      "reason": "0 confirmed; future counterplay is easy to narrativize after the fact."
+    },
+    {
+      "conceptId": "avoid_premature_attack",
+      "previousStatus": "MERGE_WITH_EXISTING",
+      "recommendedStatus": "MERGE_WITH_EXISTING",
+      "exposures": {
+        "POSITIVE": 0,
+        "NEGATIVE": 3,
+        "ADVERSARIAL": 3
+      },
+      "confirmedPositive": 0,
+      "SemanticDistinctness": "LOW",
+      "DetectionFeasibility": "LOW_MEDIUM",
+      "ExplanationValue": "HIGH",
+      "FalsePositiveRisk": "HIGH",
+      "reason": "Build17-2 status retained; Pilot did not justify promotion."
+    },
+    {
+      "conceptId": "invite_then_counter",
+      "previousStatus": "EXPLANATION_ONLY",
+      "recommendedStatus": "EXPLANATION_ONLY",
+      "exposures": {
+        "POSITIVE": 6,
+        "NEGATIVE": 4,
+        "ADVERSARIAL": 5
+      },
+      "confirmedPositive": 0,
+      "SemanticDistinctness": "MEDIUM",
+      "DetectionFeasibility": "LOW",
+      "ExplanationValue": "HIGH",
+      "FalsePositiveRisk": "VERY_HIGH",
+      "reason": "Build17-2 status retained; Pilot did not justify promotion."
+    },
+    {
+      "conceptId": "formation_order",
+      "previousStatus": "MERGE_WITH_EXISTING",
+      "recommendedStatus": "MERGE_WITH_EXISTING",
+      "exposures": {
+        "POSITIVE": 0,
+        "NEGATIVE": 3,
+        "ADVERSARIAL": 6
+      },
+      "confirmedPositive": 0,
+      "SemanticDistinctness": "MEDIUM",
+      "DetectionFeasibility": "MEDIUM",
+      "ExplanationValue": "HIGH",
+      "FalsePositiveRisk": "HIGH",
+      "reason": "Build17-2 status retained; Pilot did not justify promotion."
+    },
+    {
+      "conceptId": "opponent_plan_response",
+      "previousStatus": "REJECTED",
+      "recommendedStatus": "REJECTED",
+      "exposures": {
+        "POSITIVE": 0,
+        "NEGATIVE": 2,
+        "ADVERSARIAL": 12
+      },
+      "confirmedPositive": 0,
+      "SemanticDistinctness": "LOW",
+      "DetectionFeasibility": "LOW",
+      "ExplanationValue": "MEDIUM",
+      "FalsePositiveRisk": "VERY_HIGH",
+      "reason": "Build17-2 status retained; Pilot did not justify promotion."
+    }
+  ]
+}
