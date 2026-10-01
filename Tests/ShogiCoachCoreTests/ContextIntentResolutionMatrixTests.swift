@@ -141,7 +141,7 @@ final class ContextIntentResolutionMatrixTests: XCTestCase {
     }
 
     func testBuild17_6RealGamePly59CompletesWithoutTrap() throws {
-        let position = "position startpos moves 2h7h 3c3d 7i6h 2c2d 7g7f 9c9d 1g1f 6c6d 5g5f 8b3b 5i4h 2d2e 4h3h 3a4b 6i5h 6a7b 6g6f 7a6b 6h5g 2b3c 3i2h 3b2b 8h7g 2e2f 2g2f 2b2f P2g 2f2b 9g9f 4a5b 9f9e 9d9e 9i9e P9c 7h9h 6b6c 4i4h 5a6b 3g3f 6b7a 6f6e 6d6e 9e9c+ 8a9c 9h9e P9d 9e9d 7a8b P6d 6c5d 9d9e P9d 9e9h 9c8e 7g3c+ 4b3c 8g8f B8g"
+        let position = "position startpos moves 2h7h 3c3d 7i6h 2c2d 7g7f 9c9d 1g1f 6c6d 5g5f 8b3b 5i4h 2d2e 4h3h 3a4b 6i5h 6a7b 6g6f 7a6b 6h5g 2b3c 3i2h 3b2b 8h7g 2e2f 2g2f 2b2f P*2g 2f2b 9g9f 4a5b 9f9e 9d9e 9i9e P*9c 7h9h 6b6c 4i4h 5a6b 3g3f 6b7a 6f6e 6d6e 9e9c+ 8a9c 9h9e P*9d 9e9d 7a8b P*6d 6c5d 9d9e P*9d 9e9h 9c8e 7g3c+ 4b3c 8g8f B*8g"
 
         let analysis = try MoveContextEngine().analyze(
             positionCommand: position,
