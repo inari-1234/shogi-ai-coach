@@ -1,0 +1,290 @@
+{
+  "schemaVersion": "0.1",
+  "build": "Build17-3",
+  "pilotTotal": 200,
+  "shikenbishaMinimum": 60,
+  "sourceStrategy": {
+    "primary": "Build16 compact knowledge generated from official Denryu-sen 2024 250-game KIF set",
+    "secondary": "reproducible educational positions for previous-move causality and high-risk semantic boundaries",
+    "externalZipStatus": "direct download unavailable in this runtime; do not fabricate game history from compact records",
+    "historyRule": "compact precedent records may be used only where previous-move history is not required; causal labels require explicit move history"
+  },
+  "strata": [
+    {
+      "id": "A",
+      "name": "causal_response_previous_move",
+      "count": 36,
+      "shikenMin": 8
+    },
+    {
+      "id": "B",
+      "name": "development_castling_mobility_preservation",
+      "count": 28,
+      "shikenMin": 14
+    },
+    {
+      "id": "C",
+      "name": "exchange_transform_sabai",
+      "count": 32,
+      "shikenMin": 20
+    },
+    {
+      "id": "D",
+      "name": "prophylaxis_battlefront_counterattack",
+      "count": 30,
+      "shikenMin": 12
+    },
+    {
+      "id": "E",
+      "name": "tempo_waiting_flexibility",
+      "count": 20,
+      "shikenMin": 4
+    },
+    {
+      "id": "F",
+      "name": "endgame_speed_escape_multi_threat",
+      "count": 30,
+      "shikenMin": 0
+    },
+    {
+      "id": "G",
+      "name": "adversarial_unresolved_geometry_only",
+      "count": 24,
+      "shikenMin": 2
+    }
+  ],
+  "concepts": [
+    {
+      "conceptId": "piece_mobility",
+      "status": "ACTIVE_CANDIDATE",
+      "positiveMin": 6,
+      "negativeMin": 3,
+      "adversarialMin": 3,
+      "shikenbishaRequired": true,
+      "priority": "HIGH"
+    },
+    {
+      "conceptId": "preserve_key_piece",
+      "status": "ACTIVE_CANDIDATE",
+      "positiveMin": 5,
+      "negativeMin": 3,
+      "adversarialMin": 3,
+      "shikenbishaRequired": true,
+      "priority": "MEDIUM"
+    },
+    {
+      "conceptId": "deny_ideal_formation",
+      "status": "SUBINTENT_CANDIDATE",
+      "positiveMin": 5,
+      "negativeMin": 4,
+      "adversarialMin": 4,
+      "shikenbishaRequired": true,
+      "priority": "HIGH"
+    },
+    {
+      "conceptId": "create_battlefront",
+      "status": "SUBINTENT_CANDIDATE",
+      "positiveMin": 5,
+      "negativeMin": 3,
+      "adversarialMin": 3,
+      "shikenbishaRequired": true,
+      "priority": "MEDIUM"
+    },
+    {
+      "conceptId": "shift_battlefront",
+      "status": "EXPLANATION_ONLY",
+      "positiveMin": 3,
+      "negativeMin": 3,
+      "adversarialMin": 4,
+      "shikenbishaRequired": false,
+      "priority": "LOW"
+    },
+    {
+      "conceptId": "attack_attacker",
+      "status": "SUBINTENT_CANDIDATE",
+      "positiveMin": 5,
+      "negativeMin": 3,
+      "adversarialMin": 3,
+      "shikenbishaRequired": true,
+      "priority": "HIGH"
+    },
+    {
+      "conceptId": "tempo_management",
+      "status": "ACTIVE_CANDIDATE",
+      "positiveMin": 6,
+      "negativeMin": 4,
+      "adversarialMin": 4,
+      "shikenbishaRequired": true,
+      "priority": "HIGH"
+    },
+    {
+      "conceptId": "speed_over_material",
+      "status": "ACTIVE_CANDIDATE",
+      "positiveMin": 6,
+      "negativeMin": 3,
+      "adversarialMin": 4,
+      "shikenbishaRequired": false,
+      "priority": "HIGH"
+    },
+    {
+      "conceptId": "trade_to_transform",
+      "status": "ACTIVE_CANDIDATE",
+      "positiveMin": 6,
+      "negativeMin": 3,
+      "adversarialMin": 3,
+      "shikenbishaRequired": true,
+      "priority": "HIGH"
+    },
+    {
+      "conceptId": "prophylaxis",
+      "status": "INTENT_CANDIDATE",
+      "positiveMin": 6,
+      "negativeMin": 5,
+      "adversarialMin": 5,
+      "shikenbishaRequired": true,
+      "priority": "CRITICAL"
+    },
+    {
+      "conceptId": "escape_route_control",
+      "status": "ACTIVE_CANDIDATE",
+      "positiveMin": 6,
+      "negativeMin": 3,
+      "adversarialMin": 3,
+      "shikenbishaRequired": false,
+      "priority": "HIGH"
+    },
+    {
+      "conceptId": "multi_threat",
+      "status": "ACTIVE_CANDIDATE",
+      "positiveMin": 5,
+      "negativeMin": 3,
+      "adversarialMin": 4,
+      "shikenbishaRequired": false,
+      "priority": "HIGH"
+    },
+    {
+      "conceptId": "waiting_move",
+      "status": "INTENT_CANDIDATE",
+      "positiveMin": 4,
+      "negativeMin": 5,
+      "adversarialMin": 5,
+      "shikenbishaRequired": false,
+      "priority": "CRITICAL"
+    },
+    {
+      "conceptId": "parallel_flexibility",
+      "status": "EXPLANATION_ONLY",
+      "positiveMin": 3,
+      "negativeMin": 4,
+      "adversarialMin": 5,
+      "shikenbishaRequired": false,
+      "priority": "LOW"
+    },
+    {
+      "conceptId": "sabai",
+      "status": "ACTIVE_CANDIDATE",
+      "positiveMin": 7,
+      "negativeMin": 4,
+      "adversarialMin": 4,
+      "shikenbishaRequired": true,
+      "priority": "CRITICAL"
+    },
+    {
+      "conceptId": "rook_activation",
+      "status": "MERGE_WITH_EXISTING",
+      "positiveMin": 0,
+      "negativeMin": 2,
+      "adversarialMin": 2,
+      "shikenbishaRequired": true,
+      "priority": "LOW"
+    },
+    {
+      "conceptId": "bishop_exchange_decision",
+      "status": "REJECTED",
+      "positiveMin": 0,
+      "negativeMin": 1,
+      "adversarialMin": 2,
+      "shikenbishaRequired": true,
+      "priority": "LOW"
+    },
+    {
+      "conceptId": "rook_exchange_decision",
+      "status": "REJECTED",
+      "positiveMin": 0,
+      "negativeMin": 1,
+      "adversarialMin": 2,
+      "shikenbishaRequired": true,
+      "priority": "LOW"
+    },
+    {
+      "conceptId": "castle_completion",
+      "status": "MERGE_WITH_EXISTING",
+      "positiveMin": 0,
+      "negativeMin": 2,
+      "adversarialMin": 2,
+      "shikenbishaRequired": true,
+      "priority": "LOW"
+    },
+    {
+      "conceptId": "respond_to_rapid_attack",
+      "status": "EXPLANATION_ONLY",
+      "positiveMin": 4,
+      "negativeMin": 3,
+      "adversarialMin": 4,
+      "shikenbishaRequired": true,
+      "priority": "MEDIUM"
+    },
+    {
+      "conceptId": "maintain_counterattack_potential",
+      "status": "ACTIVE_CANDIDATE",
+      "positiveMin": 5,
+      "negativeMin": 4,
+      "adversarialMin": 4,
+      "shikenbishaRequired": true,
+      "priority": "HIGH"
+    },
+    {
+      "conceptId": "avoid_premature_attack",
+      "status": "MERGE_WITH_EXISTING",
+      "positiveMin": 0,
+      "negativeMin": 3,
+      "adversarialMin": 3,
+      "shikenbishaRequired": true,
+      "priority": "LOW"
+    },
+    {
+      "conceptId": "invite_then_counter",
+      "status": "EXPLANATION_ONLY",
+      "positiveMin": 3,
+      "negativeMin": 4,
+      "adversarialMin": 5,
+      "shikenbishaRequired": true,
+      "priority": "LOW"
+    },
+    {
+      "conceptId": "formation_order",
+      "status": "MERGE_WITH_EXISTING",
+      "positiveMin": 0,
+      "negativeMin": 3,
+      "adversarialMin": 3,
+      "shikenbishaRequired": true,
+      "priority": "LOW"
+    },
+    {
+      "conceptId": "opponent_plan_response",
+      "status": "REJECTED",
+      "positiveMin": 0,
+      "negativeMin": 2,
+      "adversarialMin": 4,
+      "shikenbishaRequired": true,
+      "priority": "LOW"
+    }
+  ],
+  "validationRules": [
+    "one positive example never promotes a concept",
+    "every retained intent/subintent candidate needs independent positive/negative/adversarial evidence",
+    "false-positive risk outranks explanation attractiveness",
+    "Build16 concrete causal intents outrank HumanConcept overlays",
+    "UNRESOLVED is preferred over unsupported semantic certainty"
+  ]
+}
