@@ -2,15 +2,16 @@ import XCTest
 @testable import ShogiCoachCore
 
 final class Build17SafeConceptExplanationTests: XCTestCase {
-    func testPieceMobilityAppearsOnlyAsSupplementToPrimaryIntent() {
-        let analysis = fixture(
-            intent: .bishopLineResponse,
-            confidence: .high,
-            effects: [.init(id: "piece_mobility", detail: "attack_squares:6->13")]
+    func testPieceMobilityAppearsOnlyAsSupplementToPrimaryIntent() throws {
+        let analysis = try MoveContextEngine().analyze(
+            positionCommand: "position startpos moves 7g7f 3c3d",
+            move: "8h2b+"
         )
         let explanation = ContextExplanationGenerator.make(analysis: analysis)
 
         XCTAssertEqual(analysis.selectedIntent, .bishopLineResponse)
+        XCTAssertTrue(analysis.effects.contains { $0.id == "piece_mobility" })
+        XCTAssertTrue(analysis.effects.contains { $0.id == "attack_attacker" })
         XCTAssertTrue(explanation.conclusion.contains("角筋"))
         XCTAssertEqual(explanation.conceptSupplement?.conceptID, "piece_mobility")
         XCTAssertTrue(explanation.conceptSupplement?.text.contains("6から13") == true)
