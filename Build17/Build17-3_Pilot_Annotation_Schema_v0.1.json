@@ -1,0 +1,128 @@
+{
+  "schemaVersion": "0.1",
+  "build": "Build17-3",
+  "authority": {
+    "build16Branch": "candidate/build16-context-engine",
+    "build16SHA": "2ee66f25aba603621565ed8475649a5f70cdb5a4",
+    "build17_2Artifact": "Build17-2_Concept_Dictionary_v0.1_FREEZE_CANDIDATE_20261001.zip"
+  },
+  "requiredFields": [
+    "positionId",
+    "position",
+    "phase",
+    "openingFamily",
+    "sideToMove",
+    "previousMove",
+    "currentMove",
+    "candidateConcepts",
+    "expectedIntent",
+    "expectedHumanConcepts",
+    "expectedWhyNowTriggers",
+    "exampleClass",
+    "sourceType",
+    "sourceReference",
+    "licenseStatus",
+    "engineCheckStatus",
+    "humanReasoningNote",
+    "confidence",
+    "annotationStatus"
+  ],
+  "enums": {
+    "phase": [
+      "OPENING",
+      "MIDDLEGAME",
+      "ENDGAME"
+    ],
+    "exampleClass": [
+      "POSITIVE",
+      "NEGATIVE",
+      "ADVERSARIAL"
+    ],
+    "confidence": [
+      "HIGH",
+      "MEDIUM",
+      "LOW",
+      "UNRESOLVED"
+    ],
+    "annotationStatus": [
+      "CONFIRMED",
+      "PROVISIONAL",
+      "UNRESOLVED",
+      "REJECTED_AS_EXAMPLE"
+    ],
+    "engineCheckStatus": [
+      "NOT_REQUIRED",
+      "NOT_RUN",
+      "REQUIRED_NOT_AVAILABLE",
+      "CHECKED_SUPPORTS",
+      "CHECKED_CONTRADICTS",
+      "CHECKED_INCONCLUSIVE"
+    ]
+  },
+  "evidencePolicy": {
+    "order": [
+      "BOARD_FACT",
+      "PREVIOUS_MOVE_CAUSALITY",
+      "EFFECT",
+      "BUILD16_INTENT_BOUNDARY",
+      "WHY_NOW",
+      "HUMAN_CONCEPT",
+      "COUNTEREXAMPLE",
+      "ENGINE_IF_NEEDED",
+      "FINAL_LABEL"
+    ],
+    "intentRequiresNonGeometryAnchor": true,
+    "geometryAloneCannotSetIntent": true,
+    "commercialBooks": "REFERENCE_ONLY",
+    "lowConfidenceRule": "LOW/UNRESOLVED must not produce assertive semantic claims"
+  },
+  "highRiskGuards": {
+    "prophylaxis": {
+      "positiveRequires": [
+        "specific opponent plan identifiable",
+        "plan is not yet an immediate concrete threat",
+        "current move measurably restricts that plan"
+      ],
+      "forbiddenShortcuts": [
+        "quiet move => prophylaxis",
+        "opponent psychology inference",
+        "existing immediate threat => prophylaxis"
+      ]
+    },
+    "waiting_move": {
+      "positiveRequires": [
+        "current move has low structural commitment",
+        "multiple own plans remain viable",
+        "passing the move changes opponent commitment/information"
+      ],
+      "forbiddenShortcuts": [
+        "meaningless move => waiting",
+        "quiet move => waiting",
+        "tenuki with concrete remote value => waiting"
+      ]
+    },
+    "sabai": {
+      "positiveRequires": [
+        "major/offensive piece was constrained or underutilized",
+        "exchange/advance/line opening changes practical piece activity",
+        "post-move use or redeployment path is concrete"
+      ],
+      "forbiddenShortcuts": [
+        "exchange => sabai",
+        "rook/bishop move => sabai",
+        "furibisha => sabai"
+      ]
+    }
+  },
+  "lockedRegression": {
+    "position": "position startpos moves 7g7f 8c8d 2g2f 8d8e",
+    "currentMove": "8h7g",
+    "expectedIntent": "rook_pawn_response",
+    "expectedConfidence": "HIGH",
+    "forbiddenPrimary": [
+      "piece_mobility",
+      "formation_order",
+      "attack_preparation"
+    ]
+  }
+}
