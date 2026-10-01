@@ -167,7 +167,8 @@ private func mandatoryRegressions() throws -> [MandatoryRegressionResult] {
     stderr("checkpoint=mandatory_start")
     let engine = MoveContextEngine()
 
-    stderr("checkpoint=mandatory_A_before_analyze")\n    let analysisA = try engine.analyze(
+    stderr("checkpoint=mandatory_A_before_analyze")
+    let analysisA = try engine.analyze(
         positionCommand: "position startpos moves 7g7f 8c8d 2g2f 8d8e",
         move: "8h7g"
     )
@@ -196,7 +197,8 @@ private func mandatoryRegressions() throws -> [MandatoryRegressionResult] {
     )
     guard passA else { throw AuditError.mandatoryRegression(resultA.id) }
 
-    stderr("checkpoint=mandatory_B_before_analyze")\n    let analysisB = try engine.analyze(
+    stderr("checkpoint=mandatory_B_before_analyze")
+    let analysisB = try engine.analyze(
         positionCommand: "position startpos moves 7g7f 3c3d",
         move: "8h2b+"
     )
