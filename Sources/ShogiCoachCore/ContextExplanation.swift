@@ -7,30 +7,48 @@ public enum ContextExplanationTone: String, Codable, Equatable, Sendable {
     case unresolved
 }
 
+public struct ContextConceptSupplement: Codable, Equatable, Sendable {
+    public let conceptID: String
+    public let text: String
+    public let evidenceText: String
+
+    public init(conceptID: String, text: String, evidenceText: String) {
+        self.conceptID = conceptID
+        self.text = text
+        self.evidenceText = evidenceText
+    }
+}
+
 public struct ContextMoveExplanation: Codable, Equatable, Sendable {
     public let conclusion: String
     public let whyNow: String
     public let evidenceText: String
     public let confidence: ContextConfidence
     public let tone: ContextExplanationTone
+    public let conceptSupplement: ContextConceptSupplement?
 
     public init(
         conclusion: String,
         whyNow: String,
         evidenceText: String,
         confidence: ContextConfidence,
-        tone: ContextExplanationTone
+        tone: ContextExplanationTone,
+        conceptSupplement: ContextConceptSupplement? = nil
     ) {
         self.conclusion = conclusion
         self.whyNow = whyNow
         self.evidenceText = evidenceText
         self.confidence = confidence
         self.tone = tone
+        self.conceptSupplement = conceptSupplement
     }
 }
 
 public enum ContextExplanationGenerator {
-    public static func make(analysis: MoveContextAnalysis) -> ContextMoveExplanation {
+    public static func make(
+        analysis: MoveContextAnalysis,
+        suppressingConceptIDs: Set<String> = []
+    ) -> ContextMoveExplanation {
         guard analysis.selectedIntent != .unresolved,
               analysis.confidence != .unresolved else {
             return ContextMoveExplanation(
@@ -68,7 +86,11 @@ public enum ContextExplanationGenerator {
             whyNow: whyNow,
             evidenceText: evidenceSummary(analysis),
             confidence: analysis.confidence,
-            tone: tone
+            tone: tone,
+            conceptSupplement: conceptSupplement(
+                for: analysis,
+                suppressingConceptIDs: suppressingConceptIDs
+            )
         )
     }
 
@@ -155,6 +177,110 @@ public enum ContextExplanationGenerator {
         case .unresolved:
             return "十分な因果関係を確認できていません。"
         }
+    }
+
+    private static func conceptSupplement(
+        for analysis: MoveContextAnalysis,
+        suppressingConceptIDs: Set<String>
+    ) -> ContextConceptSupplement? {
+        switch analysis.confidence {
+        case .high, .medium:
+            break
+        case .low, .unresolved:
+            return nil
+        }
+
+        if !suppressingConceptIDs.contains("attack_attacker"),
+           let effect = analysis.effects.first(where: { $0.id == "attack_attacker" }),
+           permitsAttackAttackerSupplement(for: analysis.selectedIntent) {
+            return ContextConceptSupplement(
+                conceptID: effect.id,
+                text: "同時に、直前に攻撃を作った相手駒そのものにも対応しています。",
+                evidenceText: "attacker_squares:\(effect.detail)"
+            )
+        }
+
+        if !suppressingConceptIDs.contains("escape_route_control"),
+           let effect = analysis.effects.first(where: { $0.id == "escape_route_control" }),
+           permitsEscapeRouteSupplement(for: analysis.selectedIntent) {
+            let text: String
+            if let counts = transitionCounts(
+                from: effect.detail,
+                prefix: "opponent_escape_squares:"
+            ), counts.before > counts.after {
+                let reduced = counts.before - counts.after
+                text = "同時に、相手玉の安全な逃げ場所が\(reduced)つ減っています。"
+            } else {
+                text = "同時に、相手玉の安全な逃げ場所も減っています。"
+            }
+            return ContextConceptSupplement(
+                conceptID: effect.id,
+                text: text,
+                evidenceText: effect.detail
+            )
+        }
+
+        if !suppressingConceptIDs.contains("piece_mobility"),
+           let effect = analysis.effects.first(where: { $0.id == "piece_mobility" }),
+           permitsPieceMobilitySupplement(for: analysis.selectedIntent) {
+            let text: String
+            if let counts = transitionCounts(
+                from: effect.detail,
+                prefix: "attack_squares:"
+            ), counts.after > counts.before {
+                text = "同時に、この手で動かした駒が利かせられるマスも\(counts.before)から\(counts.after)に増えています。"
+            } else {
+                text = "同時に、この手で動かした駒の利かせられるマスも増えています。"
+            }
+            return ContextConceptSupplement(
+                conceptID: effect.id,
+                text: text,
+                evidenceText: effect.detail
+            )
+        }
+
+        return nil
+    }
+
+    private static func permitsAttackAttackerSupplement(for intent: MoveIntent) -> Bool {
+        switch intent {
+        case .captureThreatResponse, .pieceDefense, .defense, .bishopLineResponse, .neutralizeThreat:
+            return true
+        default:
+            return false
+        }
+    }
+
+    private static func permitsEscapeRouteSupplement(for intent: MoveIntent) -> Bool {
+        switch intent {
+        case .attackContinuation, .attackPreparation, .matingAttack, .threatmate, .controlAddition, .outpostCreation:
+            return true
+        default:
+            return false
+        }
+    }
+
+    private static func permitsPieceMobilitySupplement(for intent: MoveIntent) -> Bool {
+        switch intent {
+        case .unresolved, .pieceActivation, .majorPieceActivation, .development, .castling, .handPieceDeployment:
+            return false
+        default:
+            return true
+        }
+    }
+
+    private static func transitionCounts(
+        from detail: String,
+        prefix: String
+    ) -> (before: Int, after: Int)? {
+        guard detail.hasPrefix(prefix) else { return nil }
+        let values = detail.dropFirst(prefix.count).split(separator: "->")
+        guard values.count == 2,
+              let before = Int(values[0]),
+              let after = Int(values[1]) else {
+            return nil
+        }
+        return (before, after)
     }
 
     private static func evidenceSummary(_ analysis: MoveContextAnalysis) -> String {

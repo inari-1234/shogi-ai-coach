@@ -5,9 +5,25 @@ struct ContextAnalysisEntry: Identifiable {
     let id: Int
     let ply: Int
     let analysis: MoveContextAnalysis
+    let suppressedConceptIDs: Set<String>
+
+    init(
+        id: Int,
+        ply: Int,
+        analysis: MoveContextAnalysis,
+        suppressedConceptIDs: Set<String> = []
+    ) {
+        self.id = id
+        self.ply = ply
+        self.analysis = analysis
+        self.suppressedConceptIDs = suppressedConceptIDs
+    }
 
     var explanation: ContextMoveExplanation {
-        ContextExplanationGenerator.make(analysis: analysis)
+        ContextExplanationGenerator.make(
+            analysis: analysis,
+            suppressingConceptIDs: suppressedConceptIDs
+        )
     }
 }
 
@@ -154,6 +170,7 @@ final class ContextAnalysisViewModel: ObservableObject {
                 }
             }
 
+            resolved = Self.applyingConceptRepetitionPolicy(to: resolved)
             usedAdditionalEngineSearch = !refinementCompletedPlies.isEmpty
 
             var recommended: [Int: ContextMoveExplanation] = [:]
@@ -250,6 +267,31 @@ final class ContextAnalysisViewModel: ObservableObject {
             status = "局面文脈解析 未PASS"
             summary = error.localizedDescription
             diagnosticError = error.localizedDescription
+        }
+    }
+
+    private static func applyingConceptRepetitionPolicy(
+        to entries: [ContextAnalysisEntry]
+    ) -> [ContextAnalysisEntry] {
+        var previousCandidateConceptID: String?
+
+        return entries.map { entry in
+            let unsuppressed = ContextExplanationGenerator.make(analysis: entry.analysis)
+            let candidateConceptID = unsuppressed.conceptSupplement?.conceptID
+            var suppressed: Set<String> = []
+
+            if let candidateConceptID,
+               candidateConceptID == previousCandidateConceptID {
+                suppressed.insert(candidateConceptID)
+            }
+
+            previousCandidateConceptID = candidateConceptID
+            return ContextAnalysisEntry(
+                id: entry.id,
+                ply: entry.ply,
+                analysis: entry.analysis,
+                suppressedConceptIDs: suppressed
+            )
         }
     }
 
