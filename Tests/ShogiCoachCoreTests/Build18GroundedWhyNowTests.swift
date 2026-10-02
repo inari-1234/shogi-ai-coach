@@ -89,6 +89,80 @@ final class Build18GroundedWhyNowTests: XCTestCase {
         XCTAssertEqual(context.verbalizationMode, .uncertaintyOnly)
     }
 
+    func testExplicitExchangeSequenceUsesFrozenExchangeTriggerWithoutChangingIntent() {
+        let analysis = MoveContextAnalysis(
+            move: "7f7e",
+            previousMove: "7d7e",
+            facts: [
+                .init(id: "previous_move", kind: .previousMove, detail: "7d7e"),
+                .init(id: "current_move", kind: .currentMove, detail: "7f7e"),
+                .init(id: "capture", kind: .capture, detail: "7e")
+            ],
+            contextChanges: [.init(id: "exchange_sequence", detail: "7e")],
+            effects: [],
+            outcomes: [.init(id: "material_capture", detail: "recapture")],
+            intentCandidates: [
+                .init(intent: .postExchangeImprovement, score: 108, evidenceIDs: ["ev_recapture_exchange"])
+            ],
+            selectedIntent: .postExchangeImprovement,
+            confidence: .high,
+            evidence: [
+                .init(
+                    id: "ev_recapture_exchange",
+                    kind: .previousMoveCausality,
+                    detail: "immediate_recapture_on:7e",
+                    supportedIntent: .postExchangeImprovement,
+                    weight: 108
+                )
+            ]
+        )
+
+        let context = GroundedExplanationProjector.make(analysis: analysis)
+
+        XCTAssertEqual(context.trigger, .exchangeSequence)
+        XCTAssertEqual(context.authorityKind, .directPreviousMove)
+        XCTAssertEqual(context.compatibleIntent, .postExchangeImprovement)
+        XCTAssertEqual(analysis.selectedIntent, .postExchangeImprovement)
+        XCTAssertEqual(analysis.confidence, .high)
+        XCTAssertTrue(context.sourceEvidenceIDs.contains("ev_recapture_exchange"))
+        XCTAssertTrue(context.sourceSignalIDs.contains("exchange_sequence"))
+    }
+
+    func testExplicitImmediateThreatCanBeProjectedWithoutInventingPreviousMoveCausality() {
+        let analysis = MoveContextAnalysis(
+            move: "5i5h",
+            previousMove: "5g5h",
+            facts: [
+                .init(id: "previous_move", kind: .previousMove, detail: "5g5h"),
+                .init(id: "current_move", kind: .currentMove, detail: "5i5h"),
+                .init(id: "side_in_check", kind: .sideInCheck, detail: "5i")
+            ],
+            contextChanges: [.init(id: "check_resolved", detail: "5h")],
+            effects: [],
+            outcomes: [],
+            intentCandidates: [.init(intent: .kingEscape, score: 80, evidenceIDs: ["board"])],
+            selectedIntent: .kingEscape,
+            confidence: .medium,
+            evidence: [
+                .init(
+                    id: "board",
+                    kind: .boardEffect,
+                    detail: "check resolved",
+                    supportedIntent: .kingEscape,
+                    weight: 80
+                )
+            ]
+        )
+
+        let context = GroundedExplanationProjector.make(analysis: analysis)
+
+        XCTAssertEqual(context.trigger, .immediateThreat)
+        XCTAssertEqual(context.compatibleIntent, .kingEscape)
+        XCTAssertEqual(context.verbalizationMode, .measured)
+        XCTAssertFalse(context.sourceEvidenceIDs.contains("ev_king_escape"))
+        XCTAssertTrue(context.detail.contains("王手"))
+    }
+
     func testFutureTriggersStayDisabledWithoutRequiredEvidenceGates() {
         let analysis = MoveContextAnalysis(
             move: "6i7h",
