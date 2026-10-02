@@ -217,7 +217,7 @@ public enum GroundedExplanationProjector {
         let ids: [String]
         switch trigger {
         case .directPreviousMove:
-            ids = directEvidence.map(.id)
+            ids = directEvidence.map { $0.id }
         case .immediateThreat:
             ids = compatibleEvidence.filter {
                 $0.id == "ev_threatmate_defense"
@@ -226,15 +226,15 @@ public enum GroundedExplanationProjector {
                     || $0.id.hasPrefix("ev_piece_defense_")
                     || $0.id == "ev_capture_threat_response"
                     || $0.id == "ev_bishop_line_response"
-            }.map(.id)
+            }.map { $0.id }
         case .forcingTactic:
             ids = analysis.evidence.filter {
                 $0.weight > 0 && ($0.id == "ev_forced_mate" || $0.id == "ev_threatmate" || $0.id == "ev_check_continuation")
-            }.map(.id)
+            }.map { $0.id }
         case .exchangeSequence:
-            ids = analysis.evidence.filter { $0.weight > 0 && $0.id == "ev_recapture_exchange" }.map(.id)
+            ids = analysis.evidence.filter { $0.weight > 0 && $0.id == "ev_recapture_exchange" }.map { $0.id }
         case .noneIdentified:
-            ids = compatibleEvidence.filter { $0.kind != .geometry }.map(.id)
+            ids = compatibleEvidence.filter { $0.kind != .geometry }.map { $0.id }
         case .verifiedSequenceTiming, .formationWindow, .endgameUrgency:
             ids = []
         }
@@ -452,7 +452,7 @@ public enum GroundedExplanationProjector {
     ) -> String {
         switch trigger {
         case .directPreviousMove:
-            let ids = Set(directEvidence.map(.id))
+            let ids = Set(directEvidence.map { $0.id })
             if ids.contains("ev_rook_pawn_response") {
                 return "直前に相手が飛車先の歩を進め、その前進に直接対応する条件が生じたためです。"
             }
