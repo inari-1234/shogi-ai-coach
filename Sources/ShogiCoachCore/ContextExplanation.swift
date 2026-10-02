@@ -49,11 +49,13 @@ public enum ContextExplanationGenerator {
         analysis: MoveContextAnalysis,
         suppressingConceptIDs: Set<String> = []
     ) -> ContextMoveExplanation {
+        let grounded = GroundedExplanationProjector.make(analysis: analysis)
+
         guard analysis.selectedIntent != .unresolved,
               analysis.confidence != .unresolved else {
             return ContextMoveExplanation(
                 conclusion: "この手単独では狙いを断定できません。",
-                whyNow: "直前手との因果関係や具体的な盤面効果が十分に確定していないため、続く手順も含めて確認します。",
+                whyNow: grounded.detail,
                 evidenceText: evidenceSummary(analysis),
                 confidence: .unresolved,
                 tone: .unresolved
@@ -78,8 +80,7 @@ public enum ContextExplanationGenerator {
             tone = .unresolved
         }
 
-        let why = whyNowText(for: analysis.selectedIntent)
-        let whyNow = analysis.confidence == .low ? "現時点では、\(why)" : why
+        let whyNow = grounded.detail
 
         return ContextMoveExplanation(
             conclusion: conclusion,
@@ -121,61 +122,6 @@ public enum ContextExplanationGenerator {
         case .controlBlock: return "相手の利きを遮る"
         case .postExchangeImprovement: return "駒交換後の形を整える"
         case .unresolved: return "狙いを確認する"
-        }
-    }
-
-    private static func whyNowText(for intent: MoveIntent) -> String {
-        switch intent {
-        case .rookPawnResponse:
-            return "直前に相手が飛車先の歩を進めたため、その歩がさらに前へ進む筋への対応が必要になった局面です。"
-        case .bishopLineResponse:
-            return "直前の手で新しく角の利きが通り、その筋への対応が必要になった局面です。"
-        case .pieceDefense:
-            return "直前の手で自軍の駒が新しく狙われたため、その駒の安全を確保する必要が生じています。"
-        case .captureThreatResponse:
-            return "直前の手で具体的な駒取りが発生し得る形になったため、その脅威への対応が必要です。"
-        case .exchangePreparation:
-            return "盤上で駒がぶつかる形になり、次の交換後まで見据える必要がある局面です。"
-        case .attackContinuation:
-            return "すでに相手玉側への具体的な働きがあり、それを切らさず続ける局面です。"
-        case .attackPreparation:
-            return "相手玉側への具体的な働きを増やせる形になっており、次の攻めを準備する局面です。"
-        case .defense:
-            return "自玉側への相手の働きが強まっており、まず危険を減らす必要がある局面です。"
-        case .kingSafety:
-            return "この先の攻防に備え、自玉周辺の守りを整える価値が高い局面です。"
-        case .castling:
-            return "まだ序盤で玉を安全な位置へ移し、囲いを進められる局面です。"
-        case .development:
-            return "まだ駒組みの段階で、未活用の駒を働かせる価値がある局面です。"
-        case .pieceActivation:
-            return "この手で駒の可動域や働きを増やせる局面です。"
-        case .majorPieceActivation:
-            return "この手で飛車・角の利きを広げ、盤面への影響を増やせる局面です。"
-        case .tenuki:
-            return "直前の局所的な変化へ直接応じず、離れた場所で別の価値を優先しています。"
-        case .neutralizeThreat:
-            return "相手に具体的な次の狙いがあり、それを先に消す必要がある局面です。"
-        case .handPieceDeployment:
-            return "持駒を使うことで、盤上に新しい働きを作れる局面です。"
-        case .outpostCreation:
-            return "前線に安定して使えるマスがあり、そこを拠点化できる局面です。"
-        case .matingAttack:
-            return "エンジンの読みで詰みにつながる手順が確認されている局面です。"
-        case .threatmate:
-            return "次の一手で詰みを狙える形を作れることが確認されている局面です。"
-        case .threatmateDefense:
-            return "相手の詰めろがあり、この手でその脅威を外せることが確認されている局面です。"
-        case .kingEscape:
-            return "自玉が王手を受けており、まず王手を解消する必要がある局面です。"
-        case .controlAddition:
-            return "重要なマスへの利きを増やすことで、次の攻防を進めやすくする局面です。"
-        case .controlBlock:
-            return "相手の利きが通っており、その線を遮ることが必要な局面です。"
-        case .postExchangeImprovement:
-            return "直前に駒の取り合いが起き、交換後の配置を整える局面です。"
-        case .unresolved:
-            return "十分な因果関係を確認できていません。"
         }
     }
 
