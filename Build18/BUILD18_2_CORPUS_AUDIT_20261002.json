@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build18-2 Corpus Audit / Cross-review",
+  "verdict": "PASS",
+  "productionCodeChanged": false,
+  "totalRecords": 316,
+  "uniquePositions": 300,
+  "quotaRequirements": {
+    "DIRECT_PREVIOUS_MOVE_CAUSALITY": 40,
+    "TIMING_MOVE_ORDER": 40,
+    "AMBIGUOUS_MULTI_INTENT": 40,
+    "EFFECT_INTENT_BOUNDARY": 40,
+    "COUNTERFACTUAL_DEMANDING": 30,
+    "ENDGAME_FORCING": 40,
+    "SHIKENBISHA_DEDICATED": 60,
+    "ADVERSARIAL_GEOMETRY_HARD": 60
+  },
+  "quotaCounts": {
+    "DIRECT_PREVIOUS_MOVE_CAUSALITY": 40,
+    "TIMING_MOVE_ORDER": 44,
+    "AMBIGUOUS_MULTI_INTENT": 302,
+    "EFFECT_INTENT_BOUNDARY": 168,
+    "COUNTERFACTUAL_DEMANDING": 43,
+    "ENDGAME_FORCING": 59,
+    "SHIKENBISHA_DEDICATED": 61,
+    "ADVERSARIAL_GEOMETRY_HARD": 187
+  },
+  "everyPositionHasForbiddenClaims": true,
+  "lockedRegression": {
+    "included": true,
+    "position": "position startpos moves 7g7f 8c8d 2g2f 8d8e",
+    "move": "8h7g",
+    "expectedIntent": "rook_pawn_response",
+    "confidence": "HIGH",
+    "whyNowTrigger": "DIRECT_PREVIOUS_MOVE"
+  },
+  "build18_1Compatibility": {
+    "triggerIDsOnly": true,
+    "claimTypesOnly": true,
+    "highRiskConceptPromotions": 0,
+    "precedentCreatedIntentCount": 0,
+    "precedentInventedPreviousMoveCount": 0
+  },
+  "crossReview": [
+    {
+      "name": "STRUCTURAL_SCHEMA_REVIEW",
+      "passed": true,
+      "issues": []
+    },
+    {
+      "name": "INDEPENDENT_SEMANTIC_SAFETY_REVIEW",
+      "passed": true,
+      "issues": []
+    }
+  ],
+  "qualityAxes": [
+    {
+      "id": "Q1_GROUNDEDNESS",
+      "blocking": true,
+      "result": "PASS"
+    },
+    {
+      "id": "Q2_CAUSALITY",
+      "blocking": true,
+      "result": "PASS"
+    },
+    {
+      "id": "Q3_LAYER_CORRECTNESS",
+      "blocking": true,
+      "result": "PASS"
+    },
+    {
+      "id": "Q4_UNCERTAINTY_CALIBRATION",
+      "blocking": true,
+      "result": "PASS"
+    },
+    {
+      "id": "Q5_BEGINNER_READABILITY",
+      "blocking": false,
+      "result": "PASS"
+    },
+    {
+      "id": "Q6_CONCISION_REDUNDANCY",
+      "blocking": false,
+      "result": "PASS"
+    },
+    {
+      "id": "Q7_SCOPE_DISCIPLINE",
+      "blocking": true,
+      "result": "PASS"
+    }
+  ],
+  "notes": [
+    "Build17-3 provisional positive labels for waiting_move/prophylaxis/sabai and other high-risk concepts are retained only as provenance/diagnostic challenge, never as Build18-2 primary Intent authority.",
+    "Additional compact precedent rows intentionally keep previousMove=null and use NONE_IDENTIFIED.",
+    "No Production source path is authored by this stage."
+  ]
+}
