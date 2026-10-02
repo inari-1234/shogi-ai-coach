@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "scoringPolicy": "No aggregate score. Each axis is independently PASS/FAIL/REVIEW.",
+  "axes": [
+    {
+      "id": "Q1_GROUNDEDNESS",
+      "blocking": true,
+      "pass": "Every concrete claim traces to source evidence/signal.",
+      "fail": "Any unsupported concrete claim or fabricated detail."
+    },
+    {
+      "id": "Q2_CAUSALITY",
+      "blocking": true,
+      "pass": "Why-now causality is real and evidenced; if absent, explanation does not pretend otherwise.",
+      "fail": "False previous-move link or invented timing."
+    },
+    {
+      "id": "Q3_LAYER_CORRECTNESS",
+      "blocking": true,
+      "pass": "Fact/ContextChange/Effect/Intent/Outcome remain semantically separated.",
+      "fail": "Effect->Intent or Outcome->Reason inversion."
+    },
+    {
+      "id": "Q4_UNCERTAINTY_CALIBRATION",
+      "blocking": true,
+      "pass": "LOW/UNRESOLVED avoid assertion and only state verifiable missing evidence.",
+      "fail": "Assertive purpose under LOW/UNRESOLVED or speculative uncertainty reason."
+    },
+    {
+      "id": "Q5_BEGINNER_READABILITY",
+      "blocking": false,
+      "pass": "Conclusion first; jargon explained or avoided; observed change is understandable; reader knows what to inspect.",
+      "review": "Manual review permitted; major ambiguity must be corrected before final Build18 freeze."
+    },
+    {
+      "id": "Q6_CONCISION_REDUNDANCY",
+      "blocking": false,
+      "pass": "No conclusion/whyNow duplicate, no Primary/supplement repetition, no immediate concept repetition.",
+      "review": "Manual review for verbosity/naturalness."
+    },
+    {
+      "id": "Q7_SCOPE_DISCIPLINE",
+      "blocking": true,
+      "pass": "No nonexistent plan, opening name, mate, threatmate, or specialized label.",
+      "fail": "Any unsupported strategy/tactical claim."
+    }
+  ],
+  "semanticBlockers": [
+    "unsupported intent claim",
+    "effect-to-intent promotion",
+    "outcome-to-reason inversion",
+    "false previous-move causality",
+    "geometry-only purpose claim",
+    "LOW/UNRESOLVED assertive claim",
+    "Concept changes Intent/confidence",
+    "fictitious opponent plan",
+    "fictitious mate/threatmate",
+    "unsupported Shikenbisha strategy label"
+  ],
+  "freezeGate": "All blocking axes PASS; manual axes may be REVIEW only if no major semantic ambiguity remains."
+}

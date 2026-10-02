@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "frozenTriggers": [
+    {
+      "id": "DIRECT_PREVIOUS_MOVE",
+      "definition": "The immediately preceding move created a concrete condition that the current move directly answers.",
+      "currentDetectability": "SUPPORTED",
+      "acceptableSources": [
+        "previous_move_causality",
+        "previousMove fact",
+        "contextChange tied to previous move"
+      ],
+      "examplesOfCurrentEvidence": [
+        "ev_rook_pawn_response",
+        "ev_piece_defense_*",
+        "ev_bishop_line_response",
+        "ev_capture_threat_response",
+        "ev_king_escape",
+        "ev_check_defense"
+      ],
+      "forbidden": "Do not infer a plan merely because the moves are nearby."
+    },
+    {
+      "id": "IMMEDIATE_THREAT",
+      "definition": "A verified check, newly created attack, capture threat, or threatmate makes response timing immediate.",
+      "currentDetectability": "SUPPORTED_WHEN_EXPLICIT",
+      "acceptableSources": [
+        "side_in_check",
+        "new_attack_from_previous_move",
+        "engine-verified threatmate state",
+        "previous_move_causality"
+      ],
+      "forbidden": "Do not label a generic pressure increase as an immediate threat without explicit threat evidence."
+    },
+    {
+      "id": "FORCING_TACTIC",
+      "definition": "A forcing check/mate/threatmate sequence is verified by explicit board state and, where required, stable engine evidence.",
+      "currentDetectability": "SUPPORTED_WHEN_EXPLICIT",
+      "acceptableSources": [
+        "gives_check",
+        "ev_forced_mate",
+        "ev_threatmate",
+        "ev_threatmate_defense"
+      ],
+      "forbidden": "Do not convert a king-zone or escape-square effect into mate purpose."
+    },
+    {
+      "id": "EXCHANGE_SEQUENCE",
+      "definition": "The current move is causally tied to a just-created capture/exchange sequence.",
+      "currentDetectability": "SUPPORTED",
+      "acceptableSources": [
+        "ev_recapture_exchange",
+        "exchange_sequence",
+        "material_capture"
+      ],
+      "forbidden": "An exchange alone does not prove sabai, transformation purpose, or strategic intent."
+    },
+    {
+      "id": "VERIFIED_SEQUENCE_TIMING",
+      "definition": "Why-now depends on move order, tempo, or a multi-ply sequence whose continuity is explicitly verified.",
+      "currentDetectability": "PARTIAL_FUTURE",
+      "requiredAdditionalEvidence": [
+        "sequence continuity or stable counterfactual demonstrating timing dependence"
+      ],
+      "forbidden": "Do not infer from current one-ply geometry, opening name, or generic development."
+    },
+    {
+      "id": "FORMATION_WINDOW",
+      "definition": "A formation/opening timing window is supported by reference-backed context plus concrete board/sequence evidence.",
+      "currentDetectability": "SPECIALIZED_PROVIDER_ONLY",
+      "requiredAdditionalEvidence": [
+        "reference-backed cue",
+        "formation state",
+        "concrete compatible board or sequence evidence"
+      ],
+      "forbidden": "Opening family/name alone cannot establish why-now or Intent."
+    },
+    {
+      "id": "ENDGAME_URGENCY",
+      "definition": "Endgame speed/forcing urgency is supported by stable engine/counterfactual and explicit forcing state.",
+      "currentDetectability": "SUPPORTED_ONLY_WITH_STRONG_EVIDENCE",
+      "requiredAdditionalEvidence": [
+        "stable engine/counterfactual",
+        "check/mate/threatmate/forcing continuation evidence"
+      ],
+      "forbidden": "Do not infer speed-over-material from material sacrifice or forcing appearance alone."
+    },
+    {
+      "id": "NONE_IDENTIFIED",
+      "definition": "No explanation-safe why-now trigger is confirmed.",
+      "currentDetectability": "SUPPORTED",
+      "behavior": "Use generic limited or uncertainty explanation; never manufacture another trigger."
+    }
+  ],
+  "mergedOrRejectedCandidates": {
+    "PREVIOUS_MOVE": "merged into DIRECT_PREVIOUS_MOVE",
+    "MOVE_ORDER": "merged into VERIFIED_SEQUENCE_TIMING",
+    "TEMPO": "merged into VERIFIED_SEQUENCE_TIMING",
+    "PIECE_RELATION_CHANGE": "treated as evidence/change, not a why-now trigger by itself",
+    "KING_SAFETY_CHANGE": "treated as evidence/change unless tied to DIRECT_PREVIOUS_MOVE or FORMATION_WINDOW",
+    "TACTICAL_OPPORTUNITY": "narrowed to FORCING_TACTIC because the broad form is overclaim-prone",
+    "FORMATION_TIMING": "renamed/narrowed to FORMATION_WINDOW",
+    "OPPONENT_PLAN_REVEALED": "not frozen as a trigger; plan inference is too broad without explicit evidence",
+    "EXCHANGE_OPPORTUNITY": "narrowed to EXCHANGE_SEQUENCE",
+    "ATTACK_WINDOW": "requires VERIFIED_SEQUENCE_TIMING or FORCING_TACTIC; not standalone",
+    "DEFENSE_REQUIRED": "represented by IMMEDIATE_THREAT/DIRECT_PREVIOUS_MOVE plus selected defense Intent",
+    "ENDGAME_SPEED": "renamed/narrowed to ENDGAME_URGENCY"
+  }
+}

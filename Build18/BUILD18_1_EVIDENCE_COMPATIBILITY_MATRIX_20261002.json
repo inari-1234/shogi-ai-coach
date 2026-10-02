@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "authorityPriorityForExplanation": [
+    "DIRECT_PREVIOUS_MOVE",
+    "CONCRETE_BOARD_EFFECT",
+    "STABLE_COUNTERFACTUAL",
+    "STABLE_ENGINE_PV",
+    "OPENING_OR_PRECEDENT",
+    "GEOMETRY"
+  ],
+  "evidenceCompatibility": [
+    {
+      "source": "previous_move_causality",
+      "allowedClaims": [
+        "FACT",
+        "CONTEXT_CHANGE",
+        "INTENT"
+      ],
+      "intentRule": "INTENT wording only for selectedIntent matching supportedIntent.",
+      "whyNowStrength": "HIGH",
+      "notes": "Primary current source for grounded why-now."
+    },
+    {
+      "source": "board_effect",
+      "allowedClaims": [
+        "EFFECT",
+        "CONTEXT_CHANGE"
+      ],
+      "intentRule": "May support an already selectedIntent but detail must not be rewritten as motive.",
+      "whyNowStrength": "MEDIUM",
+      "notes": "Concrete before/after changes are verbalizable."
+    },
+    {
+      "source": "counterfactual",
+      "allowedClaims": [
+        "OUTCOME",
+        "INTENT"
+      ],
+      "intentRule": "Only when stable/meaningful and compatible with selectedIntent; zero-weight generic alternative is not itself a purpose proof.",
+      "whyNowStrength": "HIGH_WHEN_STABLE",
+      "notes": "Needed for many deferred concepts."
+    },
+    {
+      "source": "engine_pv",
+      "allowedClaims": [
+        "OUTCOME",
+        "INTENT"
+      ],
+      "intentRule": "Specific verified mate/threatmate can support corresponding selectedIntent; generic PV only reinforces existing anchor.",
+      "whyNowStrength": "HIGH_WHEN_SPECIFIC_AND_STABLE",
+      "notes": "PV is supporting evidence, not free-form plan inference."
+    },
+    {
+      "source": "opening_book",
+      "allowedClaims": [
+        "FACT",
+        "CONTEXT_CHANGE"
+      ],
+      "intentRule": "Cannot create Intent. May reinforce existing non-geometry anchor.",
+      "whyNowStrength": "SUPPORTING_ONLY",
+      "notes": "Opening name/knowledge alone is insufficient."
+    },
+    {
+      "source": "precedent",
+      "allowedClaims": [
+        "FACT",
+        "CONTEXT_CHANGE"
+      ],
+      "intentRule": "Cannot create Intent. Observation count may be stated when present; does not prove motive.",
+      "whyNowStrength": "SUPPORTING_ONLY",
+      "notes": "Precedent alone must never generate Intent."
+    },
+    {
+      "source": "geometry",
+      "allowedClaims": [
+        "FACT",
+        "EFFECT"
+      ],
+      "intentRule": "Never supports purpose or primary Intent by itself.",
+      "whyNowStrength": "LOW",
+      "notes": "Forbidden as sole purpose basis."
+    }
+  ],
+  "signalCompatibility": [
+    {
+      "signal": "piece_mobility",
+      "layer": "EFFECT",
+      "allowedIntentFamilies": "Build17-5 existing permit rule only",
+      "purposeClaim": false
+    },
+    {
+      "signal": "escape_route_control",
+      "layer": "EFFECT",
+      "allowedIntentFamilies": "Build17-5 existing attack-related permit rule only",
+      "purposeClaim": false
+    },
+    {
+      "signal": "attack_attacker",
+      "layer": "EFFECT/SUBINTENT_METADATA",
+      "allowedIntentFamilies": "Build17-5 existing defense/capture/bishop-line permit rule only",
+      "purposeClaim": false
+    },
+    {
+      "signal": "check_resolved",
+      "layer": "CONTEXT_CHANGE",
+      "purposeClaim": false
+    },
+    {
+      "signal": "new_attack_from_previous_move",
+      "layer": "CONTEXT_CHANGE",
+      "purposeClaim": false
+    },
+    {
+      "signal": "exchange_sequence",
+      "layer": "CONTEXT_CHANGE",
+      "purposeClaim": false
+    },
+    {
+      "signal": "material_capture",
+      "layer": "OUTCOME",
+      "purposeClaim": false
+    }
+  ],
+  "hardBlockers": [
+    "unsupported intent claim",
+    "effect-to-intent promotion",
+    "outcome-to-reason inversion",
+    "false previous-move causality",
+    "geometry-only purpose claim",
+    "opening/precedent-only purpose claim",
+    "LOW/UNRESOLVED assertive purpose claim",
+    "fictitious opponent plan",
+    "fictitious mate/threatmate",
+    "unsupported specialized strategy label"
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "claimTypes": [
+    {
+      "type": "FACT",
+      "maySay": "Directly observed current/previous move, capture, drop, promotion, check, side-in-check.",
+      "cannotSay": "Motive, future plan, strategic necessity.",
+      "traceRule": "fact id or exact engine state"
+    },
+    {
+      "type": "CONTEXT_CHANGE",
+      "maySay": "A verified change between before/after context such as check resolved, newly created attack, exchange sequence.",
+      "cannotSay": "That the change was the player's purpose unless selected Intent independently supports it.",
+      "traceRule": "contextChange id plus source evidence where causal"
+    },
+    {
+      "type": "EFFECT",
+      "maySay": "Observable consequence such as mobility increase, escape-square reduction, added control/defender.",
+      "cannotSay": "'to achieve X', 'aimed to X', or 'for the purpose of X' solely from the effect.",
+      "traceRule": "effect id and detail"
+    },
+    {
+      "type": "INTENT",
+      "maySay": "Only the already selected MoveIntent, calibrated by existing confidence.",
+      "cannotSay": "New/deferred concept as purpose; alternate intent; purpose inferred from effect/geometry/opening name.",
+      "traceRule": "selectedIntent plus compatible source evidence; no explanation-layer re-resolution"
+    },
+    {
+      "type": "OUTCOME",
+      "maySay": "Observed/verified result such as material capture or stable comparison outcome.",
+      "cannotSay": "Reverse the outcome into a reason without causal evidence.",
+      "traceRule": "outcome id or explicit verified engine state"
+    },
+    {
+      "type": "UNCERTAINTY",
+      "maySay": "A directly inspectable missing/unstable evidence reason.",
+      "cannotSay": "Speculative reasons for why evidence is missing.",
+      "traceRule": "missingEvidence rule condition must evaluate true"
+    }
+  ],
+  "promotionRules": {
+    "FACT->INTENT": "FORBIDDEN unless Intent already exists from resolver; fact may only support wording.",
+    "CONTEXT_CHANGE->INTENT": "FORBIDDEN as automatic promotion.",
+    "EFFECT->INTENT": "STRICTLY FORBIDDEN as automatic promotion.",
+    "OUTCOME->INTENT": "FORBIDDEN as reverse-causality.",
+    "UNCERTAINTY->INTENT": "FORBIDDEN."
+  }
+}
