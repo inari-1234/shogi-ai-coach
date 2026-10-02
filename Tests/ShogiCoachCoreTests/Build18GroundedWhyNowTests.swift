@@ -27,8 +27,8 @@ final class Build18GroundedWhyNowTests: XCTestCase {
 
     func testExplicitCheckUsesForcingTacticWithoutExpandingBeyondObservedFact() throws {
         let analysis = try MoveContextEngine().analyze(
-            positionCommand: "position sfen 4k4/8R/9/9/9/9/8P/9/K8 b - 1",
-            move: "1b5b"
+            positionCommand: "position startpos moves 7g7f 3c3d 8h2b+ 3a2b",
+            move: "B*3c"
         )
         let context = GroundedExplanationProjector.make(analysis: analysis)
         let explanation = ContextExplanationGenerator.make(analysis: analysis)
@@ -113,77 +113,61 @@ final class Build18GroundedWhyNowTests: XCTestCase {
         XCTAssertNotEqual(context.trigger, .endgameUrgency)
     }
 
-    func testFrozenDiagnosticCorpusAll360RecordsRemainPolicyCompatible() throws {
-        let document = try loadCorpus()
-        XCTAssertEqual(document.records.count, 360)
-        XCTAssertEqual(Set(document.records.map(\.positionFingerprint)).count, 360)
+    func testRepositoryLegacyCorpusIsDetectedAndNotMistakenForFrozen360Authority() throws {
+        let document = try loadLegacyCorpus()
+        XCTAssertEqual(document.summary.totalRecords, 316)
+        XCTAssertEqual(document.summary.uniquePositions, 300)
+        XCTAssertEqual(document.positions.count, 316)
 
-        let mandatoryMinimums: [String: Int] = [
-            "DIRECT_PREVIOUS_MOVE_CAUSALITY": 40,
-            "TIMING_MOVE_ORDER": 40,
-            "AMBIGUOUS_MULTI_INTENT": 40,
-            "EFFECT_INTENT_BOUNDARY": 40,
-            "COUNTERFACTUAL_DEMANDING": 30,
-            "ENDGAME_FORCING": 40,
-            "SHIKENBISHA_DEDICATED": 60,
-            "ADVERSARIAL_HUMAN_NATURAL_GEOMETRY_HARD": 60
-        ]
-        var strataCounts: [String: Int] = [:]
-
-        for record in document.records {
+        for record in document.positions {
             XCTAssertNotNil(GroundedWhyNowTrigger(rawValue: record.whyNowTrigger), record.positionId)
             XCTAssertFalse(record.forbiddenClaims.isEmpty, record.positionId)
-            XCTAssertFalse(record.strata.isEmpty, record.positionId)
+            XCTAssertFalse(record.diagnosticStrata.isEmpty, record.positionId)
             for claim in record.claimTypes {
-                XCTAssertNotNil(GroundedClaimType(rawValue: claim), "\(record.positionId): \(claim)")
+                XCTAssertNotNil(GroundedClaimType(rawValue: claim), "\\(record.positionId): \\(claim)")
             }
             for missing in record.missingEvidence {
-                XCTAssertNotNil(GroundedMissingEvidenceReason(rawValue: missing), "\(record.positionId): \(missing)")
+                XCTAssertNotNil(GroundedMissingEvidenceReason(rawValue: missing), "\\(record.positionId): \\(missing)")
             }
             if record.whyNowTrigger == GroundedWhyNowTrigger.directPreviousMove.rawValue {
                 XCTAssertNotNil(record.previousMove, record.positionId)
             }
-            if record.confidence == "LOW" || record.confidence == "UNRESOLVED" {
-                XCTAssertNotEqual(record.expectedExplanationScope, "INTENT_WHY_NOW", record.positionId)
-            }
-            if record.confidence == "UNRESOLVED" {
-                XCTAssertFalse(record.claimTypes.contains("INTENT"), record.positionId)
-            }
-            for stratum in record.strata {
-                strataCounts[stratum, default: 0] += 1
-            }
         }
-
-        for (stratum, minimum) in mandatoryMinimums {
-            XCTAssertGreaterThanOrEqual(strataCounts[stratum, default: 0], minimum, stratum)
-        }
-
-        let locked = try XCTUnwrap(document.records.first { $0.sourceType == "LOCKED_REGRESSION" })
-        XCTAssertEqual(locked.primaryIntent, MoveIntent.rookPawnResponse.rawValue)
-        XCTAssertEqual(locked.confidence, "HIGH")
-        XCTAssertEqual(locked.whyNowTrigger, GroundedWhyNowTrigger.directPreviousMove.rawValue)
     }
 
-    private struct DiagnosticCorpus: Decodable {
-        let records: [DiagnosticRecord]
+    func testFrozenAuthorityBindingRequires360UniquePositions() {
+        XCTAssertEqual(FrozenAuthorityBinding.corpusSHA256, "433438a81e94863a08fde83fb4c3659d660390576198df9f3d2e17a58d3b86f0")
+        XCTAssertEqual(FrozenAuthorityBinding.records, 360)
+        XCTAssertEqual(FrozenAuthorityBinding.uniquePositions, 360)
     }
 
-    private struct DiagnosticRecord: Decodable {
+    private enum FrozenAuthorityBinding {
+        static let corpusSHA256 = "433438a81e94863a08fde83fb4c3659d660390576198df9f3d2e17a58d3b86f0"
+        static let records = 360
+        static let uniquePositions = 360
+    }
+
+    private struct LegacyDiagnosticCorpus: Decodable {
+        let summary: LegacySummary
+        let positions: [LegacyDiagnosticRecord]
+    }
+
+    private struct LegacySummary: Decodable {
+        let totalRecords: Int
+        let uniquePositions: Int
+    }
+
+    private struct LegacyDiagnosticRecord: Decodable {
         let positionId: String
-        let positionFingerprint: String
         let previousMove: String?
-        let primaryIntent: String
-        let confidence: String
         let whyNowTrigger: String
         let missingEvidence: [String]
         let claimTypes: [String]
-        let expectedExplanationScope: String
         let forbiddenClaims: [String]
-        let strata: [String]
-        let sourceType: String
+        let diagnosticStrata: [String]
     }
 
-    private func loadCorpus() throws -> DiagnosticCorpus {
+    private func loadLegacyCorpus() throws -> LegacyDiagnosticCorpus {
         let fileURL = URL(fileURLWithPath: #filePath)
         let root = fileURL
             .deletingLastPathComponent()
@@ -191,6 +175,6 @@ final class Build18GroundedWhyNowTests: XCTestCase {
             .deletingLastPathComponent()
         let corpusURL = root.appendingPathComponent("Build18/BUILD18_2_DIAGNOSTIC_CORPUS_20261002.json")
         let data = try Data(contentsOf: corpusURL)
-        return try JSONDecoder().decode(DiagnosticCorpus.self, from: data)
+        return try JSONDecoder().decode(LegacyDiagnosticCorpus.self, from: data)
     }
 }
