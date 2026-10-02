@@ -1,0 +1,36 @@
+{
+  "stage": "Build17-6R Real-game E2E / False Explanation Regression — Restart after Build16-R1",
+  "baselineDate": "2026-10-02",
+  "repository": "inari-1234/shogi-ai-coach",
+  "branch": "candidate/build17-6r-real-game-e2e",
+  "upstream": {
+    "build17_5_frozen": "50c136086751e39016c6fecde31c93d8e0088d2a",
+    "build16_r1_head": "0387dd22216627aad13c51754ac9cf4f066f949e"
+  },
+  "source": {
+    "sourceID": "denryusen:dr4-hardware2:2024",
+    "title": "第2回マイナビニュース杯電竜戦統一ハードウェア戦",
+    "archiveURL": "https://denryu-sen.jp/denryusen/dr4_hardware2/kif_dr4_hdw2.zip",
+    "sourcePage": "https://denryu-sen.jp/denryusen/dr4_hardware2/dr1_live.php",
+    "retrievedDate": "2026-10-02",
+    "archiveKIFCountObserved": 250,
+    "usage": "regression fixture / E2E input only; not training data"
+  },
+  "audit": {
+    "targetPositions": 240,
+    "minimumGames": 4,
+    "maxPositionsPerGame": 60,
+    "maxPly": 100,
+    "carryOverPositionsFromFailedBuild17_6": 0
+  },
+  "earlyGates": [
+    "C_build16_r1_ply59_overflow",
+    "A_locked_rook_pawn_response",
+    "B_bishop_line_multi_concept_priority"
+  ],
+  "oldBuild17_6": {
+    "verdict": "FAIL — CORRECTION REQUIRED",
+    "completedPositionsBeforeFailure": 118,
+    "passCountReusable": false
+  }
+}
