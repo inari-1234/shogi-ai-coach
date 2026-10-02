@@ -3,110 +3,190 @@
 ## Build18-3
 ### 「Grounded WhyNow Limited Implementation」専用
 
+開発引き継ぎ・開始指示
+
 基準日：2026-10-02  
 対象リポジトリ：`inari-1234/shogi-ai-coach`
 
-### 1. 位置づけ
+==================================================
+1. このチャットの位置づけ
+==================================================
 
-Build18-1「Grounded WhyNow Specification / Architecture Freeze」と、
 Build18-2「Diagnostic Corpus / Annotation Design & Freeze」が
-**COMPLETE / FROZEN CANDIDATE** になった後に開始する、限定実装工程です。
+**COMPLETE / FROZEN CANDIDATE** になった後に開始する、
+Grounded WhyNow の**限定Production実装工程**です。
 
-この工程では、既存の正しい Intent / Confidence を変更せず、
-`GroundedExplanationContext` を Explanation-only projection layer として実装します。
+Build18-1 / Build18-2で固定した意味境界を実装へ接続します。
 
-### 2. Input authority
+この工程では既存Intent Resolverを作り直しません。
 
-- baseline main: `fd35c8b990379ebccbf1711d1cc0fa4a8464d53d`
-- Build18-1 Frozen Candidate 一式
-- Build18-2 Frozen Candidate 一式
-- Build17 Locked Regression
-- Build17-6R real-game regression assets
+==================================================
+2. 上流authority
+==================================================
 
-### 3. 絶対保護対象
+Baseline main:
+`fd35c8b990379ebccbf1711d1cc0fa4a8464d53d`
 
-変更禁止:
+Build18-1 specification HEAD:
+`ea37b850c72fd07b328adbd046892b647edf8c2f`
 
-- `MoveIntent`
-- `ContextIntentResolver`
-- Intent scoring / evidence weights
-- confidence thresholds
-- Build17-4 three Concept detector semantics
-- Build17-5 Concept explanation safety rules
-- Locked Regression expected Intent / Confidence
+Build18-2 Annotation Schema SHA-256:
+`3b7453198c25504dbb94226fc9863a2e53a9b86d29b19c1398b5ae6b32884d1a`
 
-`ContextEngine.swift` の protected resolver path を変更する必要が生じた場合は、
-実装を止めて Architecture Amendment gate を開いてください。
+Build18-2 status:
+**COMPLETE / FROZEN CANDIDATE**
 
-### 4. 実装範囲
+Build18-2 Diagnostic Corpus:
+`BUILD18_2_DIAGNOSTIC_CORPUS_20261002.json`
 
-優先して新規 projection type / file を作成し、
+Build18-2 Corpus Validation:
+`BUILD18_2_CORPUS_VALIDATION_20261002.json`
 
-`Fact -> ContextChange -> Effect -> Intent -> Outcome -> Confidence -> GroundedExplanationContext -> Explanation`
+Build18-2 Final Report:
+`BUILD18_2_FINAL_REPORT_20261002.md`
 
-を実装してください。
+==================================================
+3. 実装目的
+==================================================
 
-v1で実装可能な why-now trigger は、実Evidenceで確認できるものに限定します:
+既存の
+
+Fact -> ContextChange -> Effect -> Intent -> Outcome -> Confidence
+
+を変更せず、その後段へ
+
+GroundedExplanationContext -> Explanation
+
+を限定実装してください。
+
+目的は、
+
+「なぜこの手を今指したのか」
+
+を、既存解析で確認済みのEvidence / Signalだけから安全に説明することです。
+
+==================================================
+4. 絶対に変更しないもの
+==================================================
+
+- MoveIntent enum
+- ContextIntentResolver
+- Intent score / evidence weight
+- confidence threshold
+- Build17 safe Concept detector semantics
+- Build17 Concept explanation safety rules
+- Locked Regression behavior
+- Build18-2 Frozen Annotation Schema
+- Build18-2 corpus labels
+
+これらの変更が必要になった場合は実装を続行せず、
+**ARCHITECTURE AMENDMENT REQUIRED**
+として切り分けてください。
+
+==================================================
+5. 実装境界
+==================================================
+
+原則として `ContextEngine.swift` のresolver責務へ入らず、
+新規projection type / fileを優先してください。
+
+GroundedExplanationContextはresolverではありません。
+
+selectedIntent / confidenceをread-onlyで受け取り、
+説明に使用可能なclaimへ投影するだけです。
+
+==================================================
+6. 最重要安全規則
+==================================================
+
+- Effect -> Intent 自動昇格禁止
+- Outcome -> Reason 逆転禁止
+- geometry-only purpose禁止
+- opening / precedent only purpose禁止
+- LOW / UNRESOLVEDでassertive purpose禁止
+- previousMoveをgeometryから復元しない
+- fictitious opponent plan禁止
+- fictitious mate / threatmate禁止
+- unsupported Shikenbisha strategy label禁止
+- specialized knowledgeはExplanation-only
+
+==================================================
+7. Frozen WhyNow Trigger
+==================================================
+
+使用可能なのは以下のみです。
 
 - DIRECT_PREVIOUS_MOVE
 - IMMEDIATE_THREAT
 - FORCING_TACTIC
 - EXCHANGE_SEQUENCE
-- NONE_IDENTIFIED
-
-以下は必要Evidenceが揃わない限り出力しません:
-
 - VERIFIED_SEQUENCE_TIMING
 - FORMATION_WINDOW
 - ENDGAME_URGENCY
+- NONE_IDENTIFIED
 
-### 5. Semantic hard blockers
+Build18-2 corpusの期待値をテストauthorityとして使用してください。
 
-- Effect -> Intent 自動昇格禁止
-- Outcome -> reason 逆推論禁止
-- geometry-only purpose 禁止
-- opening / precedent-only purpose 禁止
-- LOW / UNRESOLVED assertive purpose 禁止
-- fictitious opponent plan 禁止
-- fictitious mate / threatmate 禁止
-- unsupported Shikenbisha strategy label 禁止
-- waiting_move / prophylaxis / sabai 等を新Intentとして実装しない
+==================================================
+8. 初期実装scope
+==================================================
 
-### 6. Diagnostic Corpus gate
+まず実装対象を安全な範囲へ限定してください。
 
-Build18-2 corpus全体を regression authority として使用してください。
+優先:
 
-最低条件:
+1. DIRECT_PREVIOUS_MOVE
+2. 明示的IMMEDIATE_THREAT
+3. 明示的FORCING_TACTIC
+4. 明示的EXCHANGE_SEQUENCE
+5. NONE_IDENTIFIED fallback
 
-- unique positions >= 300 authorityを保持
-- mandatory strataを全て回帰
-- every `forbiddenClaims` violation = 0
-- Locked Regression PASS
-- precedent-only rowsで Intent / previousMove / why-now を捏造しない
-- Shikenbisha subsetで specialized provider境界を破らない
+VERIFIED_SEQUENCE_TIMING / FORMATION_WINDOW / ENDGAME_URGENCYは、
+必要Evidence gateを満たす場合だけ有効化してください。
+不足する場合はNONE_IDENTIFIED / limited wordingへ落としてください。
 
-### 7. 実装成果物
+==================================================
+9. Diagnostic Corpus回帰
+==================================================
+
+Build18-2 corpus 360 unique positionsを回帰authorityとして使用してください。
 
 最低限:
 
-- GroundedExplanationContext implementation
-- projection / traceability tests
-- trigger selection tests
-- uncertainty verbalization tests
-- Build18-2 corpus regression runner
-- Build18-3 STATIC AUDIT
-- Build18-3 FINAL REPORT
+- all required records parse
+- Frozen trigger expectation
+- forbiddenClaims violation 0
+- Effect->Intent violation 0
+- LOW/UNRESOLVED assertive claim 0
+- Shikenbisha boundary violation 0
+- Locked Regression PASS
+- high-risk Concept false positive 0
 
-### 8. PASS条件
+を検証してください。
 
-- Production build/test PASS
-- Build17 Locked Regression PASS
-- Build18-2 corpus mandatory strata PASS
-- semantic blocker 0
-- resolver path behavior unchanged
-- Intent / Confidence mutation 0
-- false previous-move causality 0
-- LOW / UNRESOLVED assertive purpose 0
-- cross-review PASS
+==================================================
+10. Production実装の進め方
+==================================================
 
-PASS後のみ、次工程の独立検証 / Freezeへ進んでください。
+現状確認
+-> 差分設計
+-> 最小実装
+-> 静的検証
+-> Build18-2 corpus回帰
+-> Locked Regression
+-> 既存Build17回帰
+-> Device / Simulator build/test
+-> 保存後再検証
+
+の順で進めてください。
+
+途中版をCOMPLETE扱いしないでください。
+
+==================================================
+11. 完了条件
+==================================================
+
+Build18-3のPASS条件は実装開始後に、Build18-1/2 authorityを基準に具体化してください。
+少なくともIntent/Confidenceの不変性とCorpus全回帰はblocking gateです。
+
+Build18-3内でBuild18-4以降へ先行しないでください。

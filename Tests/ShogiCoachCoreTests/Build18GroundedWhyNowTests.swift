@@ -173,7 +173,7 @@ final class Build18GroundedWhyNowTests: XCTestCase {
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
-        let corpusURL = root.appendingPathComponent("Build18/BUILD18_2_DIAGNOSTIC_CORPUS_20261002.json")
+        let corpusURL = root.appendingPathComponent("Build18/Legacy/Build18-2_300_unique/BUILD18_2_DIAGNOSTIC_CORPUS_20261002.json")
         let data = try Data(contentsOf: corpusURL)
         return try JSONDecoder().decode(LegacyDiagnosticCorpus.self, from: data)
     }

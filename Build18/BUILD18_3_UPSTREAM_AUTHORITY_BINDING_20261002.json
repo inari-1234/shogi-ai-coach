@@ -1,0 +1,14 @@
+{
+  "stage": "Build18-3 Grounded WhyNow Limited Implementation",
+  "date": "2026-10-02",
+  "repository": "inari-1234/shogi-ai-coach",
+  "authorityKind": "EXTERNAL_FROZEN_BUILD18_2_BUNDLE",
+  "authorityBundle": "BUILD18_2_AUTHORITY_BUNDLE_20261002(1).zip",
+  "authorityBundleSHA256": "101a30f4a6965aa810317cab046120461e1513d5514f68baae14b8ba5c969c12",
+  "diagnosticCorpus": "BUILD18_2_DIAGNOSTIC_CORPUS_20261002.json",
+  "diagnosticCorpusSHA256": "433438a81e94863a08fde83fb4c3659d660390576198df9f3d2e17a58d3b86f0",
+  "records": 360,
+  "uniquePositions": 360,
+  "annotationSchemaSHA256": "3b7453198c25504dbb94226fc9863a2e53a9b86d29b19c1398b5ae6b32884d1a",
+  "note": "Historical 300-unique-position Build18-2 repository material is isolated under Build18/Legacy and is not Build18-3 authority."
+}
