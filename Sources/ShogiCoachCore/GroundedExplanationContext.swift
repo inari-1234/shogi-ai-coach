@@ -107,14 +107,18 @@ public enum GroundedExplanationProjector {
         let hasExchangeSequence = exchangeSequenceIsExplicit(in: analysis)
 
         let trigger: GroundedWhyNowTrigger
-        if hasDirectPreviousMove {
+        // EXCHANGE_SEQUENCE is a frozen, explicit sequence category. In the current
+        // engine ev_recapture_exchange is itself previous-move-causality evidence,
+        // so evaluate the more specific exchange condition before the general
+        // DIRECT_PREVIOUS_MOVE bucket. This changes explanation classification only.
+        if hasExchangeSequence {
+            trigger = .exchangeSequence
+        } else if hasDirectPreviousMove {
             trigger = .directPreviousMove
         } else if hasImmediateThreat {
             trigger = .immediateThreat
         } else if hasForcingTactic {
             trigger = .forcingTactic
-        } else if hasExchangeSequence {
-            trigger = .exchangeSequence
         } else {
             trigger = .noneIdentified
         }
