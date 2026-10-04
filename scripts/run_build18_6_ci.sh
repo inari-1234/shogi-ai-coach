@@ -99,6 +99,33 @@ run_gate pilot 100 25 4 "$OUT/gate-b"
 run_gate mid 300 30 10 "$OUT/gate-c"
 run_gate full 720 60 12 "$OUT/full"
 
+echo "== Gate D2: contiguous repetition audit =="
+mkdir -p "$OUT/repetition-contiguous"
+swift run -c release Build17RealGameRegression -- \
+  --input-dir "$KIF" \
+  --output-json "$OUT/repetition-contiguous/real-game.json" \
+  --output-markdown "$OUT/repetition-contiguous/real-game.md" \
+  --target-positions 840 \
+  --max-positions-per-game 140 \
+  --min-games 6 \
+  --max-ply 140 \
+  --game-sampling-policy deterministic-hash-v1 \
+  --position-sampling-policy sequential-v1 \
+  --source-id 'denryusen:dr4-hardware2:2024' \
+  --source-title '第2回マイナビニュース杯電竜戦統一ハードウェア戦' \
+  --source-url 'https://denryu-sen.jp/denryusen/dr4_hardware2/dr1_live.php' \
+  --rights-note '公式ページ: 棋譜利用は制限等ありませんので、ご自由にお使いください。' \
+  --retrieved-date '2026-10-04' \
+  2>&1 | tee "$OUT/repetition-contiguous/run.log"
+python3 scripts/build18_6_audit.py \
+  --input "$OUT/repetition-contiguous/real-game.json" \
+  --output-dir "$OUT/repetition-contiguous" \
+  --min-games 6 \
+  --min-positions 600 \
+  --label repetition-contiguous
+cp "$OUT/repetition-contiguous/BUILD18_6_REPETITION_AUDIT_20261004.json" \
+   "$OUT/full/BUILD18_6_CONTIGUOUS_REPETITION_AUDIT_20261004.json"
+
 echo "== Gate F: existing regression =="
 swift test 2>&1 | tee "$OUT/full/swift-test.log"
 ./scripts/verify.sh 2>&1 | tee "$OUT/full/static-verify.log"
