@@ -1,0 +1,250 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build18-5A",
+  "date": "2026-10-04",
+  "authority": {
+    "mainBaseline": "fd35c8b990379ebccbf1711d1cc0fa4a8464d53d",
+    "build18_1SpecHead": "ea37b850c72fd07b328adbd046892b647edf8c2f",
+    "annotationSchemaSha256": "3b7453198c25504dbb94226fc9863a2e53a9b86d29b19c1398b5ae6b32884d1a",
+    "authorityBundleSha256": "101a30f4a6965aa810317cab046120461e1513d5514f68baae14b8ba5c969c12",
+    "frozenDiagnosticCorpusSha256": "433438a81e94863a08fde83fb4c3659d660390576198df9f3d2e17a58d3b86f0",
+    "build18_3FreezeCandidateHead": "054f30a54463d472cc96a16c49cd14d6e0e28b45",
+    "build18_3ValidatedImplementationHead": "3ef903e5762e695646204987196e8b8fff500155",
+    "build18_4vEvidencePackageSha256": "3f298c3c87bf43d40365fb53196d4e5649cb2fa352a592b6d5489f50a69c39c4",
+    "build18_4vManifestSha256": "eeb499fa73d54e380ab1af6b39c2f9abb088700af814ce65ad9b6685aaa19324"
+  },
+  "frozenCorpus": {
+    "records": 316,
+    "uniquePositions": 300
+  },
+  "decisions": [
+    {
+      "concept": "respond_to_rapid_attack",
+      "decision": "HOLD",
+      "build17": {
+        "positive": 6,
+        "negative": 3,
+        "adversarial": 4,
+        "confirmedPositive": 6,
+        "falsePositiveRisk": "MEDIUM_HIGH"
+      },
+      "frozenEvidence": {
+        "positiveSourceIds": [
+          "B17-3-011",
+          "B17-3-012",
+          "B17-3-013",
+          "B17-3-014",
+          "B17-3-015",
+          "B17-3-016"
+        ],
+        "genericPrimaryIntent": "capture_threat_response",
+        "genericConfidence": "HIGH",
+        "genericWhyNowTrigger": "DIRECT_PREVIOUS_MOVE",
+        "genericEvidenceID": "ev_capture_threat_response",
+        "conceptSpecificRapidAttackEventSignal": false
+      },
+      "requiredEvidence": [
+        "concrete opponent rapid-attack event",
+        "direct response relation or verified threat reduction",
+        "compatible selectedIntent"
+      ],
+      "missingEvidence": [
+        "machine-verifiable concrete opponent rapid-attack event authority"
+      ],
+      "falsePositiveRisk": "MEDIUM_HIGH",
+      "allowedWording": "Generic direct capture-threat response wording only.",
+      "forbiddenWording": [
+        "rapid-attack/急戦 strategy label without explicit event authority",
+        "opening-name-only purpose"
+      ],
+      "scope": "No specialized Production output.",
+      "regressionRequirement": [
+        "retain B17-3-011..016 as candidates",
+        "reject B17-3-001..003",
+        "reject B17-3-004..007",
+        "add explicit rapid-attack event near-miss controls"
+      ]
+    },
+    {
+      "concept": "sabai",
+      "decision": "HOLD",
+      "build17": {
+        "positive": 7,
+        "negative": 4,
+        "adversarial": 4,
+        "confirmedPositive": 0,
+        "falsePositiveRisk": "VERY_HIGH"
+      },
+      "frozenEvidence": {
+        "genericSafeSourceIds": [
+          "B17-3-032",
+          "B17-3-033"
+        ],
+        "unresolvedCandidateSourceIds": [
+          "B17-3-037",
+          "B17-3-038",
+          "B17-3-039",
+          "B17-3-040",
+          "B17-3-041",
+          "B17-3-042",
+          "B17-3-043"
+        ],
+        "blocker": "post-exchange activation/continuation not verified"
+      },
+      "requiredEvidence": [
+        "exchange/contact",
+        "major-piece activation before/after",
+        "post-exchange continuation",
+        "active resource preservation",
+        "stable sequence or counterfactual evidence"
+      ],
+      "missingEvidence": [
+        "joint satisfaction of activation, continuation, preservation and stable causal sequence"
+      ],
+      "falsePositiveRisk": "VERY_HIGH",
+      "allowedWording": "Only verified generic exchange/activation facts.",
+      "forbiddenWording": [
+        "sabai purpose from Shikenbisha + exchange",
+        "sabai from mobility or major-piece move alone"
+      ],
+      "scope": "Deferred explanation-only concept.",
+      "regressionRequirement": [
+        "B17-3-032/033 remain non-firing",
+        "add confirmed post-exchange continuation positives",
+        "add active-resource preservation controls"
+      ]
+    },
+    {
+      "concept": "trade_to_transform",
+      "decision": "HOLD",
+      "build17": {
+        "positive": 8,
+        "negative": 3,
+        "adversarial": 3,
+        "confirmedPositive": 0,
+        "falsePositiveRisk": "HIGH"
+      },
+      "frozenEvidence": {
+        "genericSafeSourceIds": [
+          "B17-3-032",
+          "B17-3-033"
+        ],
+        "unresolvedCandidateSourceIds": [
+          "B17-3-037",
+          "B17-3-039",
+          "B17-3-040",
+          "B17-3-041",
+          "B17-3-042",
+          "B17-3-043"
+        ]
+      },
+      "requiredEvidence": [
+        "verified exchange",
+        "before/after role or position transformation",
+        "sequence/counterfactual proving transformation relevance"
+      ],
+      "missingEvidence": [
+        "verified transformation relevance to move choice"
+      ],
+      "falsePositiveRisk": "HIGH",
+      "allowedWording": "Verified exchange plus concrete before/after changes only.",
+      "forbiddenWording": [
+        "transformation-purpose claim from capture/exchange alone"
+      ],
+      "scope": "Deferred explanation-only concept.",
+      "regressionRequirement": [
+        "reject B17-3-038/044/045",
+        "reject B17-3-046..048",
+        "add verified role-transformation sequence positives"
+      ]
+    },
+    {
+      "concept": "multi_threat",
+      "decision": "HOLD",
+      "build17": {
+        "positive": 5,
+        "negative": 3,
+        "adversarial": 9,
+        "confirmedPositive": 0,
+        "falsePositiveRisk": "MEDIUM_HIGH"
+      },
+      "frozenEvidence": {
+        "provisionalGeometrySourceIds": [
+          "B17-3-040",
+          "B17-3-044",
+          "B17-3-054",
+          "B17-3-056",
+          "B17-3-100"
+        ],
+        "blocker": "independence under one best opponent reply is not verified"
+      },
+      "requiredEvidence": [
+        "multiple independent concrete threats",
+        "one opponent response cannot neutralize all threats",
+        "stable continuation/counterfactual"
+      ],
+      "missingEvidence": [
+        "reply-independence proof",
+        "stable continuation"
+      ],
+      "falsePositiveRisk": "MEDIUM_HIGH",
+      "allowedWording": "Concrete attacked-target EFFECT wording only.",
+      "forbiddenWording": [
+        "multi-threat purpose from multiple attacked pieces by geometry alone"
+      ],
+      "scope": "Deferred explanation-only concept.",
+      "regressionRequirement": [
+        "reject B17-3-057..061",
+        "require one-best-reply independence",
+        "retain geometry-only traps"
+      ]
+    },
+    {
+      "concept": "tempo_management",
+      "decision": "HOLD",
+      "build17": {
+        "positive": 9,
+        "negative": 4,
+        "adversarial": 4,
+        "confirmedPositive": 0,
+        "falsePositiveRisk": "VERY_HIGH"
+      },
+      "frozenEvidence": {
+        "genericSafeTenukiSourceIds": [
+          "B17-3-017",
+          "B17-3-018",
+          "B17-3-019",
+          "B17-3-020"
+        ],
+        "unresolvedShikenbishaSourceIds": [
+          "B17-3-027",
+          "B17-3-028",
+          "B17-3-029",
+          "B17-3-030",
+          "B17-3-031"
+        ],
+        "blocker": "timing comparison and sequence continuity absent"
+      },
+      "requiredEvidence": [
+        "move-order/tempo comparison",
+        "verified timing dependence",
+        "counterfactual or sequence continuity"
+      ],
+      "missingEvidence": [
+        "explicit comparative move-order authority",
+        "timing-dependent counterfactual/sequence"
+      ],
+      "falsePositiveRisk": "VERY_HIGH",
+      "allowedWording": "Generic tenuki/direct-response wording only.",
+      "forbiddenWording": [
+        "tempo-management purpose from quiet move, tenuki, fast-looking move, or development order alone"
+      ],
+      "scope": "Deferred explanation-only concept.",
+      "regressionRequirement": [
+        "reject B17-3-001..008",
+        "compare at least two move orders",
+        "demonstrate timing dependence"
+      ]
+    }
+  ]
+}
