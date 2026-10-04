@@ -40,11 +40,12 @@ assert d["authority"]["corpusSha256"] == "433438a81e94863a08fde83fb4c3659d660390
 print("build18_5a_authority=PASS")
 PY
 
-CORPUS="$(find . -type f -name 'BUILD18_2_DIAGNOSTIC_CORPUS_20261002.json' -not -path './Build18/Legacy/*' | head -n 1)"
-test -n "$CORPUS"
-ACTUAL="$(shasum -a 256 "$CORPUS" | awk '{print $1}')"
+CORPUS_REF='origin/candidate/build18-2-diagnostic-corpus'
+CORPUS_PATH='Build18/BUILD18_2_DIAGNOSTIC_CORPUS_20261002.json'
+git show "$CORPUS_REF:$CORPUS_PATH" > "$OUT/gate-a/BUILD18_2_DIAGNOSTIC_CORPUS_20261002.json"
+ACTUAL="$(shasum -a 256 "$OUT/gate-a/BUILD18_2_DIAGNOSTIC_CORPUS_20261002.json" | awk '{print $1}')"
 test "$ACTUAL" = "433438a81e94863a08fde83fb4c3659d660390576198df9f3d2e17a58d3b86f0"
-printf '%s\n' "$CORPUS" > "$OUT/gate-a/corpus-path.txt"
+printf '%s\n' "$CORPUS_REF:$CORPUS_PATH" > "$OUT/gate-a/corpus-path.txt"
 printf '%s\n' "$ACTUAL" > "$OUT/gate-a/corpus-sha256.txt"
 printf '%s\n' "054f30a54463d472cc96a16c49cd14d6e0e28b45" > "$OUT/gate-a/build18-3-freeze-head.txt"
 printf '%s\n' "3ef903e5762e695646204987196e8b8fff500155" > "$OUT/gate-a/build18-3-production-head.txt"
