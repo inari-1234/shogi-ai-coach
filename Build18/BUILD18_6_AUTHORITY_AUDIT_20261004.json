@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build18-6 Authority Audit",
+  "date": "2026-10-04",
+  "verdict": "PASS",
+  "repository": "inari-1234/shogi-ai-coach",
+  "authority": {
+    "build18_3FrozenCandidateHEAD": "054f30a54463d472cc96a16c49cd14d6e0e28b45",
+    "build18_3ValidatedProductionHEAD": "3ef903e5762e695646204987196e8b8fff500155",
+    "build18_2FrozenDiagnosticCorpus": {
+      "file": "BUILD18_2_DIAGNOSTIC_CORPUS_20261002.json",
+      "source": "Frozen Library artifact / Build18-2 Authority Bundle",
+      "sha256Expected": "433438a81e94863a08fde83fb4c3659d660390576198df9f3d2e17a58d3b86f0",
+      "sha256Actual": "433438a81e94863a08fde83fb4c3659d660390576198df9f3d2e17a58d3b86f0",
+      "sizeBytes": 1248934,
+      "records": 360,
+      "uniquePositions": 360,
+      "duplicateFingerprints": 0,
+      "status": "PASS"
+    },
+    "build18_2AuthorityBundle": {
+      "file": "BUILD18_2_AUTHORITY_BUNDLE_20261002.zip",
+      "sha256Expected": "101a30f4a6965aa810317cab046120461e1513d5514f68baae14b8ba5c969c12",
+      "sha256Actual": "101a30f4a6965aa810317cab046120461e1513d5514f68baae14b8ba5c969c12",
+      "archiveEntries": 12,
+      "internalChecksumEntries": 11,
+      "internalChecksumPassed": 11,
+      "internalChecksumFailed": 0,
+      "status": "PASS"
+    },
+    "build18_4vFreezePackage": {
+      "file": "BUILD18_4V_FREEZE_PACKAGE_20261004.zip",
+      "sha256Expected": "3f298c3c87bf43d40365fb53196d4e5649cb2fa352a592b6d5489f50a69c39c4",
+      "sha256Actual": "3f298c3c87bf43d40365fb53196d4e5649cb2fa352a592b6d5489f50a69c39c4",
+      "archiveEntries": 7,
+      "status": "PASS"
+    },
+    "build18_5a": {
+      "correctedHEAD": "3443b3cb0830783b325fca4bd82fd374a185dc6a",
+      "promoteToLimitedExplanation": 0,
+      "hold": 5,
+      "build18_5b": "SKIPPED / NOT APPLICABLE",
+      "status": "PASS / PARENT ACCEPTED"
+    }
+  },
+  "staleArtifactExclusion": {
+    "source": "candidate/build18-2-diagnostic-corpus:Build18/BUILD18_2_DIAGNOSTIC_CORPUS_20261002.json",
+    "sha256": "48d8bedefab1d7af27ea56285b89b6932e68df94666aa2df6eb6791dd682e57e",
+    "sizeBytes": 779831,
+    "classification": "NON-AUTHORITATIVE / STALE",
+    "excluded": true
+  },
+  "productionFreeze": {
+    "sourcesShogiCoachCoreChangedAfterFrozenCandidate": false,
+    "build18_5aProductionCodeChanged": false
+  },
+  "blockingIssues": []
+}
