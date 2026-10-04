@@ -342,11 +342,13 @@ private struct ContextExplanationCard: View {
             Text(explanation.conclusion)
                 .font(.subheadline.weight(.semibold))
 
-            Text("なぜ今")
-                .font(.caption.bold())
-                .foregroundStyle(.secondary)
-            Text(explanation.whyNow)
-                .font(.subheadline)
+            if !explanation.whyNow.isEmpty {
+                Text("なぜ今")
+                    .font(.caption.bold())
+                    .foregroundStyle(.secondary)
+                Text(explanation.whyNow)
+                    .font(.subheadline)
+            }
 
             if let supplement = explanation.conceptSupplement {
                 Text("補足")
