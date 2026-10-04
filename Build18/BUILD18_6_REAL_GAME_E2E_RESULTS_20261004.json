@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build18-6 Real-game E2E / Explanation Quality Audit",
+  "auditedCandidateHEAD": "32635a23a29ef1bd01c250276f81395352afc2a4",
+  "source": {
+    "id": "denryusen:dr4-hardware2:2024",
+    "archiveSha256": "c03ff5836b7e138f75d1a0b2dca6ba82e40d7680696999918eed3823f05548be"
+  },
+  "samplingPolicy": {
+    "game": "deterministic-hash-v1",
+    "position": "evenly-spaced-v1"
+  },
+  "summary": {
+    "games": 12,
+    "evaluatedPositions": 720,
+    "phaseDistribution": {
+      "OPENING": 168,
+      "MIDDLEGAME": 221,
+      "ENDGAME": 331
+    },
+    "confidenceDistribution": {
+      "high": 68,
+      "medium": 431,
+      "low": 11,
+      "unresolved": 210
+    },
+    "conceptSupplement": 156,
+    "noSupplement": 564,
+    "multipleIntentCandidate": 364,
+    "forcingPosition": 141,
+    "quietOrAmbiguous": 344,
+    "shikenbishaHeuristicPositions": 120,
+    "whyNowTriggerDistribution": {
+      "DIRECT_PREVIOUS_MOVE": 156,
+      "IMMEDIATE_THREAT": 0,
+      "FORCING_TACTIC": 44,
+      "EXCHANGE_SEQUENCE": 67,
+      "VERIFIED_SEQUENCE_TIMING": 0,
+      "FORMATION_WINDOW": 0,
+      "ENDGAME_URGENCY": 0,
+      "NONE_IDENTIFIED": 453
+    },
+    "blockingCrash": 0,
+    "automatedSemanticBlockerEvents": 0,
+    "coverageFailures": []
+  },
+  "machineResult": "PASS",
+  "note": "The formal Build18-6 stage still FAILS because the supplementary contiguous repetition audit found a QUALITY BLOCKER."
+}
