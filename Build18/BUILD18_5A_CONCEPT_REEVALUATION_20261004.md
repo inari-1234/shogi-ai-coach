@@ -1,173 +1,118 @@
-# Build18-5A Concept Re-evaluation
+# Build18-5A Concept Re-evaluation — Corrective Re-evaluation
 
-Date: 2026-10-04  
-Stage: Shikenbisha / Deferred Concept Re-evaluation  
-Verdict: PASS (evaluation complete; no Production integration performed)
+Date: 2026-10-04
+Repository: inari-1234/shogi-ai-coach
+Branch: candidate/build18-5a-concept-reevaluation
+Status: PASS / COMPLETE — CORRECTIVE RE-EVALUATION PASS — PARENT ACCEPTANCE READY
 
-## Authority
+## Authority Audit
 
-- main baseline: fd35c8b990379ebccbf1711d1cc0fa4a8464d53d
-- Build18-1 specification HEAD: ea37b850c72fd07b328adbd046892b647edf8c2f
-- Build18-2 annotation schema SHA-256: 3b7453198c25504dbb94226fc9863a2e53a9b86d29b19c1398b5ae6b32884d1a
-- Build18-2 authority bundle SHA-256: 101a30f4a6965aa810317cab046120461e1513d5514f68baae14b8ba5c969c12
-- Build18-2 frozen diagnostic corpus SHA-256: 433438a81e94863a08fde83fb4c3659d660390576198df9f3d2e17a58d3b86f0
-- Build18-3 freeze candidate HEAD: 054f30a54463d472cc96a16c49cd14d6e0e28b45
-- Build18-3 validated implementation HEAD: 3ef903e5762e695646204987196e8b8fff500155
-- Build18-4V freeze evidence package SHA-256: 3f298c3c87bf43d40365fb53196d4e5649cb2fa352a592b6d5489f50a69c39c4
-- Build18-4V freeze manifest SHA-256: eeb499fa73d54e380ab1af6b39c2f9abb088700af814ce65ad9b6685aaa19324
+Authority Corpus: BUILD18_2_DIAGNOSTIC_CORPUS_20261002.json
+SHA-256: 433438a81e94863a08fde83fb4c3659d660390576198df9f3d2e17a58d3b86f0
+Corpus: 360 records / 360 unique positions
+Duplicate fingerprints: 0
 
-Frozen corpus audit: 316 records / 300 unique positions. Required diagnostic strata are present, including TIMING_MOVE_ORDER, COUNTERFACTUAL_DEMANDING, EFFECT_INTENT_BOUNDARY, AMBIGUOUS_MULTI_INTENT, SHIKENBISHA_DEDICATED and adversarial geometry coverage.
+Recomputed minimum values:
+- DIRECT_PREVIOUS_MOVE_CAUSALITY: 60
+- TIMING_MOVE_ORDER: 80
+- AMBIGUOUS_MULTI_INTENT: 170
+- EFFECT_INTENT_BOUNDARY: 190
+- COUNTERFACTUAL_DEMANDING: 80
+- ENDGAME_FORCING: 50
+- SHIKENBISHA_DEDICATED: 80
+- ADVERSARIAL_HUMAN_NATURAL_GEOMETRY_HARD: 301
+- Example class: POSITIVE 59 / NEGATIVE 57 / ADVERSARIAL 244
+
+Build18/Legacy/Build18-2_300_unique/ and all 316-record / 300-unique values are NON-AUTHORITATIVE LEGACY and were excluded from all corrected decisions.
 
 ## Decision summary
 
-| Concept | Build17 evidence | Frozen-corpus observation | Decision |
+| Concept | Authoritative 360-Corpus evidence | Negative / adversarial coverage | Decision |
 |---|---|---|---|
-| respond_to_rapid_attack | 6 confirmed positive / 3 negative / 4 adversarial | The six positives map safely to generic capture_threat_response + DIRECT_PREVIOUS_MOVE, but no dedicated machine-verifiable rapid-attack event authority exists. | HOLD |
-| sabai | 7 provisional positive / 4 negative / 4 adversarial; 0 confirmed positive | Two safe records only prove bishop_line_response; seven specialized candidates remain UNRESOLVED and lack post-exchange continuation/resource-preservation evidence. | HOLD |
-| trade_to_transform | 8 provisional positive / 3 negative / 3 adversarial; 0 confirmed positive | Two safe exchange cases prove bishop_line_response, not transformation purpose; remaining candidates are unresolved. | HOLD |
-| multi_threat | 5 provisional positive / 3 negative / 9 adversarial; 0 confirmed positive | Candidate geometry shows multiple attacked targets, but independence under one best reply is not verified; Frozen candidates remain unresolved. | HOLD |
-| tempo_management | 9 provisional positive / 4 negative / 4 adversarial; 0 confirmed positive | Four safe cases prove generic tenuki, not tempo purpose; Shikenbisha timing candidates lack sequence/counterfactual timing dependence. | HOLD |
+| respond_to_rapid_attack | No concept-specific rapid-attack authority. 60 direct-causality records, including 45 DIRECT_ROOK_PAWN_RESPONSE, prove generic response causality only. | Concept-specific coverage 0; generic hard-adversarial geometry coverage 301. | HOLD |
+| sabai | 80 records target SHIKENBISHA_TO_SABAI; all remain unresolved for specialized purpose. | 80 ADVERSARIAL / 0 POSITIVE. | HOLD |
+| trade_to_transform | No trade_to_transform, transform, or exchange-specific authority exists. | Dedicated coverage 0; relevant EFFECT_INTENT_BOUNDARY 190 and hard geometry coverage 301. | HOLD |
+| multi_threat | 80 records target MULTI_THREAT_WITHOUT_INDEPENDENT_THREATS. | 53 ADVERSARIAL + 27 NEGATIVE / 0 POSITIVE. | HOLD |
+| tempo_management | 80 records target UNVERIFIED_TIMING_TO_TEMPO_MANAGEMENT. | 80 ADVERSARIAL / 0 POSITIVE. | HOLD |
 
-## A. respond_to_rapid_attack — HOLD
+## respond_to_rapid_attack — HOLD
 
-### Evidence
-Build17 positions B17-3-011 through B17-3-016 are confirmed positive exposures. In the Frozen Corpus they are CONFIRMED_SAFE with:
-- primaryIntent = capture_threat_response
-- confidence = HIGH
-- whyNowTrigger = DIRECT_PREVIOUS_MOVE
-- supportingEvidenceIDs includes ev_capture_threat_response
+Evidence: the authoritative Corpus contains no respond_to_rapid_attack/rapid-attack event authority. It contains 60 DIRECT_PREVIOUS_MOVE_CAUSALITY records. The 45-record DIRECT_ROOK_PAWN_RESPONSE family is HIGH-confidence rook_pawn_response with DIRECT_PREVIOUS_MOVE; B18-2-0006 is a Shikenbisha example. This proves a direct response, not the broader specialized proposition "rapid attack".
 
-Negative controls B17-3-001..003 and adversarial controls B17-3-004..007 remain valid separators.
+Build17 source tracking: B17-3-011..016 are not migrated into the authoritative 360 Corpus and are UNVERIFIED LEGACY REFERENCE for promotion purposes. B17-3-001..006 do have formal migration links but support generic rook_pawn_response only.
 
-### Missing Evidence
-A machine-verifiable concept-specific signal equivalent to concrete_opponent_rapid_attack_event is absent. Current generic evidence proves a direct capture-threat response, but does not independently prove the broader specialized claim “rapid attack”.
+Missing Evidence: machine-verifiable concrete opponent rapid-attack event authority.
+False-positive risk: MEDIUM_HIGH.
+Allowed wording: generic direct-response wording tied to the selected generic Intent and verified previous move.
+Forbidden wording: "急戦に対応した" or equivalent specialized purpose without an independently verified rapid-attack event.
+Production scope: no specialized output; Intent, Confidence, weights and resolver unchanged.
+Future regression: add explicit rapid-attack positives and near-miss/adversarial controls with zero known false positives.
 
-### False-positive risk
-MEDIUM_HIGH. Reusing capture_threat_response as a proxy would collapse “specific immediate capture threat” into “opponent rapid attack”, producing an unsupported strategy label.
+## sabai — HOLD
 
-### Allowed wording
-Generic wording only, tied to the frozen generic intent and direct previous-move causality, e.g. “直前の相手の手で生じた取り込みの脅威に応じています。”
+Evidence: 80 SHIKENBISHA_HIGH_RISK_GUARD records target SHIKENBISHA_TO_SABAI. All 80 are ADVERSARIAL, primaryIntent=unresolved, Confidence=UNRESOLVED, trigger=NONE_IDENTIFIED, positive coverage=0. B18-2-0007 explicitly records insufficient counterfactual, insufficient sequence continuity and unverified specialized reference.
 
-### Forbidden wording
-“急戦に対応しています” or equivalent specialized strategy wording unless a concrete rapid-attack event is independently verified.
+Build17 source tracking: B17-3-027, B17-3-029 and B17-3-030 formally migrate to B18-2-0007..0009 and remain adversarial/unresolved. Prior B17-3-032..043 references are not traceable in the 360 authority and are excluded from promotion evidence.
 
-### Scope
-No Production specialized label. Do not modify Intent, confidence, score, evidence weight, or resolver behavior.
+Missing Evidence: exchange/contact; major-piece activation before/after; post-exchange continuation; active resource preservation; stable sequence/counterfactual.
+False-positive risk: VERY_HIGH.
+Allowed wording: verified generic facts/effects only.
+Forbidden wording: sabai from Shikenbisha name, exchange appearance, mobility, or major-piece move alone.
+Production scope: deferred explanation-only; no detector or integration.
+Future regression: add confirmed positive sequences satisfying the full joint gate and retain all 80 formal adversarial cases as non-firing controls.
 
-### Regression requirement
-Any future promotion must retain all 6 confirmed positives, reject all 3 negatives and 4 adversarial controls, and add explicit rapid-attack-event positives/near-misses that are independent of opening name.
+## trade_to_transform — HOLD
 
-## B. sabai — HOLD
+Evidence: the authoritative Corpus contains no trade_to_transform, transform, or exchange-specific authority. The 190 EFFECT_INTENT_BOUNDARY records establish that observed board/effect change must not be promoted into purpose. B18-2-0010 is a safe bishop_line_response with a mobility effect; it does not prove transformation purpose.
 
-### Evidence
-Build17 recorded 7 positive exposures but 0 confirmed positives. B17-3-032/033 are confirmed ADVERSARIAL for sabai: bishop exchange in Shikenbisha is insufficient because post-exchange activation is unverified. B17-3-037..043 are only PROVISIONAL specialized candidates; Frozen records remain UNRESOLVED_DIAGNOSTIC except for generic non-sabai explanations.
+Build17 source tracking: previously cited B17-3-032..048 mappings are absent from the authoritative 360 Corpus and are UNVERIFIED LEGACY REFERENCE for promotion purposes.
 
-### Missing Evidence
-Required evidence is not jointly present:
-- exchange/contact
-- major-piece activation before/after
-- post-exchange continuation
-- active resource preservation
-- stable sequence or counterfactual evidence
+Missing Evidence: verified exchange; before/after role or position transformation; sequence/counterfactual proving transformation relevance.
+False-positive risk: HIGH.
+Allowed wording: verified Fact/Effect wording only.
+Forbidden wording: transformation-purpose wording from capture, promotion, mobility, or relation change alone.
+Production scope: deferred explanation-only.
+Future regression: add genuine exchange/transformation positives and near-miss controls while preserving the EFFECT-to-INTENT boundary.
 
-### False-positive risk
-VERY_HIGH. “Shikenbisha + exchange”, major-piece movement, or mobility gain can look natural while still failing the causal sabai claim.
+## multi_threat — HOLD
 
-### Allowed wording
-Only generic verified exchange/activation facts already supported by the frozen generic layers.
+Evidence: 80 GEOMETRY_EFFECT_BOUNDARY records target MULTI_THREAT_WITHOUT_INDEPENDENT_THREATS. All are unresolved with no supporting intent evidence. B18-2-0231 is a representative NEGATIVE; B18-2-0310 is ADVERSARIAL.
 
-### Forbidden wording
-“さばいた”, “駒をさばくため”, or equivalent sabai-purpose wording without the full evidence gate.
+Negative/adversarial coverage: 53 ADVERSARIAL + 27 NEGATIVE = 80; positive 0.
 
-### Scope
-Explanation-only candidate remains deferred; no Production integration.
+Build17 source tracking: previously cited B17-3-040/044/054/056/057..061/100 mappings are absent from the authoritative 360 Corpus and are excluded from promotion evidence.
 
-### Regression requirement
-Future gate must include confirmed post-exchange activation continuations, explicit resource preservation, and adversarial Shikenbisha exchange traps including B17-3-032/033.
+Missing Evidence: multiple independent concrete threats; proof one opponent response cannot neutralize all threats; stable continuation/counterfactual.
+False-positive risk: MEDIUM_HIGH.
+Allowed wording: concrete attacked/control-square effects only.
+Forbidden wording: "複数の狙い" or "どちらかは必ず通る" without reply-independence evidence.
+Production scope: deferred explanation-only.
+Future regression: add one-best-reply independence checks and true positive continuations while all 80 formal controls remain non-firing.
 
-## C. trade_to_transform — HOLD
+## tempo_management — HOLD
 
-### Evidence
-Build17: 8 positive exposures, 0 confirmed positives, 3 negative, 3 adversarial. B17-3-032/033 are safe generic bishop-line responses but do not prove transformation purpose. B17-3-037/039/040/041/042/043 remain unresolved in Frozen Corpus.
+Evidence: 80 SHIKENBISHA_HIGH_RISK_GUARD records target UNVERIFIED_TIMING_TO_TEMPO_MANAGEMENT. All 80 are ADVERSARIAL with zero positive cases. B18-2-0007 records INSUFFICIENT_COUNTERFACTUAL and INSUFFICIENT_SEQUENCE_CONTINUITY.
 
-### Missing Evidence
-- verified exchange
-- before/after role or position transformation
-- sequence/counterfactual demonstrating that the transformation is relevant to the move choice
+Build17 source tracking: B17-3-027/029/030 formally migrate to B18-2-0007..0009 and remain adversarial. Previous B17-3-017..020 and 028/031 references are not formally migrated and are excluded from promotion evidence.
 
-### False-positive risk
-HIGH. Any capture or exchange can be retrospectively narrated as a transformation.
+Missing Evidence: explicit move-order/tempo comparison; verified timing dependence; counterfactual or sequence continuity.
+False-positive risk: VERY_HIGH.
+Allowed wording: verified generic move/causality facts only.
+Forbidden wording: quiet move, tenuki, development order or fast-looking move as tempo-management proof.
+Production scope: deferred explanation-only.
+Future regression: compare at least two move orders/sequences, prove timing dependence, and keep all 80 authoritative adversarial controls non-firing.
 
-### Allowed wording
-State the verified exchange and concrete before/after board changes only.
+## Final decision
 
-### Forbidden wording
-“交換して局面を変える狙い”, “役割を変えるための交換” unless transformation relevance is proven.
+PROMOTE_TO_LIMITED_EXPLANATION: 0
+HOLD: 5
+REJECT / MERGE: 0
+Unassessed: 0
+Production Code changes: 0
+Frozen authority changes: 0
+Legacy Corpus used as authority: NO
 
-### Scope
-Deferred explanation-only concept; no Production integration.
-
-### Regression requirement
-Future tests must separate ordinary exchange, tactical recapture, and genuine role/position transformation; B17-3-038/044/045 negatives and B17-3-046..048 adversarial controls must remain non-firing.
-
-## D. multi_threat — HOLD
-
-### Evidence
-Build17: 5 provisional positives, 0 confirmed positives, 3 negative, 9 adversarial. Candidate examples such as B17-3-040, 044, 054, 056 and 100 only establish two or more newly attacked geometric targets. Frozen candidates remain UNRESOLVED_DIAGNOSTIC.
-
-### Missing Evidence
-- multiple independent concrete threats
-- proof that one opponent response cannot neutralize them simultaneously
-- stable continuation or counterfactual
-
-### False-positive risk
-MEDIUM_HIGH. Geometry alone confuses “attacking multiple pieces” with “multiple independent threats”.
-
-### Allowed wording
-Concrete attacked-target/effect wording only when independently verified as an EFFECT.
-
-### Forbidden wording
-“二つ以上の狙いを同時に作った”, “どちらかは必ず通る” without reply-independence and continuation evidence.
-
-### Scope
-Deferred explanation-only concept; no Production integration.
-
-### Regression requirement
-Future promotion requires one-best-reply independence checks and must reject B17-3-057..061 plus all geometry-only multi-target cases.
-
-## E. tempo_management — HOLD
-
-### Evidence
-Build17: 9 provisional positives, 0 confirmed positives, 4 negative, 4 adversarial. B17-3-017..020 are Frozen CONFIRMED_SAFE as generic tenuki with DIRECT_PREVIOUS_MOVE, but they contain no concept-specific timing comparison. B17-3-027..031 remain UNRESOLVED with INSUFFICIENT_COUNTERFACTUAL / INSUFFICIENT_SEQUENCE_CONTINUITY.
-
-### Missing Evidence
-- explicit move-order or tempo comparison
-- verified timing dependence
-- stable counterfactual or sequence continuity
-
-### False-positive risk
-VERY_HIGH. Quiet moves, tenuki, normal development order, and “fast-looking” moves can all be mislabeled as tempo management.
-
-### Allowed wording
-Generic tenuki/direct-response wording already supported by the selectedIntent.
-
-### Forbidden wording
-“手順を調整した”, “一手得した”, “テンポを管理した” without explicit comparative evidence.
-
-### Scope
-Deferred explanation-only concept; no Production integration.
-
-### Regression requirement
-Future promotion must compare at least two move orders or sequences, demonstrate timing dependence, and keep B17-3-001..008 negative/adversarial cases non-firing.
-
-## Final evaluation
-
-All 5 Concepts have a completed evidence-backed decision. No Concept is promoted in Build18-5A.
-
-Build18-5A: PASS  
-Production promotions: 0  
-HOLD: 5  
-REJECT / MERGE: 0  
-Production source changes: 0
-
-Next stage: Build18-6.
+Build18-5A: PASS / COMPLETE
+Corrective Re-evaluation: PASS
+Parent acceptance status: PARENT ACCEPTANCE READY
+Next stage: Build18-6 — Real-game E2E / Explanation Quality Audit
