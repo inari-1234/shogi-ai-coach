@@ -1,64 +1,57 @@
-# Build18-5A Human Semantic Review
+# Build18-5A Human Semantic Review — Corrective Re-evaluation
 
 Date: 2026-10-04
 
-This review separates “sounds natural as an explanation” from “is supported by evidence”.
+Authority Corpus SHA-256: 433438a81e94863a08fde83fb4c3659d660390576198df9f3d2e17a58d3b86f0
+Corpus: 360 records / 360 unique positions
+Duplicate fingerprints: 0
+Legacy Corpus used as authority: NO
+
+This review uses only the authoritative 360 Corpus. Natural shogi wording is not treated as proof.
 
 ## respond_to_rapid_attack
-
-- Positive candidate: B17-3-011..016. “The opponent advanced and this move answered immediately” is natural and generic capture-threat causality is confirmed.
-- Near-miss: B17-3-001..003. A direct rook-pawn response exists, but rapid-attack purpose is not established.
-- Adversarial: B17-3-004..007. Superficial similarity was explicitly marked adversarial in Build17.
-- Opening-name trap: B17-3-006 is Shikenbisha, but opening context does not prove rapid-attack response.
-- Geometry trap: B17-3-007 has bishop-line/geometry context; geometry cannot create the strategy label.
-- Ambiguous case: B17-3-011..016 can be accurately described as capture-threat responses, but the broader term “rapid attack” is not independently encoded.
-
-Human verdict: HOLD.
+- Strong candidate: none concept-specific. Closest safe evidence is B18-2-0006, a Shikenbisha position with HIGH-confidence rook_pawn_response / DIRECT_PREVIOUS_MOVE.
+- Near-miss: B18-2-0006 is a direct response but does not encode a rapid-attack event.
+- Adversarial: B18-2-0001 guards against geometry/plan overclaim.
+- Opening-name trap: B18-2-0006 shows SHIKENBISHA does not upgrade generic response into "急戦対応".
+- Geometry trap: direct-response records forbid geometry from replacing the locked generic Intent.
+- Ambiguous/unresolved: no concept-specific rapid-attack label or event authority exists.
+- Verdict: HOLD.
 
 ## sabai
-
-- Positive candidate: B17-3-037..043 look like exchange/major-piece activity and are natural sabai candidates.
-- Near-miss: B17-3-032/033 are bishop exchanges with a safe generic bishop_line_response.
-- Adversarial: B17-3-032/033 are explicitly confirmed adversarial for sabai because post-exchange activation is unverified.
-- Opening-name trap: Shikenbisha + exchange is specifically forbidden as sufficient evidence.
-- Geometry trap: major-piece activity or increased mobility can look like sabai without proving continuation/resource preservation.
-- Ambiguous case: B17-3-037..043 remain UNRESOLVED_DIAGNOSTIC because the sequence after the candidate move is not sufficient.
-
-Human verdict: HOLD.
+- Strong candidate: none satisfies the full gate; authoritative positive count is 0.
+- Near-miss: B18-2-0007 looks natural in Shikenbisha but lacks direct causality, counterfactual, sequence continuity and verified specialized reference.
+- Adversarial: all 80 SHIKENBISHA_TO_SABAI records are ADVERSARIAL.
+- Opening-name trap: the whole 80-record family proves opening family alone is insufficient.
+- Geometry trap: board/mobility appearance is not post-exchange activation/resource preservation.
+- Ambiguous/unresolved: all 80 are unresolved / NONE_IDENTIFIED.
+- Verdict: HOLD.
 
 ## trade_to_transform
-
-- Positive candidate: B17-3-037/039/040/041/042/043 are plausible exchange/transformation candidates.
-- Near-miss: B17-3-032/033 contain an exchange but only a generic bishop-line response is proven.
-- Adversarial: B17-3-046..048 are explicit superficial-similarity traps.
-- Opening-name trap: Shikenbisha-like geometry does not show that an exchange was chosen to transform roles/position.
-- Geometry trap: a changed piece relation after capture is an EFFECT, not proof of transformation purpose.
-- Ambiguous case: B17-3-038 is negative despite being in the same Shikenbisha-like family, showing that family/context cannot supply the missing intent.
-
-Human verdict: HOLD.
+- Strong candidate: none; no exchange/transform authority exists.
+- Near-miss: B18-2-0010 has a verified bishop-line response plus mobility effect, but effect is not transformation purpose.
+- Adversarial: B18-2-0310 is a hard geometry/effect-purpose trap.
+- Opening-name trap: opening context cannot supply missing exchange/transformation evidence.
+- Geometry trap: 190 EFFECT_INTENT_BOUNDARY records block observed change from becoming purpose.
+- Ambiguous/unresolved: no formally traceable Build17 transformation candidate exists in the 360 authority.
+- Verdict: HOLD.
 
 ## multi_threat
-
-- Positive candidate: B17-3-040/044/054/056/100 have two or more newly attacked targets.
-- Near-miss: any position with multiple attacked pieces but no proof that the threats are independent.
-- Adversarial: B17-3-057..061 fail even the multi-target geometric threshold and are confirmed adversarial.
-- Opening-name trap: Shikenbisha-like geometry does not establish multi-threat purpose.
-- Geometry trap: the provisional positives themselves demonstrate the trap—multiple attacked targets are not yet multiple independent threats.
-- Ambiguous case: B17-3-040 has three newly attacked targets but still lacks one-best-reply independence.
-
-Human verdict: HOLD.
+- Strong candidate: none; authoritative concept-specific positive count is 0.
+- Near-miss: B18-2-0231 has observable control change but no non-geometry anchor or counterfactual.
+- Adversarial: B18-2-0310 is ADVERSARIAL under MULTI_THREAT_WITHOUT_INDEPENDENT_THREATS.
+- Opening-name trap: opening labels provide no threat-independence proof.
+- Geometry trap: all 80 formal controls keep geometry/control change at EFFECT level.
+- Ambiguous/unresolved: all 80 are unresolved / NONE_IDENTIFIED.
+- Verdict: HOLD.
 
 ## tempo_management
+- Strong candidate: none satisfies comparative timing evidence; authoritative positive count is 0.
+- Near-miss: B18-2-0007 is a timing-looking quiet move but has insufficient counterfactual and sequence continuity.
+- Adversarial: all 80 UNVERIFIED_TIMING_TO_TEMPO_MANAGEMENT records are ADVERSARIAL.
+- Opening-name trap: all 80 are SHIKENBISHA and still must not fire.
+- Geometry trap: quiet/development appearance does not prove timing dependence.
+- Ambiguous/unresolved: all 80 are unresolved / NONE_IDENTIFIED.
+- Verdict: HOLD.
 
-- Positive candidate: B17-3-017..020 are natural “timing/tenuki” explanations.
-- Near-miss: B17-3-027..031 are Shikenbisha quiet/timing-looking moves but lack counterfactual and sequence continuity.
-- Adversarial: B17-3-005..008 are confirmed adversarial controls.
-- Opening-name trap: B17-3-006 and B17-3-027..031 show that Shikenbisha context does not prove tempo purpose.
-- Geometry trap: a normal developing/quiet move may look like time management without any comparative timing evidence.
-- Ambiguous case: B17-3-017..020 are safe as tenuki, but “tenuki” does not itself prove that the move was chosen to manage tempo.
-
-Human verdict: HOLD.
-
-## Overall semantic conclusion
-
-All five concepts remain semantically useful educational ideas, but their current authority cannot support the specialized purpose claims at Production precision. Generic verified wording remains preferable to a natural-sounding but unsupported specialized label.
+Human semantic review: PASS
