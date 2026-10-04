@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "auditedCandidateHEAD": "32635a23a29ef1bd01c250276f81395352afc2a4",
+  "formalGateF": "NOT_REACHED_DUE_GATE_D2_QUALITY_BLOCKER",
+  "evidenceObservedBeforeStop": {
+    "build17MandatoryRegressions": "PASS in Pilot/Mid/Full/contiguous runs",
+    "build16R1OverflowRegression": "PASS",
+    "swiftCoreRegression": {
+      "tests": 73,
+      "failures": 0,
+      "status": "PASS"
+    },
+    "build18DedicatedTests": "included in fresh Swift test suite; PASS",
+    "productionFreeze": "PASS — Sources/ShogiCoachCore unchanged after Build18-3 frozen candidate"
+  },
+  "finalRegressionVerdict": "NOT COMPLETE; must rerun fresh after corrective implementation"
+}
