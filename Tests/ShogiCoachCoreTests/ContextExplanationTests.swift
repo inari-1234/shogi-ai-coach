@@ -94,7 +94,8 @@ final class ContextExplanationTests: XCTestCase {
         _ = state.present(analysis: lowAnalysis(intent: .development, evidenceDetail: "same"))
 
         let changed = state.present(analysis: lowAnalysis(intent: .defense, evidenceDetail: "same"))
-        XCTAssertEqual(changed.mode, .standard)
+        XCTAssertEqual(changed.mode, .standardWhyNowSuppressed)
+        XCTAssertNotNil(changed.displayedExplanation)
         XCTAssertTrue(changed.resetReasons.contains("SELECTED_INTENT_CHANGED"))
     }
 
@@ -163,7 +164,8 @@ final class ContextExplanationTests: XCTestCase {
         _ = state.present(analysis: a)
 
         let changed = state.present(analysis: b)
-        XCTAssertEqual(changed.mode, .standard)
+        XCTAssertEqual(changed.mode, .standardWhyNowSuppressed)
+        XCTAssertNotNil(changed.displayedExplanation)
         XCTAssertTrue(changed.resetReasons.contains("SUPPORTING_EVIDENCE_CHANGED"))
     }
 
@@ -186,7 +188,8 @@ final class ContextExplanationTests: XCTestCase {
             evidence: []
         )
         let presentation = state.present(analysis: changed)
-        XCTAssertEqual(presentation.mode, .standard)
+        XCTAssertEqual(presentation.mode, .standardWhyNowSuppressed)
+        XCTAssertNotNil(presentation.displayedExplanation)
         XCTAssertTrue(
             presentation.resetReasons.contains("FACT_CHANGED")
                 || presentation.resetReasons.contains("CONTEXT_CHANGE_CHANGED")
