@@ -92,3 +92,7 @@ No sample is selected based on whether the explanation "looks good".
 Build18-6 may change only audit tooling, workflow, and evidence/report files.
 
 The workflow must fail if files under Sources/ShogiCoachCore differ from Build18-3 frozen candidate HEAD 054f30a54463d472cc96a16c49cd14d6e0e28b45.
+
+## Execution trace
+
+Execution PR: #9 (draft; Build18-6 audit evidence only; do not merge in this stage).
