@@ -121,6 +121,7 @@ private struct AuditRecord: Codable {
     let rawWhyNow: String
     let rawConceptSupplementText: String?
     let presentationMode: String
+    let whyNowSuppressedAsRepeatedGeneric: Bool
     let repetitionSemanticSignature: String
     let repetitionEquivalentRunLength: Int
     let repetitionResetReasons: [String]
@@ -696,6 +697,7 @@ private func run() throws {
                 rawWhyNow: explanation.whyNow,
                 rawConceptSupplementText: explanation.conceptSupplement?.text,
                 presentationMode: presentation.mode.rawValue,
+                whyNowSuppressedAsRepeatedGeneric: presentation.whyNowSuppressedAsRepeatedGeneric,
                 repetitionSemanticSignature: presentation.semanticSignature,
                 repetitionEquivalentRunLength: presentation.equivalentRunLength,
                 repetitionResetReasons: presentation.resetReasons,

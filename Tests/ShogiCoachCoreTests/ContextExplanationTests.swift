@@ -94,7 +94,7 @@ final class ContextExplanationTests: XCTestCase {
         _ = state.present(analysis: lowAnalysis(intent: .development, evidenceDetail: "same"))
 
         let changed = state.present(analysis: lowAnalysis(intent: .defense, evidenceDetail: "same"))
-        XCTAssertEqual(changed.mode, .standardWhyNowSuppressed)
+        XCTAssertEqual(changed.mode, .standard)
         XCTAssertNotNil(changed.displayedExplanation)
         XCTAssertTrue(changed.resetReasons.contains("SELECTED_INTENT_CHANGED"))
     }
@@ -164,7 +164,7 @@ final class ContextExplanationTests: XCTestCase {
         _ = state.present(analysis: a)
 
         let changed = state.present(analysis: b)
-        XCTAssertEqual(changed.mode, .standardWhyNowSuppressed)
+        XCTAssertEqual(changed.mode, .standard)
         XCTAssertNotNil(changed.displayedExplanation)
         XCTAssertTrue(changed.resetReasons.contains("SUPPORTING_EVIDENCE_CHANGED"))
     }
@@ -188,7 +188,7 @@ final class ContextExplanationTests: XCTestCase {
             evidence: []
         )
         let presentation = state.present(analysis: changed)
-        XCTAssertEqual(presentation.mode, .standardWhyNowSuppressed)
+        XCTAssertEqual(presentation.mode, .standard)
         XCTAssertNotNil(presentation.displayedExplanation)
         XCTAssertTrue(
             presentation.resetReasons.contains("FACT_CHANGED")
@@ -262,22 +262,41 @@ final class ContextExplanationTests: XCTestCase {
         XCTAssertEqual(first.displayedExplanation?.conceptSupplement?.conceptID, "escape_route_control")
     }
 
-    func testBuild18_6R1_T11IntentResetKeepsNewConclusionButSuppressesRepeatedGenericWhyNow() {
+    func testBuild18_6R1_T11FourthVisibleGenericWhyNowIsSuppressedWithoutWeakeningReset() {
         var state = ContextExplanationRepetitionState()
         let first = lowAnalysis(intent: .development, evidenceDetail: "A")
         let second = lowAnalysis(intent: .defense, evidenceDetail: "B")
+        let third = lowAnalysis(intent: .development, evidenceDetail: "C")
+        let fourth = lowAnalysis(intent: .defense, evidenceDetail: "D")
 
-        let initial = state.present(analysis: first)
-        let changed = state.present(analysis: second)
+        let p1 = state.present(analysis: first)
+        let p2 = state.present(analysis: second)
+        let p3 = state.present(analysis: third)
+        let p4 = state.present(analysis: fourth)
 
-        XCTAssertEqual(initial.mode, .standard)
-        XCTAssertEqual(changed.mode, .standardWhyNowSuppressed)
-        XCTAssertTrue(changed.resetReasons.contains("SELECTED_INTENT_CHANGED"))
-        XCTAssertEqual(changed.semanticExplanation.whyNow, initial.semanticExplanation.whyNow)
-        XCTAssertNotEqual(changed.displayedExplanation?.conclusion, initial.displayedExplanation?.conclusion)
-        XCTAssertEqual(changed.displayedExplanation?.whyNow, "")
-        XCTAssertEqual(changed.displayedExplanation?.tone, .tentative)
-        XCTAssertEqual(changed.displayedExplanation?.confidence, .low)
+        XCTAssertEqual(p1.mode, .standard)
+        XCTAssertEqual(p2.mode, .standard)
+        XCTAssertEqual(p3.mode, .standard)
+        XCTAssertEqual(p4.mode, .standard)
+        XCTAssertFalse(p1.whyNowSuppressedAsRepeatedGeneric)
+        XCTAssertFalse(p2.whyNowSuppressedAsRepeatedGeneric)
+        XCTAssertFalse(p3.whyNowSuppressedAsRepeatedGeneric)
+        XCTAssertTrue(p4.whyNowSuppressedAsRepeatedGeneric)
+        XCTAssertFalse(p1.displayedExplanation?.whyNow.isEmpty ?? true)
+        XCTAssertFalse(p2.displayedExplanation?.whyNow.isEmpty ?? true)
+        XCTAssertFalse(p3.displayedExplanation?.whyNow.isEmpty ?? true)
+        XCTAssertEqual(p4.displayedExplanation?.whyNow, "")
+        XCTAssertNotNil(p4.displayedExplanation)
+        XCTAssertFalse(p4.displayedExplanation?.conclusion.isEmpty ?? true)
+        XCTAssertTrue(p4.resetReasons.contains("SELECTED_INTENT_CHANGED"))
+        XCTAssertEqual(p4.semanticExplanation.whyNow, p1.semanticExplanation.whyNow)
+        XCTAssertEqual(p4.displayedExplanation?.tone, .tentative)
+        XCTAssertEqual(p4.displayedExplanation?.confidence, .low)
+
+        let fifth = state.present(analysis: lowAnalysis(intent: .development, evidenceDetail: "E"))
+        XCTAssertEqual(fifth.mode, .standard)
+        XCTAssertFalse(fifth.whyNowSuppressedAsRepeatedGeneric)
+        XCTAssertFalse(fifth.displayedExplanation?.whyNow.isEmpty ?? true)
     }
 
     private func unresolvedAnalysis() -> MoveContextAnalysis {

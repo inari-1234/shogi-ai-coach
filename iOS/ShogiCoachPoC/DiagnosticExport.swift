@@ -260,6 +260,7 @@ struct ShogiDiagnosticDocument: Codable {
         let explanation: ContextMoveExplanation
         let presentationMode: ContextExplanationPresentationMode
         let presentedExplanation: ContextMoveExplanation?
+        let explanationWhyNowSuppressedAsRepeatedGeneric: Bool
         let explanationEquivalentRunLength: Int
         let explanationResetReasons: [String]
         let recommendedMove: String?

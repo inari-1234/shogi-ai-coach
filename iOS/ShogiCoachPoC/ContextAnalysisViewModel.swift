@@ -238,6 +238,7 @@ final class ContextAnalysisViewModel: ObservableObject {
                         explanation: $0.explanation,
                         presentationMode: $0.presentation.mode,
                         presentedExplanation: $0.presentedExplanation,
+                        explanationWhyNowSuppressedAsRepeatedGeneric: $0.presentation.whyNowSuppressedAsRepeatedGeneric,
                         explanationEquivalentRunLength: $0.presentation.equivalentRunLength,
                         explanationResetReasons: $0.presentation.resetReasons,
                         recommendedMove: deepByPly[$0.ply]?.bestMove,

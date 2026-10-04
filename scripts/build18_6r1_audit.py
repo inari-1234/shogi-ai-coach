@@ -102,7 +102,7 @@ def classify_blockers(record):
 def repetition_metrics(records):
     by_game = defaultdict(list)
     for r in records:
-        by_game[r.get("gameID","")].append(r)
+        by_game[r.get("gameID", "")].append(r)
 
     redundant_exact_full = 0
     redundant_exact_whynow = 0
@@ -111,13 +111,13 @@ def repetition_metrics(records):
     legitimate_exact_whynow = 0
     max_redundant_full_run = 1
     max_redundant_whynow_run = 1
+    max_visible_exact_whynow_run = 0
     same_concept_within3 = 0
     same_concept_consecutive = 0
     continuity_count = 0
     suppressed_count = 0
-    why_now_suppressed_count = 0
+    generic_whynow_field_suppression_count = 0
     reset_count = 0
-    max_visible_exact_whynow_run = 1
     policy_violations = []
 
     for game_id, game_records in by_game.items():
@@ -131,12 +131,16 @@ def repetition_metrics(records):
             concept = r.get("conceptID")
             ply = int(r.get("ply", 0))
             mode = r.get("presentationMode") or "STANDARD"
+            field_suppressed = bool(r.get("whyNowSuppressedAsRepeatedGeneric"))
+            current_full = full_text(r)
+            current_why = (r.get("whyNow") or "").strip()
+
             if mode == "CONTINUITY":
                 continuity_count += 1
             elif mode == "SUPPRESSED_DUPLICATE":
                 suppressed_count += 1
-            elif mode == "STANDARD_WHY_NOW_SUPPRESSED":
-                why_now_suppressed_count += 1
+            if field_suppressed:
+                generic_whynow_field_suppression_count += 1
             if r.get("repetitionResetReasons"):
                 reset_count += 1
 
@@ -146,92 +150,137 @@ def repetition_metrics(records):
                 last_concept_ply[concept] = ply
 
             if previous is None:
-                r["_visibleExactWhyNowRun"] = 1
-
-            if previous is not None:
-                previous_ply = int(previous.get("ply", 0))
-                is_true_consecutive_ply = ply == previous_ply + 1
-                same_signature = (
-                    bool(r.get("repetitionSemanticSignature"))
-                    and r.get("repetitionSemanticSignature") == previous.get("repetitionSemanticSignature")
-                )
-                current_full = full_text(r)
-                previous_full = full_text(previous)
-                current_why = (r.get("whyNow") or "").strip()
-                previous_why = (previous.get("whyNow") or "").strip()
-                same_full = bool(current_full) and current_full == previous_full
-                same_why = bool(current_why) and current_why == previous_why
-                near_why = (
-                    bool(current_why) and bool(previous_why)
-                    and normalized_text(current_why) == normalized_text(previous_why)
-                )
-
-                if is_true_consecutive_ply and same_why:
-                    visible_why_run = int(previous.get("_visibleExactWhyNowRun") or 1) + 1
-                else:
-                    visible_why_run = 1
+                visible_why_run = 1 if current_why else 0
                 r["_visibleExactWhyNowRun"] = visible_why_run
                 max_visible_exact_whynow_run = max(max_visible_exact_whynow_run, visible_why_run)
+                if field_suppressed:
+                    policy_violations.append({
+                        "gameID": game_id, "ply": ply, "type": "FIRST_RECORD_WHY_NOW_SUPPRESSED"
+                    })
+                previous = r
+                continue
 
-                if is_true_consecutive_ply:
-                    if mode == "CONTINUITY":
-                        if not same_signature or int(r.get("repetitionEquivalentRunLength") or 0) != 2:
-                            policy_violations.append({"gameID": game_id, "ply": ply, "type": "INVALID_CONTINUITY_STATE"})
-                        if not current_full:
-                            policy_violations.append({"gameID": game_id, "ply": ply, "type": "EMPTY_CONTINUITY_DISPLAY"})
-                    elif mode == "SUPPRESSED_DUPLICATE":
-                        if not same_signature or int(r.get("repetitionEquivalentRunLength") or 0) < 3:
-                            policy_violations.append({"gameID": game_id, "ply": ply, "type": "INVALID_SUPPRESSION_STATE"})
-                        if current_full:
-                            policy_violations.append({"gameID": game_id, "ply": ply, "type": "SUPPRESSED_DUPLICATE_STILL_VISIBLE"})
-                    elif mode == "STANDARD_WHY_NOW_SUPPRESSED":
-                        same_raw_why = (
-                            bool(r.get("rawWhyNow"))
-                            and r.get("rawWhyNow") == previous.get("rawWhyNow")
-                            and r.get("whyNowTrigger") == "NONE_IDENTIFIED"
-                        )
-                        if same_signature or not same_raw_why:
-                            policy_violations.append({"gameID": game_id, "ply": ply, "type": "INVALID_WHY_NOW_SUPPRESSION_STATE"})
-                        if current_why:
-                            policy_violations.append({"gameID": game_id, "ply": ply, "type": "WHY_NOW_SUPPRESSION_STILL_VISIBLE"})
-                        if not (r.get("primaryExplanation") or "").strip():
-                            policy_violations.append({"gameID": game_id, "ply": ply, "type": "WHY_NOW_SUPPRESSION_HID_NEW_CONCLUSION"})
-                    elif same_signature:
-                        policy_violations.append({"gameID": game_id, "ply": ply, "type": "EQUIVALENT_REPEAT_NOT_CONTROLLED"})
+            previous_ply = int(previous.get("ply", 0))
+            is_true_consecutive_ply = ply == previous_ply + 1
+            same_signature = (
+                bool(r.get("repetitionSemanticSignature"))
+                and r.get("repetitionSemanticSignature") == previous.get("repetitionSemanticSignature")
+            )
+            previous_full = full_text(previous)
+            previous_why = (previous.get("whyNow") or "").strip()
+            same_full = bool(current_full) and current_full == previous_full
+            same_why = bool(current_why) and current_why == previous_why
+            near_why = (
+                bool(current_why)
+                and bool(previous_why)
+                and normalized_text(current_why) == normalized_text(previous_why)
+            )
 
-                    if same_full:
-                        if same_signature:
-                            redundant_exact_full += 1
-                            full_run += 1
-                        else:
-                            legitimate_exact_full += 1
-                            full_run = 1
+            previous_visible_why_run = int(previous.get("_visibleExactWhyNowRun") or 0)
+            if is_true_consecutive_ply and same_why:
+                visible_why_run = previous_visible_why_run + 1
+            elif current_why:
+                visible_why_run = 1
+            else:
+                visible_why_run = 0
+            r["_visibleExactWhyNowRun"] = visible_why_run
+            max_visible_exact_whynow_run = max(max_visible_exact_whynow_run, visible_why_run)
+
+            if is_true_consecutive_ply:
+                if mode == "CONTINUITY":
+                    if not same_signature or int(r.get("repetitionEquivalentRunLength") or 0) != 2:
+                        policy_violations.append({
+                            "gameID": game_id, "ply": ply, "type": "INVALID_CONTINUITY_STATE"
+                        })
+                    if not current_full:
+                        policy_violations.append({
+                            "gameID": game_id, "ply": ply, "type": "EMPTY_CONTINUITY_DISPLAY"
+                        })
+                elif mode == "SUPPRESSED_DUPLICATE":
+                    if not same_signature or int(r.get("repetitionEquivalentRunLength") or 0) < 3:
+                        policy_violations.append({
+                            "gameID": game_id, "ply": ply, "type": "INVALID_SUPPRESSION_STATE"
+                        })
+                    if current_full:
+                        policy_violations.append({
+                            "gameID": game_id, "ply": ply, "type": "SUPPRESSED_DUPLICATE_STILL_VISIBLE"
+                        })
+                elif mode == "STANDARD":
+                    if same_signature:
+                        policy_violations.append({
+                            "gameID": game_id, "ply": ply, "type": "EQUIVALENT_REPEAT_NOT_CONTROLLED"
+                        })
+                else:
+                    policy_violations.append({
+                        "gameID": game_id, "ply": ply, "type": "UNKNOWN_PRESENTATION_MODE:" + mode
+                    })
+
+                if field_suppressed:
+                    same_raw_why = (
+                        bool(r.get("rawWhyNow"))
+                        and r.get("rawWhyNow") == previous.get("rawWhyNow")
+                    )
+                    if mode != "STANDARD":
+                        policy_violations.append({
+                            "gameID": game_id, "ply": ply, "type": "WHY_NOW_FIELD_SUPPRESSION_NOT_STANDARD"
+                        })
+                    if same_signature:
+                        policy_violations.append({
+                            "gameID": game_id, "ply": ply, "type": "WHY_NOW_FIELD_SUPPRESSION_WITHOUT_RESET"
+                        })
+                    if r.get("whyNowTrigger") != "NONE_IDENTIFIED":
+                        policy_violations.append({
+                            "gameID": game_id, "ply": ply, "type": "WHY_NOW_FIELD_SUPPRESSION_NON_GENERIC_TRIGGER"
+                        })
+                    if current_why:
+                        policy_violations.append({
+                            "gameID": game_id, "ply": ply, "type": "WHY_NOW_FIELD_SUPPRESSION_STILL_VISIBLE"
+                        })
+                    if not (r.get("primaryExplanation") or "").strip():
+                        policy_violations.append({
+                            "gameID": game_id, "ply": ply, "type": "WHY_NOW_FIELD_SUPPRESSION_HID_NEW_CONCLUSION"
+                        })
+                    if not same_raw_why or previous_visible_why_run != 3:
+                        policy_violations.append({
+                            "gameID": game_id, "ply": ply, "type": "WHY_NOW_FIELD_SUPPRESSION_BEFORE_VISIBLE_RUN_LIMIT"
+                        })
+
+                if same_full:
+                    if same_signature:
+                        redundant_exact_full += 1
+                        full_run += 1
                     else:
+                        legitimate_exact_full += 1
                         full_run = 1
-
-                    if same_why or near_why:
-                        if same_signature:
-                            if same_why:
-                                redundant_exact_whynow += 1
-                            if near_why:
-                                redundant_near_whynow += 1
-                            why_run += 1
-                        else:
-                            if same_why:
-                                legitimate_exact_whynow += 1
-                            why_run = 1
-                    else:
-                        why_run = 1
-
-                    if concept and concept == previous.get("conceptID"):
-                        same_concept_consecutive += 1
                 else:
                     full_run = 1
+
+                if same_why or near_why:
+                    if same_signature:
+                        if same_why:
+                            redundant_exact_whynow += 1
+                        if near_why:
+                            redundant_near_whynow += 1
+                        why_run += 1
+                    else:
+                        if same_why:
+                            legitimate_exact_whynow += 1
+                        why_run = 1
+                else:
                     why_run = 1
 
-                max_redundant_full_run = max(max_redundant_full_run, full_run)
-                max_redundant_whynow_run = max(max_redundant_whynow_run, why_run)
+                if concept and concept == previous.get("conceptID"):
+                    same_concept_consecutive += 1
+            else:
+                if field_suppressed:
+                    policy_violations.append({
+                        "gameID": game_id, "ply": ply, "type": "WHY_NOW_FIELD_SUPPRESSION_AFTER_GAP"
+                    })
+                full_run = 1
+                why_run = 1
 
+            max_redundant_full_run = max(max_redundant_full_run, full_run)
+            max_redundant_whynow_run = max(max_redundant_whynow_run, why_run)
             previous = r
 
     major = (
@@ -251,7 +300,7 @@ def repetition_metrics(records):
         "legitimateRepeatedExactWhyNowCount": legitimate_exact_whynow,
         "continuityPresentationCount": continuity_count,
         "suppressedDuplicatePresentationCount": suppressed_count,
-        "standardWhyNowSuppressedCount": why_now_suppressed_count,
+        "genericWhyNowFieldSuppressionCount": generic_whynow_field_suppression_count,
         "resetPresentationCount": reset_count,
         "presentationPolicyViolationCount": len(policy_violations),
         "presentationPolicyViolations": policy_violations[:100],
@@ -261,7 +310,7 @@ def repetition_metrics(records):
         "maxTrueConsecutivePlyNormalizedWhyNowRun": max_redundant_whynow_run,
         "maxVisibleExactWhyNowRun": max_visible_exact_whynow_run,
         "majorRepetitionFailure": major,
-        "blockingRule": "Redundant true-consecutive repetition with an unchanged semantic signature, invalid presentation suppression, or any visible exact WhyNow run of 4+ true consecutive plies is blocking. Legitimate repeated wording after a reset is reported, but cannot form a 4+ visible WhyNow run.",
+        "blockingRule": "Full semantic resets remain STANDARD. Unchanged semantic signatures use continuity/suppression. Any exact visible WhyNow run of 4+ true consecutive plies is blocking; the fourth identical generic NONE_IDENTIFIED WhyNow field may be omitted while preserving the STANDARD reset conclusion/evidence and raw semantic result.",
     }
 
 def select_human_sample(records, limit=48):
@@ -304,7 +353,7 @@ def select_human_sample(records, limit=48):
     )
     take(lambda r: r.get("presentationMode") == "CONTINUITY", "repetition_continuity")
     take(lambda r: r.get("presentationMode") == "SUPPRESSED_DUPLICATE", "repetition_suppressed")
-    take(lambda r: r.get("presentationMode") == "STANDARD_WHY_NOW_SUPPRESSED", "whynow_suppressed_after_reset")
+    take(lambda r: bool(r.get("whyNowSuppressedAsRepeatedGeneric")), "whynow_field_suppressed_at_limit")
     take(lambda r: bool(r.get("repetitionResetReasons")) and r.get("repetitionResetReasons") != ["INITIAL"], "repetition_reset")
 
     for r in ordered:

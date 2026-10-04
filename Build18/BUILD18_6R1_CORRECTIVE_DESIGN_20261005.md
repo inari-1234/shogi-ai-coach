@@ -2,56 +2,49 @@
 
 ## Scope
 
-Build18-6 found a presentation-quality blocker: safe fallback / WhyNow text repeated for true consecutive plies. Semantic blocker counts were zero. This correction therefore stays outside MoveIntent resolution, score, evidence weight, confidence thresholds, GroundedExplanationContext semantics, frozen corpus labels, and Build18-5A HOLD decisions.
+Build18-6 found a presentation-quality blocker: safe fallback / WhyNow text repeated across true consecutive plies. Semantic blocker counts were zero. Build18-6R1 therefore changes only Explanation Presentation / Repetition Policy.
 
-## Boundary
+The following remain unchanged: MoveIntent, ContextIntentResolver, intent scoring, evidence weights, confidence thresholds, GroundedExplanationContext semantics, Build17 Concept semantics, Build18-2 Frozen Diagnostic Corpus labels, and Build18-5A HOLD decisions.
 
-The correction introduces a stateful **Explanation Presentation / Repetition Policy** after semantic explanation generation.
+## Authority rule
 
-The raw analysis and grounded explanation remain authoritative. Presentation may:
+Missing is safer than wrong.
 
-1. show the normal explanation;
-2. show one continuity explanation when the full repetition signature is unchanged;
-3. suppress further duplicate display while the same signature continues.
+Repetition is never reduced by inventing a purpose, opponent plan, opening interpretation, mate/threatmate, future continuation, Concept, or WhyNow causality.
 
-It must never create a new purpose, opponent plan, opening label, mate/threatmate claim, Concept, or WhyNow cause.
+## Separation of semantic result and presentation
 
-## Repetition signature
+ContextExplanationGenerator and GroundedExplanationProjector continue to produce the semantic result. ContextExplanationRepetitionState receives that result afterward and decides only what should be displayed.
 
-A consecutive explanation is considered equivalent only when all material presentation inputs remain unchanged:
+Both raw semantic explanation and displayed explanation are retained in diagnostic/audit output.
 
-- selected Intent;
-- confidence;
-- WhyNow trigger and authority;
-- source evidence and source signals;
-- selected-Intent supporting evidence including detail/weight;
-- observable FACT values except the naturally changing current/previous move identifiers;
-- CONTEXT_CHANGE values;
-- grounded observed change;
-- previous move identity when previous-move causality is actually asserted;
-- forcing-state markers;
-- unsuppressed safe Concept candidate.
+## Semantic repetition signature
 
-Any change resets suppression and returns to normal display.
+A consecutive explanation is equivalent only when all material presentation inputs remain unchanged: selected Intent; Confidence; WhyNow trigger/authority; source evidence/signals; selected-Intent supporting evidence including ID/kind/weight/detail; observable FACT except naturally changing current/previous move identifiers; CONTEXT_CHANGE; grounded observed change; previous-move identity when causality is asserted; forcing markers; and unsuppressed safe Concept candidate.
 
-## Display state machine
+Any change resets full-explanation suppression.
 
-- Run 1: STANDARD — existing safe explanation.
-- Run 2: CONTINUITY — one short statement that no new explanatory basis has appeared; no new semantic claim.
-- Run 3+: SUPPRESSED_DUPLICATE — no repeated explanation card/text for that ply.
-- Reset: any signature change returns immediately to STANDARD.
+## Full-explanation state machine
 
-The existing immediate safe-Concept suppression remains separate. Its display-only suppression does not falsely count as a semantic reset because the repetition signature uses the unsuppressed Concept candidate.
+- First occurrence: STANDARD — show the existing safe semantic explanation.
+- Second identical semantic signature: CONTINUITY — show one short continuity statement and do not repeat the same WhyNow field.
+- Third and later identical semantic signature: SUPPRESSED_DUPLICATE — omit the duplicate explanation display.
+- Any semantic-signature change immediately returns the explanation to STANDARD.
 
-## Audit requirement
+This preserves the required T2/T3/T4/T5/T6 reset contract.
 
-Real-game evidence must preserve both semantic and displayed forms. A suppressed display is valid only when the semantic signature is unchanged from the immediately preceding true ply and the run length is at least 3. Any suppression across a changed signature is a blocker.
+## Generic WhyNow visible-run hard cap
 
+A separate presentation-only guard handles the case where the full semantic signature changes but the raw NONE_IDENTIFIED fallback WhyNow sentence remains textually identical.
 
-## Corrective refinement after contiguous audit
+A reset still returns to STANDARD and the new conclusion/evidence remains visible. The generic WhyNow field may be shown for at most three true consecutive plies. If a fourth identical visible generic WhyNow would occur, only that WhyNow field is omitted for that ply.
 
-A first implementation correctly suppressed repeats only when the complete semantic signature was unchanged. A stricter independent check then found an unacceptable remaining case: the generic NONE_IDENTIFIED WhyNow sentence could remain visible for 4–6 consecutive plies while Intent/evidence changed. Full-explanation suppression correctly reset, but the WhyNow field itself remained mechanically repetitive.
+The presentation remains STANDARD; diagnostics record whyNowSuppressedAsRepeatedGeneric=true; the raw grounded WhyNow remains unchanged and auditable. The omission breaks the visible run, so a later reset may show the fallback again.
 
-The refined policy therefore adds **field-level generic WhyNow de-duplication**. When the complete semantic signature changes, the new conclusion/evidence remains visible (the reset requirement is preserved), but if the immediately preceding raw WhyNow is the exact same NONE_IDENTIFIED fallback, only that redundant WhyNow field is omitted. The raw grounded WhyNow remains stored for diagnostics.
+This field-level cap satisfies the hard gate without weakening reset semantics or inventing new meaning.
 
-This is presentation-only and does not invent or modify semantic content.
+## Audit invariants
+
+A field-level WhyNow omission is valid only when: the ply is truly consecutive; mode is STANDARD; the semantic signature changed; trigger is NONE_IDENTIFIED; current raw WhyNow equals preceding raw WhyNow; preceding visible exact WhyNow run length is exactly three; current displayed WhyNow is empty; and current displayed conclusion remains present.
+
+Any violation is a blocker.

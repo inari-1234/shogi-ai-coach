@@ -47,7 +47,6 @@ public struct ContextMoveExplanation: Codable, Equatable, Sendable {
 
 public enum ContextExplanationPresentationMode: String, Codable, Equatable, Sendable {
     case standard = "STANDARD"
-    case standardWhyNowSuppressed = "STANDARD_WHY_NOW_SUPPRESSED"
     case continuity = "CONTINUITY"
     case suppressedDuplicate = "SUPPRESSED_DUPLICATE"
 }
@@ -59,6 +58,7 @@ public struct ContextExplanationPresentation: Codable, Equatable, Sendable {
     public let semanticSignature: String
     public let equivalentRunLength: Int
     public let resetReasons: [String]
+    public let whyNowSuppressedAsRepeatedGeneric: Bool
 
     public init(
         mode: ContextExplanationPresentationMode,
@@ -66,7 +66,8 @@ public struct ContextExplanationPresentation: Codable, Equatable, Sendable {
         displayedExplanation: ContextMoveExplanation?,
         semanticSignature: String,
         equivalentRunLength: Int,
-        resetReasons: [String]
+        resetReasons: [String],
+        whyNowSuppressedAsRepeatedGeneric: Bool = false
     ) {
         self.mode = mode
         self.semanticExplanation = semanticExplanation
@@ -74,6 +75,7 @@ public struct ContextExplanationPresentation: Codable, Equatable, Sendable {
         self.semanticSignature = semanticSignature
         self.equivalentRunLength = equivalentRunLength
         self.resetReasons = resetReasons
+        self.whyNowSuppressedAsRepeatedGeneric = whyNowSuppressedAsRepeatedGeneric
     }
 }
 
@@ -140,14 +142,16 @@ public struct ContextExplanationRepetitionState: Sendable {
     }
 
     private var previousSignature: Signature?
-    private var previousSemanticWhyNow: String?
+    private var previousDisplayedWhyNow: String?
+    private var visibleExactWhyNowRunLength = 0
     private var equivalentRunLength = 0
 
     public init() {}
 
     public mutating func reset() {
         previousSignature = nil
-        previousSemanticWhyNow = nil
+        previousDisplayedWhyNow = nil
+        visibleExactWhyNowRunLength = 0
         equivalentRunLength = 0
     }
 
@@ -170,12 +174,8 @@ public struct ContextExplanationRepetitionState: Sendable {
         )
 
         let mode: ContextExplanationPresentationMode
-        let displayedExplanation: ContextMoveExplanation?
+        var displayedExplanation: ContextMoveExplanation?
         let resetReasons: [String]
-
-        let repeatedGenericWhyNow = grounded.trigger == .noneIdentified
-            && !semanticExplanation.whyNow.isEmpty
-            && previousSemanticWhyNow == semanticExplanation.whyNow
 
         if let previousSignature, previousSignature == signature {
             equivalentRunLength += 1
@@ -191,16 +191,37 @@ public struct ContextExplanationRepetitionState: Sendable {
             resetReasons = previousSignature.map { signature.resetReasons(comparedWith: $0) } ?? ["INITIAL"]
             previousSignature = signature
             equivalentRunLength = 1
-            if repeatedGenericWhyNow {
-                mode = .standardWhyNowSuppressed
-                displayedExplanation = Self.suppressWhyNow(from: semanticExplanation)
-            } else {
-                mode = .standard
-                displayedExplanation = semanticExplanation
-            }
+            mode = .standard
+            displayedExplanation = semanticExplanation
         }
 
-        previousSemanticWhyNow = semanticExplanation.whyNow
+        var whyNowSuppressedAsRepeatedGeneric = false
+        if mode == .standard, let currentDisplayed = displayedExplanation {
+            let visibleWhyNow = currentDisplayed.whyNow
+            if grounded.trigger == .noneIdentified, !visibleWhyNow.isEmpty {
+                let nextRun = previousDisplayedWhyNow == visibleWhyNow
+                    ? visibleExactWhyNowRunLength + 1
+                    : 1
+                if nextRun >= 4 {
+                    previousDisplayedWhyNow = nil
+                    visibleExactWhyNowRunLength = 0
+                    whyNowSuppressedAsRepeatedGeneric = true
+                    displayedExplanation = Self.suppressWhyNow(from: currentDisplayed)
+                } else {
+                    previousDisplayedWhyNow = visibleWhyNow
+                    visibleExactWhyNowRunLength = nextRun
+                }
+            } else if !visibleWhyNow.isEmpty {
+                previousDisplayedWhyNow = visibleWhyNow
+                visibleExactWhyNowRunLength = 1
+            } else {
+                previousDisplayedWhyNow = nil
+                visibleExactWhyNowRunLength = 0
+            }
+        } else {
+            previousDisplayedWhyNow = nil
+            visibleExactWhyNowRunLength = 0
+        }
 
         return ContextExplanationPresentation(
             mode: mode,
@@ -208,7 +229,8 @@ public struct ContextExplanationRepetitionState: Sendable {
             displayedExplanation: displayedExplanation,
             semanticSignature: signature.serialized,
             equivalentRunLength: equivalentRunLength,
-            resetReasons: resetReasons
+            resetReasons: resetReasons,
+            whyNowSuppressedAsRepeatedGeneric: whyNowSuppressedAsRepeatedGeneric
         )
     }
 
