@@ -44,7 +44,7 @@ HOLD count: 5
 REJECT / MERGE count: 0
 Unassessed count: 0
 
-The five HOLD decisions were independently re-derived from the 360 authority and were not copied from the prior 316/300 evaluation.
+The five HOLD decisions were independently re-derived from the 360 authority and were not copied from the prior legacy evaluation.
 
 ## Key evidence
 
@@ -69,7 +69,7 @@ confidence thresholds changed: NO
 Concept detector added: NO
 Frozen labels changed: NO
 Frozen authority changed: NO
-Old 316/300 corpus counts mixed into final decision: NO
+Legacy corpus counts mixed into final decision: NO
 
 False-positive audit: PASS
 Human semantic review: PASS
