@@ -1,0 +1,40 @@
+name: Build18-6R1 Explanation Repetition
+
+on:
+  push:
+    branches:
+      - 'candidate/build18-6r1-explanation-repetition'
+  workflow_dispatch:
+
+concurrency:
+  group: build18-6r1-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  corrective-real-game-audit:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Build18-6R1 corrective audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x scripts/run_build18_6r1_ci.sh
+          ./scripts/run_build18_6r1_ci.sh
+
+      - name: Upload Build18-6R1 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build18-6R1-automated-evidence
+          path: build/build18-6r1
+          if-no-files-found: ignore
+          retention-days: 14

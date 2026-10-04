@@ -6,24 +6,36 @@ struct ContextAnalysisEntry: Identifiable {
     let ply: Int
     let analysis: MoveContextAnalysis
     let suppressedConceptIDs: Set<String>
+    let presentation: ContextExplanationPresentation
 
     init(
         id: Int,
         ply: Int,
         analysis: MoveContextAnalysis,
-        suppressedConceptIDs: Set<String> = []
+        suppressedConceptIDs: Set<String> = [],
+        presentation: ContextExplanationPresentation? = nil
     ) {
         self.id = id
         self.ply = ply
         self.analysis = analysis
         self.suppressedConceptIDs = suppressedConceptIDs
+        if let presentation {
+            self.presentation = presentation
+        } else {
+            var state = ContextExplanationRepetitionState()
+            self.presentation = state.present(
+                analysis: analysis,
+                suppressingConceptIDs: suppressedConceptIDs
+            )
+        }
     }
 
     var explanation: ContextMoveExplanation {
-        ContextExplanationGenerator.make(
-            analysis: analysis,
-            suppressingConceptIDs: suppressedConceptIDs
-        )
+        presentation.semanticExplanation
+    }
+
+    var presentedExplanation: ContextMoveExplanation? {
+        presentation.displayedExplanation
     }
 }
 
@@ -224,6 +236,10 @@ final class ContextAnalysisViewModel: ObservableObject {
                         ply: $0.ply,
                         analysis: $0.analysis,
                         explanation: $0.explanation,
+                        presentationMode: $0.presentation.mode,
+                        presentedExplanation: $0.presentedExplanation,
+                        explanationEquivalentRunLength: $0.presentation.equivalentRunLength,
+                        explanationResetReasons: $0.presentation.resetReasons,
                         recommendedMove: deepByPly[$0.ply]?.bestMove,
                         recommendedExplanation: recommended[$0.ply]
                     )
@@ -274,6 +290,8 @@ final class ContextAnalysisViewModel: ObservableObject {
         to entries: [ContextAnalysisEntry]
     ) -> [ContextAnalysisEntry] {
         var previousCandidateConceptID: String?
+        var repetitionState = ContextExplanationRepetitionState()
+        var previousPly: Int?
 
         return entries.map { entry in
             let unsuppressed = ContextExplanationGenerator.make(analysis: entry.analysis)
@@ -285,12 +303,22 @@ final class ContextAnalysisViewModel: ObservableObject {
                 suppressed.insert(candidateConceptID)
             }
 
+            if let previousPly, entry.ply != previousPly + 1 {
+                repetitionState.reset()
+            }
+            let presentation = repetitionState.present(
+                analysis: entry.analysis,
+                suppressingConceptIDs: suppressed
+            )
+
             previousCandidateConceptID = candidateConceptID
+            previousPly = entry.ply
             return ContextAnalysisEntry(
                 id: entry.id,
                 ply: entry.ply,
                 analysis: entry.analysis,
-                suppressedConceptIDs: suppressed
+                suppressedConceptIDs: suppressed,
+                presentation: presentation
             )
         }
     }

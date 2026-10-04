@@ -117,6 +117,13 @@ private struct AuditRecord: Codable {
     let intentCandidateCount: Int
     let primaryExplanation: String
     let whyNow: String
+    let rawPrimaryExplanation: String
+    let rawWhyNow: String
+    let rawConceptSupplementText: String?
+    let presentationMode: String
+    let repetitionSemanticSignature: String
+    let repetitionEquivalentRunLength: Int
+    let repetitionResetReasons: [String]
     let whyNowTrigger: String
     let whyNowAuthority: String
     let whyNowVerbalizationMode: String
@@ -558,6 +565,8 @@ private func run() throws {
         var previousCandidateConceptID: String?
         var previousShownConceptID: String?
         var lastShownPlyByConcept: [String: Int] = [:]
+        var explanationRepetitionState = ContextExplanationRepetitionState()
+        var previousAuditedPly: Int?
 
         let eligibleMoves = game.moves.filter { $0.ply <= options.maxPly }
         var movesToAudit = eligibleMoves
@@ -600,11 +609,16 @@ private func run() throws {
                 suppression.insert(candidateConceptID)
             }
 
-            let explanation = ContextExplanationGenerator.make(
+            if let previousAuditedPly, move.ply != previousAuditedPly + 1 {
+                explanationRepetitionState.reset()
+            }
+            let presentation = explanationRepetitionState.present(
                 analysis: analysis,
                 suppressingConceptIDs: suppression
             )
-            let shownConceptID = explanation.conceptSupplement?.conceptID
+            let explanation = presentation.semanticExplanation
+            let displayedExplanation = presentation.displayedExplanation
+            let shownConceptID = displayedExplanation?.conceptSupplement?.conceptID
 
             if !suppression.isEmpty, shownConceptID == nil {
                 suppressedImmediateRepeatCount += 1
@@ -622,19 +636,24 @@ private func run() throws {
             let issues = structuralIssues(analysis: analysis, explanation: explanation)
             for issue in issues { categoryCounts[issue, default: 0] += 1 }
 
-            let supplementLength = explanation.conceptSupplement?.text.count ?? 0
-            let primaryLength = explanation.conclusion.count + explanation.whyNow.count
+            let supplementLength = displayedExplanation?.conceptSupplement?.text.count ?? 0
+            let primaryLength = (displayedExplanation?.conclusion.count ?? 0)
+                + (displayedExplanation?.whyNow.count ?? 0)
             let overExplanation = supplementLength > 0 && supplementLength > primaryLength
-            let beginnerReview = explanation.conceptSupplement != nil && (
+            let beginnerReview = displayedExplanation?.conceptSupplement != nil && (
                 supplementLength >= 45
-                || explanation.conclusion.contains("詰み")
-                || explanation.whyNow.contains("反実仮想")
+                || (displayedExplanation?.conclusion.contains("詰み") ?? false)
+                || (displayedExplanation?.whyNow.contains("反実仮想") ?? false)
             )
             if overExplanation { overExplanationReviewCount += 1 }
             if beginnerReview { beginnerReviewCount += 1 }
 
             var notes: [String] = []
             if !suppression.isEmpty { notes.append("immediate repeated candidate suppressed") }
+            notes.append("explanation_presentation_mode=\(presentation.mode.rawValue)")
+            if !presentation.resetReasons.isEmpty {
+                notes.append("explanation_reset=" + presentation.resetReasons.joined(separator: ","))
+            }
             if analysis.effects.count > 1 {
                 let conceptEffects = analysis.effects
                     .map(\.id)
@@ -671,8 +690,15 @@ private func run() throws {
                 confidence: analysis.confidence.rawValue,
                 phase: auditPhase(for: move.ply),
                 intentCandidateCount: analysis.intentCandidates.count,
-                primaryExplanation: explanation.conclusion,
-                whyNow: explanation.whyNow,
+                primaryExplanation: displayedExplanation?.conclusion ?? "",
+                whyNow: displayedExplanation?.whyNow ?? "",
+                rawPrimaryExplanation: explanation.conclusion,
+                rawWhyNow: explanation.whyNow,
+                rawConceptSupplementText: explanation.conceptSupplement?.text,
+                presentationMode: presentation.mode.rawValue,
+                repetitionSemanticSignature: presentation.semanticSignature,
+                repetitionEquivalentRunLength: presentation.equivalentRunLength,
+                repetitionResetReasons: presentation.resetReasons,
                 whyNowTrigger: grounded.trigger.rawValue,
                 whyNowAuthority: grounded.authorityKind.rawValue,
                 whyNowVerbalizationMode: grounded.verbalizationMode.rawValue,
@@ -690,9 +716,9 @@ private func run() throws {
                 heldConceptLeakage: hasHeldConceptLeakage(combinedExplanation),
                 candidateConceptID: candidateConceptID,
                 supplementSuppressed: !suppression.isEmpty,
-                conceptSupplementPresent: explanation.conceptSupplement != nil,
+                conceptSupplementPresent: displayedExplanation?.conceptSupplement != nil,
                 conceptID: shownConceptID,
-                conceptSupplementText: explanation.conceptSupplement?.text,
+                conceptSupplementText: displayedExplanation?.conceptSupplement?.text,
                 falseExplanationCategories: issues,
                 overExplanationReview: overExplanation,
                 beginnerReadabilityReview: beginnerReview,
@@ -707,6 +733,7 @@ private func run() throws {
 
             previousCandidateConceptID = candidateConceptID
             previousShownConceptID = shownConceptID
+            previousAuditedPly = move.ply
         }
 
         if gameRecords > 0 {

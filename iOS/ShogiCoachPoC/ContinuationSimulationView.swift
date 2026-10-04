@@ -138,7 +138,7 @@ private struct ContinuationPositionPage: View {
 
                         if currentStep == 1,
                            let explanation = selectedKind == .actual
-                               ? contextEntry?.explanation
+                               ? contextEntry?.presentedExplanation
                                : recommendedExplanation {
                             ContextExplanationCard(explanation: explanation)
                         } else {
