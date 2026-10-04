@@ -156,6 +156,21 @@ private struct FrequencySummary: Codable {
     let sameConceptShownWithin3PlyCount: Int
 }
 
+private struct GameAuditMetadata: Codable {
+    let gameID: String
+    let sourceFile: String
+    let sourceType: String
+    let sourceID: String
+    let parsedComplete: Bool
+    let totalMoves: Int
+    let availablePlyMin: Int?
+    let availablePlyMax: Int?
+    let auditedPlyMin: Int?
+    let auditedPlyMax: Int?
+    let auditedPositions: Int
+    let shikenbishaHeuristic: Bool
+}
+
 private struct AuditSummary: Codable {
     let verdict: String
     let parsedGames: Int
@@ -179,6 +194,7 @@ private struct AuditDocument: Codable {
     let source: SourceInfo
     let configuration: [String: Int]
     let samplingPolicy: [String: String]
+    let games: [GameAuditMetadata]
     let summary: AuditSummary
     let records: [AuditRecord]
     let skippedFiles: [String]
@@ -504,6 +520,7 @@ private func run() throws {
     var sameConceptShownWithin3PlyCount = 0
     var beginnerReviewCount = 0
     var overExplanationReviewCount = 0
+    var gameMetadata: [GameAuditMetadata] = []
 
     for url in kifURLs {
         if records.count >= options.targetPositions, auditedGames >= options.minGames { break }
@@ -537,6 +554,7 @@ private func run() throws {
         }
 
         var gameRecords = 0
+        var auditedPlies: [Int] = []
         var previousCandidateConceptID: String?
         var previousShownConceptID: String?
         var lastShownPlyByConcept: [String: Int] = [:]
@@ -682,6 +700,7 @@ private func run() throws {
             )
             records.append(record)
             gameRecords += 1
+            auditedPlies.append(move.ply)
             intentCounts[analysis.selectedIntent.rawValue, default: 0] += 1
             confidenceCounts[analysis.confidence.rawValue, default: 0] += 1
             if let shownConceptID { supplementCounts[shownConceptID, default: 0] += 1 }
@@ -690,7 +709,24 @@ private func run() throws {
             previousShownConceptID = shownConceptID
         }
 
-        if gameRecords > 0 { auditedGames += 1 }
+        if gameRecords > 0 {
+            auditedGames += 1
+            let availablePlies = game.moves.map(\.ply)
+            gameMetadata.append(GameAuditMetadata(
+                gameID: url.deletingPathExtension().lastPathComponent,
+                sourceFile: url.lastPathComponent,
+                sourceType: "official_kif",
+                sourceID: options.sourceID,
+                parsedComplete: true,
+                totalMoves: game.moves.count,
+                availablePlyMin: availablePlies.min(),
+                availablePlyMax: availablePlies.max(),
+                auditedPlyMin: auditedPlies.min(),
+                auditedPlyMax: auditedPlies.max(),
+                auditedPositions: gameRecords,
+                shikenbishaHeuristic: shikenbishaHeuristic
+            ))
+        }
     }
 
     guard auditedGames >= options.minGames else {
@@ -756,6 +792,7 @@ private func run() throws {
             "game": options.gameSamplingPolicy,
             "position": options.positionSamplingPolicy
         ],
+        games: gameMetadata,
         summary: summary,
         records: records,
         skippedFiles: skippedFiles
