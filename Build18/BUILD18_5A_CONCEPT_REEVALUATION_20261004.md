@@ -23,7 +23,7 @@ Recomputed minimum values:
 - ADVERSARIAL_HUMAN_NATURAL_GEOMETRY_HARD: 301
 - Example class: POSITIVE 59 / NEGATIVE 57 / ADVERSARIAL 244
 
-Build18/Legacy/Build18-2_300_unique/ and all 316-record / 300-unique values are NON-AUTHORITATIVE LEGACY and were excluded from all corrected decisions.
+Build18/Legacy/Build18-2_300_unique/ and all legacy corpus counters are NON-AUTHORITATIVE LEGACY and were excluded from all corrected decisions.
 
 ## Decision summary
 
