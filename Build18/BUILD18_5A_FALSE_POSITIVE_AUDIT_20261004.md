@@ -1,42 +1,44 @@
-# Build18-5A False Positive Audit
+# Build18-5A False Positive Audit — Corrective Re-evaluation
 
-Date: 2026-10-04  
-Result: PASS for the evaluation stage.
+Date: 2026-10-04
 
-No Production detector or specialized wording was enabled in Build18-5A. Therefore this audit asks whether any of the five Concepts can be promoted while satisfying the frozen requirement that negative/adversarial false positives remain zero. The answer is no for all five.
+Authority Corpus SHA-256: 433438a81e94863a08fde83fb4c3659d660390576198df9f3d2e17a58d3b86f0
+Corpus: 360 records / 360 unique positions
+Duplicate fingerprints: 0
+Legacy Corpus used as authority: NO
 
-## respond_to_rapid_attack
-The strongest candidate set is B17-3-011..016. These are safe as generic capture_threat_response + DIRECT_PREVIOUS_MOVE. The negative set B17-3-001..003 and adversarial set B17-3-004..007 show that direct response, proximity, Shikenbisha context, or piece geometry cannot establish the specialized label. Because the frozen authority has no independent machine-verifiable rapid-attack event signal, a Production gate cannot yet distinguish “specific capture threat” from “rapid attack” without semantic overreach.
+## Corpus-wide failure-oriented coverage
 
-Decision: HOLD. No new specialized outputs; therefore no new false-positive surface is introduced.
+- POSITIVE 59 / NEGATIVE 57 / ADVERSARIAL 244
+- ADVERSARIAL_HUMAN_NATURAL_GEOMETRY_HARD: 301
+- EFFECT_INTENT_BOUNDARY: 190
+- COUNTERFACTUAL_DEMANDING: 80
+- SHIKENBISHA_DEDICATED: 80
 
-## sabai
-B17-3-032/033 are explicit adversarial traps: Shikenbisha + bishop exchange is insufficient because post-exchange activation is unverified. B17-3-037..043 are only provisional and become unresolved under Frozen Corpus requirements. Any gate based on exchange, major-piece move, or mobility would fire on forbidden cases.
+## Concept audit
 
-Decision: HOLD.
+respond_to_rapid_attack — HOLD.
+Concept-specific authority = 0. Generic direct-response evidence is available (60 direct-causality records; 45 direct rook-pawn response records), but no rapid-attack event authority exists. Generic response cannot be used as a proxy for a specialized strategy label.
 
-## trade_to_transform
-B17-3-032/033 prove an exchange-related generic response but not transformation purpose. B17-3-038/044/045 are negatives and B17-3-046..048 are adversarial controls. Capture/exchange alone is an invalid proxy.
+sabai — HOLD.
+80 formal SHIKENBISHA_TO_SABAI controls: 80 ADVERSARIAL / 0 POSITIVE. Opening family and natural-looking Shikenbisha moves cannot establish sabai purpose.
 
-Decision: HOLD.
+trade_to_transform — HOLD.
+Dedicated concept/exchange authority = 0. The 190 effect/intent-boundary records and 301 hard geometry cases prevent observed change from becoming transformation purpose.
 
-## multi_threat
-Build17 provisional positives only establish multiple newly attacked targets. The key independence criterion—one opponent response cannot neutralize the threats together—was not tested. B17-3-057..061 demonstrate geometry-like cases that must stay negative.
+multi_threat — HOLD.
+80 formal MULTI_THREAT_WITHOUT_INDEPENDENT_THREATS controls: 53 ADVERSARIAL / 27 NEGATIVE / 0 POSITIVE. Geometry/control change does not prove independent threats or one-reply non-neutralizability.
 
-Decision: HOLD.
+tempo_management — HOLD.
+80 formal UNVERIFIED_TIMING_TO_TEMPO_MANAGEMENT controls: 80 ADVERSARIAL / 0 POSITIVE. Counterfactual/sequence continuity is absent; opening name, quiet move or development order cannot substitute.
 
-## tempo_management
-B17-3-017..020 are safe generic tenuki cases, not verified tempo-management cases. B17-3-027..031 lack counterfactual and sequence continuity. B17-3-001..004 are negatives; B17-3-005..008 are adversarial. A quiet move, tenuki, or move order alone cannot be treated as timing purpose.
+## Result
 
-Decision: HOLD.
+Known authoritative negative/adversarial cases promoted: 0
+Opening-name-only promotions: 0
+Geometry-only promotions: 0
+Generic Intent changes: 0
+Confidence changes: 0
+Production specialized outputs introduced: 0
 
-## Audit conclusion
-- proposed Production promotions: 0
-- new specialized positive outputs: 0
-- known negative/adversarial cases reclassified as positive: 0
-- opening-name-only promotions: 0
-- geometry-only promotions: 0
-- generic Intent changes: 0
-- Confidence changes: 0
-
-The audit passes because Build18-5A preserves omission whenever the concept-specific evidence gate is incomplete.
+False-positive audit: PASS
