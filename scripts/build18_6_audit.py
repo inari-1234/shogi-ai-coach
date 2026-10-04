@@ -96,12 +96,18 @@ def repetition_metrics(records):
     by_game = defaultdict(list)
     for r in records:
         by_game[r.get("gameID","")].append(r)
-    exact_full = 0
-    exact_whynow = 0
-    near_whynow = 0
-    max_full_run = 1
-    max_whynow_run = 1
+
+    sample_neighbor_exact_full = 0
+    sample_neighbor_exact_whynow = 0
+    sample_neighbor_near_whynow = 0
+
+    consecutive_exact_full = 0
+    consecutive_exact_whynow = 0
+    consecutive_near_whynow = 0
+    max_consecutive_full_run = 1
+    max_consecutive_whynow_run = 1
     same_concept_within3 = 0
+    same_concept_consecutive = 0
 
     for game_records in by_game.values():
         game_records.sort(key=lambda x: x.get("ply", 0))
@@ -109,39 +115,72 @@ def repetition_metrics(records):
         why_run = 1
         last_concept_ply = {}
         previous = None
+
         for r in game_records:
             concept = r.get("conceptID")
-            ply = int(r.get("ply",0))
+            ply = int(r.get("ply", 0))
             if concept:
                 if concept in last_concept_ply and ply - last_concept_ply[concept] <= 3:
                     same_concept_within3 += 1
                 last_concept_ply[concept] = ply
+
             if previous is not None:
-                if full_text(r) == full_text(previous):
-                    exact_full += 1
-                    full_run += 1
+                same_full = full_text(r) == full_text(previous)
+                same_why = (r.get("whyNow") or "") == (previous.get("whyNow") or "")
+                near_why = normalized_text(r.get("whyNow")) == normalized_text(previous.get("whyNow"))
+
+                if same_full:
+                    sample_neighbor_exact_full += 1
+                if same_why:
+                    sample_neighbor_exact_whynow += 1
+                if near_why:
+                    sample_neighbor_near_whynow += 1
+
+                previous_ply = int(previous.get("ply", 0))
+                is_true_consecutive_ply = ply == previous_ply + 1
+
+                if is_true_consecutive_ply:
+                    if same_full:
+                        consecutive_exact_full += 1
+                        full_run += 1
+                    else:
+                        full_run = 1
+
+                    if same_why:
+                        consecutive_exact_whynow += 1
+                    if near_why:
+                        consecutive_near_whynow += 1
+                        why_run += 1
+                    else:
+                        why_run = 1
+
+                    if concept and concept == previous.get("conceptID"):
+                        same_concept_consecutive += 1
                 else:
+                    # An evenly-spaced audit sample can place records 4–6 plies apart.
+                    # Those are sample neighbors, not "every-move" repetition.
                     full_run = 1
-                if (r.get("whyNow") or "") == (previous.get("whyNow") or ""):
-                    exact_whynow += 1
-                if normalized_text(r.get("whyNow")) == normalized_text(previous.get("whyNow")):
-                    near_whynow += 1
-                    why_run += 1
-                else:
                     why_run = 1
-                max_full_run = max(max_full_run, full_run)
-                max_whynow_run = max(max_whynow_run, why_run)
+
+                max_consecutive_full_run = max(max_consecutive_full_run, full_run)
+                max_consecutive_whynow_run = max(max_consecutive_whynow_run, why_run)
+
             previous = r
 
-    major = max_full_run >= 3 or max_whynow_run >= 4
+    major = max_consecutive_full_run >= 3 or max_consecutive_whynow_run >= 4
     return {
-        "exactConsecutiveFullExplanationCount": exact_full,
-        "exactConsecutiveWhyNowCount": exact_whynow,
-        "normalizedNearConsecutiveWhyNowCount": near_whynow,
+        "sampleNeighborExactFullExplanationCount": sample_neighbor_exact_full,
+        "sampleNeighborExactWhyNowCount": sample_neighbor_exact_whynow,
+        "sampleNeighborNormalizedNearWhyNowCount": sample_neighbor_near_whynow,
+        "trueConsecutivePlyExactFullExplanationCount": consecutive_exact_full,
+        "trueConsecutivePlyExactWhyNowCount": consecutive_exact_whynow,
+        "trueConsecutivePlyNormalizedNearWhyNowCount": consecutive_near_whynow,
         "sameConceptShownWithin3PlyCount": same_concept_within3,
-        "maxExactFullExplanationRun": max_full_run,
-        "maxNormalizedWhyNowRun": max_whynow_run,
+        "sameConceptShownOnConsecutivePlyCount": same_concept_consecutive,
+        "maxTrueConsecutivePlyExactFullExplanationRun": max_consecutive_full_run,
+        "maxTrueConsecutivePlyNormalizedWhyNowRun": max_consecutive_whynow_run,
         "majorRepetitionFailure": major,
+        "blockingRule": "Only true consecutive plies (delta=1) can satisfy the automated every-move repetition blocker. Sample-neighbor repetition remains reported separately.",
     }
 
 def select_human_sample(records, limit=48):
