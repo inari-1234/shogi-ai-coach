@@ -1,64 +1,82 @@
-# Build18-5A Final Report
+# Build18-5A Final Report — Corrective Re-evaluation
 
-Date: 2026-10-04  
-Stage: Shikenbisha / Deferred Concept Re-evaluation
+Date: 2026-10-04
+Repository: inari-1234/shogi-ai-coach
+Branch: candidate/build18-5a-concept-reevaluation
 
 ## Final verdict
 
-**PASS**
+Build18-5A: PASS / COMPLETE
+Corrective Re-evaluation: PASS
+PARENT ACCEPTANCE READY
 
-All five required Deferred Concepts were independently re-evaluated and assigned an evidence-backed decision.
+## Authority
 
-- respond_to_rapid_attack: HOLD
-- sabai: HOLD
-- trade_to_transform: HOLD
-- multi_threat: HOLD
-- tempo_management: HOLD
+Authority Corpus SHA-256: 433438a81e94863a08fde83fb4c3659d660390576198df9f3d2e17a58d3b86f0
+Authority Corpus records: 360
+Authority Corpus unique positions: 360
+Duplicate fingerprints: 0
+Legacy Corpus used as authority: NO
+Legacy Build18/Legacy/Build18-2_300_unique/: NON-AUTHORITATIVE; excluded
 
-PROMOTE_TO_LIMITED_EXPLANATION: 0  
-HOLD: 5  
-REJECT / MERGE: 0  
-Unassessed Concepts: 0
+Recomputed strata:
+DIRECT_PREVIOUS_MOVE_CAUSALITY 60
+TIMING_MOVE_ORDER 80
+AMBIGUOUS_MULTI_INTENT 170
+EFFECT_INTENT_BOUNDARY 190
+COUNTERFACTUAL_DEMANDING 80
+ENDGAME_FORCING 50
+SHIKENBISHA_DEDICATED 80
+ADVERSARIAL_HUMAN_NATURAL_GEOMETRY_HARD 301
 
-## Why no Concept was promoted
+Example class: POSITIVE 59 / NEGATIVE 57 / ADVERSARIAL 244
 
-The frozen Grounded WhyNow foundation is strong enough to preserve generic Intent, direct previous-move causality, exchange sequence, concrete effects, and safe omission. It is not yet strong enough to prove the specialized semantic predicates required by these five concepts:
+## Corrected decisions
 
-- respond_to_rapid_attack lacks an independent rapid-attack-event authority.
-- sabai lacks verified post-exchange activation/continuation/resource-preservation evidence.
-- trade_to_transform lacks verified transformation relevance.
-- multi_threat lacks one-reply independence plus stable continuation.
-- tempo_management lacks explicit move-order comparison and verified timing dependence.
+respond_to_rapid_attack: HOLD
+sabai: HOLD
+trade_to_transform: HOLD
+multi_threat: HOLD
+tempo_management: HOLD
 
-Using generic signals as proxies would violate the frozen blockers against unsupported specialized labels, opening/geometry-only purpose claims, and effect-to-intent promotion.
+PROMOTE count: 0
+HOLD count: 5
+REJECT / MERGE count: 0
+Unassessed count: 0
 
-## Safety checks
+The five HOLD decisions were independently re-derived from the 360 authority and were not copied from the prior 316/300 evaluation.
 
-- generic Intent changed: NO
-- Confidence changed: NO
-- Intent score/evidence weight changed: NO
-- ContextIntentResolver changed: NO
-- Build17 safe Concept semantics changed: NO
-- Frozen Corpus labels rewritten: NO
-- Production integration started: NO
-- source code changed: NO
+## Key evidence
 
-## Frozen-corpus evidence
+- respond_to_rapid_attack: concept-specific authority absent; generic direct-response evidence cannot prove "rapid attack".
+- sabai: 80 formal sabai-risk controls, all ADVERSARIAL, positive 0.
+- trade_to_transform: no exchange/transformation authority; effect-to-purpose promotion remains blocked.
+- multi_threat: 80 formal controls = 53 ADVERSARIAL + 27 NEGATIVE, positive 0; reply independence is unverified.
+- tempo_management: 80 formal timing controls, all ADVERSARIAL, positive 0.
 
-The Build18-2 corpus audit reports 316 records / 300 unique positions and includes the required timing, counterfactual, ambiguous-intent, effect/intent-boundary, Shikenbisha-dedicated, and adversarial geometry strata.
+Build17 source IDs were reused only where the 360 Corpus exposes an explicit migration. Untraceable prior IDs were classified UNVERIFIED LEGACY REFERENCE and excluded from promotion evidence.
 
-The evaluation deliberately preserves negative/adversarial cases as first-class evidence. The strongest “natural language” candidates were not promoted when their concept-specific evidence remained missing.
+## Safety / scope
 
-## PASS rationale
+Production Code changes: 0
+GroundedExplanationContext changed: NO
+ContextExplanation changed: NO
+ContextEngine changed: NO
+MoveIntent changed: NO
+ContextIntentResolver changed: NO
+weights changed: NO
+confidence thresholds changed: NO
+Concept detector added: NO
+Frozen labels changed: NO
+Frozen authority changed: NO
+Old 316/300 corpus counts mixed into final decision: NO
 
-Build18-5A PASS requires all five Concepts to end in PROMOTE_TO_LIMITED_EXPLANATION, HOLD, or REJECT / MERGE with evidence and zero unassessed Concepts. That condition is met.
-
-Production adoption count is zero, which is explicitly allowed by the stage definition.
+False-positive audit: PASS
+Human semantic review: PASS
+Blocking issues: NONE
 
 ## Next stage
 
-Because safely promotable Concepts = 0:
-
-**Next: Build18-6**
-
-Build18-5B Conditional Limited Specialized Integration must not start from this result.
+PROMOTE_TO_LIMITED_EXPLANATION = 0.
+Build18-5B is not started.
+Next: Build18-6 — Real-game E2E / Explanation Quality Audit
