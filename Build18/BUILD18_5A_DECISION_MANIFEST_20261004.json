@@ -1,17 +1,35 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "build": "Build18-5A",
   "title": "Shikenbisha / Deferred Concept Re-evaluation",
   "date": "2026-10-04",
-  "verdict": "PASS",
-  "productionIntegrationPerformed": false,
-  "productionCodeChanged": false,
-  "assessedConceptCount": 5,
-  "unassessedConceptCount": 0,
-  "decisionCounts": {
-    "PROMOTE_TO_LIMITED_EXPLANATION": 0,
-    "HOLD": 5,
-    "REJECT / MERGE": 0
+  "correctiveReevaluation": true,
+  "verdict": "PASS / COMPLETE",
+  "correctiveVerdict": "PASS",
+  "parentAcceptanceStatus": "PARENT ACCEPTANCE READY",
+  "authority": {
+    "corpusPath": "BUILD18_2_DIAGNOSTIC_CORPUS_20261002.json",
+    "corpusSha256": "433438a81e94863a08fde83fb4c3659d660390576198df9f3d2e17a58d3b86f0",
+    "records": 360,
+    "uniquePositions": 360,
+    "duplicateFingerprints": 0,
+    "strataCounts": {
+      "DIRECT_PREVIOUS_MOVE_CAUSALITY": 60,
+      "TIMING_MOVE_ORDER": 80,
+      "AMBIGUOUS_MULTI_INTENT": 170,
+      "EFFECT_INTENT_BOUNDARY": 190,
+      "COUNTERFACTUAL_DEMANDING": 80,
+      "ENDGAME_FORCING": 50,
+      "SHIKENBISHA_DEDICATED": 80,
+      "ADVERSARIAL_HUMAN_NATURAL_GEOMETRY_HARD": 301
+    },
+    "exampleClassCounts": {
+      "POSITIVE": 59,
+      "NEGATIVE": 57,
+      "ADVERSARIAL": 244
+    },
+    "legacyCorpusUsedAsAuthority": false,
+    "legacyPath": "Build18/Legacy/Build18-2_300_unique/"
   },
   "decisions": {
     "respond_to_rapid_attack": "HOLD",
@@ -20,26 +38,20 @@
     "multi_threat": "HOLD",
     "tempo_management": "HOLD"
   },
-  "authority": {
-    "mainBaseline": "fd35c8b990379ebccbf1711d1cc0fa4a8464d53d",
-    "build18_1SpecHead": "ea37b850c72fd07b328adbd046892b647edf8c2f",
-    "annotationSchemaSha256": "3b7453198c25504dbb94226fc9863a2e53a9b86d29b19c1398b5ae6b32884d1a",
-    "authorityBundleSha256": "101a30f4a6965aa810317cab046120461e1513d5514f68baae14b8ba5c969c12",
-    "frozenDiagnosticCorpusSha256": "433438a81e94863a08fde83fb4c3659d660390576198df9f3d2e17a58d3b86f0",
-    "build18_3FreezeCandidateHead": "054f30a54463d472cc96a16c49cd14d6e0e28b45",
-    "build18_3ValidatedImplementationHead": "3ef903e5762e695646204987196e8b8fff500155",
-    "build18_4vEvidencePackageSha256": "3f298c3c87bf43d40365fb53196d4e5649cb2fa352a592b6d5489f50a69c39c4",
-    "build18_4vManifestSha256": "eeb499fa73d54e380ab1af6b39c2f9abb088700af814ce65ad9b6685aaa19324"
+  "decisionCounts": {
+    "PROMOTE_TO_LIMITED_EXPLANATION": 0,
+    "HOLD": 5,
+    "REJECT / MERGE": 0,
+    "UNASSESSED": 0
   },
-  "requiredArtifacts": [
-    "Build18/BUILD18_5A_CONCEPT_REEVALUATION_20261004.md",
-    "Build18/BUILD18_5A_EVIDENCE_MATRIX_20261004.json",
-    "Build18/BUILD18_5A_FALSE_POSITIVE_AUDIT_20261004.md",
-    "Build18/BUILD18_5A_HUMAN_SEMANTIC_REVIEW_20261004.md",
-    "Build18/BUILD18_5A_FINAL_REPORT_20261004.md",
-    "Build18/BUILD18_5A_DECISION_MANIFEST_20261004.json"
-  ],
-  "nextStage": "Build18-6",
-  "build18_5bAllowed": false,
-  "reason": "No concept satisfies every frozen PROMOTE gate with machine-verifiable concept-specific evidence and zero negative/adversarial false-positive risk."
+  "audits": {
+    "falsePositive": "PASS",
+    "humanSemanticReview": "PASS",
+    "build17SourceTrace": "PASS_WITH_UNVERIFIED_LEGACY_REFERENCES_EXCLUDED"
+  },
+  "productionCodeChanged": false,
+  "frozenAuthorityChanged": false,
+  "blockingIssues": [],
+  "nextStage": "Build18-6 — Real-game E2E / Explanation Quality Audit",
+  "build18_5bAllowed": false
 }
