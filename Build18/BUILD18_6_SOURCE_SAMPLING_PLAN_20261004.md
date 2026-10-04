@@ -13,7 +13,7 @@ Branch: candidate/build18-6-real-game-e2e
 - Build18-5A corrected HEAD: 3443b3cb0830783b325fca4bd82fd374a185dc6a
 - Build18-5A decision: PROMOTE 0 / HOLD 5 / Build18-5B skipped
 
-The Build18-4V package bytes are not stored in this repository and were not found in the connected Drive at Gate A. Therefore the workflow records that hash as parent-attested upstream authority; it does not claim an independent byte-level recomputation of that archive. The repository-verifiable authorities (commit ancestry, Build18-5A manifest, and Build18-2 corpus when present in the checkout) are verified directly.
+The Build18-4V package bytes are not stored in this repository and were not found in the connected Drive at Gate A. Therefore the workflow records that hash as parent-attested upstream authority; it does not claim an independent byte-level recomputation of that archive. The repository-verifiable authorities are verified directly. Build18-2 Frozen Corpus bytes are read from `origin/candidate/build18-2-diagnostic-corpus:Build18/BUILD18_2_DIAGNOSTIC_CORPUS_20261002.json` and SHA-256 is recomputed at Gate A.
 
 ## Real-game source
 
