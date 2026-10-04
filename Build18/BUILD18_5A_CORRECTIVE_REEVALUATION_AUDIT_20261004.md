@@ -30,7 +30,7 @@ All required values: PASS
 
 ## Legacy exclusion
 
-Build18/Legacy/Build18-2_300_unique/ and 316/300-derived counters were not used for any corrected decision.
+Build18/Legacy/Build18-2_300_unique/ and all legacy-derived counters were not used for any corrected decision.
 
 ## Build17 source trace audit
 
