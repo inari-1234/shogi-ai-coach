@@ -44,6 +44,245 @@ public struct ContextMoveExplanation: Codable, Equatable, Sendable {
     }
 }
 
+
+public enum ContextExplanationPresentationMode: String, Codable, Equatable, Sendable {
+    case standard = "STANDARD"
+    case continuity = "CONTINUITY"
+    case suppressedDuplicate = "SUPPRESSED_DUPLICATE"
+}
+
+public struct ContextExplanationPresentation: Codable, Equatable, Sendable {
+    public let mode: ContextExplanationPresentationMode
+    public let semanticExplanation: ContextMoveExplanation
+    public let displayedExplanation: ContextMoveExplanation?
+    public let semanticSignature: String
+    public let equivalentRunLength: Int
+    public let resetReasons: [String]
+
+    public init(
+        mode: ContextExplanationPresentationMode,
+        semanticExplanation: ContextMoveExplanation,
+        displayedExplanation: ContextMoveExplanation?,
+        semanticSignature: String,
+        equivalentRunLength: Int,
+        resetReasons: [String]
+    ) {
+        self.mode = mode
+        self.semanticExplanation = semanticExplanation
+        self.displayedExplanation = displayedExplanation
+        self.semanticSignature = semanticSignature
+        self.equivalentRunLength = equivalentRunLength
+        self.resetReasons = resetReasons
+    }
+}
+
+/// Presentation-only repetition control.
+///
+/// This state never changes MoveIntent, confidence, evidence, GroundedExplanationContext,
+/// or Concept semantics. It only decides whether already-generated explanation text should
+/// be shown in full, condensed once as continuity, or omitted on further equivalent plies.
+public struct ContextExplanationRepetitionState: Sendable {
+    private struct Signature: Equatable, Sendable {
+        let selectedIntent: String
+        let confidence: String
+        let trigger: String
+        let authority: String
+        let sourceEvidence: [String]
+        let sourceSignals: [String]
+        let supportingEvidence: [String]
+        let observableFacts: [String]
+        let contextChanges: [String]
+        let observedChange: String
+        let causalPreviousMove: String
+        let forcingState: [String]
+        let conceptID: String
+
+        var serialized: String {
+            [
+                "intent=\(selectedIntent)",
+                "confidence=\(confidence)",
+                "trigger=\(trigger)",
+                "authority=\(authority)",
+                "sourceEvidence=\(sourceEvidence.joined(separator: ","))",
+                "sourceSignals=\(sourceSignals.joined(separator: ","))",
+                "supportingEvidence=\(supportingEvidence.joined(separator: ","))",
+                "facts=\(observableFacts.joined(separator: ","))",
+                "contextChanges=\(contextChanges.joined(separator: ","))",
+                "observedChange=\(observedChange)",
+                "causalPreviousMove=\(causalPreviousMove)",
+                "forcing=\(forcingState.joined(separator: ","))",
+                "concept=\(conceptID)"
+            ].joined(separator: "|")
+        }
+
+        func resetReasons(comparedWith previous: Signature) -> [String] {
+            var reasons: [String] = []
+            if selectedIntent != previous.selectedIntent { reasons.append("SELECTED_INTENT_CHANGED") }
+            if confidence != previous.confidence { reasons.append("CONFIDENCE_CHANGED") }
+            if trigger != previous.trigger { reasons.append("WHY_NOW_TRIGGER_CHANGED") }
+            if authority != previous.authority { reasons.append("WHY_NOW_AUTHORITY_CHANGED") }
+            if sourceEvidence != previous.sourceEvidence || supportingEvidence != previous.supportingEvidence {
+                reasons.append("SUPPORTING_EVIDENCE_CHANGED")
+            }
+            if sourceSignals != previous.sourceSignals { reasons.append("SOURCE_SIGNAL_CHANGED") }
+            if observableFacts != previous.observableFacts { reasons.append("FACT_CHANGED") }
+            if contextChanges != previous.contextChanges || observedChange != previous.observedChange {
+                reasons.append("CONTEXT_CHANGE_CHANGED")
+            }
+            if causalPreviousMove != previous.causalPreviousMove {
+                reasons.append("PREVIOUS_MOVE_CAUSALITY_CHANGED")
+            }
+            if forcingState != previous.forcingState { reasons.append("FORCING_STATE_CHANGED") }
+            if conceptID != previous.conceptID { reasons.append("CONCEPT_SUPPLEMENT_CHANGED") }
+            return reasons
+        }
+    }
+
+    private var previousSignature: Signature?
+    private var equivalentRunLength = 0
+
+    public init() {}
+
+    public mutating func reset() {
+        previousSignature = nil
+        equivalentRunLength = 0
+    }
+
+    public mutating func present(
+        analysis: MoveContextAnalysis,
+        suppressingConceptIDs: Set<String> = []
+    ) -> ContextExplanationPresentation {
+        // Keep the unsuppressed candidate only for the repetition signature so that the
+        // existing Concept repetition policy does not masquerade as a semantic reset.
+        let rawExplanation = ContextExplanationGenerator.make(analysis: analysis)
+        let semanticExplanation = ContextExplanationGenerator.make(
+            analysis: analysis,
+            suppressingConceptIDs: suppressingConceptIDs
+        )
+        let grounded = GroundedExplanationProjector.make(analysis: analysis)
+        let signature = Self.signature(
+            analysis: analysis,
+            grounded: grounded,
+            candidateConceptID: rawExplanation.conceptSupplement?.conceptID
+        )
+
+        let mode: ContextExplanationPresentationMode
+        let displayedExplanation: ContextMoveExplanation?
+        let resetReasons: [String]
+
+        if let previousSignature, previousSignature == signature {
+            equivalentRunLength += 1
+            resetReasons = []
+            if equivalentRunLength == 2 {
+                mode = .continuity
+                displayedExplanation = Self.continuityExplanation(from: semanticExplanation)
+            } else {
+                mode = .suppressedDuplicate
+                displayedExplanation = nil
+            }
+        } else {
+            resetReasons = previousSignature.map { signature.resetReasons(comparedWith: $0) } ?? ["INITIAL"]
+            previousSignature = signature
+            equivalentRunLength = 1
+            mode = .standard
+            displayedExplanation = semanticExplanation
+        }
+
+        return ContextExplanationPresentation(
+            mode: mode,
+            semanticExplanation: semanticExplanation,
+            displayedExplanation: displayedExplanation,
+            semanticSignature: signature.serialized,
+            equivalentRunLength: equivalentRunLength,
+            resetReasons: resetReasons
+        )
+    }
+
+    private static func signature(
+        analysis: MoveContextAnalysis,
+        grounded: GroundedExplanationContext,
+        candidateConceptID: String?
+    ) -> Signature {
+        let supportingEvidence = analysis.evidence
+            .filter { $0.supportedIntent == analysis.selectedIntent && $0.weight > 0 }
+            .map {
+                "\($0.id):\($0.kind.rawValue):\($0.weight):\($0.detail)"
+            }
+            .sorted()
+
+        // current_move and previous_move naturally change every ply. They are not treated
+        // as new explanatory information by themselves. Previous-move identity is included
+        // only when the grounded trigger actually claims previous-move causality.
+        let observableFacts = analysis.facts
+            .filter { $0.kind != .currentMove && $0.kind != .previousMove }
+            .map { "\($0.id):\($0.kind.rawValue):\($0.detail)" }
+            .sorted()
+
+        let contextChanges = analysis.contextChanges
+            .map { "\($0.id):\($0.detail)" }
+            .sorted()
+
+        let causalPreviousMove: String
+        switch grounded.trigger {
+        case .directPreviousMove, .exchangeSequence:
+            causalPreviousMove = grounded.previousMove ?? "-"
+        default:
+            causalPreviousMove = "-"
+        }
+
+        var forcingState: [String] = []
+        if analysis.facts.contains(where: { $0.kind == .sideInCheck }) {
+            forcingState.append("SIDE_IN_CHECK")
+        }
+        if analysis.facts.contains(where: { $0.kind == .check }) {
+            forcingState.append("CHECK_FACT")
+        }
+        if analysis.effects.contains(where: { $0.id == "gives_check" }) {
+            forcingState.append("GIVES_CHECK")
+        }
+        for id in ["ev_forced_mate", "ev_threatmate", "ev_threatmate_defense", "ev_check_defense", "ev_king_escape"]
+            where analysis.evidence.contains(where: { $0.id == id && $0.weight > 0 }) {
+            forcingState.append(id)
+        }
+
+        return Signature(
+            selectedIntent: analysis.selectedIntent.rawValue,
+            confidence: analysis.confidence.rawValue,
+            trigger: grounded.trigger.rawValue,
+            authority: grounded.authorityKind.rawValue,
+            sourceEvidence: grounded.sourceEvidenceIDs.sorted(),
+            sourceSignals: grounded.sourceSignalIDs.sorted(),
+            supportingEvidence: supportingEvidence,
+            observableFacts: observableFacts,
+            contextChanges: contextChanges,
+            observedChange: grounded.observedChange ?? "-",
+            causalPreviousMove: causalPreviousMove,
+            forcingState: forcingState.sorted(),
+            conceptID: candidateConceptID ?? "-"
+        )
+    }
+
+    private static func continuityExplanation(
+        from semantic: ContextMoveExplanation
+    ) -> ContextMoveExplanation {
+        let conclusion: String
+        if semantic.tone == .unresolved {
+            conclusion = "前の手と同様、狙いを断定できる新しい根拠はありません。"
+        } else {
+            conclusion = "前の手と同じ根拠状態が続いています。"
+        }
+
+        return ContextMoveExplanation(
+            conclusion: conclusion,
+            whyNow: "",
+            evidenceText: semantic.evidenceText,
+            confidence: semantic.confidence,
+            tone: semantic.tone,
+            conceptSupplement: nil
+        )
+    }
+}
+
 public enum ContextExplanationGenerator {
     public static func make(
         analysis: MoveContextAnalysis,
