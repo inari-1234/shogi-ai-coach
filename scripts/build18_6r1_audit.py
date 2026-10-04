@@ -431,16 +431,16 @@ def main():
         "humanReviewRequired": True,
     }
 
-    (out / "BUILD18_6R1_REAL_GAME_E2E_RESULTS_20261004.json").write_text(
+    (out / "BUILD18_6R1_REAL_GAME_E2E_RESULTS_20261005.json").write_text(
         json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
-    (out / "BUILD18_6R1_EXPLANATION_QUALITY_AUDIT_20261004.json").write_text(
+    (out / "BUILD18_6R1_EXPLANATION_QUALITY_AUDIT_20261005.json").write_text(
         json.dumps(quality, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
-    (out / "BUILD18_6R1_REPETITION_AUDIT_20261004.json").write_text(
+    (out / "BUILD18_6R1_REPETITION_AUDIT_20261005.json").write_text(
         json.dumps(repetition, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
-    (out / "BUILD18_6R1_HUMAN_SEMANTIC_REVIEW_CANDIDATES_20261004.json").write_text(
+    (out / "BUILD18_6R1_HUMAN_SEMANTIC_REVIEW_CANDIDATES_20261005.json").write_text(
         json.dumps({
             "selectionRule": "deterministic SHA-256 ordering with mandatory stratum-first picks, then deterministic fill",
             "count": len(human_candidates),
@@ -473,7 +473,7 @@ def main():
     if coverage_failures:
         md += ["", "## Coverage failures", ""]
         md.extend(f"- {x}" for x in coverage_failures)
-    (out / "BUILD18_6R1_FALSE_EXPLANATION_AUDIT_20261004.md").write_text(
+    (out / "BUILD18_6R1_FALSE_EXPLANATION_AUDIT_20261005.md").write_text(
         "\n".join(md) + "\n", encoding="utf-8"
     )
 
