@@ -78,7 +78,7 @@ from pathlib import Path
 Path(sys.argv[1]).write_text(json.dumps({
   "schemaVersion": 1,
   "status": "PASS",
-  "tests": {f"T{i}": "PASS" for i in range(1, 11)},
+  "tests": {f"T{i}": "PASS" for i in range(1, 12)},
   "scope": "Explanation Presentation / Repetition Policy",
 }, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY

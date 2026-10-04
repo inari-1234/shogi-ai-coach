@@ -259,6 +259,24 @@ final class ContextExplanationTests: XCTestCase {
         XCTAssertEqual(first.displayedExplanation?.conceptSupplement?.conceptID, "escape_route_control")
     }
 
+    func testBuild18_6R1_T11IntentResetKeepsNewConclusionButSuppressesRepeatedGenericWhyNow() {
+        var state = ContextExplanationRepetitionState()
+        let first = lowAnalysis(intent: .development, evidenceDetail: "A")
+        let second = lowAnalysis(intent: .defense, evidenceDetail: "B")
+
+        let initial = state.present(analysis: first)
+        let changed = state.present(analysis: second)
+
+        XCTAssertEqual(initial.mode, .standard)
+        XCTAssertEqual(changed.mode, .standardWhyNowSuppressed)
+        XCTAssertTrue(changed.resetReasons.contains("SELECTED_INTENT_CHANGED"))
+        XCTAssertEqual(changed.semanticExplanation.whyNow, initial.semanticExplanation.whyNow)
+        XCTAssertNotEqual(changed.displayedExplanation?.conclusion, initial.displayedExplanation?.conclusion)
+        XCTAssertEqual(changed.displayedExplanation?.whyNow, "")
+        XCTAssertEqual(changed.displayedExplanation?.tone, .tentative)
+        XCTAssertEqual(changed.displayedExplanation?.confidence, .low)
+    }
+
     private func unresolvedAnalysis() -> MoveContextAnalysis {
         MoveContextAnalysis(
             move: "7g7f",

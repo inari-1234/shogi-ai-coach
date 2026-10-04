@@ -47,6 +47,7 @@ public struct ContextMoveExplanation: Codable, Equatable, Sendable {
 
 public enum ContextExplanationPresentationMode: String, Codable, Equatable, Sendable {
     case standard = "STANDARD"
+    case standardWhyNowSuppressed = "STANDARD_WHY_NOW_SUPPRESSED"
     case continuity = "CONTINUITY"
     case suppressedDuplicate = "SUPPRESSED_DUPLICATE"
 }
@@ -139,12 +140,14 @@ public struct ContextExplanationRepetitionState: Sendable {
     }
 
     private var previousSignature: Signature?
+    private var previousSemanticWhyNow: String?
     private var equivalentRunLength = 0
 
     public init() {}
 
     public mutating func reset() {
         previousSignature = nil
+        previousSemanticWhyNow = nil
         equivalentRunLength = 0
     }
 
@@ -170,6 +173,10 @@ public struct ContextExplanationRepetitionState: Sendable {
         let displayedExplanation: ContextMoveExplanation?
         let resetReasons: [String]
 
+        let repeatedGenericWhyNow = grounded.trigger == .noneIdentified
+            && !semanticExplanation.whyNow.isEmpty
+            && previousSemanticWhyNow == semanticExplanation.whyNow
+
         if let previousSignature, previousSignature == signature {
             equivalentRunLength += 1
             resetReasons = []
@@ -184,9 +191,16 @@ public struct ContextExplanationRepetitionState: Sendable {
             resetReasons = previousSignature.map { signature.resetReasons(comparedWith: $0) } ?? ["INITIAL"]
             previousSignature = signature
             equivalentRunLength = 1
-            mode = .standard
-            displayedExplanation = semanticExplanation
+            if repeatedGenericWhyNow {
+                mode = .standardWhyNowSuppressed
+                displayedExplanation = Self.suppressWhyNow(from: semanticExplanation)
+            } else {
+                mode = .standard
+                displayedExplanation = semanticExplanation
+            }
         }
+
+        previousSemanticWhyNow = semanticExplanation.whyNow
 
         return ContextExplanationPresentation(
             mode: mode,
@@ -259,6 +273,19 @@ public struct ContextExplanationRepetitionState: Sendable {
             causalPreviousMove: causalPreviousMove,
             forcingState: forcingState.sorted(),
             conceptID: candidateConceptID ?? "-"
+        )
+    }
+
+    private static func suppressWhyNow(
+        from semantic: ContextMoveExplanation
+    ) -> ContextMoveExplanation {
+        ContextMoveExplanation(
+            conclusion: semantic.conclusion,
+            whyNow: "",
+            evidenceText: semantic.evidenceText,
+            confidence: semantic.confidence,
+            tone: semantic.tone,
+            conceptSupplement: semantic.conceptSupplement
         )
     }
 

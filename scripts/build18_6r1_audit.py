@@ -115,7 +115,9 @@ def repetition_metrics(records):
     same_concept_consecutive = 0
     continuity_count = 0
     suppressed_count = 0
+    why_now_suppressed_count = 0
     reset_count = 0
+    max_visible_exact_whynow_run = 1
     policy_violations = []
 
     for game_id, game_records in by_game.items():
@@ -133,6 +135,8 @@ def repetition_metrics(records):
                 continuity_count += 1
             elif mode == "SUPPRESSED_DUPLICATE":
                 suppressed_count += 1
+            elif mode == "STANDARD_WHY_NOW_SUPPRESSED":
+                why_now_suppressed_count += 1
             if r.get("repetitionResetReasons"):
                 reset_count += 1
 
@@ -140,6 +144,9 @@ def repetition_metrics(records):
                 if concept in last_concept_ply and ply - last_concept_ply[concept] <= 3:
                     same_concept_within3 += 1
                 last_concept_ply[concept] = ply
+
+            if previous is None:
+                r["_visibleExactWhyNowRun"] = 1
 
             if previous is not None:
                 previous_ply = int(previous.get("ply", 0))
@@ -159,6 +166,13 @@ def repetition_metrics(records):
                     and normalized_text(current_why) == normalized_text(previous_why)
                 )
 
+                if is_true_consecutive_ply and same_why:
+                    visible_why_run = int(previous.get("_visibleExactWhyNowRun") or 1) + 1
+                else:
+                    visible_why_run = 1
+                r["_visibleExactWhyNowRun"] = visible_why_run
+                max_visible_exact_whynow_run = max(max_visible_exact_whynow_run, visible_why_run)
+
                 if is_true_consecutive_ply:
                     if mode == "CONTINUITY":
                         if not same_signature or int(r.get("repetitionEquivalentRunLength") or 0) != 2:
@@ -170,6 +184,18 @@ def repetition_metrics(records):
                             policy_violations.append({"gameID": game_id, "ply": ply, "type": "INVALID_SUPPRESSION_STATE"})
                         if current_full:
                             policy_violations.append({"gameID": game_id, "ply": ply, "type": "SUPPRESSED_DUPLICATE_STILL_VISIBLE"})
+                    elif mode == "STANDARD_WHY_NOW_SUPPRESSED":
+                        same_raw_why = (
+                            bool(r.get("rawWhyNow"))
+                            and r.get("rawWhyNow") == previous.get("rawWhyNow")
+                            and r.get("whyNowTrigger") == "NONE_IDENTIFIED"
+                        )
+                        if same_signature or not same_raw_why:
+                            policy_violations.append({"gameID": game_id, "ply": ply, "type": "INVALID_WHY_NOW_SUPPRESSION_STATE"})
+                        if current_why:
+                            policy_violations.append({"gameID": game_id, "ply": ply, "type": "WHY_NOW_SUPPRESSION_STILL_VISIBLE"})
+                        if not (r.get("primaryExplanation") or "").strip():
+                            policy_violations.append({"gameID": game_id, "ply": ply, "type": "WHY_NOW_SUPPRESSION_HID_NEW_CONCLUSION"})
                     elif same_signature:
                         policy_violations.append({"gameID": game_id, "ply": ply, "type": "EQUIVALENT_REPEAT_NOT_CONTROLLED"})
 
@@ -211,6 +237,7 @@ def repetition_metrics(records):
     major = (
         max_redundant_full_run >= 3
         or max_redundant_whynow_run >= 4
+        or max_visible_exact_whynow_run >= 4
         or bool(policy_violations)
     )
     return {
@@ -224,6 +251,7 @@ def repetition_metrics(records):
         "legitimateRepeatedExactWhyNowCount": legitimate_exact_whynow,
         "continuityPresentationCount": continuity_count,
         "suppressedDuplicatePresentationCount": suppressed_count,
+        "standardWhyNowSuppressedCount": why_now_suppressed_count,
         "resetPresentationCount": reset_count,
         "presentationPolicyViolationCount": len(policy_violations),
         "presentationPolicyViolations": policy_violations[:100],
@@ -231,8 +259,9 @@ def repetition_metrics(records):
         "sameConceptShownOnConsecutivePlyCount": same_concept_consecutive,
         "maxTrueConsecutivePlyExactFullExplanationRun": max_redundant_full_run,
         "maxTrueConsecutivePlyNormalizedWhyNowRun": max_redundant_whynow_run,
+        "maxVisibleExactWhyNowRun": max_visible_exact_whynow_run,
         "majorRepetitionFailure": major,
-        "blockingRule": "Only redundant true-consecutive visible repetitions with an unchanged semantic signature, or an invalid suppression/continuity state, are blocking. Legitimate repeated wording after an explicit reset is reported separately.",
+        "blockingRule": "Redundant true-consecutive repetition with an unchanged semantic signature, invalid presentation suppression, or any visible exact WhyNow run of 4+ true consecutive plies is blocking. Legitimate repeated wording after a reset is reported, but cannot form a 4+ visible WhyNow run.",
     }
 
 def select_human_sample(records, limit=48):
@@ -275,6 +304,7 @@ def select_human_sample(records, limit=48):
     )
     take(lambda r: r.get("presentationMode") == "CONTINUITY", "repetition_continuity")
     take(lambda r: r.get("presentationMode") == "SUPPRESSED_DUPLICATE", "repetition_suppressed")
+    take(lambda r: r.get("presentationMode") == "STANDARD_WHY_NOW_SUPPRESSED", "whynow_suppressed_after_reset")
     take(lambda r: bool(r.get("repetitionResetReasons")) and r.get("repetitionResetReasons") != ["INITIAL"], "repetition_reset")
 
     for r in ordered:

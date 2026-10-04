@@ -46,3 +46,12 @@ The existing immediate safe-Concept suppression remains separate. Its display-on
 ## Audit requirement
 
 Real-game evidence must preserve both semantic and displayed forms. A suppressed display is valid only when the semantic signature is unchanged from the immediately preceding true ply and the run length is at least 3. Any suppression across a changed signature is a blocker.
+
+
+## Corrective refinement after contiguous audit
+
+A first implementation correctly suppressed repeats only when the complete semantic signature was unchanged. A stricter independent check then found an unacceptable remaining case: the generic NONE_IDENTIFIED WhyNow sentence could remain visible for 4–6 consecutive plies while Intent/evidence changed. Full-explanation suppression correctly reset, but the WhyNow field itself remained mechanically repetitive.
+
+The refined policy therefore adds **field-level generic WhyNow de-duplication**. When the complete semantic signature changes, the new conclusion/evidence remains visible (the reset requirement is preserved), but if the immediately preceding raw WhyNow is the exact same NONE_IDENTIFIED fallback, only that redundant WhyNow field is omitted. The raw grounded WhyNow remains stored for diagnostics.
+
+This is presentation-only and does not invent or modify semantic content.

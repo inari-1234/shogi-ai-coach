@@ -38,3 +38,16 @@ Suppression is reset when any of the following changes:
 - No fabricated mate/threatmate.
 - No alteration to GroundedExplanationProjector output.
 - Build18-5A HOLD remains unchanged.
+
+
+## Field-level NONE_IDENTIFIED WhyNow de-duplication
+
+Resetting the full explanation does not require reprinting an identical generic WhyNow fallback. If Intent/evidence changes but the raw WhyNow remains the exact same NONE_IDENTIFIED fallback:
+
+- the new conclusion is shown normally;
+- evidence and safe Concept supplement remain available;
+- the repeated WhyNow field is omitted for that ply;
+- raw WhyNow remains in diagnostic output;
+- the mode is STANDARD_WHY_NOW_SUPPRESSED.
+
+This rule is not synonym rotation and does not add any semantic claim. It exists solely to enforce the hard gate that no exact WhyNow text remains mechanically visible for 4+ true consecutive plies.
