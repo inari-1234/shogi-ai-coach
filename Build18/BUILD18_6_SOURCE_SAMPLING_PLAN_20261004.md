@@ -96,3 +96,11 @@ The workflow must fail if files under Sources/ShogiCoachCore differ from Build18
 ## Execution trace
 
 Execution PR: #9 (draft; Build18-6 audit evidence only; do not merge in this stage).
+
+## Repetition measurement rule
+
+The main E2E sample is evenly spaced, so adjacent audit records can be several plies apart. Such sample-neighbor repetition is reported but cannot be classified as "every-move" repetition.
+
+Automated major repetition blocking uses only true consecutive plies (ply delta = 1).
+
+To avoid missing repetition because of the spaced main sample, Gate D also runs a separate contiguous repetition audit over deterministically hash-selected real games, with sequential real plies and a target of 840 positions / minimum 600 positions. This continuity audit is supplementary and is not counted toward the formal 720-position E2E total.
