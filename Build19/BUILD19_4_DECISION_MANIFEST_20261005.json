@@ -3,12 +3,13 @@
   "build": "Build19-4",
   "title": "HOLD Concept Re-evaluation",
   "date": "2026-10-05",
-  "status": "CANDIDATE / VALIDATION PENDING",
+  "status": "PASS / COMPLETE",
   "baseAuthority": {
     "build19_3bFinalHead": "9637da6998235ed0e8464b8cbfeb0256f5511d41",
     "build18_5aManifest": "Build18/BUILD18_5A_DECISION_MANIFEST_20261004.json",
     "roadmap": "Build19/BUILD19_P_ROADMAP_20261005.md"
   },
+  "validatedCandidateHead": "3cae3289d330150bd23c933efdc7f59b42bc20fa",
   "decisions": {
     "respond_to_rapid_attack": "HOLD",
     "sabai": "HOLD",
@@ -33,7 +34,17 @@
   "build18AuthorityChanged": false,
   "build19_1_to_3bAuthorityChanged": false,
   "automaticPromotionFromSequenceEvidence": false,
+  "validation": {
+    "dedicatedWorkflowRun": 37290831468,
+    "dedicatedWorkflowJob": 111700558097,
+    "validationArtifactId": 11336287037,
+    "validationArtifactSHA256": "e9423495b429145e126f4b2748270302dabd7df02d8e17c1f04114a8d8f33720",
+    "iosDeviceBuildRun": 37290831419,
+    "iosDeviceBuildJob": 111700857158,
+    "iosArtifactId": 11336636486,
+    "iosArtifactSHA256": "9f24ca88a7a269804270da1ddcd4de3451e41c28ebb82937f55846bc10c35008"
+  },
   "blockingIssues": [],
-  "validationStatus": "PENDING",
-  "nextStageIfValidated": "Build19-V — Independent Real-game / Semantic Validation"
+  "validationStatus": "PASS",
+  "nextStage": "Build19-V — Independent Real-game / Semantic Validation"
 }

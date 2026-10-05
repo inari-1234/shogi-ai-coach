@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-4",
+  "title": "HOLD Concept Re-evaluation Regression Results",
+  "date": "2026-10-05",
+  "result": "PASS",
+  "baseAuthorityHead": "9637da6998235ed0e8464b8cbfeb0256f5511d41",
+  "validatedCandidateHead": "3cae3289d330150bd23c933efdc7f59b42bc20fa",
+  "decisionAudit": {
+    "concepts": 5,
+    "hold": 5,
+    "promoted": 0,
+    "positiveSemanticAuthority": 0,
+    "automaticPromotionFromSequenceEvidence": false,
+    "result": "PASS"
+  },
+  "scopeAndLeakage": {
+    "productionCodeChanged": false,
+    "build18AuthorityChanged": false,
+    "build19_1_to_3bAuthorityChanged": false,
+    "holdProductionLeakageScan": "PASS"
+  },
+  "regression": {
+    "build19_3bExplanationAndRepetition": {"passed": 17, "failed": 0},
+    "build19_3aComparisonConfidence": {"passed": 12, "failed": 0},
+    "build19_2SequenceCounterfactual": {"passed": 10, "failed": 0},
+    "build19_1CandidateComparison": {"passed": 14, "failed": 0},
+    "build17SafeConcept": {"passed": 19, "failed": 0},
+    "build18GroundedWhyNow": {"passed": 9, "failed": 0},
+    "build18FrozenCorpusProjection": {"passed": 1, "failed": 0},
+    "fullXCTest": {"passed": 137, "failed": 0},
+    "swiftTesting": {"passed": 16, "failed": 0},
+    "staticVerify": "PASS"
+  },
+  "dedicatedValidation": {
+    "workflow": "Build19-4 HOLD Concept Re-evaluation",
+    "runId": 37290831468,
+    "jobId": 111700558097,
+    "result": "SUCCESS",
+    "artifactId": 11336287037,
+    "artifactSHA256": "e9423495b429145e126f4b2748270302dabd7df02d8e17c1f04114a8d8f33720"
+  },
+  "iosDeviceBuild": {
+    "runId": 37290831419,
+    "jobId": 111700857158,
+    "result": "SUCCESS",
+    "artifactId": 11336636486,
+    "artifactSHA256": "9f24ca88a7a269804270da1ddcd4de3451e41c28ebb82937f55846bc10c35008"
+  },
+  "formalDecision": {
+    "respond_to_rapid_attack": "HOLD",
+    "sabai": "HOLD",
+    "trade_to_transform": "HOLD",
+    "multi_threat": "HOLD",
+    "tempo_management": "HOLD"
+  }
+}
