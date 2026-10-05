@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-2 Sequence / Counterfactual Evidence",
+  "date": "2026-10-05",
+  "authority": {
+    "build18MainHead": "c1316508fad4c5bd2fa9e8728bcee42cba7d0d73",
+    "build19_1Head": "07fac474b723d35d49093adce5e5e886acf600da"
+  },
+  "candidateSequenceEvidence": {
+    "fields": [
+      "candidateID",
+      "branchType",
+      "requestedPlyCount",
+      "reconstructedPlyCount",
+      "stablePlyCount",
+      "plies",
+      "reconstructionComplete",
+      "warnings"
+    ]
+  },
+  "sequencePlyEvidence": {
+    "fields": [
+      "ply",
+      "role",
+      "move",
+      "effect",
+      "metrics.givesCheck",
+      "metrics.materialInventory",
+      "recapturesPreviousMover",
+      "positionCommandAfter",
+      "positionAfter",
+      "withinStableHorizon"
+    ],
+    "roles": [
+      "CANDIDATE_MOVE",
+      "OPPONENT_REPLY",
+      "OWN_CONTINUATION",
+      "OPPONENT_CONTINUATION"
+    ]
+  },
+  "sequenceDifferencePoint": {
+    "kinds": [
+      "CAPTURE",
+      "PROMOTION",
+      "CHECK",
+      "DROP",
+      "MATERIAL_OWNERSHIP",
+      "OPPONENT_REPLY_MOVE",
+      "CONTINUATION_MOVE"
+    ],
+    "fields": [
+      "ply",
+      "horizon",
+      "kind",
+      "candidateAValue",
+      "candidateBValue",
+      "sourceMoves",
+      "withinStableHorizon",
+      "safeToVerbalize",
+      "limitations"
+    ]
+  },
+  "opponentConsequence": {
+    "kinds": [
+      "OPPONENT_CAPTURE",
+      "OPPONENT_CHECK",
+      "OPPONENT_PROMOTION",
+      "OPPONENT_DROP",
+      "OPPONENT_RECAPTURE"
+    ],
+    "mandatoryLimitation": "observed_in_engine_pv_not_exhaustive_and_not_proven_forced"
+  },
+  "stableHorizonPolicy": {
+    "comparisonUnstable": 0,
+    "comparisonStableContinuationUnstable": "candidate-first-move-only",
+    "comparisonAndContinuationStable": "common-reconstructed-horizon-A-B",
+    "invalidPV": "truncate-with-warning"
+  },
+  "futureDifferenceResolutionStatus": [
+    "RESOLVED",
+    "NOT_OBSERVED_WITHIN_STABLE_HORIZON",
+    "UNRESOLVED_UNSTABLE",
+    "RECONSTRUCTION_UNAVAILABLE"
+  ],
+  "safety": {
+    "firstMoveStringIdentityIsNotGroundedReason": true,
+    "pvObservationIsNotForcedReplyProof": true,
+    "unstablePlySafeToVerbalize": false,
+    "scoreGapUsedAsSequenceConfidence": false,
+    "mutatesMoveIntent": false,
+    "mutatesContextConfidence": false
+  }
+}
