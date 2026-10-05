@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-1 Candidate Comparison Core",
+  "date": "2026-10-05",
+  "authority": {
+    "build18MainHead": "c1316508fad4c5bd2fa9e8728bcee42cba7d0d73",
+    "build19PHead": "1ff3ce4196ce7d5f88cda9a1aadebf53bc15f215",
+    "implementationBranch": "candidate/build19-1-candidate-comparison-core",
+    "validatedProductionCodeHead": "e628b5b0dc848231bf541d6b74214d06568b3f19",
+    "validatedFixtureAndArtifactHead": "1929bb50a6585207b07fb9a6d8df572802c77dcd"
+  },
+  "build19Validation": {
+    "workflow": "Build19-1 Candidate Comparison Core",
+    "runId": 37269680484,
+    "jobId": 111633894303,
+    "conclusion": "success",
+    "gates": {
+      "authorityAndScopeGuard": "PASS",
+      "requirementFixtureContractCoverage": {
+        "result": "PASS",
+        "fixtures": 30,
+        "covered": 30,
+        "criticalDefects": 0,
+        "planningLabelsUsedAsTruthLabels": false,
+        "alternativeCandidateInvented": false
+      },
+      "dedicatedCandidateComparisonTests": {
+        "executed": 14,
+        "failed": 0,
+        "unexpected": 0,
+        "result": "PASS"
+      },
+      "build17SafeConceptRegression": {
+        "executed": 19,
+        "failed": 0,
+        "unexpected": 0,
+        "result": "PASS"
+      },
+      "build18GroundedWhyNowRegression": {
+        "executed": 9,
+        "failed": 0,
+        "unexpected": 0,
+        "result": "PASS"
+      },
+      "build18FrozenCorpusProjection": {
+        "executed": 1,
+        "failed": 0,
+        "unexpected": 0,
+        "result": "PASS"
+      },
+      "fullSwiftXCTest": {
+        "executed": 98,
+        "failed": 0,
+        "unexpected": 0,
+        "result": "PASS"
+      },
+      "swiftTestingLibrary": {
+        "executed": 16,
+        "failed": 0,
+        "result": "PASS"
+      },
+      "staticVerify": "PASS"
+    },
+    "evidenceArtifact": {
+      "artifactId": 11327587140,
+      "sha256": "15c541df863991c6530dc9a72f523bef3d2ab93a075df692b3b449d0ffc2005d",
+      "files": 7
+    }
+  },
+  "iosDeviceBuild": {
+    "workflow": "iOS Device Build",
+    "runId": 37269181189,
+    "jobId": 111632332677,
+    "head": "e628b5b0dc848231bf541d6b74214d06568b3f19",
+    "conclusion": "success",
+    "steps": {
+      "coreRegressionTests": "PASS",
+      "restoreEngineAssets": "PASS",
+      "preparePinnedEngine": "PASS",
+      "generateXcodeProject": "PASS",
+      "buildUnsignedIPhoneApp": "PASS",
+      "verifyAndPackageIPA": "PASS",
+      "uploadIPAAndLogs": "PASS"
+    },
+    "ipaArtifact": {
+      "artifactId": 11327727396,
+      "sha256": "382182601854c6014b8c61a60a51f435c6e242add58612d202f5468a8b37948b"
+    }
+  },
+  "build18Protection": {
+    "contextIntentResolverRedesigned": false,
+    "intentWeightChanged": false,
+    "contextConfidenceThresholdChanged": false,
+    "groundedExplanationPolicyChanged": false,
+    "existingUIForcedToShowComparison": false,
+    "frozenCorpusChanged": false,
+    "holdConceptsPromoted": false,
+    "holdConcepts": {
+      "respond_to_rapid_attack": "HOLD",
+      "sabai": "HOLD",
+      "trade_to_transform": "HOLD",
+      "multi_threat": "HOLD",
+      "tempo_management": "HOLD"
+    },
+    "scopeGuard": "PASS"
+  },
+  "initialFailureAndCorrection": {
+    "initialRunId": 37268709590,
+    "type": "TEST_FIXTURE_DEFECT",
+    "productionArchitectureConflict": false,
+    "cause": "Three new tests reused USI move 7g7f after the fixture position had already played 7g7f, causing sourcePieceMissing.",
+    "correction": "Replaced the invalid quiet-move fixture with legal 8g8f and reran the complete validation chain.",
+    "status": "CLOSED"
+  },
+  "postValidationHardening": {
+    "commit": "c4bd4c30a4566d9a100c10f6895653c5c4b08ac9",
+    "change": "Requirement-fixture workflow now explicitly fetches candidate/build19-p-gap-audit before comparing the planning fixture.",
+    "productionCodeChanged": false
+  },
+  "result": "PASS"
+}
