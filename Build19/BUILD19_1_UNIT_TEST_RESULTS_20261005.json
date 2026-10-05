@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-1 Candidate Comparison Core",
+  "date": "2026-10-05",
+  "validatedImplementationCommit": "e628b5b0dc848231bf541d6b74214d06568b3f19",
+  "workflow": {
+    "name": "Build19-1 Candidate Comparison Core",
+    "runId": 37269181096,
+    "jobId": 111632378805,
+    "conclusion": "success",
+    "artifactId": 11327721204,
+    "artifactSha256": "7705002f37bb75468d703b68108f335c7b9e68ab0c8725bbf2c3623dc3cdfc9a"
+  },
+  "dedicatedComparisonTests": {
+    "executed": 14,
+    "failed": 0,
+    "unexpected": 0,
+    "result": "PASS",
+    "coverage": [
+      "shared evidence is excluded from difference evidence",
+      "capture difference",
+      "immediate recapture / exchange guard",
+      "check difference without score-causality claim",
+      "material inventory difference",
+      "unstable comparison suppression",
+      "score-only NO_GROUNDED_CAUSAL_DIFFERENCE fallback",
+      "MoveIntent / ContextConfidence / IntentCandidate isolation contract",
+      "unsupported axis suppression",
+      "same-condition movetime mismatch rejection",
+      "mate-state categorical comparison",
+      "Best-vs-Actual branch metadata and diagnostic JSON",
+      "candidate-specific PV mismatch invalidates stability",
+      "default comparison does not mark unrequested unsupported axes"
+    ]
+  },
+  "correctionHistory": {
+    "initialRunId": 37268709590,
+    "initialResult": "FAIL",
+    "cause": "three new tests reused 7g7f after the fixture position had already played 7g7f, producing sourcePieceMissing in the test fixture",
+    "productionArchitectureFailure": false,
+    "correction": "replaced the invalid quiet-move fixture with 8g8f and reran all gates",
+    "correctedResult": "PASS"
+  },
+  "result": "PASS"
+}
