@@ -159,7 +159,7 @@ final class CandidateComparisonTests: XCTestCase {
     }
 
     func testScoreOnlyProducesNoGroundedCausalDifference() throws {
-        let a = try candidate(id: "A", rank: 1, move: "7g7f", score: .centipawn(120, bound: nil))
+        let a = try candidate(id: "A", rank: 1, move: "8g8f", score: .centipawn(120, bound: nil))
         let b = try candidate(id: "B", rank: 2, move: "2g2f", score: .centipawn(0, bound: nil))
         let result = CandidateComparisonResolver.compare(
             comparisonID: "score-only",
@@ -180,7 +180,7 @@ final class CandidateComparisonTests: XCTestCase {
     }
 
     func testUnsupportedAxesAreReportedButNeverGrounded() throws {
-        let a = try candidate(id: "A", rank: 1, move: "7g7f", score: .centipawn(100, bound: nil))
+        let a = try candidate(id: "A", rank: 1, move: "8g8f", score: .centipawn(100, bound: nil))
         let b = try candidate(id: "B", rank: 2, move: "2g2f", score: .centipawn(90, bound: nil))
         let result = CandidateComparisonResolver.compare(
             comparisonID: "unsupported",
@@ -197,7 +197,7 @@ final class CandidateComparisonTests: XCTestCase {
     }
 
     func testDifferentSearchConditionsMakeComparisonUnstable() throws {
-        let a = try candidate(id: "A", rank: 1, move: "7g7f", score: .centipawn(100, bound: nil))
+        let a = try candidate(id: "A", rank: 1, move: "8g8f", score: .centipawn(100, bound: nil))
         let b = try candidate(
             id: "B",
             rank: 2,
