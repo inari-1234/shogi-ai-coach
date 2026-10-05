@@ -1,0 +1,43 @@
+name: Build18-6 Real-game E2E
+
+on:
+  push:
+    branches:
+      - 'candidate/build18-6-real-game-e2e'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: build18-6-real-game-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  real-game-audit:
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run staged Build18-6 audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x scripts/run_build18_6_ci.sh
+          ./scripts/run_build18_6_ci.sh
+
+      - name: Upload automated evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build18-6-automated-evidence
+          path: build/build18-6
+          if-no-files-found: ignore
+          retention-days: 14

@@ -1,0 +1,35 @@
+{
+  "stage": "Build18-2 Diagnostic Corpus / Annotation Design & Freeze",
+  "date": "2026-10-02",
+  "repository": "inari-1234/shogi-ai-coach",
+  "branch": "candidate/build18-2-diagnostic-corpus",
+  "base": "candidate/build18-1-grounded-whynow-spec",
+  "baselineMainSHA": "fd35c8b990379ebccbf1711d1cc0fa4a8464d53d",
+  "status": "COMPLETE / FROZEN CANDIDATE",
+  "productionCodeChanged": false,
+  "corpus": {
+    "totalRecords": 316,
+    "uniquePositions": 300,
+    "quotaCounts": {
+      "DIRECT_PREVIOUS_MOVE_CAUSALITY": 40,
+      "TIMING_MOVE_ORDER": 44,
+      "AMBIGUOUS_MULTI_INTENT": 302,
+      "EFFECT_INTENT_BOUNDARY": 168,
+      "COUNTERFACTUAL_DEMANDING": 43,
+      "ENDGAME_FORCING": 59,
+      "SHIKENBISHA_DEDICATED": 61,
+      "ADVERSARIAL_GEOMETRY_HARD": 187
+    }
+  },
+  "crossReview": "PASS",
+  "deliverables": [
+    "Build18/BUILD18_2_ANNOTATION_SCHEMA_20261002.json",
+    "Build18/BUILD18_2_DIAGNOSTIC_CORPUS_20261002.json",
+    "Build18/BUILD18_2_SHIKENBISHA_SUBSET_20261002.json",
+    "Build18/BUILD18_2_ADVERSARIAL_SUBSET_20261002.json",
+    "Build18/BUILD18_2_CORPUS_AUDIT_20261002.json",
+    "Build18/BUILD18_2_FREEZE_CANDIDATE_MANIFEST_20261002.json",
+    "Build18/BUILD18_2_FINAL_REPORT_20261002.md",
+    "Build18/BUILD18_3_START_PROMPT_20261002.md"
+  ]
+}

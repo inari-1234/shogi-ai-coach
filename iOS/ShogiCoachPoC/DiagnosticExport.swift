@@ -258,6 +258,11 @@ struct ShogiDiagnosticDocument: Codable {
         let ply: Int
         let analysis: MoveContextAnalysis
         let explanation: ContextMoveExplanation
+        let presentationMode: ContextExplanationPresentationMode
+        let presentedExplanation: ContextMoveExplanation?
+        let explanationWhyNowSuppressedAsRepeatedGeneric: Bool
+        let explanationEquivalentRunLength: Int
+        let explanationResetReasons: [String]
         let recommendedMove: String?
         let recommendedExplanation: ContextMoveExplanation?
     }

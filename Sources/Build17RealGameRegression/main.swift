@@ -43,6 +43,8 @@ private struct Options {
     let sourceURL: String
     let rightsNote: String
     let retrievedDate: String
+    let gameSamplingPolicy: String
+    let positionSamplingPolicy: String
 
     init(arguments: [String]) throws {
         func value(_ flag: String) throws -> String {
@@ -60,6 +62,11 @@ private struct Options {
             }
             return parsed
         }
+        func optionalValue(_ flag: String, default defaultValue: String) throws -> String {
+            guard let i = arguments.firstIndex(of: flag) else { return defaultValue }
+            guard i + 1 < arguments.count else { throw AuditError.missingArgument(flag) }
+            return arguments[i + 1]
+        }
 
         inputDir = try value("--input-dir")
         outputJSON = try value("--output-json")
@@ -73,6 +80,8 @@ private struct Options {
         sourceURL = try value("--source-url")
         rightsNote = try value("--rights-note")
         retrievedDate = try value("--retrieved-date")
+        gameSamplingPolicy = try optionalValue("--game-sampling-policy", default: "lexical-v1")
+        positionSamplingPolicy = try optionalValue("--position-sampling-policy", default: "sequential-v1")
     }
 }
 
@@ -104,8 +113,33 @@ private struct AuditRecord: Codable {
     let currentMove: String
     let primaryIntent: String
     let confidence: String
+    let phase: String
+    let intentCandidateCount: Int
     let primaryExplanation: String
     let whyNow: String
+    let rawPrimaryExplanation: String
+    let rawWhyNow: String
+    let rawConceptSupplementText: String?
+    let presentationMode: String
+    let whyNowSuppressedAsRepeatedGeneric: Bool
+    let repetitionSemanticSignature: String
+    let repetitionEquivalentRunLength: Int
+    let repetitionResetReasons: [String]
+    let whyNowTrigger: String
+    let whyNowAuthority: String
+    let whyNowVerbalizationMode: String
+    let whyNowClaimTypes: [String]
+    let whyNowSourceEvidenceIDs: [String]
+    let whyNowSourceSignalIDs: [String]
+    let whyNowMissingEvidence: [String]
+    let whyNowCompatibleIntent: String?
+    let selectedIntentEvidenceIDs: [String]
+    let selectedIntentEvidenceKinds: [String]
+    let selectedIntentNonGeometryEvidenceCount: Int
+    let forcingPosition: Bool
+    let quietOrAmbiguous: Bool
+    let shikenbishaHeuristic: Bool
+    let heldConceptLeakage: Bool
     let candidateConceptID: String?
     let supplementSuppressed: Bool
     let conceptSupplementPresent: Bool
@@ -130,6 +164,21 @@ private struct FrequencySummary: Codable {
     let sameConceptShownWithin3PlyCount: Int
 }
 
+private struct GameAuditMetadata: Codable {
+    let gameID: String
+    let sourceFile: String
+    let sourceType: String
+    let sourceID: String
+    let parsedComplete: Bool
+    let totalMoves: Int
+    let availablePlyMin: Int?
+    let availablePlyMax: Int?
+    let auditedPlyMin: Int?
+    let auditedPlyMax: Int?
+    let auditedPositions: Int
+    let shikenbishaHeuristic: Bool
+}
+
 private struct AuditSummary: Codable {
     let verdict: String
     let parsedGames: Int
@@ -152,6 +201,8 @@ private struct AuditDocument: Codable {
     let generatedAtUTC: String
     let source: SourceInfo
     let configuration: [String: Int]
+    let samplingPolicy: [String: String]
+    let games: [GameAuditMetadata]
     let summary: AuditSummary
     let records: [AuditRecord]
     let skippedFiles: [String]
@@ -396,6 +447,38 @@ private func makeMarkdown(
     return lines.joined(separator: "\n")
 }
 
+private func stableFNV1a64(_ value: String) -> UInt64 {
+    var hash: UInt64 = 1469598103934665603
+    for byte in value.utf8 {
+        hash ^= UInt64(byte)
+        hash &*= 1099511628211
+    }
+    return hash
+}
+
+private func auditPhase(for ply: Int) -> String {
+    if ply <= 30 { return "OPENING" }
+    if ply <= 70 { return "MIDDLEGAME" }
+    return "ENDGAME"
+}
+
+private func hasHeldConceptLeakage(_ text: String) -> Bool {
+    let heldTokens = [
+        "respond_to_rapid_attack",
+        "sabai",
+        "trade_to_transform",
+        "multi_threat",
+        "tempo_management",
+        "急戦",
+        "さばき",
+        "捌き",
+        "局面を変えるための交換",
+        "複数の狙い",
+        "テンポ管理"
+    ]
+    return heldTokens.contains { text.contains($0) }
+}
+
 private func run() throws {
     let options = try Options(arguments: Array(CommandLine.arguments.dropFirst()))
     let mandatory = try mandatoryRegressions()
@@ -415,6 +498,14 @@ private func run() throws {
         kifURLs.append(url)
     }
     kifURLs.sort { $0.path < $1.path }
+    if options.gameSamplingPolicy == "deterministic-hash-v1" {
+        kifURLs.sort {
+            let lhs = stableFNV1a64($0.lastPathComponent)
+            let rhs = stableFNV1a64($1.lastPathComponent)
+            if lhs == rhs { return $0.path < $1.path }
+            return lhs < rhs
+        }
+    }
     guard !kifURLs.isEmpty else { throw AuditError.noKIF(options.inputDir) }
 
     let engine = MoveContextEngine()
@@ -437,6 +528,7 @@ private func run() throws {
     var sameConceptShownWithin3PlyCount = 0
     var beginnerReviewCount = 0
     var overExplanationReviewCount = 0
+    var gameMetadata: [GameAuditMetadata] = []
 
     for url in kifURLs {
         if records.count >= options.targetPositions, auditedGames >= options.minGames { break }
@@ -452,12 +544,44 @@ private func run() throws {
             continue
         }
 
+        var shikenbishaHeuristic = false
+        var blackRookSquare = "2h"
+        var whiteRookSquare = "8b"
+        for openingMove in game.moves where openingMove.ply <= 30 {
+            let usi = openingMove.usi
+            guard !usi.contains("*"), usi.count >= 4 else { continue }
+            let source = String(usi.prefix(2))
+            let destination = String(usi.dropFirst(2).prefix(2))
+            if openingMove.ply % 2 == 1, source == blackRookSquare {
+                blackRookSquare = destination
+                if destination.first != "2" { shikenbishaHeuristic = true }
+            } else if openingMove.ply % 2 == 0, source == whiteRookSquare {
+                whiteRookSquare = destination
+                if destination.first != "8" { shikenbishaHeuristic = true }
+            }
+        }
+
         var gameRecords = 0
+        var auditedPlies: [Int] = []
         var previousCandidateConceptID: String?
         var previousShownConceptID: String?
         var lastShownPlyByConcept: [String: Int] = [:]
+        var explanationRepetitionState = ContextExplanationRepetitionState()
+        var previousAuditedPly: Int?
 
-        for move in game.moves where move.ply <= options.maxPly {
+        let eligibleMoves = game.moves.filter { $0.ply <= options.maxPly }
+        var movesToAudit = eligibleMoves
+        if options.positionSamplingPolicy == "evenly-spaced-v1",
+           eligibleMoves.count > options.maxPositionsPerGame {
+            let count = options.maxPositionsPerGame
+            movesToAudit = (0..<count).map { index in
+                let denominator = max(1, count - 1)
+                let sourceIndex = index * (eligibleMoves.count - 1) / denominator
+                return eligibleMoves[sourceIndex]
+            }
+        }
+
+        for move in movesToAudit {
             if gameRecords >= options.maxPositionsPerGame { break }
             if records.count >= options.targetPositions, auditedGames + 1 >= options.minGames { break }
 
@@ -473,6 +597,10 @@ private func run() throws {
                 continue
             }
 
+            let grounded = GroundedExplanationProjector.make(analysis: analysis)
+            let selectedEvidence = analysis.evidence.filter {
+                $0.supportedIntent == analysis.selectedIntent && $0.weight > 0
+            }
             let candidateExplanation = ContextExplanationGenerator.make(analysis: analysis)
             let candidateConceptID = candidateExplanation.conceptSupplement?.conceptID
             var suppression: Set<String> = []
@@ -482,11 +610,16 @@ private func run() throws {
                 suppression.insert(candidateConceptID)
             }
 
-            let explanation = ContextExplanationGenerator.make(
+            if let previousAuditedPly, move.ply != previousAuditedPly + 1 {
+                explanationRepetitionState.reset()
+            }
+            let presentation = explanationRepetitionState.present(
                 analysis: analysis,
                 suppressingConceptIDs: suppression
             )
-            let shownConceptID = explanation.conceptSupplement?.conceptID
+            let explanation = presentation.semanticExplanation
+            let displayedExplanation = presentation.displayedExplanation
+            let shownConceptID = displayedExplanation?.conceptSupplement?.conceptID
 
             if !suppression.isEmpty, shownConceptID == nil {
                 suppressedImmediateRepeatCount += 1
@@ -504,19 +637,24 @@ private func run() throws {
             let issues = structuralIssues(analysis: analysis, explanation: explanation)
             for issue in issues { categoryCounts[issue, default: 0] += 1 }
 
-            let supplementLength = explanation.conceptSupplement?.text.count ?? 0
-            let primaryLength = explanation.conclusion.count + explanation.whyNow.count
+            let supplementLength = displayedExplanation?.conceptSupplement?.text.count ?? 0
+            let primaryLength = (displayedExplanation?.conclusion.count ?? 0)
+                + (displayedExplanation?.whyNow.count ?? 0)
             let overExplanation = supplementLength > 0 && supplementLength > primaryLength
-            let beginnerReview = explanation.conceptSupplement != nil && (
+            let beginnerReview = displayedExplanation?.conceptSupplement != nil && (
                 supplementLength >= 45
-                || explanation.conclusion.contains("詰み")
-                || explanation.whyNow.contains("反実仮想")
+                || (displayedExplanation?.conclusion.contains("詰み") ?? false)
+                || (displayedExplanation?.whyNow.contains("反実仮想") ?? false)
             )
             if overExplanation { overExplanationReviewCount += 1 }
             if beginnerReview { beginnerReviewCount += 1 }
 
             var notes: [String] = []
             if !suppression.isEmpty { notes.append("immediate repeated candidate suppressed") }
+            notes.append("explanation_presentation_mode=\(presentation.mode.rawValue)")
+            if !presentation.resetReasons.isEmpty {
+                notes.append("explanation_reset=" + presentation.resetReasons.joined(separator: ","))
+            }
             if analysis.effects.count > 1 {
                 let conceptEffects = analysis.effects
                     .map(\.id)
@@ -526,6 +664,23 @@ private func run() throws {
                 }
             }
 
+            let combinedExplanation = [
+                explanation.conclusion,
+                explanation.whyNow,
+                explanation.conceptSupplement?.text ?? ""
+            ].joined(separator: " ")
+            let forcingPosition = [
+                GroundedWhyNowTrigger.immediateThreat,
+                .forcingTactic,
+                .exchangeSequence
+            ].contains(grounded.trigger)
+                || analysis.facts.contains(where: { $0.kind == .sideInCheck || $0.kind == .check })
+            let quietOrAmbiguous = grounded.trigger == .noneIdentified
+                && !forcingPosition
+                && (analysis.confidence == .low
+                    || analysis.confidence == .unresolved
+                    || analysis.intentCandidates.count > 1)
+
             let record = AuditRecord(
                 gameID: url.deletingPathExtension().lastPathComponent,
                 ply: move.ply,
@@ -534,13 +689,38 @@ private func run() throws {
                 currentMove: move.usi,
                 primaryIntent: analysis.selectedIntent.rawValue,
                 confidence: analysis.confidence.rawValue,
-                primaryExplanation: explanation.conclusion,
-                whyNow: explanation.whyNow,
+                phase: auditPhase(for: move.ply),
+                intentCandidateCount: analysis.intentCandidates.count,
+                primaryExplanation: displayedExplanation?.conclusion ?? "",
+                whyNow: displayedExplanation?.whyNow ?? "",
+                rawPrimaryExplanation: explanation.conclusion,
+                rawWhyNow: explanation.whyNow,
+                rawConceptSupplementText: explanation.conceptSupplement?.text,
+                presentationMode: presentation.mode.rawValue,
+                whyNowSuppressedAsRepeatedGeneric: presentation.whyNowSuppressedAsRepeatedGeneric,
+                repetitionSemanticSignature: presentation.semanticSignature,
+                repetitionEquivalentRunLength: presentation.equivalentRunLength,
+                repetitionResetReasons: presentation.resetReasons,
+                whyNowTrigger: grounded.trigger.rawValue,
+                whyNowAuthority: grounded.authorityKind.rawValue,
+                whyNowVerbalizationMode: grounded.verbalizationMode.rawValue,
+                whyNowClaimTypes: grounded.claimTypes.map(\.rawValue),
+                whyNowSourceEvidenceIDs: grounded.sourceEvidenceIDs,
+                whyNowSourceSignalIDs: grounded.sourceSignalIDs,
+                whyNowMissingEvidence: grounded.missingEvidence.map(\.rawValue),
+                whyNowCompatibleIntent: grounded.compatibleIntent?.rawValue,
+                selectedIntentEvidenceIDs: selectedEvidence.map(\.id).sorted(),
+                selectedIntentEvidenceKinds: selectedEvidence.map { $0.kind.rawValue }.sorted(),
+                selectedIntentNonGeometryEvidenceCount: selectedEvidence.filter { $0.kind != .geometry }.count,
+                forcingPosition: forcingPosition,
+                quietOrAmbiguous: quietOrAmbiguous,
+                shikenbishaHeuristic: shikenbishaHeuristic,
+                heldConceptLeakage: hasHeldConceptLeakage(combinedExplanation),
                 candidateConceptID: candidateConceptID,
                 supplementSuppressed: !suppression.isEmpty,
-                conceptSupplementPresent: explanation.conceptSupplement != nil,
+                conceptSupplementPresent: displayedExplanation?.conceptSupplement != nil,
                 conceptID: shownConceptID,
-                conceptSupplementText: explanation.conceptSupplement?.text,
+                conceptSupplementText: displayedExplanation?.conceptSupplement?.text,
                 falseExplanationCategories: issues,
                 overExplanationReview: overExplanation,
                 beginnerReadabilityReview: beginnerReview,
@@ -548,15 +728,34 @@ private func run() throws {
             )
             records.append(record)
             gameRecords += 1
+            auditedPlies.append(move.ply)
             intentCounts[analysis.selectedIntent.rawValue, default: 0] += 1
             confidenceCounts[analysis.confidence.rawValue, default: 0] += 1
             if let shownConceptID { supplementCounts[shownConceptID, default: 0] += 1 }
 
             previousCandidateConceptID = candidateConceptID
             previousShownConceptID = shownConceptID
+            previousAuditedPly = move.ply
         }
 
-        if gameRecords > 0 { auditedGames += 1 }
+        if gameRecords > 0 {
+            auditedGames += 1
+            let availablePlies = game.moves.map(\.ply)
+            gameMetadata.append(GameAuditMetadata(
+                gameID: url.deletingPathExtension().lastPathComponent,
+                sourceFile: url.lastPathComponent,
+                sourceType: "official_kif",
+                sourceID: options.sourceID,
+                parsedComplete: true,
+                totalMoves: game.moves.count,
+                availablePlyMin: availablePlies.min(),
+                availablePlyMax: availablePlies.max(),
+                auditedPlyMin: auditedPlies.min(),
+                auditedPlyMax: auditedPlies.max(),
+                auditedPositions: gameRecords,
+                shikenbishaHeuristic: shikenbishaHeuristic
+            ))
+        }
     }
 
     guard auditedGames >= options.minGames else {
@@ -618,6 +817,11 @@ private func run() throws {
             "minGames": options.minGames,
             "maxPly": options.maxPly
         ],
+        samplingPolicy: [
+            "game": options.gameSamplingPolicy,
+            "position": options.positionSamplingPolicy
+        ],
+        games: gameMetadata,
         summary: summary,
         records: records,
         skippedFiles: skippedFiles

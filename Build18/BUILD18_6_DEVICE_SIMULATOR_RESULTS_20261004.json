@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "auditedCandidateHEAD": "32635a23a29ef1bd01c250276f81395352afc2a4",
+  "device": {
+    "workflowRun": 37203582861,
+    "buildJob": 111440055724,
+    "swiftTests": "73/73 PASS",
+    "unsignedIPhoneBuild": "PASS",
+    "ipaPackaging": "PASS",
+    "workflowOverall": "FAIL because separate Build18-6 audit job failed; device build job itself PASS"
+  },
+  "simulator": {
+    "workflowRun": 37203582884,
+    "job": 111440061096,
+    "swiftTests": "73/73 PASS",
+    "build": "PASS",
+    "e2e": "PASS",
+    "stage": "complete",
+    "contextSemanticsStatus": "PASS",
+    "contextExplanationStatus": "PASS",
+    "analysisQualityGateStatus": "PASS"
+  },
+  "formalGateF": "NOT_REACHED_AS_FORMAL_FINAL_GATE_DUE_GATE_D2_BLOCKER"
+}

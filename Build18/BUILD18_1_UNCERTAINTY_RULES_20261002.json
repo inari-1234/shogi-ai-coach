@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "modes": {
+    "high": {
+      "intentWording": "assertive",
+      "missingEvidenceDisplay": "optional",
+      "conceptSupplement": "Build17-5 existing gate may allow"
+    },
+    "medium": {
+      "intentWording": "measured",
+      "missingEvidenceDisplay": "optional",
+      "conceptSupplement": "Build17-5 existing gate may allow"
+    },
+    "low": {
+      "intentWording": "tentative only",
+      "missingEvidenceDisplay": "preferred when directly verifiable",
+      "conceptSupplement": "FORBIDDEN"
+    },
+    "unresolved": {
+      "intentWording": "no purpose assertion",
+      "missingEvidenceDisplay": "preferred when directly verifiable",
+      "conceptSupplement": "FORBIDDEN"
+    }
+  },
+  "missingEvidenceReasons": [
+    {
+      "id": "NO_DIRECT_CAUSAL_LINK",
+      "emitWhen": "No compatible previous_move_causality exists for selected/candidate intent.",
+      "safeText": "直前手との直接の因果が確認できていません。"
+    },
+    {
+      "id": "NO_NON_GEOMETRY_ANCHOR",
+      "emitWhen": "Available support is absent or geometry-only.",
+      "safeText": "形の近さ以外の根拠が十分ではありません。"
+    },
+    {
+      "id": "MULTIPLE_INTENT_CANDIDATES",
+      "emitWhen": "More than one material Intent candidate remains close enough that existing confidence is LOW/UNRESOLVED.",
+      "safeText": "複数の狙いが候補に残っています。"
+    },
+    {
+      "id": "INSUFFICIENT_SCORE_MARGIN",
+      "emitWhen": "Resolver output is LOW due to weak/unclear lead; do not expose raw score unless UI explicitly supports diagnostics.",
+      "safeText": "主な狙いを一つに絞る根拠がまだ弱い状態です。"
+    },
+    {
+      "id": "UNSTABLE_ENGINE_COMPARISON",
+      "emitWhen": "Engine comparison exists but comparisonStable is false.",
+      "safeText": "候補手比較が安定していないため、評価差を理由として使えません。"
+    },
+    {
+      "id": "INSUFFICIENT_COUNTERFACTUAL",
+      "emitWhen": "Claim class requires alternative-line proof but stable counterfactual is absent.",
+      "safeText": "別の手との比較が不足しており、目的までは確認できません。"
+    },
+    {
+      "id": "INSUFFICIENT_SEQUENCE_CONTINUITY",
+      "emitWhen": "Timing/sabai/plan-like claim requires multi-ply continuity but only local effect is confirmed.",
+      "safeText": "数手先まで続く働きが確認できていません。"
+    },
+    {
+      "id": "SPECIALIZED_REFERENCE_NOT_VERIFIED",
+      "emitWhen": "Specialized explanation requires reference-backed cue but no validated reference record is present.",
+      "safeText": "専門的な定跡・戦型根拠を確認できていません。"
+    },
+    {
+      "id": "SPECIALIZED_REQUIRED_EVIDENCE_MISSING",
+      "emitWhen": "Specialized provider candidate exists but one or more required evidence gates fail.",
+      "safeText": "専門的な説明に必要な盤面・手順の根拠が不足しています。"
+    },
+    {
+      "id": "CLAIM_LAYER_CONFLICT",
+      "emitWhen": "Available observation is an Effect/Outcome but requested wording would require Intent.",
+      "safeText": "確認できるのは結果までで、狙いまでは断定できません。"
+    }
+  ],
+  "fallbackOrder": [
+    "Use grounded specific why-now when safe.",
+    "Otherwise use existing selectedIntent wording with limited generic why-now when confidence permits.",
+    "Otherwise use uncertainty explanation naming only verified missing evidence.",
+    "Otherwise omit supplement/detail rather than inventing a reason."
+  ]
+}

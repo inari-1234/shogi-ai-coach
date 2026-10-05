@@ -5,6 +5,9 @@ on:
     branches:
       - main
       - 'candidate/**'
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 concurrency:
@@ -117,3 +120,30 @@ jobs:
             xcodebuild.log
           if-no-files-found: ignore
           retention-days: 7
+
+  build18-6-real-game-audit:
+    if: github.ref_name == 'candidate/build18-6-real-game-e2e' || github.head_ref == 'candidate/build18-6-real-game-e2e'
+    runs-on: macos-15
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Build18-6 staged real-game audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x scripts/run_build18_6_ci.sh
+          ./scripts/run_build18_6_ci.sh
+
+      - name: Upload Build18-6 automated evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build18-6-automated-evidence
+          path: |
+            build/build18-6
+          if-no-files-found: ignore
+          retention-days: 14

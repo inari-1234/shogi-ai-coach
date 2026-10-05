@@ -1,0 +1,29 @@
+{
+  "stage": "Build18-1 Grounded WhyNow Specification / Architecture Freeze",
+  "date": "2026-10-02",
+  "repository": "inari-1234/shogi-ai-coach",
+  "baseMainSHA": "fd35c8b990379ebccbf1711d1cc0fa4a8464d53d",
+  "branch": "candidate/build18-1-grounded-whynow-spec",
+  "status": "COMPLETE / FROZEN CANDIDATE",
+  "productionCodeChanged": false,
+  "protected": [
+    "MoveIntent",
+    "ContextIntentResolver",
+    "intent weights",
+    "confidence thresholds",
+    "Build17 safe concept semantics",
+    "Locked Regression"
+  ],
+  "deliverables": [
+    "Build18/BUILD18_1_GROUNDED_EXPLANATION_SCHEMA_20261002.json",
+    "Build18/BUILD18_1_WHY_NOW_TRIGGER_V1_20261002.json",
+    "Build18/BUILD18_1_CLAIM_TYPE_MATRIX_20261002.json",
+    "Build18/BUILD18_1_EVIDENCE_COMPATIBILITY_MATRIX_20261002.json",
+    "Build18/BUILD18_1_UNCERTAINTY_RULES_20261002.json",
+    "Build18/BUILD18_1_SHIKENBISHA_BOUNDARY_20261002.json",
+    "Build18/BUILD18_1_QUALITY_RUBRIC_20261002.json",
+    "Build18/BUILD18_1_ARCHITECTURE_DECISION_20261002.md",
+    "Build18/BUILD18_1_FINAL_REPORT_20261002.md",
+    "Build18/BUILD18_2_START_PROMPT_20261002.md"
+  ]
+}

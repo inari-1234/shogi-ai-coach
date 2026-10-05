@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build18-2 Diagnostic Corpus / Annotation Design & Freeze",
+  "authority": {
+    "build18_1": "COMPLETE / FROZEN CANDIDATE",
+    "baselineMainSHA": "fd35c8b990379ebccbf1711d1cc0fa4a8464d53d",
+    "protected": [
+      "MoveIntent",
+      "ContextIntentResolver",
+      "intent weights",
+      "confidence thresholds",
+      "Build17 safe concept semantics",
+      "Locked Regression"
+    ]
+  },
+  "enums": {
+    "confidence": [
+      "HIGH",
+      "MEDIUM",
+      "LOW",
+      "UNRESOLVED"
+    ],
+    "whyNowTrigger": [
+      "DIRECT_PREVIOUS_MOVE",
+      "IMMEDIATE_THREAT",
+      "FORCING_TACTIC",
+      "EXCHANGE_SEQUENCE",
+      "VERIFIED_SEQUENCE_TIMING",
+      "FORMATION_WINDOW",
+      "ENDGAME_URGENCY",
+      "NONE_IDENTIFIED"
+    ],
+    "claimType": [
+      "FACT",
+      "CONTEXT_CHANGE",
+      "EFFECT",
+      "INTENT",
+      "OUTCOME",
+      "UNCERTAINTY"
+    ],
+    "annotationStatus": [
+      "CONFIRMED_SAFE",
+      "UNRESOLVED_DIAGNOSTIC"
+    ]
+  },
+  "requiredFields": [
+    "positionId",
+    "phase",
+    "openingFamily",
+    "previousMove",
+    "currentMove",
+    "primaryIntent",
+    "confidence",
+    "whyNowTrigger",
+    "supportingEvidenceIDs",
+    "sourceSignalIDs",
+    "missingEvidence",
+    "claimTypes",
+    "expectedExplanationScope",
+    "forbiddenClaims",
+    "beginnerNote",
+    "negativeOrAdversarialReason",
+    "specializedReferenceDependency",
+    "diagnosticStrata"
+  ],
+  "fieldRules": {
+    "primaryIntent": "Nullable. Non-null only for upstream CONFIRMED existing Intent. Deferred/EXPLANATION_ONLY concepts never become primaryIntent.",
+    "confidence": "If primaryIntent is null, confidence MUST be UNRESOLVED in this diagnostic authority.",
+    "supportingEvidenceIDs": "Expected runtime evidence IDs only; empty is safer than invented IDs.",
+    "sourceSignalIDs": "Expected runtime signal IDs only; empty is safer than invented IDs.",
+    "whyNowTrigger": "Must use Build18-1 frozen trigger v1. Precedent-only records use NONE_IDENTIFIED.",
+    "forbiddenClaims": "Non-empty on every position; includes Build18-1 semantic blockers plus position-specific overclaim guards.",
+    "specializedReferenceDependency": "Shikenbisha specialized wording remains Explanation-only and evidence-gated."
+  },
+  "frozenSafetyRules": [
+    "Effect never automatically becomes Intent.",
+    "Opening/precedent never creates Intent.",
+    "Geometry never supports purpose alone.",
+    "LOW/UNRESOLVED never emit assertive purpose claims.",
+    "Missing evidence is safer than invented evidence.",
+    "waiting_move/prophylaxis/sabai/speed_over_material/multi_threat/tempo_management/trade_to_transform are not promoted by this corpus."
+  ],
+  "diagnosticStrata": [
+    {
+      "id": "DIRECT_PREVIOUS_MOVE_CAUSALITY",
+      "minimum": 40,
+      "crossTagAllowed": true
+    },
+    {
+      "id": "TIMING_MOVE_ORDER",
+      "minimum": 40,
+      "crossTagAllowed": true
+    },
+    {
+      "id": "AMBIGUOUS_MULTI_INTENT",
+      "minimum": 40,
+      "crossTagAllowed": true
+    },
+    {
+      "id": "EFFECT_INTENT_BOUNDARY",
+      "minimum": 40,
+      "crossTagAllowed": true
+    },
+    {
+      "id": "COUNTERFACTUAL_DEMANDING",
+      "minimum": 30,
+      "crossTagAllowed": true
+    },
+    {
+      "id": "ENDGAME_FORCING",
+      "minimum": 40,
+      "crossTagAllowed": true
+    },
+    {
+      "id": "SHIKENBISHA_DEDICATED",
+      "minimum": 60,
+      "crossTagAllowed": true
+    },
+    {
+      "id": "ADVERSARIAL_GEOMETRY_HARD",
+      "minimum": 60,
+      "crossTagAllowed": true
+    }
+  ]
+}

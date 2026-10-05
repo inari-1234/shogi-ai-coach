@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build18-6 Real-game E2E / Explanation Quality Audit",
+  "date": "2026-10-04",
+  "branch": "candidate/build18-6-real-game-e2e",
+  "auditedCandidateHEAD": "32635a23a29ef1bd01c250276f81395352afc2a4",
+  "authorityProductionHEAD": "3ef903e5762e695646204987196e8b8fff500155",
+  "verdict": "FAIL",
+  "status": "CORRECTIVE IMPLEMENTATION REQUIRED",
+  "authorityAudit": "PASS",
+  "gateA": "PASS",
+  "gateB": {
+    "status": "PASS",
+    "positions": 100,
+    "games": 4
+  },
+  "gateC": {
+    "status": "PASS",
+    "positions": 300,
+    "games": 10
+  },
+  "gateD": {
+    "fullE2E": "PASS",
+    "positions": 720,
+    "games": 12,
+    "semanticBlockers": 0,
+    "blockingCrashes": 0
+  },
+  "gateD2": {
+    "status": "FAIL",
+    "type": "QUALITY BLOCKER — REPETITION",
+    "contiguousPositions": 840,
+    "maxConsecutiveRun": 11
+  },
+  "gateE": "NOT RUN — blocked by Gate D2",
+  "gateF": "NOT RUN AS FORMAL FINAL GATE — blocked by Gate D2",
+  "sameHeadDeviceBuild": "PASS",
+  "sameHeadSimulatorBuild": "PASS",
+  "sameHeadSimulatorE2E": "PASS",
+  "productionCodeChangedByBuild18_6": false,
+  "mainMerged": false,
+  "build18MAllowed": false,
+  "nextStage": "Build18-6R1 — Explanation Repetition Corrective Implementation"
+}

@@ -1,0 +1,78 @@
+{
+  "stage": "Build18-3 Grounded WhyNow Limited Implementation",
+  "date": "2026-10-02",
+  "repository": "inari-1234/shogi-ai-coach",
+  "branch": "candidate/build18-3-grounded-whynow",
+  "baselineMainSHA": "fd35c8b990379ebccbf1711d1cc0fa4a8464d53d",
+  "validatedImplementationHEAD": "3ef903e5762e695646204987196e8b8fff500155",
+  "verdict": "PASS",
+  "upstreamAuthority": {
+    "build18_1SpecificationHEAD": "ea37b850c72fd07b328adbd046892b647edf8c2f",
+    "build18_2AnnotationSchemaSHA256": "3b7453198c25504dbb94226fc9863a2e53a9b86d29b19c1398b5ae6b32884d1a",
+    "build18_2AuthorityBundleSHA256": "101a30f4a6965aa810317cab046120461e1513d5514f68baae14b8ba5c969c12",
+    "diagnosticCorpusSHA256": "433438a81e94863a08fde83fb4c3659d660390576198df9f3d2e17a58d3b86f0",
+    "records": 360,
+    "uniquePositions": 360
+  },
+  "staticAudit": {
+    "contextEngineChanged": false,
+    "moveIntentChanged": false,
+    "contextIntentResolverChanged": false,
+    "scoringOrWeightChanged": false,
+    "confidenceThresholdChanged": false,
+    "productionFiles": [
+      "Sources/ShogiCoachCore/GroundedExplanationContext.swift",
+      "Sources/ShogiCoachCore/ContextExplanation.swift"
+    ]
+  },
+  "frozenCorpusRegression": {
+    "triggerCounts": {
+      "DIRECT_PREVIOUS_MOVE": 60,
+      "FORCING_TACTIC": 50,
+      "NONE_IDENTIFIED": 250
+    },
+    "confidenceCounts": {
+      "HIGH": 45,
+      "MEDIUM": 15,
+      "LOW": 0,
+      "UNRESOLVED": 300
+    },
+    "scopeCounts": {
+      "INTENT_WHY_NOW": 60,
+      "OBSERVED_CHANGE_ONLY": 130,
+      "UNCERTAINTY_ONLY": 170
+    },
+    "requiredFieldsPresent": 360,
+    "confirmedAnnotations": 360,
+    "passedCrossReviews": 360,
+    "shikenbishaDedicated": 80,
+    "effectIntentBoundary": 190,
+    "forbiddenClaimViolations": 0
+  },
+  "ci": {
+    "device": {
+      "runId": 37022808528,
+      "jobId": 110889868990,
+      "coreTests": 73,
+      "failures": 0,
+      "build": "PASS",
+      "ipaVerification": "PASS"
+    },
+    "simulator": {
+      "runId": 37022808458,
+      "jobId": 110890387566,
+      "coreTests": 73,
+      "failures": 0,
+      "build": "PASS",
+      "e2e": "PASS"
+    }
+  },
+  "blockingGates": {
+    "intentConfidenceInvariant": "PASS",
+    "corpusRegression": "PASS",
+    "lockedRegression": "PASS",
+    "existingBuild17CoreRegression": "PASS",
+    "device": "PASS",
+    "simulator": "PASS"
+  }
+}

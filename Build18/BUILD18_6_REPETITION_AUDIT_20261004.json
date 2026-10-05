@@ -1,0 +1,17 @@
+{
+  "blockingRule": "Only true consecutive plies (delta=1) satisfy the automated every-move repetition blocker.",
+  "majorRepetitionFailure": true,
+  "maxTrueConsecutivePlyExactFullExplanationRun": 11,
+  "maxTrueConsecutivePlyNormalizedWhyNowRun": 11,
+  "sameConceptShownOnConsecutivePlyCount": 0,
+  "sameConceptShownWithin3PlyCount": 48,
+  "sampleNeighborExactFullExplanationCount": 155,
+  "sampleNeighborExactWhyNowCount": 220,
+  "sampleNeighborNormalizedNearWhyNowCount": 220,
+  "trueConsecutivePlyExactFullExplanationCount": 155,
+  "trueConsecutivePlyExactWhyNowCount": 220,
+  "trueConsecutivePlyNormalizedNearWhyNowCount": 220,
+  "classification": "QUALITY BLOCKER",
+  "representativePattern": "UNRESOLVED/NONE_IDENTIFIED safe fallback repeated for 4–11 consecutive plies",
+  "auditConclusion": "REAL PRODUCTION QUALITY ISSUE; NOT AN AUDIT FALSE POSITIVE"
+}

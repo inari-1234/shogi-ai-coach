@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "component": "SpecializedExplanationContextProvider",
+  "scope": "Explanation-only Shikenbisha/strategy context. Not part of MoveIntent resolution.",
+  "mayReturn": [
+    "referenceBackedEducationalCue",
+    "formationContext",
+    "explanationOnlyCandidate",
+    "requiredEvidence",
+    "forbiddenOverclaim",
+    "sourceReferenceID"
+  ],
+  "mustNotReturn": [
+    "Intent override",
+    "Intent weight",
+    "confidence override",
+    "resolver candidate",
+    "geometry-only purpose"
+  ],
+  "providerContract": {
+    "input": [
+      "MoveContextAnalysis",
+      "board/sequence context available to explanation layer",
+      "validated specialized reference records"
+    ],
+    "output": "specializedContext attached to GroundedExplanationContext only after generic analysis",
+    "safety": "safeToVerbalize remains false until every requiredEvidence item is met"
+  },
+  "conceptEvidenceRequirements": {
+    "respond_to_rapid_attack": {
+      "currentStatus": "EXPLANATION_ONLY / re-evaluation candidate",
+      "required": [
+        "concrete opponent rapid-attack event",
+        "direct response relation or verified threat reduction",
+        "compatible selectedIntent"
+      ],
+      "forbidden": [
+        "opening label alone",
+        "generic defense shape"
+      ]
+    },
+    "sabai": {
+      "currentStatus": "EXPLANATION_ONLY; confirmed positive was 0 in Build17-3",
+      "required": [
+        "exchange/contact",
+        "major-piece activation before/after",
+        "post-exchange continuation",
+        "active resource preservation",
+        "stable sequence or counterfactual evidence"
+      ],
+      "forbidden": [
+        "Shikenbisha + exchange",
+        "major-piece move alone",
+        "mobility increase alone"
+      ]
+    },
+    "trade_to_transform": {
+      "currentStatus": "EXPLANATION_ONLY",
+      "required": [
+        "verified exchange",
+        "before/after role or position transformation",
+        "sequence/counterfactual showing transformation relevance"
+      ],
+      "forbidden": [
+        "any capture/exchange alone"
+      ]
+    },
+    "multi_threat": {
+      "currentStatus": "EXPLANATION_ONLY",
+      "required": [
+        "multiple independent concrete threats",
+        "opponent cannot neutralize them with one response",
+        "stable continuation/counterfactual"
+      ],
+      "forbidden": [
+        "multiple attacked pieces by geometry alone"
+      ]
+    },
+    "tempo_management": {
+      "currentStatus": "EXPLANATION_ONLY",
+      "required": [
+        "move-order or tempo comparison",
+        "verified timing dependence",
+        "counterfactual or sequence continuity"
+      ],
+      "forbidden": [
+        "fast-looking move",
+        "development order without comparison"
+      ]
+    }
+  },
+  "genericBoundary": [
+    "Existing pieceActivation/majorPieceActivation/castling/kingSafety remain generic concepts/intents; specialized wording may explain context but not create replacements.",
+    "bishop_exchange_decision remains a decision explanation, not a new Concept in Build18-1.",
+    "Opening family names are educational context only, not evidence of purpose."
+  ]
+}

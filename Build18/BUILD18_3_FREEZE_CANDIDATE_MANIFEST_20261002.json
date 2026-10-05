@@ -1,0 +1,30 @@
+{
+  "stage": "Build18-3 Grounded WhyNow Limited Implementation",
+  "date": "2026-10-02",
+  "repository": "inari-1234/shogi-ai-coach",
+  "branch": "candidate/build18-3-grounded-whynow",
+  "baselineMainSHA": "fd35c8b990379ebccbf1711d1cc0fa4a8464d53d",
+  "validatedImplementationHEAD": "3ef903e5762e695646204987196e8b8fff500155",
+  "status": "COMPLETE / FROZEN CANDIDATE",
+  "productionCodeChanged": true,
+  "protectedUnchanged": [
+    "MoveIntent",
+    "ContextIntentResolver",
+    "Intent score / evidence weight",
+    "confidence thresholds",
+    "Build17 safe Concept detector semantics",
+    "Build17 Concept explanation safety rules",
+    "Locked Regression behavior",
+    "Build18-2 Frozen Annotation Schema",
+    "Build18-2 corpus labels"
+  ],
+  "productionChanges": [
+    "Sources/ShogiCoachCore/GroundedExplanationContext.swift",
+    "Sources/ShogiCoachCore/ContextExplanation.swift"
+  ],
+  "authorityBinding": "Build18/BUILD18_3_UPSTREAM_AUTHORITY_BINDING_20261002.json",
+  "validation": "Build18/BUILD18_3_VALIDATION_20261002.json",
+  "finalReport": "Build18/BUILD18_3_FINAL_REPORT_20261002.md",
+  "finalPackagingRequiresAutomaticRegression": true,
+  "build18_4Started": false
+}

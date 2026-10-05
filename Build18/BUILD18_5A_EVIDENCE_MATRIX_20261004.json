@@ -1,0 +1,237 @@
+{
+  "schemaVersion": 2,
+  "stage": "Build18-5A Corrective Re-evaluation",
+  "date": "2026-10-04",
+  "status": "PASS / COMPLETE",
+  "authority": {
+    "corpusPath": "BUILD18_2_DIAGNOSTIC_CORPUS_20261002.json",
+    "corpusSha256": "433438a81e94863a08fde83fb4c3659d660390576198df9f3d2e17a58d3b86f0",
+    "records": 360,
+    "uniquePositions": 360,
+    "duplicateFingerprints": 0,
+    "strataCounts": {
+      "DIRECT_PREVIOUS_MOVE_CAUSALITY": 60,
+      "TIMING_MOVE_ORDER": 80,
+      "AMBIGUOUS_MULTI_INTENT": 170,
+      "EFFECT_INTENT_BOUNDARY": 190,
+      "COUNTERFACTUAL_DEMANDING": 80,
+      "ENDGAME_FORCING": 50,
+      "SHIKENBISHA_DEDICATED": 80,
+      "ADVERSARIAL_HUMAN_NATURAL_GEOMETRY_HARD": 301
+    },
+    "exampleClassCounts": {
+      "POSITIVE": 59,
+      "NEGATIVE": 57,
+      "ADVERSARIAL": 244
+    },
+    "legacyCorpusUsedAsAuthority": false,
+    "legacyPath": "Build18/Legacy/Build18-2_300_unique/",
+    "mainBaseline": "fd35c8b990379ebccbf1711d1cc0fa4a8464d53d",
+    "build18_1SpecificationHead": "ea37b850c72fd07b328adbd046892b647edf8c2f",
+    "annotationSchemaSha256": "3b7453198c25504dbb94226fc9863a2e53a9b86d29b19c1398b5ae6b32884d1a",
+    "authorityBundleSha256": "101a30f4a6965aa810317cab046120461e1513d5514f68baae14b8ba5c969c12",
+    "build18_3FreezeCandidateHead": "054f30a54463d472cc96a16c49cd14d6e0e28b45",
+    "build18_3ValidatedImplementationHead": "3ef903e5762e695646204987196e8b8fff500155"
+  },
+  "decisions": [
+    {
+      "concept": "respond_to_rapid_attack",
+      "decision": "HOLD",
+      "authorityCoverage": {
+        "conceptSpecificRecords": 0,
+        "directPreviousMoveCausality": 60,
+        "directRookPawnResponseFamily": 45,
+        "directRookPawnExampleClasses": {
+          "POSITIVE": 44,
+          "ADVERSARIAL": 1
+        }
+      },
+      "sourceTracking": {
+        "verifiedMigrated": [
+          "B17-3-001",
+          "B17-3-002",
+          "B17-3-003",
+          "B17-3-004",
+          "B17-3-005",
+          "B17-3-006"
+        ],
+        "unverifiedLegacyForPromotion": [
+          "B17-3-011",
+          "B17-3-012",
+          "B17-3-013",
+          "B17-3-014",
+          "B17-3-015",
+          "B17-3-016"
+        ]
+      },
+      "missingEvidence": [
+        "machine-verifiable concrete opponent rapid-attack event authority"
+      ],
+      "falsePositiveRisk": "MEDIUM_HIGH",
+      "allowedWording": "Generic direct-response wording only.",
+      "forbiddenWording": [
+        "rapid-attack/急戦 specialized purpose from generic response",
+        "opening-family-only rapid-attack classification"
+      ],
+      "productionScope": "No specialized Production output.",
+      "futureRegressionRequirement": [
+        "explicit rapid-attack positives",
+        "near-miss/adversarial controls",
+        "zero known false positives"
+      ]
+    },
+    {
+      "concept": "sabai",
+      "decision": "HOLD",
+      "authorityCoverage": {
+        "targetFailureMode": "SHIKENBISHA_TO_SABAI",
+        "records": 80,
+        "positive": 0,
+        "negative": 0,
+        "adversarial": 80
+      },
+      "sourceTracking": {
+        "verifiedMigrated": {
+          "B17-3-027": "B18-2-0007",
+          "B17-3-029": "B18-2-0008",
+          "B17-3-030": "B18-2-0009"
+        },
+        "unverifiedLegacyForPromotion": [
+          "B17-3-032..043"
+        ]
+      },
+      "missingEvidence": [
+        "exchange/contact",
+        "major-piece activation before/after",
+        "post-exchange continuation",
+        "active resource preservation",
+        "stable sequence or counterfactual"
+      ],
+      "falsePositiveRisk": "VERY_HIGH",
+      "allowedWording": "Verified generic facts/effects only.",
+      "forbiddenWording": [
+        "Shikenbisha + exchange => sabai",
+        "major-piece move alone => sabai",
+        "mobility increase alone => sabai"
+      ],
+      "productionScope": "Deferred explanation-only; no Production integration.",
+      "futureRegressionRequirement": [
+        "full joint-gate positive sequences",
+        "all 80 authoritative adversarial records remain non-firing"
+      ]
+    },
+    {
+      "concept": "trade_to_transform",
+      "decision": "HOLD",
+      "authorityCoverage": {
+        "conceptSpecificRecords": 0,
+        "effectIntentBoundary": 190,
+        "hardAdversarialGeometry": 301,
+        "exchangeSpecificAuthority": 0
+      },
+      "sourceTracking": {
+        "unverifiedLegacyForPromotion": [
+          "B17-3-032..048"
+        ]
+      },
+      "missingEvidence": [
+        "verified exchange",
+        "before/after role or position transformation",
+        "sequence/counterfactual proving transformation relevance"
+      ],
+      "falsePositiveRisk": "HIGH",
+      "allowedWording": "Verified Fact/Effect only.",
+      "forbiddenWording": [
+        "transformation purpose from capture/promotion/mobility/relation change alone"
+      ],
+      "productionScope": "Deferred explanation-only.",
+      "futureRegressionRequirement": [
+        "verified transformation positives",
+        "near-miss controls",
+        "preserve EFFECT->INTENT boundary"
+      ]
+    },
+    {
+      "concept": "multi_threat",
+      "decision": "HOLD",
+      "authorityCoverage": {
+        "targetFailureMode": "MULTI_THREAT_WITHOUT_INDEPENDENT_THREATS",
+        "records": 80,
+        "positive": 0,
+        "negative": 27,
+        "adversarial": 53
+      },
+      "sourceTracking": {
+        "unverifiedLegacyForPromotion": [
+          "B17-3-040",
+          "B17-3-044",
+          "B17-3-054",
+          "B17-3-056",
+          "B17-3-057..061",
+          "B17-3-100"
+        ]
+      },
+      "missingEvidence": [
+        "multiple independent concrete threats",
+        "one-response non-neutralizability",
+        "stable continuation/counterfactual"
+      ],
+      "falsePositiveRisk": "MEDIUM_HIGH",
+      "allowedWording": "Concrete geometry/control EFFECT wording only.",
+      "forbiddenWording": [
+        "multi-threat purpose from attacked-square or multi-target geometry alone"
+      ],
+      "productionScope": "Deferred explanation-only.",
+      "futureRegressionRequirement": [
+        "one-best-reply independence checks",
+        "true positive continuations",
+        "all 80 controls remain non-firing"
+      ]
+    },
+    {
+      "concept": "tempo_management",
+      "decision": "HOLD",
+      "authorityCoverage": {
+        "targetFailureMode": "UNVERIFIED_TIMING_TO_TEMPO_MANAGEMENT",
+        "records": 80,
+        "positive": 0,
+        "negative": 0,
+        "adversarial": 80
+      },
+      "sourceTracking": {
+        "verifiedMigrated": {
+          "B17-3-027": "B18-2-0007",
+          "B17-3-029": "B18-2-0008",
+          "B17-3-030": "B18-2-0009"
+        },
+        "unverifiedLegacyForPromotion": [
+          "B17-3-017..020",
+          "B17-3-028",
+          "B17-3-031"
+        ]
+      },
+      "missingEvidence": [
+        "move-order/tempo comparison",
+        "verified timing dependence",
+        "counterfactual or sequence continuity"
+      ],
+      "falsePositiveRisk": "VERY_HIGH",
+      "allowedWording": "Verified generic move/causality facts only.",
+      "forbiddenWording": [
+        "quiet move/tenuki/development order/fast-looking move => tempo management"
+      ],
+      "productionScope": "Deferred explanation-only.",
+      "futureRegressionRequirement": [
+        "compare >=2 move orders/sequences",
+        "prove timing dependence",
+        "all 80 authoritative adversarial records remain non-firing"
+      ]
+    }
+  ],
+  "decisionCounts": {
+    "PROMOTE_TO_LIMITED_EXPLANATION": 0,
+    "HOLD": 5,
+    "REJECT / MERGE": 0,
+    "UNASSESSED": 0
+  }
+}

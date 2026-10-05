@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "auditedCandidateHEAD": "32635a23a29ef1bd01c250276f81395352afc2a4",
+  "Q1_Groundedness": "PASS",
+  "Q2_Causality": "PASS",
+  "Q3_LayerCorrectness": "PASS",
+  "Q4_UncertaintyCalibration": "PASS",
+  "Q5_BeginnerReadability": "NOT_FORMALLY_REACHED_AFTER_GATE_D_BLOCKER",
+  "Q6_ConcisionRedundancy": "BLOCKER",
+  "Q7_ScopeDiscipline": "PASS",
+  "blocker": {
+    "type": "QUALITY BLOCKER — REPETITION",
+    "maxTrueConsecutivePlyExactFullExplanationRun": 11,
+    "maxTrueConsecutivePlyNormalizedWhyNowRun": 11,
+    "trueConsecutivePlyExactFullExplanationCount": 155,
+    "trueConsecutivePlyExactWhyNowCount": 220,
+    "explanation": "Safe uncertainty/none-identified wording is repeated across many true consecutive plies. This is semantically safe but materially degrades coaching usefulness."
+  },
+  "humanSemanticGate": "NOT_RUN_AS_FORMAL_GATE_BECAUSE_GATE_D2_FAILED"
+}

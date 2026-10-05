@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 2,
+  "build": "Build18-5A",
+  "title": "Shikenbisha / Deferred Concept Re-evaluation",
+  "date": "2026-10-04",
+  "correctiveReevaluation": true,
+  "verdict": "PASS / COMPLETE",
+  "correctiveVerdict": "PASS",
+  "parentAcceptanceStatus": "PARENT ACCEPTANCE READY",
+  "authority": {
+    "corpusPath": "BUILD18_2_DIAGNOSTIC_CORPUS_20261002.json",
+    "corpusSha256": "433438a81e94863a08fde83fb4c3659d660390576198df9f3d2e17a58d3b86f0",
+    "records": 360,
+    "uniquePositions": 360,
+    "duplicateFingerprints": 0,
+    "strataCounts": {
+      "DIRECT_PREVIOUS_MOVE_CAUSALITY": 60,
+      "TIMING_MOVE_ORDER": 80,
+      "AMBIGUOUS_MULTI_INTENT": 170,
+      "EFFECT_INTENT_BOUNDARY": 190,
+      "COUNTERFACTUAL_DEMANDING": 80,
+      "ENDGAME_FORCING": 50,
+      "SHIKENBISHA_DEDICATED": 80,
+      "ADVERSARIAL_HUMAN_NATURAL_GEOMETRY_HARD": 301
+    },
+    "exampleClassCounts": {
+      "POSITIVE": 59,
+      "NEGATIVE": 57,
+      "ADVERSARIAL": 244
+    },
+    "legacyCorpusUsedAsAuthority": false,
+    "legacyPath": "Build18/Legacy/Build18-2_300_unique/"
+  },
+  "decisions": {
+    "respond_to_rapid_attack": "HOLD",
+    "sabai": "HOLD",
+    "trade_to_transform": "HOLD",
+    "multi_threat": "HOLD",
+    "tempo_management": "HOLD"
+  },
+  "decisionCounts": {
+    "PROMOTE_TO_LIMITED_EXPLANATION": 0,
+    "HOLD": 5,
+    "REJECT / MERGE": 0,
+    "UNASSESSED": 0
+  },
+  "audits": {
+    "falsePositive": "PASS",
+    "humanSemanticReview": "PASS",
+    "build17SourceTrace": "PASS_WITH_UNVERIFIED_LEGACY_REFERENCES_EXCLUDED"
+  },
+  "productionCodeChanged": false,
+  "frozenAuthorityChanged": false,
+  "blockingIssues": [],
+  "nextStage": "Build18-6 — Real-game E2E / Explanation Quality Audit",
+  "build18_5bAllowed": false
+}
