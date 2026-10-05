@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "build": "Build19-4",
+  "title": "HOLD Concept Re-evaluation",
+  "date": "2026-10-05",
+  "status": "CANDIDATE / VALIDATION PENDING",
+  "baseAuthority": {
+    "build19_3bFinalHead": "9637da6998235ed0e8464b8cbfeb0256f5511d41",
+    "build18_5aManifest": "Build18/BUILD18_5A_DECISION_MANIFEST_20261004.json",
+    "roadmap": "Build19/BUILD19_P_ROADMAP_20261005.md"
+  },
+  "decisions": {
+    "respond_to_rapid_attack": "HOLD",
+    "sabai": "HOLD",
+    "trade_to_transform": "HOLD",
+    "multi_threat": "HOLD",
+    "tempo_management": "HOLD"
+  },
+  "decisionCounts": {
+    "PROMOTE_TO_LIMITED_EXPLANATION": 0,
+    "HOLD": 5,
+    "REJECT_OR_MERGE": 0,
+    "UNASSESSED": 0
+  },
+  "positiveSemanticAuthorityCounts": {
+    "respond_to_rapid_attack": 0,
+    "sabai": 0,
+    "trade_to_transform": 0,
+    "multi_threat": 0,
+    "tempo_management": 0
+  },
+  "productionCodeChanged": false,
+  "build18AuthorityChanged": false,
+  "build19_1_to_3bAuthorityChanged": false,
+  "automaticPromotionFromSequenceEvidence": false,
+  "blockingIssues": [],
+  "validationStatus": "PENDING",
+  "nextStageIfValidated": "Build19-V — Independent Real-game / Semantic Validation"
+}

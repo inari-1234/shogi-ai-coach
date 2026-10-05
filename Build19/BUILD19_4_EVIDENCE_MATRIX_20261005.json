@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-4",
+  "title": "HOLD Concept Evidence Matrix",
+  "date": "2026-10-05",
+  "status": "CANDIDATE / VALIDATION PENDING",
+  "authorities": {
+    "build18DecisionManifest": "Build18/BUILD18_5A_DECISION_MANIFEST_20261004.json",
+    "build18EvidenceMatrix": "Build18/BUILD18_5A_EVIDENCE_MATRIX_20261004.json",
+    "build19Roadmap": "Build19/BUILD19_P_ROADMAP_20261005.md",
+    "build19_3bBaseHead": "9637da6998235ed0e8464b8cbfeb0256f5511d41"
+  },
+  "decisions": [
+    {
+      "concept": "respond_to_rapid_attack",
+      "decision": "HOLD",
+      "positiveSemanticAuthority": 0,
+      "negativeOrAdversarialAuthority": "generic hard-adversarial and rapid-attack near-miss authority remains insufficiently concept-specific",
+      "currentTypedEvidenceAvailable": [
+        "DIRECT_PREVIOUS_MOVE generic causality",
+        "pairwise difference evidence",
+        "stable sequence/counterfactual evidence when available"
+      ],
+      "causalBoundary": "A verified response to an opponent move does not establish that the opponent move is a rapid attack.",
+      "safeWording": "Use only the already-authorized generic direct-response wording tied to concrete previous-move evidence.",
+      "forbiddenWording": [
+        "急戦に対応した",
+        "rapid attack response",
+        "opening-family identity as rapid-attack proof"
+      ],
+      "blockingEvidence": [
+        "concept-specific positive rapid-attack examples",
+        "machine-verifiable rapid-attack event authority",
+        "near-miss controls under the same classifier"
+      ]
+    },
+    {
+      "concept": "sabai",
+      "decision": "HOLD",
+      "positiveSemanticAuthority": 0,
+      "negativeOrAdversarialAuthority": "80 authoritative adversarial SHIKENBISHA_TO_SABAI controls from Build18 remain binding",
+      "currentTypedEvidenceAvailable": [
+        "exchange/recapture event sequence",
+        "stable post-exchange continuation",
+        "before/after board snapshots",
+        "counterfactual branch timeline"
+      ],
+      "causalBoundary": "Exchange, mobility, or major-piece movement can be observed as facts/effects but do not by themselves establish sabai purpose.",
+      "safeWording": "Describe concrete exchange, recapture, activity, or continuation facts only when separately grounded.",
+      "forbiddenWording": [
+        "振り飛車だから捌き",
+        "exchange implies sabai",
+        "mobility increase implies sabai"
+      ],
+      "blockingEvidence": [
+        "authoritative positive sabai examples",
+        "typed major-piece activation-quality gate",
+        "typed active-resource-preservation gate",
+        "joint positive/negative semantic validation"
+      ]
+    },
+    {
+      "concept": "trade_to_transform",
+      "decision": "HOLD",
+      "positiveSemanticAuthority": 0,
+      "negativeOrAdversarialAuthority": "Build18 EFFECT_INTENT_BOUNDARY authority remains binding",
+      "currentTypedEvidenceAvailable": [
+        "verified exchange event",
+        "before/after board state",
+        "material ownership change",
+        "stable counterfactual branch timeline"
+      ],
+      "causalBoundary": "A board transformation after an exchange is an observed result; purpose requires independent semantic authority.",
+      "safeWording": "Describe the concrete exchange and resulting board/material change without assigning transformation purpose.",
+      "forbiddenWording": [
+        "交換して局面を変える狙い",
+        "capture/promotion/mobility change alone proves transform purpose"
+      ],
+      "blockingEvidence": [
+        "authoritative positive trade-to-transform examples",
+        "typed role/position transformation predicate",
+        "counterfactual semantic proof that transformation is the relevant purpose"
+      ]
+    },
+    {
+      "concept": "multi_threat",
+      "decision": "HOLD",
+      "positiveSemanticAuthority": 0,
+      "negativeOrAdversarialAuthority": "80 authoritative MULTI_THREAT_WITHOUT_INDEPENDENT_THREATS controls remain binding",
+      "currentTypedEvidenceAvailable": [
+        "stable continuation",
+        "observed opponent PV consequence",
+        "counterfactual candidate timeline"
+      ],
+      "causalBoundary": "One analyzed PV does not prove that multiple threats are independent or that no single legal reply neutralizes them.",
+      "safeWording": "Describe each concrete attack/control effect separately when grounded.",
+      "forbiddenWording": [
+        "複数の狙いがある",
+        "どちらかは必ず通る",
+        "multi-target geometry alone proves multi-threat"
+      ],
+      "blockingEvidence": [
+        "authoritative positive multi-threat examples",
+        "independent threat identification",
+        "legal-reply coverage sufficient for one-response non-neutralizability"
+      ]
+    },
+    {
+      "concept": "tempo_management",
+      "decision": "HOLD",
+      "positiveSemanticAuthority": 0,
+      "negativeOrAdversarialAuthority": "80 authoritative UNVERIFIED_TIMING_TO_TEMPO_MANAGEMENT controls remain binding",
+      "currentTypedEvidenceAvailable": [
+        "stable relative-ply timeline",
+        "candidate A/B counterfactual comparison",
+        "claim-level comparison confidence"
+      ],
+      "causalBoundary": "Different move orders or branch lengths do not prove deliberate tempo management unless timing dependence is independently established.",
+      "safeWording": "Describe concrete timing/order facts only without naming tempo-management purpose.",
+      "forbiddenWording": [
+        "手得を意識した",
+        "tempo management from quiet move/tenuki/development order",
+        "score gap proves timing purpose"
+      ],
+      "blockingEvidence": [
+        "authoritative positive tempo-management examples",
+        "matched move-order comparison authority",
+        "verified timing-dependent consequence predicate"
+      ]
+    }
+  ],
+  "decisionCounts": {
+    "PROMOTE_TO_LIMITED_EXPLANATION": 0,
+    "HOLD": 5,
+    "REJECT_OR_MERGE": 0,
+    "UNASSESSED": 0
+  }
+}

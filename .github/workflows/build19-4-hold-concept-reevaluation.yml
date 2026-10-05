@@ -1,0 +1,162 @@
+name: Build19-4 HOLD Concept Re-evaluation
+
+on:
+  push:
+    branches:
+      - 'candidate/build19-4-hold-concept-reevaluation'
+  workflow_dispatch:
+
+concurrency:
+  group: build19-4-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build19-3B authority and scope guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=9637da6998235ed0e8464b8cbfeb0256f5511d41
+          git cat-file -e "$BASE^{commit}"
+          git merge-base --is-ancestor "$BASE" HEAD
+
+          unexpected="$(git diff --name-only "$BASE"...HEAD | grep -v -E '^(Build19/BUILD19_4_|\.github/workflows/build19-4-hold-concept-reevaluation\.yml$)' | sed '/^$/d' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected Build19-4 scope change:" >&2
+            printf '%s\n' "$unexpected" >&2
+            exit 1
+          fi
+
+          test -z "$(git diff --name-only "$BASE"...HEAD -- Sources Tests iOS Build18 | sed '/^$/d')"
+          echo "build19_4_scope_guard=PASS"
+
+      - name: Re-evaluation decision authority audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' | tee build19-4-decision-audit.log
+          import json
+          from pathlib import Path
+
+          expected = {
+              'respond_to_rapid_attack': 'HOLD',
+              'sabai': 'HOLD',
+              'trade_to_transform': 'HOLD',
+              'multi_threat': 'HOLD',
+              'tempo_management': 'HOLD',
+          }
+
+          old = json.loads(Path('Build18/BUILD18_5A_DECISION_MANIFEST_20261004.json').read_text())
+          new = json.loads(Path('Build19/BUILD19_4_DECISION_MANIFEST_20261005.json').read_text())
+          cap = json.loads(Path('Build19/BUILD19_4_CAPABILITY_DELTA_MATRIX_20261005.json').read_text())
+          evidence = json.loads(Path('Build19/BUILD19_4_EVIDENCE_MATRIX_20261005.json').read_text())
+          roadmap = Path('Build19/BUILD19_P_ROADMAP_20261005.md').read_text()
+
+          assert old['decisions'] == expected
+          assert new['decisions'] == expected
+          assert new['decisionCounts']['PROMOTE_TO_LIMITED_EXPLANATION'] == 0
+          assert new['decisionCounts']['HOLD'] == 5
+          assert new['positiveSemanticAuthorityCounts'] == {k: 0 for k in expected}
+          assert new['productionCodeChanged'] is False
+          assert new['build18AuthorityChanged'] is False
+          assert new['build19_1_to_3bAuthorityChanged'] is False
+          assert new['automaticPromotionFromSequenceEvidence'] is False
+
+          cap_rows = {row['concept']: row for row in cap['concepts']}
+          assert set(cap_rows) == set(expected)
+          assert all(row['promotionReady'] is False for row in cap_rows.values())
+          assert all(row['remainingBlockers'] for row in cap_rows.values())
+
+          ev_rows = {row['concept']: row for row in evidence['decisions']}
+          assert set(ev_rows) == set(expected)
+          for concept, row in ev_rows.items():
+              assert row['decision'] == 'HOLD'
+              assert row['positiveSemanticAuthority'] == 0
+              assert row['blockingEvidence']
+              assert row['causalBoundary']
+              assert row['forbiddenWording']
+
+          assert 'No automatic promotion from the existence of SequenceEvidence.' in roadmap
+          print('build19_4_decision_authority_audit=PASS')
+          print('concepts=5 hold=5 promoted=0 positive_semantic_authority=0')
+          PY
+
+      - name: HOLD production leakage scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -R -n -E 'respond_to_rapid_attack|sabai|trade_to_transform|multi_threat|tempo_management' Sources/ShogiCoachCore; then
+            echo "HOLD concept identifier leaked into production core" >&2
+            exit 1
+          fi
+          echo "build19_4_hold_leakage_scan=PASS" | tee build19-4-leakage.log
+
+      - name: Build19-3B coaching regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          swift test --filter ComparisonCoachingExplanation 2>&1 | tee build19-3b-explanation.log
+
+      - name: Build19-3A confidence regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          swift test --filter ComparisonConfidenceTests 2>&1 | tee build19-3a-confidence.log
+
+      - name: Build19-2 sequence regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          swift test --filter SequenceCounterfactualEvidenceTests 2>&1 | tee build19-2-sequence.log
+
+      - name: Build19-1 comparison regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          swift test --filter CandidateComparison 2>&1 | tee build19-1-comparison.log
+
+      - name: Build18 protected regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          swift test --filter Build17SafeConcept 2>&1 | tee build17-safe.log
+          swift test --filter Build18GroundedWhyNowTests 2>&1 | tee build18-whynow.log
+          swift test --filter Build18FrozenCorpusProjectionTests 2>&1 | tee build18-frozen-corpus.log
+
+      - name: Full Swift regression and static verify
+        shell: bash
+        run: |
+          set -euo pipefail
+          swift test 2>&1 | tee swift-test-full.log
+          ./scripts/verify.sh 2>&1 | tee static-verify.log
+
+      - name: Upload validation logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build19-4-validation-logs
+          path: |
+            build19-4-decision-audit.log
+            build19-4-leakage.log
+            build19-3b-explanation.log
+            build19-3a-confidence.log
+            build19-2-sequence.log
+            build19-1-comparison.log
+            build17-safe.log
+            build18-whynow.log
+            build18-frozen-corpus.log
+            swift-test-full.log
+            static-verify.log
+          if-no-files-found: ignore
+          retention-days: 14

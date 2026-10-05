@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-4",
+  "title": "HOLD Concept Capability Delta Matrix",
+  "date": "2026-10-05",
+  "status": "CANDIDATE / VALIDATION PENDING",
+  "baseHead": "9637da6998235ed0e8464b8cbfeb0256f5511d41",
+  "concepts": [
+    {
+      "concept": "respond_to_rapid_attack",
+      "build18MissingEvidence": [
+        "machine-verifiable concrete opponent rapid-attack event authority"
+      ],
+      "build19NewCapabilities": [
+        "normalized pairwise candidate comparison",
+        "stable sequence reconstruction",
+        "observed opponent reply consequences",
+        "counterfactual branch timeline"
+      ],
+      "gapsClosed": [
+        "sequence consequences can now be represented without PV certainty wording"
+      ],
+      "remainingBlockers": [
+        "no rapid-attack event classifier/authority",
+        "no concept-specific positive semantic examples",
+        "generic rook-pawn response causality does not imply rapid-attack purpose"
+      ],
+      "promotionReady": false
+    },
+    {
+      "concept": "sabai",
+      "build18MissingEvidence": [
+        "exchange/contact",
+        "major-piece activation before/after",
+        "post-exchange continuation",
+        "active resource preservation",
+        "stable sequence or counterfactual"
+      ],
+      "build19NewCapabilities": [
+        "exchange/recapture event preservation",
+        "stable post-exchange sequence horizon",
+        "before/after reconstructed board state",
+        "counterfactual branch timeline",
+        "claim-level confidence"
+      ],
+      "gapsClosed": [
+        "exchange/contact can be observed",
+        "post-exchange continuation can be reconstructed when stable",
+        "sequence/counterfactual can be represented"
+      ],
+      "remainingBlockers": [
+        "no authoritative positive sabai examples",
+        "no typed semantic test for major-piece activation quality",
+        "no typed semantic test for active-resource preservation",
+        "exchange or mobility evidence alone cannot prove sabai"
+      ],
+      "promotionReady": false
+    },
+    {
+      "concept": "trade_to_transform",
+      "build18MissingEvidence": [
+        "verified exchange",
+        "before/after role or position transformation",
+        "sequence/counterfactual proving transformation relevance"
+      ],
+      "build19NewCapabilities": [
+        "verified exchange event sequence",
+        "before/after board snapshots",
+        "material ownership timeline",
+        "stable counterfactual timeline"
+      ],
+      "gapsClosed": [
+        "exchange event can be verified",
+        "before/after board state can be compared",
+        "sequence/counterfactual relevance can be inspected structurally"
+      ],
+      "remainingBlockers": [
+        "no authoritative positive trade-to-transform examples",
+        "no typed role-transformation semantic predicate",
+        "effect-to-intent boundary still forbids purpose inference from board change alone"
+      ],
+      "promotionReady": false
+    },
+    {
+      "concept": "multi_threat",
+      "build18MissingEvidence": [
+        "multiple independent concrete threats",
+        "one-response non-neutralizability",
+        "stable continuation/counterfactual"
+      ],
+      "build19NewCapabilities": [
+        "stable branch continuation",
+        "observed opponent consequence",
+        "counterfactual candidate timeline",
+        "future-difference resolution"
+      ],
+      "gapsClosed": [
+        "stable continuation/counterfactual representation exists"
+      ],
+      "remainingBlockers": [
+        "no independent threat enumerator",
+        "single PV is not an exhaustive legal-reply tree",
+        "no proof that one opponent response cannot neutralize all threats",
+        "no authoritative positive multi-threat examples"
+      ],
+      "promotionReady": false
+    },
+    {
+      "concept": "tempo_management",
+      "build18MissingEvidence": [
+        "move-order/tempo comparison",
+        "verified timing dependence",
+        "counterfactual or sequence continuity"
+      ],
+      "build19NewCapabilities": [
+        "stable sequence horizon",
+        "matched A/B branch timeline",
+        "counterfactual comparison",
+        "claim-level confidence"
+      ],
+      "gapsClosed": [
+        "counterfactual and sequence continuity can now be represented"
+      ],
+      "remainingBlockers": [
+        "no matched move-order semantic experiment authority",
+        "no verified timing-dependence predicate",
+        "no authoritative positive tempo-management examples",
+        "sequence length or score gap cannot establish tempo purpose"
+      ],
+      "promotionReady": false
+    }
+  ]
+}
