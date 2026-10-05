@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-1 Candidate Comparison Core",
+  "date": "2026-10-05",
+  "axes": [
+    {"axis":"evaluation","status":"GROUNDED","basis":"typed USIScore / mate state","autoDifference":true,"constraint":"score gap is preference evidence, not causal explanation"},
+    {"axis":"capture","status":"GROUNDED","basis":"MoveEffectResolver","autoDifference":true,"constraint":"immediate recapture downgrades simple material causality"},
+    {"axis":"material","status":"GROUNDED","basis":"board plus hand inventory at explicit horizon","autoDifference":true,"constraint":"inventory is observed, not weighted engine material evaluation"},
+    {"axis":"promotion","status":"GROUNDED","basis":"MoveEffectResolver","autoDifference":true,"constraint":"does not explain full evaluation gap"},
+    {"axis":"check","status":"GROUNDED","basis":"defined board attack geometry","autoDifference":true,"constraint":"check fact alone is not score causality"},
+    {"axis":"mateState","status":"GROUNDED","basis":"typed USIScore mate category","autoDifference":true,"constraint":"outcome category is not the engine's complete internal reason"},
+    {"axis":"kingSafety","status":"GROUNDED_METRIC_ONLY","basis":"defined king-zone pressure and defender counts","autoDifference":true,"constraint":"metric difference only; no broad strategic king-safety prose in Build19-1"},
+    {"axis":"exchangeConsequence","status":"GROUNDED_SHORT_HORIZON","basis":"first opponent reply and immediate recapture fact","autoDifference":true,"constraint":"net multi-ply exchange meaning deferred to Build19-2"},
+    {"axis":"opponentReply","status":"GROUNDED_SHORT_HORIZON","basis":"candidate-specific PV first reply events","autoDifference":true,"constraint":"requires stable comparison and continuation for verbalizable REPLY_LINKED evidence"},
+    {"axis":"boardEffect","status":"GROUNDED","basis":"defined first-move effect such as drop vs move","autoDifference":true,"constraint":"observed effect only"},
+    {"axis":"sequenceEvent","status":"HANDOFF_ONLY","basis":"typed FutureDifferenceCandidate","autoDifference":false,"constraint":"semantic sequence reconstruction is Build19-2"},
+    {"axis":"initiative","status":"GUARDED","basis":"none as raw word","autoDifference":false,"constraint":"must be decomposed into concrete forcing/reply evidence in later stages"},
+    {"axis":"tempo","status":"GUARDED","basis":"none as raw word","autoDifference":false,"constraint":"must be decomposed into concrete evidence"},
+    {"axis":"boardActivity","status":"GUARDED","basis":"none as raw word","autoDifference":false,"constraint":"must be decomposed into concrete board metrics/events"},
+    {"axis":"pieceActivity","status":"GUARDED","basis":"none as raw word","autoDifference":false,"constraint":"must be decomposed into concrete board metrics/events"},
+    {"axis":"futureAttack","status":"GUARDED","basis":"none in Build19-1","autoDifference":false,"constraint":"future sequence evidence required"},
+    {"axis":"futureDefenseBurden","status":"GUARDED","basis":"none in Build19-1","autoDifference":false,"constraint":"future sequence evidence required"},
+    {"axis":"continuationQuality","status":"GUARDED","basis":"stability signal only","autoDifference":false,"constraint":"quality claim deferred"},
+    {"axis":"moveFlexibility","status":"DEFERRED","basis":"unsupported","autoDifference":false,"constraint":"no automatic explanation"},
+    {"axis":"risk","status":"DEFERRED","basis":"unsupported","autoDifference":false,"constraint":"no automatic explanation"},
+    {"axis":"practicalComplexity","status":"DEFERRED","basis":"unsupported","autoDifference":false,"constraint":"no automatic explanation"},
+    {"axis":"humanEase","status":"DEFERRED","basis":"unsupported","autoDifference":false,"constraint":"no 'easy to play/win' automatic explanation"}
+  ],
+  "defaultRequestPolicy":"Only grounded axes are requested by default. Guarded/deferred axes appear in unsupportedClaims only when explicitly requested."
+}
