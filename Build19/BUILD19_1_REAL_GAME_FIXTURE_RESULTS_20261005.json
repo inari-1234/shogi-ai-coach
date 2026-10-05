@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-1 Candidate Comparison Core",
+  "date": "2026-10-05",
+  "validationMode": "REQUIREMENT_CONTRACT_COVERAGE_NOT_EXPECTED_OUTPUT_LABELING",
+  "authority": {
+    "build18MainHead": "c1316508fad4c5bd2fa9e8728bcee42cba7d0d73",
+    "build19PHead": "1ff3ce4196ce7d5f88cda9a1aadebf53bc15f215",
+    "planningFixture": "Build19/BUILD19_P_REAL_GAME_GAP_SAMPLES_20261005.json",
+    "build18EvidenceRun": 37260421183,
+    "build18EvidenceArtifactId": 11323989952
+  },
+  "policy": {
+    "planningLabelsAreRequirementsNotTruthLabels": true,
+    "alternativeCandidateInvented": false,
+    "build18IntentRelabeled": false,
+    "sequenceSemanticsDeferredToBuild19_2": true
+  },
+  "profileCoverage": {
+    "BASE_PAIR": {
+      "build19_1": [
+        "pairwise equal-condition contract",
+        "first-move effects",
+        "SharedEvidence/DifferenceEvidence",
+        "score-only safe fallback",
+        "future-difference placeholder"
+      ]
+    },
+    "PREVIOUS_REPLY": {
+      "build19_1": [
+        "opponent-reply preview",
+        "OPPONENT_REPLY_DIFFERENCE",
+        "branch metadata",
+        "future-difference placeholder"
+      ]
+    },
+    "EXCHANGE": {
+      "build19_1": [
+        "capture/material difference",
+        "immediate-recapture guard",
+        "EXCHANGE_CONSEQUENCE_DIFFERENCE",
+        "future-difference placeholder"
+      ]
+    },
+    "FORCING": {
+      "build19_1": [
+        "check difference",
+        "opponent-reply difference",
+        "non-causal score limitation",
+        "future-difference placeholder"
+      ]
+    }
+  },
+  "summary": {
+    "fixtures": 30,
+    "covered": 30,
+    "criticalDefects": 0,
+    "phase": {"ENDGAME": 11, "OPENING": 10, "MIDDLEGAME": 9},
+    "confidence": {"low": 1, "unresolved": 10, "medium": 14, "high": 5},
+    "trigger": {"NONE_IDENTIFIED": 12, "DIRECT_PREVIOUS_MOVE": 7, "EXCHANGE_SEQUENCE": 6, "FORCING_TACTIC": 5},
+    "profile": {"BASE_PAIR": 12, "PREVIOUS_REPLY": 7, "EXCHANGE": 6, "FORCING": 5}
+  },
+  "records": [
+    {"id":"B19P-RG-001","src":6,"phase":"ENDGAME","confidence":"low","trigger":"NONE_IDENTIFIED","profile":"BASE_PAIR","coverage":"PASS"},
+    {"id":"B19P-RG-002","src":7,"phase":"OPENING","confidence":"unresolved","trigger":"NONE_IDENTIFIED","profile":"BASE_PAIR","coverage":"PASS"},
+    {"id":"B19P-RG-003","src":13,"phase":"OPENING","confidence":"unresolved","trigger":"NONE_IDENTIFIED","profile":"BASE_PAIR","coverage":"PASS"},
+    {"id":"B19P-RG-004","src":16,"phase":"MIDDLEGAME","confidence":"unresolved","trigger":"NONE_IDENTIFIED","profile":"BASE_PAIR","coverage":"PASS"},
+    {"id":"B19P-RG-005","src":19,"phase":"OPENING","confidence":"unresolved","trigger":"NONE_IDENTIFIED","profile":"BASE_PAIR","coverage":"PASS"},
+    {"id":"B19P-RG-006","src":24,"phase":"MIDDLEGAME","confidence":"unresolved","trigger":"NONE_IDENTIFIED","profile":"BASE_PAIR","coverage":"PASS"},
+    {"id":"B19P-RG-007","src":29,"phase":"OPENING","confidence":"unresolved","trigger":"NONE_IDENTIFIED","profile":"BASE_PAIR","coverage":"PASS"},
+    {"id":"B19P-RG-008","src":39,"phase":"ENDGAME","confidence":"unresolved","trigger":"NONE_IDENTIFIED","profile":"BASE_PAIR","coverage":"PASS"},
+    {"id":"B19P-RG-009","src":40,"phase":"OPENING","confidence":"unresolved","trigger":"NONE_IDENTIFIED","profile":"BASE_PAIR","coverage":"PASS"},
+    {"id":"B19P-RG-010","src":44,"phase":"ENDGAME","confidence":"unresolved","trigger":"NONE_IDENTIFIED","profile":"BASE_PAIR","coverage":"PASS"},
+    {"id":"B19P-RG-011","src":45,"phase":"OPENING","confidence":"unresolved","trigger":"NONE_IDENTIFIED","profile":"BASE_PAIR","coverage":"PASS"},
+    {"id":"B19P-RG-012","src":8,"phase":"MIDDLEGAME","confidence":"medium","trigger":"DIRECT_PREVIOUS_MOVE","profile":"PREVIOUS_REPLY","coverage":"PASS"},
+    {"id":"B19P-RG-013","src":15,"phase":"ENDGAME","confidence":"high","trigger":"DIRECT_PREVIOUS_MOVE","profile":"PREVIOUS_REPLY","coverage":"PASS"},
+    {"id":"B19P-RG-014","src":21,"phase":"MIDDLEGAME","confidence":"medium","trigger":"DIRECT_PREVIOUS_MOVE","profile":"PREVIOUS_REPLY","coverage":"PASS"},
+    {"id":"B19P-RG-015","src":30,"phase":"ENDGAME","confidence":"medium","trigger":"DIRECT_PREVIOUS_MOVE","profile":"PREVIOUS_REPLY","coverage":"PASS"},
+    {"id":"B19P-RG-016","src":37,"phase":"MIDDLEGAME","confidence":"medium","trigger":"DIRECT_PREVIOUS_MOVE","profile":"PREVIOUS_REPLY","coverage":"PASS"},
+    {"id":"B19P-RG-017","src":43,"phase":"OPENING","confidence":"medium","trigger":"DIRECT_PREVIOUS_MOVE","profile":"PREVIOUS_REPLY","coverage":"PASS"},
+    {"id":"B19P-RG-018","src":48,"phase":"MIDDLEGAME","confidence":"medium","trigger":"DIRECT_PREVIOUS_MOVE","profile":"PREVIOUS_REPLY","coverage":"PASS"},
+    {"id":"B19P-RG-019","src":4,"phase":"OPENING","confidence":"high","trigger":"EXCHANGE_SEQUENCE","profile":"EXCHANGE","coverage":"PASS"},
+    {"id":"B19P-RG-020","src":10,"phase":"ENDGAME","confidence":"medium","trigger":"EXCHANGE_SEQUENCE","profile":"EXCHANGE","coverage":"PASS"},
+    {"id":"B19P-RG-021","src":14,"phase":"MIDDLEGAME","confidence":"high","trigger":"EXCHANGE_SEQUENCE","profile":"EXCHANGE","coverage":"PASS"},
+    {"id":"B19P-RG-022","src":27,"phase":"ENDGAME","confidence":"medium","trigger":"EXCHANGE_SEQUENCE","profile":"EXCHANGE","coverage":"PASS"},
+    {"id":"B19P-RG-023","src":36,"phase":"ENDGAME","confidence":"high","trigger":"EXCHANGE_SEQUENCE","profile":"EXCHANGE","coverage":"PASS"},
+    {"id":"B19P-RG-024","src":41,"phase":"OPENING","confidence":"high","trigger":"EXCHANGE_SEQUENCE","profile":"EXCHANGE","coverage":"PASS"},
+    {"id":"B19P-RG-025","src":1,"phase":"OPENING","confidence":"medium","trigger":"FORCING_TACTIC","profile":"FORCING","coverage":"PASS"},
+    {"id":"B19P-RG-026","src":9,"phase":"ENDGAME","confidence":"medium","trigger":"FORCING_TACTIC","profile":"FORCING","coverage":"PASS"},
+    {"id":"B19P-RG-027","src":12,"phase":"MIDDLEGAME","confidence":"medium","trigger":"FORCING_TACTIC","profile":"FORCING","coverage":"PASS"},
+    {"id":"B19P-RG-028","src":33,"phase":"ENDGAME","confidence":"medium","trigger":"FORCING_TACTIC","profile":"FORCING","coverage":"PASS"},
+    {"id":"B19P-RG-029","src":42,"phase":"ENDGAME","confidence":"medium","trigger":"FORCING_TACTIC","profile":"FORCING","coverage":"PASS"},
+    {"id":"B19P-RG-030","src":2,"phase":"MIDDLEGAME","confidence":"medium","trigger":"NONE_IDENTIFIED","profile":"BASE_PAIR","coverage":"PASS"}
+  ],
+  "result": "PASS"
+}
