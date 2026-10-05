@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-2 Sequence / Counterfactual Evidence",
+  "date": "2026-10-05",
+  "authority": {
+    "build18MainHead": "c1316508fad4c5bd2fa9e8728bcee42cba7d0d73",
+    "build19_1Head": "07fac474b723d35d49093adce5e5e886acf600da",
+    "implementationBranch": "candidate/build19-2-sequence-counterfactual-evidence",
+    "validatedProductionAndWorkflowHead": "24ae609227c251bceac0715c3df1afe26bbd7acc",
+    "validatedArtifactAndBuildHead": "4734355c53c68eef2f2aedbd3d4ff1043ad5e749"
+  },
+  "build19_2Validation": {
+    "workflow": "Build19-2 Sequence Counterfactual Evidence",
+    "runId": 37273733668,
+    "jobId": 111646081078,
+    "head": "4734355c53c68eef2f2aedbd3d4ff1043ad5e749",
+    "conclusion": "success",
+    "gates": {
+      "build19_1AuthorityAndScopeGuard": "PASS",
+      "dedicatedSequenceCounterfactualTests": {
+        "executed": 10,
+        "failed": 0,
+        "unexpected": 0,
+        "result": "PASS"
+      },
+      "build19_1ComparisonRegression": {
+        "executed": 14,
+        "failed": 0,
+        "unexpected": 0,
+        "result": "PASS"
+      },
+      "build17SafeConceptRegression": {
+        "executed": 19,
+        "failed": 0,
+        "unexpected": 0,
+        "result": "PASS"
+      },
+      "build18GroundedWhyNowRegression": {
+        "executed": 9,
+        "failed": 0,
+        "unexpected": 0,
+        "result": "PASS"
+      },
+      "build18FrozenCorpusProjection": {
+        "executed": 1,
+        "failed": 0,
+        "unexpected": 0,
+        "result": "PASS"
+      },
+      "fullSwiftXCTest": {
+        "executed": 108,
+        "failed": 0,
+        "unexpected": 0,
+        "result": "PASS"
+      },
+      "swiftTestingLibrary": {
+        "executed": 16,
+        "failed": 0,
+        "result": "PASS"
+      },
+      "staticVerify": "PASS"
+    },
+    "evidenceArtifact": {
+      "artifactId": 11329082313,
+      "sha256": "ce87f4986819f6a251d72b6cd529ed2a894fbefe0e7d308bc9729153c088e446",
+      "name": "Build19-2-validation-logs"
+    }
+  },
+  "iosDeviceBuild": {
+    "workflow": "iOS Device Build",
+    "runId": 37273733665,
+    "attempt": 2,
+    "jobId": 111647054030,
+    "head": "4734355c53c68eef2f2aedbd3d4ff1043ad5e749",
+    "conclusion": "success",
+    "steps": {
+      "restoreEngineAssets": "PASS",
+      "coreRegressionTests": "PASS",
+      "installBuildTools": "PASS",
+      "preparePinnedEngine": "PASS",
+      "generateXcodeProject": "PASS",
+      "buildUnsignedIPhoneApp": "PASS",
+      "verifyAndPackageIPA": "PASS",
+      "uploadIPAAndLogs": "PASS"
+    },
+    "ipaArtifact": {
+      "artifactId": 11329851934,
+      "sha256": "95afb44533895961ed21adf31a9870496858b79dd68b1f901be3e8163ce98607",
+      "sizeBytes": 31054431
+    },
+    "note": "Attempt 1 was cancelled by workflow concurrency while artifact-only commits were being pushed. Attempt 2 was rerun after commits were paused and completed successfully."
+  },
+  "initialFailureAndCorrection": {
+    "initialRunId": 37272981502,
+    "type": "ARCHITECTURE_EDGE_CASE_FOUND_BY_TEST",
+    "productionArchitectureConflict": false,
+    "testWeakened": false,
+    "cause": "An equal-value capture/recapture sequence could return material ownership totals to the starting values, causing the original net-material-only exchange representation to erase a grounded exchange event.",
+    "correction": "Added SequenceExchangeEventEvidence so capture/recapture event sequences are preserved independently from stable-horizon net material ownership delta.",
+    "status": "CLOSED"
+  },
+  "build18AndBuild19_1Protection": {
+    "moveIntentChanged": false,
+    "contextIntentResolverChanged": false,
+    "intentWeightChanged": false,
+    "contextConfidenceThresholdChanged": false,
+    "groundedExplanationPolicyChanged": false,
+    "build19_1ComparisonAuthorityChanged": false,
+    "frozenCorpusChanged": false,
+    "existingUIForcedToShowSequenceExplanation": false,
+    "holdConceptsPromoted": false,
+    "holdConcepts": {
+      "respond_to_rapid_attack": "HOLD",
+      "sabai": "HOLD",
+      "trade_to_transform": "HOLD",
+      "multi_threat": "HOLD",
+      "tempo_management": "HOLD"
+    },
+    "scopeGuard": "PASS"
+  },
+  "requirementFixturePolicy": {
+    "sourceSamples": 30,
+    "mode": "REQUIREMENT_PROFILE_COVERAGE_NOT_SEQUENCE_REPLAY",
+    "planningLabelsUsedAsTruthLabels": false,
+    "alternativeCandidateInvented": false,
+    "pvInvented": false,
+    "criticalGap": null
+  },
+  "result": "PASS"
+}
