@@ -155,29 +155,9 @@ public enum ComparisonConfidenceResolver {
         let conditionMatch = pairwiseConditionMatch(comparison)
         let scoreComparable = scoreDomainComparable(comparison)
         let traceable = firstMoveTraceable(comparison)
-        let provenance = provenanceComplete(comparison)
         let nonScoreEvidence = comparison.differenceEvidence.filter(isSubstantiveDifference)
-        let specificity: DifferenceSpecificity = nonScoreEvidence.isEmpty ? .none : .concrete
         let strongest = strongestCausalStrength(nonScoreEvidence)
         let conflictState = conflictingState(comparison: comparison, evidence: nonScoreEvidence)
-        let claimedFutureHorizon = nonScoreEvidence.contains { $0.horizon != .immediate }
-        let sequenceStableForClaims = sequenceStableForClaimedHorizon(
-            comparison: comparison,
-            sequence: sequence,
-            hasFutureClaims: claimedFutureHorizon
-        )
-
-        let components = ComparisonConfidenceComponents(
-            pairwiseConditionMatch: conditionMatch,
-            rankingStability: comparison.comparisonStable,
-            scoreDomainComparability: scoreComparable,
-            firstMoveTraceability: traceable,
-            sequenceStableThroughClaimedHorizon: sequenceStableForClaims,
-            differenceSpecificity: specificity,
-            strongestCausalStrength: strongest.rawValue,
-            conflictingDifferenceState: conflictState,
-            provenanceCompleteness: provenance
-        )
 
         let claims = comparison.differenceEvidence.map {
             assessClaim(
@@ -185,45 +165,70 @@ public enum ComparisonConfidenceResolver {
                 comparison: comparison,
                 sequence: sequence,
                 conditionMatch: conditionMatch,
-                traceable: traceable,
-                provenance: provenance
+                traceable: traceable
             )
         }
 
-        let substantiveClaims = claims.filter {
-            $0.kind != DifferenceKind.scoreDifference.rawValue &&
-            $0.kind != DifferenceKind.noGroundedCausalDifference.rawValue
+        let usableClaims = claims.filter {
+            $0.kind != DifferenceKind.scoreDifference.rawValue
+                && $0.kind != DifferenceKind.noGroundedCausalDifference.rawValue
+                && $0.safeToVerbalize
+                && $0.confidence != .unresolved
         }
-        let eligible = substantiveClaims.filter(\.safeToVerbalize)
-        let level = overallLevel(
-            comparison: comparison,
-            components: components,
-            claims: eligible,
-            substantiveEvidenceCount: nonScoreEvidence.count
+        let usableIDs = Set(usableClaims.map(\.evidenceID))
+        let usableEvidence = nonScoreEvidence.filter { usableIDs.contains($0.id) }
+        let provenance = usableEvidence.isEmpty == false && usableEvidence.allSatisfy(evidenceProvenanceComplete)
+        let sequenceStableForClaimedHorizon = usableClaims.allSatisfy {
+            !$0.limitations.contains("claim_horizon_not_stably_reconstructed")
+        }
+        let specificity: DifferenceSpecificity = usableClaims.isEmpty ? .none : .concrete
+
+        let components = ComparisonConfidenceComponents(
+            pairwiseConditionMatch: conditionMatch,
+            rankingStability: comparison.comparisonStable,
+            scoreDomainComparability: scoreComparable,
+            firstMoveTraceability: traceable,
+            sequenceStableThroughClaimedHorizon: sequenceStableForClaimedHorizon,
+            differenceSpecificity: specificity,
+            strongestCausalStrength: strongest.rawValue,
+            conflictingDifferenceState: conflictState,
+            provenanceCompleteness: provenance
         )
-        let wording = wordingStrength(level: level, claims: eligible)
+
+        let level = overallLevel(components: components, claims: usableClaims)
+        let wording = wordingStrength(level: level, claims: usableClaims)
 
         var reasons: [String] = []
         if !conditionMatch { reasons.append("pairwise_conditions_not_equal") }
         if !comparison.comparisonStable { reasons.append("ranking_unstable") }
         if !scoreComparable { reasons.append("score_domains_not_directly_comparable") }
         if !traceable { reasons.append("first_move_not_fully_traceable") }
-        if !provenance { reasons.append("provenance_incomplete") }
+        if !provenance { reasons.append("provenance_incomplete_for_usable_claims") }
         if nonScoreEvidence.isEmpty { reasons.append("no_non_score_difference_evidence") }
-        if claimedFutureHorizon && !sequenceStableForClaims { reasons.append("future_claim_exceeds_stable_sequence_horizon") }
+        if claims.contains(where: { $0.limitations.contains("claim_horizon_not_stably_reconstructed") }) {
+            reasons.append("unstable_future_claims_withheld")
+        }
         if conflictState != .none { reasons.append("multiple_or_conflicting_difference_state") }
-        if level == .high { reasons.append("grounded_direct_or_reply_linked_difference_with_complete_gates") }
-        if level == .medium { reasons.append("grounded_difference_present_but_causal_attribution_is_incomplete") }
-        if level == .low { reasons.append("only_limited_grounded_explanation_is_safe") }
-        if level == .unresolved { reasons.append("causal_explanation_not_safely_resolved") }
+        switch level {
+        case .high:
+            reasons.append("grounded_direct_or_reply_linked_difference_with_complete_gates")
+        case .medium:
+            reasons.append("grounded_difference_present_but_causal_attribution_is_incomplete")
+        case .low:
+            reasons.append("only_limited_grounded_explanation_is_safe")
+        case .unresolved:
+            reasons.append("causal_explanation_not_safely_resolved")
+        }
 
-        let eligibleIDs = eligible.filter { $0.confidence != .unresolved }.map(\.evidenceID).sorted()
-        let withheldIDs = claims.filter { !$0.safeToVerbalize || $0.confidence == .unresolved }
-            .map(\.evidenceID).sorted()
+        let eligibleIDs = usableClaims.map(\.evidenceID).sorted()
+        let withheldIDs = claims.filter {
+            $0.kind != DifferenceKind.scoreDifference.rawValue
+                && (!$0.safeToVerbalize || $0.confidence == .unresolved)
+        }.map(\.evidenceID).sorted()
 
         var warnings = comparison.comparisonWarnings
         warnings.append(contentsOf: sequence?.warnings ?? [])
-        if comparison.unsupportedClaims.isEmpty == false {
+        if !comparison.unsupportedClaims.isEmpty {
             warnings.append("unsupported_axes_do_not_gain_authority_from_comparison_confidence")
         }
         warnings.append("evaluation_gap_is_not_a_comparison_confidence_booster")
@@ -270,18 +275,14 @@ public enum ComparisonConfidenceResolver {
     private static func firstMoveTraceable(_ comparison: CandidateComparison) -> Bool {
         [comparison.candidateA, comparison.candidateB].allSatisfy { candidate in
             candidate.pv.first == candidate.move
-                && candidate.sourceEvidence.isEmpty == false
-                && candidate.sourceEvidence.allSatisfy { $0.id.isEmpty == false && $0.sourceMoves.contains(candidate.move) }
+                && candidate.sourceEvidence.contains {
+                    !$0.id.isEmpty && $0.sourceMoves.contains(candidate.move)
+                }
         }
     }
 
-    private static func provenanceComplete(_ comparison: CandidateComparison) -> Bool {
-        let substantive = comparison.differenceEvidence.filter(isSubstantiveDifference)
-        guard substantive.isEmpty == false else { return false }
-        return substantive.allSatisfy { evidence in
-            evidence.sourceEvidenceIDs.isEmpty == false
-                && evidence.sourceMoves.isEmpty == false
-        }
+    private static func evidenceProvenanceComplete(_ evidence: DifferenceEvidence) -> Bool {
+        !evidence.sourceEvidenceIDs.isEmpty && !evidence.sourceMoves.isEmpty
     }
 
     private static func strongestCausalStrength(_ evidence: [DifferenceEvidence]) -> CausalStrength {
@@ -295,24 +296,14 @@ public enum ComparisonConfidenceResolver {
         comparison: CandidateComparison,
         evidence: [DifferenceEvidence]
     ) -> ConflictingDifferenceState {
-        guard evidence.count > 1 else { return .none }
+        let warningText = comparison.comparisonWarnings.joined(separator: "|").lowercased()
+        if warningText.contains("contradict") { return .contradictory }
+        if warningText.contains("evidence_conflict") { return .multiplePlausible }
         let verbalizable = evidence.filter(\.safeToVerbalize)
-        guard verbalizable.count > 1 else { return .none }
-        guard let dominant = comparison.dominantDifferenceCandidate else { return .multiplePlausible }
-        let sameStrengthPeers = verbalizable.filter {
-            $0.id != dominant.id && $0.causalStrength == dominant.causalStrength
+        if verbalizable.count > 1 && comparison.dominantDifferenceCandidate == nil {
+            return .multiplePlausible
         }
-        return sameStrengthPeers.isEmpty ? .none : .multiplePlausible
-    }
-
-    private static func sequenceStableForClaimedHorizon(
-        comparison: CandidateComparison,
-        sequence: SequenceComparisonEvidence?,
-        hasFutureClaims: Bool
-    ) -> Bool {
-        guard hasFutureClaims else { return true }
-        guard comparison.continuationStable, let sequence else { return false }
-        return sequence.stableHorizonPly >= 2 && sequence.sequenceStable
+        return .none
     }
 
     private static func assessClaim(
@@ -320,11 +311,9 @@ public enum ComparisonConfidenceResolver {
         comparison: CandidateComparison,
         sequence: SequenceComparisonEvidence?,
         conditionMatch: Bool,
-        traceable: Bool,
-        provenance: Bool
+        traceable: Bool
     ) -> ClaimConfidenceAssessment {
         var limitations = evidence.limitations
-        var safe = evidence.safeToVerbalize
 
         if evidence.kind == .scoreDifference {
             return ClaimConfidenceAssessment(
@@ -352,9 +341,14 @@ public enum ComparisonConfidenceResolver {
             )
         }
 
-        guard conditionMatch, comparison.comparisonStable, traceable, provenance else {
-            safe = false
+        guard conditionMatch,
+              comparison.comparisonStable,
+              traceable,
+              evidenceProvenanceComplete(evidence) else {
             limitations.append("comparison_confidence_foundation_gate_failed")
+            if !evidenceProvenanceComplete(evidence) {
+                limitations.append("claim_provenance_incomplete")
+            }
             return ClaimConfidenceAssessment(
                 evidenceID: evidence.id,
                 kind: evidence.kind.rawValue,
@@ -372,21 +366,20 @@ public enum ComparisonConfidenceResolver {
             horizonStable = true
         } else if let sequence {
             horizonStable = comparison.continuationStable
-                && sequence.sequenceStable
                 && sequence.stableHorizonPly >= minimumPly(for: evidence.horizon)
         } else {
             horizonStable = false
         }
 
-        if !horizonStable {
+        guard horizonStable else {
             limitations.append("claim_horizon_not_stably_reconstructed")
             return ClaimConfidenceAssessment(
                 evidenceID: evidence.id,
                 kind: evidence.kind.rawValue,
                 horizon: evidence.horizon.rawValue,
                 causalStrength: evidence.causalStrength.rawValue,
-                confidence: safe && evidence.horizon == .immediate ? .low : .unresolved,
-                safeToVerbalize: safe && evidence.horizon == .immediate,
+                confidence: .unresolved,
+                safeToVerbalize: false,
                 eligibleForCausalWording: false,
                 limitations: Array(Set(limitations)).sorted()
             )
@@ -396,17 +389,17 @@ public enum ComparisonConfidenceResolver {
         let causalAllowed: Bool
         switch evidence.causalStrength {
         case .directConsequence:
-            level = safe ? .high : .unresolved
-            causalAllowed = safe
+            level = evidence.safeToVerbalize ? .high : .unresolved
+            causalAllowed = evidence.safeToVerbalize
         case .replyLinked:
-            level = safe ? .high : .unresolved
-            causalAllowed = safe
+            level = evidence.safeToVerbalize ? .high : .unresolved
+            causalAllowed = evidence.safeToVerbalize
         case .sequenceCorrelated:
-            level = safe ? .medium : .unresolved
+            level = evidence.safeToVerbalize ? .medium : .unresolved
             causalAllowed = false
             limitations.append("sequence_correlation_does_not_authorize_direct_causality")
         case .unresolved:
-            level = safe ? .low : .unresolved
+            level = evidence.safeToVerbalize ? .low : .unresolved
             causalAllowed = false
         }
 
@@ -416,7 +409,7 @@ public enum ComparisonConfidenceResolver {
             horizon: evidence.horizon.rawValue,
             causalStrength: evidence.causalStrength.rawValue,
             confidence: level,
-            safeToVerbalize: safe,
+            safeToVerbalize: evidence.safeToVerbalize,
             eligibleForCausalWording: causalAllowed,
             limitations: Array(Set(limitations)).sorted()
         )
@@ -432,36 +425,34 @@ public enum ComparisonConfidenceResolver {
     }
 
     private static func overallLevel(
-        comparison: CandidateComparison,
         components: ComparisonConfidenceComponents,
-        claims: [ClaimConfidenceAssessment],
-        substantiveEvidenceCount: Int
+        claims: [ClaimConfidenceAssessment]
     ) -> ComparisonConfidenceLevel {
         guard components.pairwiseConditionMatch,
               components.rankingStability,
+              components.scoreDomainComparability,
               components.firstMoveTraceability,
               components.provenanceCompleteness,
-              substantiveEvidenceCount > 0 else {
+              components.differenceSpecificity != .none else {
             return .unresolved
         }
+        if components.conflictingDifferenceState == .contradictory {
+            return .unresolved
+        }
+        guard !claims.isEmpty else { return .unresolved }
 
-        let nonUnresolved = claims.filter { $0.confidence != .unresolved }
-        guard nonUnresolved.isEmpty == false else { return .unresolved }
-
-        let hasHighCausal = nonUnresolved.contains {
+        let hasHighCausal = claims.contains {
             $0.confidence == .high && $0.eligibleForCausalWording
         }
         if hasHighCausal,
-           components.scoreDomainComparability,
            components.sequenceStableThroughClaimedHorizon,
            components.conflictingDifferenceState == .none {
             return .high
         }
 
-        if nonUnresolved.contains(where: { $0.confidence == .high || $0.confidence == .medium }) {
+        if claims.contains(where: { $0.confidence == .high || $0.confidence == .medium }) {
             return .medium
         }
-
         return .low
     }
 
