@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-3A Comparison Confidence / Explanation Eligibility",
+  "date": "2026-10-05",
+  "authority": {
+    "build19_2_final_head": "701b50a319407c6d31f7aff684ab6af7e0c76626",
+    "implementation_validation_head": "e43c7375819cab6f2c6cb9e210f8d4125166a152"
+  },
+  "comparisonConfidenceLevels": ["HIGH", "MEDIUM", "LOW", "UNRESOLVED"],
+  "wordingStrengths": ["DIRECT_CAUSAL", "QUALIFIED_CAUSAL", "FACTUAL_ONLY", "RANKING_ONLY"],
+  "preferenceMagnitude": {
+    "fields": ["scoreDomain", "exactCentipawnDelta", "candidateAValue", "candidateBValue"],
+    "rule": "Preference magnitude is diagnostic only and cannot increase comparison confidence."
+  },
+  "components": {
+    "pairwiseConditionMatch": "Same position, engine context, search condition, score perspective, movetime and depth.",
+    "rankingStability": "Build19-1 pairwise stability gate.",
+    "scoreDomainComparability": "Centipawn claims compare only to centipawn; mixed centipawn/mate domains are not directly comparable.",
+    "firstMoveTraceability": "Each candidate first move is candidate-specific and traceable to source evidence.",
+    "sequenceStableThroughClaimedHorizon": "Every claim actually eligible for output lies within its required stable horizon.",
+    "differenceSpecificity": ["NONE", "GENERIC", "CONCRETE"],
+    "strongestCausalStrength": ["DIRECT_CONSEQUENCE", "REPLY_LINKED", "SEQUENCE_CORRELATED", "UNRESOLVED"],
+    "conflictingDifferenceState": ["NONE", "MULTIPLE_PLAUSIBLE", "CONTRADICTORY"],
+    "provenanceCompleteness": "All claims eligible for output retain source evidence IDs and source moves."
+  },
+  "claimAssessment": {
+    "fields": [
+      "evidenceID",
+      "kind",
+      "horizon",
+      "causalStrength",
+      "confidence",
+      "safeToVerbalize",
+      "eligibleForCausalWording",
+      "limitations"
+    ]
+  },
+  "hardSafetyRules": [
+    "score_gap_alone_never_authorizes_causal_wording",
+    "evaluation_gap_never_boosts_comparison_confidence",
+    "mixed_score_domain_blocks_resolved_overall_confidence",
+    "missing_provenance_blocks_that_claim",
+    "unstable_future_horizon_blocks_only_claims_that_depend_on_it",
+    "sequence_correlated_never_authorizes_direct_causality",
+    "unsupported_axes_do_not_gain_authority_from_high_confidence",
+    "context_confidence_is_not_overwritten",
+    "move_intent_is_not_overwritten"
+  ]
+}

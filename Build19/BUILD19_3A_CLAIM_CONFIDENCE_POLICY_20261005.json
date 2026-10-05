@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-3A Claim Confidence Policy",
+  "date": "2026-10-05",
+  "policies": [
+    {
+      "causalStrength": "DIRECT_CONSEQUENCE",
+      "required": ["comparison_stable", "same_conditions", "first_move_traceable", "claim_provenance_complete", "required_horizon_stable", "safe_to_verbalize"],
+      "maximumClaimConfidence": "HIGH",
+      "directCausalWording": true
+    },
+    {
+      "causalStrength": "REPLY_LINKED",
+      "required": ["comparison_stable", "same_conditions", "first_move_traceable", "claim_provenance_complete", "opponent_reply_horizon_stable", "safe_to_verbalize"],
+      "maximumClaimConfidence": "HIGH",
+      "directCausalWording": true,
+      "limitation": "Observed PV reply is not automatically proven forced."
+    },
+    {
+      "causalStrength": "SEQUENCE_CORRELATED",
+      "required": ["comparison_stable", "same_conditions", "first_move_traceable", "claim_provenance_complete", "required_horizon_stable", "safe_to_verbalize"],
+      "maximumClaimConfidence": "MEDIUM",
+      "directCausalWording": false
+    },
+    {
+      "causalStrength": "UNRESOLVED",
+      "required": ["comparison_stable", "same_conditions", "first_move_traceable", "claim_provenance_complete", "safe_to_verbalize"],
+      "maximumClaimConfidence": "LOW",
+      "directCausalWording": false
+    }
+  ],
+  "specialKinds": {
+    "SCORE_DIFFERENCE": {
+      "maximumClaimConfidence": "LOW",
+      "directCausalWording": false,
+      "rule": "Score difference states engine preference only; it never explains why."
+    },
+    "NO_GROUNDED_CAUSAL_DIFFERENCE": {
+      "maximumClaimConfidence": "UNRESOLVED",
+      "directCausalWording": false
+    }
+  },
+  "horizonRules": {
+    "IMMEDIATE": 1,
+    "OPPONENT_REPLY": 2,
+    "OWN_CONTINUATION": 3,
+    "SHORT_HORIZON": 2,
+    "rule": "A claim beyond the reconstructed stable horizon is withheld without invalidating independent immediate claims."
+  },
+  "overallAggregation": {
+    "HIGH": [
+      "all foundation gates pass",
+      "score domain comparable",
+      "at least one usable HIGH claim eligible for causal wording",
+      "no contradiction or unresolved multiple-plausible state"
+    ],
+    "MEDIUM": [
+      "foundation gates pass",
+      "at least one usable HIGH or MEDIUM grounded claim",
+      "direct high-confidence attribution is not fully supported"
+    ],
+    "LOW": [
+      "foundation gates pass",
+      "only limited factual grounded claims remain"
+    ],
+    "UNRESOLVED": [
+      "condition mismatch",
+      "unstable ranking",
+      "unsafe score-domain comparison",
+      "no usable non-score grounded claim",
+      "missing required provenance",
+      "contradictory evidence"
+    ]
+  },
+  "forbiddenPromotions": [
+    "large_cp_gap_to_high_confidence",
+    "pv_reply_to_forced_reply_without_forcing_evidence",
+    "sequence_correlation_to_direct_cause",
+    "high_comparison_confidence_to_unsupported_strategic_axis",
+    "comparison_confidence_to_context_confidence",
+    "comparison_confidence_to_move_intent"
+  ]
+}

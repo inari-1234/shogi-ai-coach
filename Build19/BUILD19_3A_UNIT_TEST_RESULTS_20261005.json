@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-3A Comparison Confidence / Explanation Eligibility",
+  "date": "2026-10-05",
+  "branch": "candidate/build19-3a-comparison-confidence",
+  "validatedHead": "e43c7375819cab6f2c6cb9e210f8d4125166a152",
+  "workflowRun": 37278664261,
+  "workflowJob": 111661330091,
+  "result": "PASS",
+  "dedicatedSuite": {
+    "name": "ComparisonConfidenceTests",
+    "executed": 12,
+    "passed": 12,
+    "failed": 0,
+    "cases": [
+      "testConfidenceLayerPreservesBuild18AndHoldIsolation",
+      "testDiagnosticExportsStructuredComponentsClaimsAndMagnitude",
+      "testHugeScoreGapWithoutGroundedDifferenceRemainsUnresolved",
+      "testMissingClaimProvenanceIsUnresolved",
+      "testMixedCentipawnAndMateDomainsCannotYieldHighConfidence",
+      "testSequenceCorrelatedClaimIsAtMostMediumAndNotDirectCausal",
+      "testSmallScoreGapWithDirectGroundedDifferenceCanBeHigh",
+      "testUnequalSearchConditionsAreUnresolved",
+      "testUnresolvedCausalStrengthProducesLowFactualOnlyOutput",
+      "testUnstableComparisonIsUnresolved",
+      "testUnstableContinuationDegradesOnlyFutureClaim",
+      "testUnsupportedAxesRemainUnauthorizedEvenWhenGroundedClaimIsHigh"
+    ]
+  },
+  "keyAssertions": {
+    "large_score_gap_does_not_manufacture_confidence": "PASS",
+    "small_gap_direct_grounded_difference_can_be_high": "PASS",
+    "unstable_future_claim_only_is_withheld": "PASS",
+    "unstable_pair_is_unresolved": "PASS",
+    "unequal_conditions_are_unresolved": "PASS",
+    "mixed_cp_mate_domains_are_unresolved": "PASS",
+    "sequence_correlated_maximum_is_medium": "PASS",
+    "missing_claim_provenance_is_unresolved": "PASS",
+    "unsupported_axes_remain_unauthorized": "PASS",
+    "low_factual_only_state": "PASS",
+    "diagnostic_json": "PASS",
+    "build18_and_hold_isolation": "PASS"
+  }
+}

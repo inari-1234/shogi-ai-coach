@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-3A Regression Results",
+  "date": "2026-10-05",
+  "branch": "candidate/build19-3a-comparison-confidence",
+  "validatedImplementationHead": "e43c7375819cab6f2c6cb9e210f8d4125166a152",
+  "dedicatedWorkflow": {
+    "run": 37278664261,
+    "job": 111661330091,
+    "result": "PASS",
+    "validationArtifactID": 11331770594,
+    "validationArtifactSHA256": "ea6a0fb5ae03f67706480d24750e916ff1e4ad467122cc44688166b3e721b317"
+  },
+  "tests": {
+    "Build19_3A_ComparisonConfidence": {"passed": 12, "failed": 0},
+    "Build19_2_SequenceCounterfactual": {"passed": 10, "failed": 0},
+    "Build19_1_CandidateComparison": {"passed": 14, "failed": 0},
+    "Build17_SafeConcept": {"passed": 19, "failed": 0},
+    "Build18_GroundedWhyNow": {"passed": 9, "failed": 0},
+    "Build18_FrozenCorpusProjection": {"passed": 1, "failed": 0},
+    "Full_XCTest": {"passed": 120, "failed": 0},
+    "Swift_Testing": {"passed": 16, "failed": 0},
+    "Static_Verify": "PASS"
+  },
+  "iosDeviceBuild": {
+    "run": 37278664096,
+    "job": 111661330137,
+    "head": "e43c7375819cab6f2c6cb9e210f8d4125166a152",
+    "result": "PASS",
+    "artifactID": 11331661558,
+    "artifactSHA256": "90519a2b5885ca36c6e75942de77456f3ce665dc75b253ec436313ec2be48b2d",
+    "checks": [
+      "core_regression_tests",
+      "engine_assets_restore",
+      "pinned_engine_preparation",
+      "xcode_project_generation",
+      "unsigned_iphone_build",
+      "ipa_verification_and_package",
+      "artifact_upload"
+    ]
+  },
+  "authorityIsolation": {
+    "MoveIntent": "UNCHANGED",
+    "ContextIntentResolver": "UNCHANGED",
+    "IntentWeights": "UNCHANGED",
+    "ContextConfidence": "UNCHANGED",
+    "Build18GroundedExplanation": "UNCHANGED",
+    "Build19_1Comparison": "UNCHANGED",
+    "Build19_2SequenceEvidence": "UNCHANGED",
+    "FrozenCorpus": "UNCHANGED",
+    "HoldConcepts": "UNCHANGED"
+  },
+  "result": "PASS"
+}

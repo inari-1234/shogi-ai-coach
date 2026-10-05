@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-3A Requirement Fixture Coverage",
+  "date": "2026-10-05",
+  "source": "Build19/BUILD19_P_REAL_GAME_GAP_SAMPLES_20261005.json",
+  "sourceSampleCount": 30,
+  "interpretation": "Requirement-source coverage only. Build19-P single-move records are not re-labeled as pairwise comparison truth and do not contain complete A/B candidate lines for per-position confidence execution.",
+  "profileCounts": {
+    "BASE_PAIR": 12,
+    "PREVIOUS_REPLY": 7,
+    "EXCHANGE": 6,
+    "FORCING": 5
+  },
+  "phaseCounts": {
+    "OPENING": 10,
+    "MIDDLEGAME": 9,
+    "ENDGAME": 11
+  },
+  "requirementMapping": {
+    "BASE_PAIR": {
+      "status": "CONTRACT_COVERED",
+      "build19_3aGates": [
+        "pairwiseConditionMatch",
+        "rankingStability",
+        "scoreDomainComparability",
+        "firstMoveTraceability",
+        "differenceSpecificity",
+        "provenanceCompleteness",
+        "claimConfidence"
+      ]
+    },
+    "PREVIOUS_REPLY": {
+      "status": "CONTRACT_COVERED",
+      "build19_3aGates": [
+        "pairwiseConditionMatch",
+        "rankingStability",
+        "opponentReplyStableHorizon",
+        "REPLY_LINKED claim policy",
+        "observed_reply_not_automatically_forced",
+        "claimConfidence"
+      ]
+    },
+    "EXCHANGE": {
+      "status": "CONTRACT_COVERED",
+      "build19_3aGates": [
+        "pairwiseConditionMatch",
+        "rankingStability",
+        "stable exchange horizon",
+        "exchange event provenance",
+        "future claim withholding when horizon unstable",
+        "claimConfidence"
+      ]
+    },
+    "FORCING": {
+      "status": "CONTRACT_COVERED",
+      "build19_3aGates": [
+        "pairwiseConditionMatch",
+        "rankingStability",
+        "stable required horizon",
+        "forcing fact does not imply full engine cause",
+        "PV reply does not imply forced reply",
+        "claimConfidence"
+      ]
+    }
+  },
+  "questionCoverage": {
+    "Q_COMPARE_REASON": "ComparisonConfidence authorizes or withholds typed DifferenceEvidence; prose is deferred to Build19-3B.",
+    "Q_ALT_OUTCOME": "Future/sequence claims require their own stable horizon confidence.",
+    "Q_WHEN_DIFF": "Claim horizon is retained and independently gated.",
+    "Q_ALT_ALLOWS": "Reply-linked claims require stable opponent-reply evidence and preserve non-forced limitation.",
+    "Q_EXCHANGE_AFTER": "Exchange consequence claims are gated by stable horizon and provenance.",
+    "Q_FORCING_VALUE": "Forcing facts may be verbalized only at supported causal strength; score gap is not causal evidence.",
+    "Q_COMPARE_CONFIDENCE": "Directly covered by HIGH/MEDIUM/LOW/UNRESOLVED plus claim-level confidence."
+  },
+  "coverageResult": "PASS",
+  "criticalDefects": 0,
+  "notClaimed": [
+    "30_of_30_real_game_pairwise_confidence_predictions",
+    "new_truth_labels",
+    "invented_alternative_candidates",
+    "invented_candidate_specific_pvs"
+  ]
+}
