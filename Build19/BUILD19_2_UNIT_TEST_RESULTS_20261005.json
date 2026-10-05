@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-2 Sequence / Counterfactual Evidence",
+  "date": "2026-10-05",
+  "validatedProductionAndWorkflowHead": "24ae609227c251bceac0715c3df1afe26bbd7acc",
+  "workflow": {
+    "name": "Build19-2 Sequence Counterfactual Evidence",
+    "runId": 37273411265,
+    "jobId": 111645079461,
+    "conclusion": "success"
+  },
+  "dedicatedSequenceTests": {
+    "executed": 10,
+    "failed": 0,
+    "unexpected": 0,
+    "result": "PASS",
+    "coverage": [
+      "stable sequence reconstruction",
+      "first grounded difference timing",
+      "immediate recapture resolution",
+      "equal-net exchange event preservation",
+      "unstable continuation horizon cap",
+      "unstable comparison suppression",
+      "opponent PV consequence safety limitation",
+      "Best-vs-Actual reality/counterfactual timeline",
+      "invalid later PV truncation without crash",
+      "structured JSON diagnostics",
+      "Build18/19 isolation contract"
+    ]
+  },
+  "initialFailure": {
+    "runId": 37272981502,
+    "executed": 10,
+    "failed": 1,
+    "type": "ARCHITECTURE_EDGE_CASE_FOUND_BY_TEST",
+    "cause": "An equal-value capture/recapture sequence could return material ownership counts to the starting totals, causing exchangeConsequence to be nil even though the exchange event itself was grounded in the stable PV.",
+    "correction": "Added SequenceExchangeEventEvidence to preserve capture/recapture event sequences independently from net material ownership delta.",
+    "testWeakened": false,
+    "status": "CLOSED"
+  },
+  "result": "PASS"
+}
