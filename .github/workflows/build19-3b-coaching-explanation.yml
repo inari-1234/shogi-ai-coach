@@ -31,7 +31,7 @@ jobs:
           git cat-file -e "$BASE^{commit}"
           git merge-base --is-ancestor "$BASE" HEAD
 
-          protected_core="$(git diff --name-only "$BASE"...HEAD -- Sources/ShogiCoachCore | grep -v -E '^Sources/ShogiCoachCore/ComparisonCoachingExplanation\.swift$' | sed '/^$/d' || true)"
+          protected_core="$(git diff --name-only "$BASE"...HEAD -- Sources/ShogiCoachCore | grep -v -E '^Sources/ShogiCoachCore/ComparisonCoachingExplanation(Repetition)?\.swift$' | sed '/^$/d' || true)"
           if [ -n "$protected_core" ]; then
             echo "Unexpected protected production-core change:" >&2
             printf '%s\n' "$protected_core" >&2
@@ -71,7 +71,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          swift test --filter ComparisonCoachingExplanationTests 2>&1 | tee build19-3b-explanation-tests.log
+          swift test --filter ComparisonCoachingExplanation 2>&1 | tee build19-3b-explanation-tests.log
 
       - name: Build19-3A confidence regression
         shell: bash
