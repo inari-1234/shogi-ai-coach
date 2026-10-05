@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-2 Sequence / Counterfactual Evidence",
+  "date": "2026-10-05",
+  "counterfactualBranchTimeline": {
+    "fields": [
+      "candidateID",
+      "move",
+      "realityStatus",
+      "stablePlyCount",
+      "steps"
+    ],
+    "realityStatus": [
+      "ACTUAL",
+      "COUNTERFACTUAL",
+      "ANALYSIS_BRANCH"
+    ]
+  },
+  "timelineStep": {
+    "fields": [
+      "ply",
+      "role",
+      "move",
+      "capture",
+      "promotes",
+      "givesCheck",
+      "recapturesPreviousMover",
+      "materialSignature",
+      "withinStableHorizon"
+    ]
+  },
+  "exchangeEventConsequence": {
+    "fields": [
+      "horizonPly",
+      "candidateAEvents",
+      "candidateBEvents",
+      "candidateAOwnershipDelta",
+      "candidateBOwnershipDelta",
+      "differs",
+      "causalStrength",
+      "safeToVerbalize",
+      "limitations"
+    ],
+    "eventKinds": [
+      "capture",
+      "recapture"
+    ],
+    "policy": {
+      "preserveExchangeWhenNetMaterialEqual": true,
+      "eventSequenceSeparatedFromNetMaterial": true,
+      "fullEngineCauseClaimAllowed": false,
+      "forcedTreeClaimAllowedFromPVAlone": false
+    }
+  },
+  "bestVsActual": {
+    "actualBranch": "ACTUAL",
+    "recommendedUnplayedBranch": "COUNTERFACTUAL"
+  },
+  "causalStrength": [
+    "DIRECT_CONSEQUENCE",
+    "REPLY_LINKED",
+    "SEQUENCE_CORRELATED",
+    "UNRESOLVED"
+  ]
+}
