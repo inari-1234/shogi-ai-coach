@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-1 Candidate Comparison Core",
+  "date": "2026-10-05",
+  "authority": {
+    "build18MainHead": "c1316508fad4c5bd2fa9e8728bcee42cba7d0d73",
+    "build19PHead": "1ff3ce4196ce7d5f88cda9a1aadebf53bc15f215"
+  },
+  "CandidateAnalysis": {
+    "required": [
+      "candidateID",
+      "rank",
+      "move",
+      "engineScore",
+      "scoreKind",
+      "pv",
+      "comparisonStable",
+      "continuationStable",
+      "firstMoveEffect",
+      "positionCommand",
+      "positionBefore",
+      "positionAfter",
+      "sourceEvidence",
+      "analysisWarnings",
+      "engineContext",
+      "branchType",
+      "boardMetrics"
+    ],
+    "scoreKinds": ["centipawn", "mateWin", "mateLoss"],
+    "branchTypes": ["recommended", "actual", "alternative", "rankedCandidate"],
+    "engineContext": {
+      "required": ["engineContextID", "searchConditionID", "scorePerspective"],
+      "optional": ["requestedMoveTimeMs", "requestedDepth"]
+    },
+    "candidateSpecificLineRule": "pv[0] must equal move; mismatch forces comparisonStable=false and continuationStable=false"
+  },
+  "CandidateComparison": {
+    "required": [
+      "comparisonID",
+      "pairKind",
+      "candidateA",
+      "candidateB",
+      "sharedEvidence",
+      "differenceEvidence",
+      "immediateDifferences",
+      "futureDifferenceCandidates",
+      "comparisonStable",
+      "continuationStable",
+      "requiresSequenceEvidence",
+      "unsupportedClaims",
+      "comparisonWarnings"
+    ],
+    "optional": [
+      "actualMove",
+      "recommendedMove",
+      "alternativeCandidate",
+      "dominantDifferenceCandidate"
+    ],
+    "pairKinds": ["TOP1_VS_TOP2", "BEST_VS_ACTUAL", "CUSTOM"]
+  },
+  "sameConditionRule": {
+    "mustMatch": [
+      "positionCommand",
+      "engineContext.engineContextID",
+      "engineContext.searchConditionID",
+      "engineContext.scorePerspective",
+      "engineContext.requestedMoveTimeMs",
+      "engineContext.requestedDepth"
+    ],
+    "failureBehavior": "comparisonStable=false; dominantDifferenceCandidate=nil; warning retained"
+  },
+  "ComparisonConfidenceSignals": {
+    "fields": [
+      "comparisonStable",
+      "continuationStable",
+      "differenceEvidenceCount",
+      "directDifferenceCount",
+      "unresolvedReasons",
+      "unsupportedAxes",
+      "sequenceRequired"
+    ],
+    "policyBoundary": "Build19-1 exports signals only. Final confidence classification is deferred to Build19-3A.",
+    "scoreGapHighConfidenceRule": "A large score gap alone cannot produce a high comparison-confidence signal."
+  },
+  "isolation": {
+    "mutatesMoveIntent": false,
+    "mutatesContextConfidence": false,
+    "mutatesIntentCandidate": false,
+    "forcedUIOutput": false
+  }
+}
