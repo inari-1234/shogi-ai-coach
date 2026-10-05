@@ -1,0 +1,125 @@
+name: Build19-3B Coaching Explanation Integration
+
+on:
+  push:
+    branches:
+      - 'candidate/build19-3b-coaching-explanation-integration'
+  workflow_dispatch:
+
+concurrency:
+  group: build19-3b-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build19-3A authority and scope guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=d348eefccfe40f8f24ecfdb0e7aa64659f0bd060
+          git cat-file -e "$BASE^{commit}"
+          git merge-base --is-ancestor "$BASE" HEAD
+
+          protected_core="$(git diff --name-only "$BASE"...HEAD -- Sources/ShogiCoachCore | grep -v -E '^Sources/ShogiCoachCore/ComparisonCoachingExplanation\.swift$' | sed '/^$/d' || true)"
+          if [ -n "$protected_core" ]; then
+            echo "Unexpected protected production-core change:" >&2
+            printf '%s\n' "$protected_core" >&2
+            exit 1
+          fi
+
+          build18_changes="$(git diff --name-only "$BASE"...HEAD -- Build18 | sed '/^$/d' || true)"
+          if [ -n "$build18_changes" ]; then
+            echo "Build18 authority changed:" >&2
+            printf '%s\n' "$build18_changes" >&2
+            exit 1
+          fi
+
+          prior_build19_changes="$(git diff --name-only "$BASE"...HEAD -- Build19 | grep -v -E '^Build19/BUILD19_3B_' | sed '/^$/d' || true)"
+          if [ -n "$prior_build19_changes" ]; then
+            echo "Earlier Build19 authority artifact changed:" >&2
+            printf '%s\n' "$prior_build19_changes" >&2
+            exit 1
+          fi
+
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('Build18/BUILD18_5A_DECISION_MANIFEST_20261004.json').read_text())
+          expected={
+            'respond_to_rapid_attack':'HOLD',
+            'sabai':'HOLD',
+            'trade_to_transform':'HOLD',
+            'multi_threat':'HOLD',
+            'tempo_management':'HOLD',
+          }
+          assert d['decisions'] == expected
+          print('build19_3a_authority_scope_guard=PASS')
+          PY
+
+      - name: Dedicated coaching explanation tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          swift test --filter ComparisonCoachingExplanationTests 2>&1 | tee build19-3b-explanation-tests.log
+
+      - name: Build19-3A confidence regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          swift test --filter ComparisonConfidenceTests 2>&1 | tee build19-3a-confidence.log
+
+      - name: Build19-2 sequence regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          swift test --filter SequenceCounterfactualEvidenceTests 2>&1 | tee build19-2-sequence.log
+
+      - name: Build19-1 comparison regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          swift test --filter CandidateComparison 2>&1 | tee build19-1-comparison.log
+
+      - name: Build18 protected regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          swift test --filter Build17SafeConcept 2>&1 | tee build17-safe.log
+          swift test --filter Build18GroundedWhyNowTests 2>&1 | tee build18-whynow.log
+          swift test --filter Build18FrozenCorpusProjectionTests 2>&1 | tee build18-frozen-corpus.log
+
+      - name: Full Swift regression and static verify
+        shell: bash
+        run: |
+          set -euo pipefail
+          swift test 2>&1 | tee swift-test-full.log
+          ./scripts/verify.sh 2>&1 | tee static-verify.log
+
+      - name: Upload validation logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build19-3B-validation-logs
+          path: |
+            build19-3b-explanation-tests.log
+            build19-3a-confidence.log
+            build19-2-sequence.log
+            build19-1-comparison.log
+            build17-safe.log
+            build18-whynow.log
+            build18-frozen-corpus.log
+            swift-test-full.log
+            static-verify.log
+          if-no-files-found: ignore
+          retention-days: 14
