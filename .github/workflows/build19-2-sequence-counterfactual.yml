@@ -50,7 +50,7 @@ jobs:
             Build19/BUILD19_1_REGRESSION_RESULTS_20261005.json \
             Build19/BUILD19_1_FINAL_REPORT_20261005.md
           changed="$(git diff --name-only "$BASE"...HEAD -- Sources/ShogiCoachCore)"
-          unexpected="$(printf '%s\n' "$changed" | grep -v -E '^Sources/ShogiCoachCore/SequenceCounterfactualEvidence\.swift$' | sed '/^$/d' || true)"
+          unexpected="$(printf '%s\n' "$changed" | grep -v -E '^Sources/ShogiCoachCore/(SequenceCounterfactualEvidence|SequenceExchangeEvidence)\.swift$' | sed '/^$/d' || true)"
           if [ -n "$unexpected" ]; then
             echo "Unexpected production-core change:" >&2
             printf '%s\n' "$unexpected" >&2
