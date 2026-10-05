@@ -139,7 +139,14 @@ final class SequenceCounterfactualEvidenceTests: XCTestCase {
         })
         XCTAssertEqual(recapture.status, .resolved)
         XCTAssertEqual(recapture.resolvedAtPly, 2)
-        XCTAssertEqual(result.exchangeConsequence?.horizonPly, 3)
+
+        let exchange = try XCTUnwrap(result.exchangeEventConsequence)
+        XCTAssertEqual(exchange.horizonPly, 3)
+        XCTAssertTrue(exchange.differs)
+        XCTAssertTrue(exchange.safeToVerbalize)
+        XCTAssertTrue(exchange.candidateAEvents.contains { $0.contains("recapture") })
+        XCTAssertTrue(exchange.candidateBEvents.isEmpty)
+        XCTAssertTrue(exchange.limitations.contains("equal_net_material_does_not_erase_exchange_event"))
     }
 
     func testUnstableContinuationCapsStableHorizonAtFirstMove() throws {
@@ -196,6 +203,7 @@ final class SequenceCounterfactualEvidenceTests: XCTestCase {
         XCTAssertEqual(result.stableHorizonPly, 0)
         XCTAssertFalse(result.sequenceStable)
         XCTAssertTrue(result.sequenceDifferences.allSatisfy { !$0.safeToVerbalize })
+        XCTAssertNil(result.exchangeEventConsequence)
     }
 
     func testObservedOpponentConsequenceDoesNotClaimForcedReply() throws {
