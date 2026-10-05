@@ -57,6 +57,51 @@ jobs:
           print('authority_scope_guard=PASS')
           PY
 
+      - name: Requirement fixture contract coverage
+        shell: bash
+        run: |
+          set -euo pipefail
+          git show origin/candidate/build19-p-gap-audit:Build19/BUILD19_P_REAL_GAME_GAP_SAMPLES_20261005.json > /tmp/build19p-gap.json
+          python3 - <<'PY' | tee build19-1-fixtures.log
+          import json
+          from collections import Counter
+          from pathlib import Path
+
+          source=json.loads(Path('/tmp/build19p-gap.json').read_text())
+          result=json.loads(Path('Build19/BUILD19_1_REAL_GAME_FIXTURE_RESULTS_20261005.json').read_text())
+
+          assert source['authority']['mainHead'] == 'c1316508fad4c5bd2fa9e8728bcee42cba7d0d73'
+          assert source['sampleCount'] == 30
+          assert result['validationMode'] == 'REQUIREMENT_CONTRACT_COVERAGE_NOT_EXPECTED_OUTPUT_LABELING'
+          assert result['policy']['planningLabelsAreRequirementsNotTruthLabels'] is True
+          assert result['policy']['alternativeCandidateInvented'] is False
+          assert result['summary']['fixtures'] == 30
+          assert result['summary']['covered'] == 30
+          assert result['summary']['criticalDefects'] == 0
+          assert len(result['records']) == 30
+
+          by_id={r['id']:r for r in result['records']}
+          assert len(by_id) == 30
+          for sample in source['samples']:
+              r=by_id[sample['id']]
+              assert r['src'] == sample['src']
+              assert r['phase'] == sample['phase']
+              assert r['confidence'] == sample['confidence']
+              assert r['trigger'] == sample['trigger']
+              assert r['profile'] == sample['evidenceProfile']
+              assert r['coverage'] == 'PASS'
+
+          expected_profiles={'BASE_PAIR':12,'PREVIOUS_REPLY':7,'EXCHANGE':6,'FORCING':5}
+          assert Counter(s['evidenceProfile'] for s in source['samples']) == Counter(expected_profiles)
+          assert set(result['profileCoverage']) == set(expected_profiles)
+          assert set(source['summary']['phase']) == {'ENDGAME','OPENING','MIDDLEGAME'}
+          assert set(source['summary']['confidence']) == {'low','unresolved','medium','high'}
+          assert set(source['summary']['whyNowTrigger']) == {'NONE_IDENTIFIED','DIRECT_PREVIOUS_MOVE','EXCHANGE_SEQUENCE','FORCING_TACTIC'}
+          print('requirement_fixture_contract_coverage=PASS')
+          print('fixtures=30 covered=30 critical_defects=0')
+          print('policy=requirement_source_not_truth_labels')
+          PY
+
       - name: Dedicated comparison tests
         shell: bash
         run: |
@@ -84,6 +129,7 @@ jobs:
         with:
           name: Build19-1-validation-logs
           path: |
+            build19-1-fixtures.log
             build19-1-tests.log
             build17-safe.log
             build18-whynow.log
