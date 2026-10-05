@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-3B Coaching Explanation Integration",
+  "date": "2026-10-05",
+  "inputAuthority": [
+    "CandidateComparison",
+    "SequenceComparisonEvidence?",
+    "ComparisonConfidenceResult"
+  ],
+  "semanticOutput": {
+    "type": "CandidateComparisonCoachingExplanation",
+    "fields": [
+      "comparisonID",
+      "preferredMove",
+      "alternativeMove",
+      "headline",
+      "primaryReason",
+      "alternativeOutcome",
+      "differenceTiming",
+      "opponentOpportunity",
+      "exchangeAfter",
+      "confidenceNote",
+      "confidence",
+      "tone",
+      "sections",
+      "usedEvidenceIDs",
+      "withheldEvidenceIDs",
+      "warnings"
+    ],
+    "tones": ["ASSERTIVE", "MEASURED", "TENTATIVE", "UNRESOLVED"],
+    "sectionKinds": [
+      "GROUNDED_DIFFERENCE",
+      "ALTERNATIVE_OUTCOME",
+      "DIFFERENCE_TIMING",
+      "OPPONENT_OPPORTUNITY",
+      "EXCHANGE_AFTER",
+      "CONFIDENCE"
+    ]
+  },
+  "presentationOutput": {
+    "type": "CoachingComparisonPresentation",
+    "modes": ["STANDARD", "CONTINUITY", "SUPPRESSED_DUPLICATE"],
+    "fields": [
+      "mode",
+      "semanticExplanation",
+      "displayedExplanation",
+      "semanticSignature",
+      "equivalentRunLength",
+      "resetReasons"
+    ]
+  },
+  "authorityRules": {
+    "eligibleEvidenceIDsOnly": true,
+    "withheldEvidenceMayNotBeVerbalized": true,
+    "scoreDifferenceIsNeverCausal": true,
+    "comparisonIDMismatchFailsClosed": true,
+    "sequenceIDMismatchFailsClosed": true,
+    "unsupportedAxesRemainUnauthorized": true,
+    "holdConceptPromotion": false
+  }
+}

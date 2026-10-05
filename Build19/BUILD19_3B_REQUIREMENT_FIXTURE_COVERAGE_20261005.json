@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-3B Coaching Explanation Integration",
+  "date": "2026-10-05",
+  "sourceAuthority": "Build19/BUILD19_P_REAL_GAME_GAP_SAMPLES_20261005.json",
+  "sourceSemantics": "requirements, not newly asserted pairwise truth labels",
+  "sampleCount": 30,
+  "profileCounts": {
+    "BASE_PAIR": 12,
+    "PREVIOUS_REPLY": 7,
+    "EXCHANGE": 6,
+    "FORCING": 5
+  },
+  "questionCoverage": {
+    "Q_COMPARE_REASON": "primary grounded difference when authorized",
+    "Q_ALT_OUTCOME": "optional stable authorized alternative-outcome description",
+    "Q_WHEN_DIFF": "difference timing from authorized evidence horizon",
+    "Q_ALT_ALLOWS": "optional observed opponent consequence with non-forced PV caveat",
+    "Q_EXCHANGE_AFTER": "exchange-after summary when stable exchange evidence is authorized",
+    "Q_FORCING_VALUE": "forcing fact may be stated only through authorized difference evidence; check alone is not invented as full cause",
+    "Q_COMPARE_CONFIDENCE": "confidence note supplied from Build19-3A ComparisonConfidenceResult"
+  },
+  "executionBoundary": {
+    "inventAlternateCandidate": false,
+    "inventPV": false,
+    "inventPerPositionPairwiseConfidenceLabel": false,
+    "claim30Of30PairwiseExecution": false,
+    "functionalProfileRequirementCoverage": true
+  },
+  "holdConceptsRemainHold": [
+    "respond_to_rapid_attack",
+    "sabai",
+    "trade_to_transform",
+    "multi_threat",
+    "tempo_management"
+  ],
+  "result": "PASS"
+}

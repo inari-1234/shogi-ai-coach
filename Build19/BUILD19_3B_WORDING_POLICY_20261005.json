@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-3B Coaching Explanation Integration",
+  "date": "2026-10-05",
+  "policy": {
+    "HIGH": {
+      "tone": "ASSERTIVE",
+      "directCausalWording": "only when ClaimConfidenceAssessment.eligibleForCausalWording is true",
+      "scoreGapAsReason": false
+    },
+    "MEDIUM": {
+      "tone": "MEASURED",
+      "directCausalWording": false,
+      "requiredCaveat": "the observed difference is not asserted as the direct cause of preference"
+    },
+    "LOW": {
+      "tone": "TENTATIVE",
+      "directCausalWording": false,
+      "requiredCaveat": "only factual difference may be stated"
+    },
+    "UNRESOLVED": {
+      "tone": "UNRESOLVED",
+      "directCausalWording": false,
+      "behavior": "safe abstention",
+      "requiredTextMeaning": "ranking or evaluation alone does not safely explain why one candidate is better"
+    }
+  },
+  "sequenceWording": {
+    "pvIsObservationNotForcedProof": true,
+    "futureTextRequiresStableAuthorizedHorizon": true,
+    "unstableFutureClaimIsOmitted": true,
+    "stableImmediateClaimMayRemain": true,
+    "exchangeEventMayRemainRelevantWhenNetMaterialEqualizes": true
+  },
+  "beginnerCompressionOrder": [
+    "conclusion",
+    "biggest grounded difference",
+    "when/how difference appears",
+    "optional caveat"
+  ],
+  "forbiddenAutomaticClaims": [
+    "initiative",
+    "tempo management",
+    "practical complexity",
+    "ease of play",
+    "practical winning chances",
+    "forced continuation from a single PV",
+    "causal explanation from evaluation gap alone"
+  ]
+}

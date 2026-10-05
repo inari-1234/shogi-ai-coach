@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-3B Coaching Explanation Repetition Integration",
+  "date": "2026-10-05",
+  "principle": "presentation-only; semantic explanation is generated first and never mutated by repetition state",
+  "modes": {
+    "occurrence1": "STANDARD",
+    "occurrence2": "CONTINUITY",
+    "occurrence3plus": "SUPPRESSED_DUPLICATE"
+  },
+  "signatureDimensions": [
+    "pairKind",
+    "comparisonConfidence",
+    "explanationTone",
+    "branchFraming",
+    "authorizedEvidenceKindHorizonCausalShape",
+    "visibleSectionKinds",
+    "futureEvidenceShape",
+    "stableSequenceHorizon"
+  ],
+  "resetReasons": [
+    "PAIR_KIND_CHANGED",
+    "COMPARISON_CONFIDENCE_CHANGED",
+    "EXPLANATION_TONE_CHANGED",
+    "COMPARISON_FRAMING_CHANGED",
+    "AUTHORIZED_EVIDENCE_CHANGED",
+    "VISIBLE_SECTION_KIND_CHANGED",
+    "FUTURE_EVIDENCE_SHAPE_CHANGED",
+    "explicit reset"
+  ],
+  "continuityBehavior": {
+    "retainPrimaryReason": true,
+    "retainConfidenceNote": true,
+    "hideRepeatedAlternativeOutcome": true,
+    "hideRepeatedOpponentOpportunity": true,
+    "hideRepeatedExchangeAfter": true
+  },
+  "isolation": {
+    "mutatesSemanticExplanation": false,
+    "mutatesMoveIntent": false,
+    "mutatesContextConfidence": false,
+    "promotesHoldConcepts": false
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-3B Coaching Explanation Integration",
+  "date": "2026-10-05",
+  "validatedProductionHead": "d60e2abf95e58a2e1e03f7b0d99753bca37170a7",
+  "dedicatedWorkflow": {
+    "runID": 37286568941,
+    "jobID": 111686760365,
+    "result": "SUCCESS"
+  },
+  "regression": {
+    "Build19_3B_CoachingExplanation": {"passed": 17, "failed": 0},
+    "Build19_3A_ComparisonConfidence": {"passed": 12, "failed": 0},
+    "Build19_2_SequenceCounterfactual": {"passed": 10, "failed": 0},
+    "Build19_1_CandidateComparison": {"passed": 14, "failed": 0},
+    "Build17_SafeConcept": {"passed": 19, "failed": 0},
+    "Build18_GroundedWhyNow": {"passed": 9, "failed": 0},
+    "Build18_FrozenCorpusProjection": {"passed": 1, "failed": 0},
+    "FullXCTest": {"passed": 137, "failed": 0},
+    "SwiftTesting": {"passed": 16, "failed": 0},
+    "StaticVerify": "PASS"
+  },
+  "iosDeviceBuild": {
+    "runID": 37286569011,
+    "jobID": 111686760420,
+    "head": "d60e2abf95e58a2e1e03f7b0d99753bca37170a7",
+    "result": "SUCCESS",
+    "artifactID": 11334861516,
+    "artifactSHA256": "8981040898d1a44a94d71586b91a1a525e9c12fe5ee06822fb59d89df8fa925b",
+    "gates": [
+      "core regression tests",
+      "engine assets restore",
+      "pinned engine preparation",
+      "Xcode project generation",
+      "unsigned iPhone app build",
+      "IPA verification and package",
+      "artifact upload"
+    ]
+  },
+  "authorityIsolation": "PASS",
+  "result": "PASS"
+}

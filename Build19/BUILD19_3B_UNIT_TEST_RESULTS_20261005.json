@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-3B Coaching Explanation Integration",
+  "date": "2026-10-05",
+  "validatedProductionHead": "d60e2abf95e58a2e1e03f7b0d99753bca37170a7",
+  "workflow": {
+    "name": "Build19-3B Coaching Explanation Integration",
+    "runID": 37286568941,
+    "jobID": 111686760365,
+    "result": "SUCCESS",
+    "validationArtifactID": 11333904402,
+    "validationArtifactSHA256": "621f5c45a700bfddc0eae0f67ae2c99bc0f425b5f5a50596e26f7d1f8f46808d"
+  },
+  "dedicated": {
+    "ComparisonCoachingExplanationTests": {"passed": 11, "failed": 0},
+    "ComparisonCoachingExplanationRepetitionTests": {"passed": 6, "failed": 0},
+    "combined": {"passed": 17, "failed": 0}
+  },
+  "validatedCases": [
+    "score-only safe abstention",
+    "HIGH direct grounded beginner explanation",
+    "MEDIUM sequence-correlated qualified wording",
+    "unstable future claim withheld while stable immediate reason remains",
+    "Best vs Actual framing",
+    "PV opponent consequence is not stated as forced",
+    "exchange event survives net material equalization",
+    "comparison ID mismatch fails closed",
+    "unsupported axes remain withheld",
+    "structured diagnostic export",
+    "authority isolation",
+    "STANDARD to CONTINUITY to SUPPRESSED_DUPLICATE repetition policy",
+    "repetition does not mutate semantic explanation",
+    "confidence change resets repetition",
+    "authorized evidence shape change resets repetition",
+    "explicit repetition reset"
+  ],
+  "result": "PASS"
+}
