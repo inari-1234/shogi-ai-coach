@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-1 Candidate Comparison Core",
+  "date": "2026-10-05",
+  "DifferenceEvidence": {
+    "required": [
+      "id",
+      "kind",
+      "candidateAValue",
+      "candidateBValue",
+      "sourceEvidenceIDs",
+      "sourceMoves",
+      "horizon",
+      "causalStrength",
+      "safeToVerbalize",
+      "limitations"
+    ],
+    "kinds": [
+      "SCORE_DIFFERENCE",
+      "CAPTURE_DIFFERENCE",
+      "MATERIAL_DIFFERENCE",
+      "PROMOTION_DIFFERENCE",
+      "CHECK_DIFFERENCE",
+      "MATE_STATE_DIFFERENCE",
+      "KING_SAFETY_DIFFERENCE",
+      "EXCHANGE_CONSEQUENCE_DIFFERENCE",
+      "OPPONENT_REPLY_DIFFERENCE",
+      "BOARD_EFFECT_DIFFERENCE",
+      "SEQUENCE_EVENT_DIFFERENCE",
+      "NO_GROUNDED_CAUSAL_DIFFERENCE"
+    ],
+    "horizons": [
+      "IMMEDIATE",
+      "OPPONENT_REPLY",
+      "OWN_CONTINUATION",
+      "SHORT_HORIZON"
+    ],
+    "causalStrength": [
+      "DIRECT_CONSEQUENCE",
+      "REPLY_LINKED",
+      "SEQUENCE_CORRELATED",
+      "UNRESOLVED"
+    ]
+  },
+  "SharedEvidence": {
+    "required": ["id", "kind", "value", "sourceEvidenceIDs", "sourceMoves"],
+    "rule": "An A/B-common observed fact is not a reason why A is better and must not be duplicated as DifferenceEvidence for the same comparison fact."
+  },
+  "FutureDifferenceCandidate": {
+    "required": ["id", "horizon", "reason", "sourceMoves", "requiresStableSequence"],
+    "reasons": [
+      "IMMEDIATE_RECAPTURE_DETECTED",
+      "OPPONENT_REPLY_EVENTS_DIFFER",
+      "CONTINUATION_DIFFERS",
+      "CONTINUATION_UNSTABLE"
+    ],
+    "boundary": "Typed handoff only. Sequence semantics and counterfactual timeline are Build19-2 responsibilities."
+  },
+  "safetyRules": [
+    {
+      "id": "SCORE_NOT_CAUSE",
+      "rule": "SCORE_DIFFERENCE always has causalStrength=UNRESOLVED and cannot by itself become dominantDifferenceCandidate."
+    },
+    {
+      "id": "SCORE_ONLY_FALLBACK",
+      "rule": "If no resolved grounded non-score difference exists, emit NO_GROUNDED_CAUSAL_DIFFERENCE."
+    },
+    {
+      "id": "CHECK_NOT_SCORE_CAUSE",
+      "rule": "CHECK_DIFFERENCE is an observed board consequence; its limitation explicitly forbids claiming that check alone explains the evaluation gap."
+    },
+    {
+      "id": "RECAPTURE_GUARD",
+      "rule": "When the first opponent reply immediately recaptures the candidate mover, snapshot capture/material differences are downgraded to UNRESOLVED as causal reasons and exchange evidence is emitted at OPPONENT_REPLY horizon."
+    },
+    {
+      "id": "UNSTABLE_SUPPRESSION",
+      "rule": "If same-condition normalization or candidate stability fails, dominantDifferenceCandidate is suppressed."
+    },
+    {
+      "id": "NO_FULL_EVAL_REVERSE_ENGINEERING",
+      "rule": "DifferenceEvidence represents grounded A/B differences or limited cause candidates, never a claim that one item explains the engine's full internal evaluation."
+    }
+  ],
+  "dominantPriority": [
+    "MATE_STATE_DIFFERENCE",
+    "EXCHANGE_CONSEQUENCE_DIFFERENCE",
+    "MATERIAL_DIFFERENCE",
+    "CAPTURE_DIFFERENCE",
+    "CHECK_DIFFERENCE",
+    "PROMOTION_DIFFERENCE",
+    "OPPONENT_REPLY_DIFFERENCE",
+    "KING_SAFETY_DIFFERENCE",
+    "BOARD_EFFECT_DIFFERENCE",
+    "SEQUENCE_EVENT_DIFFERENCE"
+  ],
+  "dominantEligibility": "stable AND safeToVerbalize AND non-score AND causalStrength != UNRESOLVED"
+}
