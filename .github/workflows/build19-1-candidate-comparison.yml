@@ -36,7 +36,7 @@ jobs:
             Sources/ShogiCoachCore/GroundedExplanationContext.swift \
             Build18
           changed="$(git diff --name-only "$BASE"...HEAD -- Sources/ShogiCoachCore)"
-          unexpected="$(printf '%s\n' "$changed" | grep -v -E '^Sources/ShogiCoachCore/(CandidateComparisonTypes|CandidateAnalysisResolver|CandidateComparisonResolver|CandidateComparisonDiagnostic|BoardTacticalMetricResolver)\.swift$' | sed '/^$/d' || true)"
+          unexpected="$(printf '%s\n' "$changed" | grep -v -E '^Sources/ShogiCoachCore/(CandidateComparisonTypes|CandidateAnalysisResolver|CandidateComparisonResolver|CandidateComparisonResolverDefaults|CandidateComparisonDiagnostic|BoardTacticalMetricResolver)\.swift$' | sed '/^$/d' || true)"
           if [ -n "$unexpected" ]; then
             echo "Unexpected production-core change:" >&2
             printf '%s\n' "$unexpected" >&2
@@ -61,7 +61,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          swift test --filter CandidateComparisonTests 2>&1 | tee build19-1-tests.log
+          swift test --filter CandidateComparison 2>&1 | tee build19-1-tests.log
 
       - name: Build18 protected regression
         shell: bash
