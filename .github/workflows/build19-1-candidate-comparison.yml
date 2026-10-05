@@ -61,6 +61,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          git fetch origin candidate/build19-p-gap-audit:refs/remotes/origin/candidate/build19-p-gap-audit
           git show origin/candidate/build19-p-gap-audit:Build19/BUILD19_P_REAL_GAME_GAP_SAMPLES_20261005.json > /tmp/build19p-gap.json
           python3 - <<'PY' | tee build19-1-fixtures.log
           import json
