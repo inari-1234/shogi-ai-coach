@@ -45,6 +45,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          git show origin/candidate/build19-p-gap-audit:Build19/BUILD19_P_ROADMAP_20261005.md >/tmp/build19-p-roadmap.md
           python3 - <<'PY' | tee build19-4-decision-audit.log
           import json
           from pathlib import Path
@@ -61,7 +62,7 @@ jobs:
           new = json.loads(Path('Build19/BUILD19_4_DECISION_MANIFEST_20261005.json').read_text())
           cap = json.loads(Path('Build19/BUILD19_4_CAPABILITY_DELTA_MATRIX_20261005.json').read_text())
           evidence = json.loads(Path('Build19/BUILD19_4_EVIDENCE_MATRIX_20261005.json').read_text())
-          roadmap = Path('Build19/BUILD19_P_ROADMAP_20261005.md').read_text()
+          roadmap = Path('/tmp/build19-p-roadmap.md').read_text()
 
           assert old['decisions'] == expected
           assert new['decisions'] == expected
