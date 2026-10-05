@@ -1,0 +1,48 @@
+name: Build19-V Real-game Semantic Validation
+
+on:
+  push:
+    branches:
+      - 'candidate/build19-v-real-game-semantic-validation'
+  workflow_dispatch:
+
+concurrency:
+  group: build19-v-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore engine assets
+        uses: actions/cache@v4
+        with:
+          path: |
+            native/third_party/YaneuraOu
+            iOS/ShogiCoachPoC/eval/nn.bin
+          key: shogi-engine-assets-v2
+
+      - name: Run Build19-V validation
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x scripts/run_build19_v_ci.sh scripts/build19_v_engine_probe.py scripts/build19_v_semantic_audit.py
+          ./scripts/run_build19_v_ci.sh
+
+      - name: Upload Build19-V evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build19-V-validation-evidence
+          path: build/build19-v
+          if-no-files-found: ignore
+          retention-days: 14
