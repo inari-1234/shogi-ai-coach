@@ -1,0 +1,94 @@
+name: Build19-1 Candidate Comparison Core
+
+on:
+  push:
+    branches:
+      - 'candidate/build19-1-candidate-comparison-core'
+  workflow_dispatch:
+
+concurrency:
+  group: build19-1-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Authority and scope guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=c1316508fad4c5bd2fa9e8728bcee42cba7d0d73
+          git cat-file -e "$BASE^{commit}"
+          git merge-base --is-ancestor "$BASE" HEAD
+          git diff --exit-code "$BASE"...HEAD -- \
+            Sources/ShogiCoachCore/ContextEngine.swift \
+            Sources/ShogiCoachCore/ContextExplanation.swift \
+            Sources/ShogiCoachCore/GroundedExplanationContext.swift \
+            Build18
+          changed="$(git diff --name-only "$BASE"...HEAD -- Sources/ShogiCoachCore)"
+          unexpected="$(printf '%s\n' "$changed" | grep -v -E '^Sources/ShogiCoachCore/(CandidateComparisonTypes|CandidateAnalysisResolver|CandidateComparisonResolver|CandidateComparisonDiagnostic|BoardTacticalMetricResolver)\.swift$' | sed '/^$/d' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected production-core change:" >&2
+            printf '%s\n' "$unexpected" >&2
+            exit 1
+          fi
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('Build18/BUILD18_5A_DECISION_MANIFEST_20261004.json').read_text())
+          expected={
+            'respond_to_rapid_attack':'HOLD',
+            'sabai':'HOLD',
+            'trade_to_transform':'HOLD',
+            'multi_threat':'HOLD',
+            'tempo_management':'HOLD',
+          }
+          assert d['decisions'] == expected
+          print('authority_scope_guard=PASS')
+          PY
+
+      - name: Dedicated comparison tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          swift test --filter CandidateComparisonTests 2>&1 | tee build19-1-tests.log
+
+      - name: Build18 protected regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          swift test --filter Build17SafeConcept 2>&1 | tee build17-safe.log
+          swift test --filter Build18GroundedWhyNowTests 2>&1 | tee build18-whynow.log
+          swift test --filter Build18FrozenCorpusProjectionTests 2>&1 | tee build18-frozen-corpus.log
+
+      - name: Full Swift regression and static verify
+        shell: bash
+        run: |
+          set -euo pipefail
+          swift test 2>&1 | tee swift-test-full.log
+          ./scripts/verify.sh 2>&1 | tee static-verify.log
+
+      - name: Upload validation logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build19-1-validation-logs
+          path: |
+            build19-1-tests.log
+            build17-safe.log
+            build18-whynow.log
+            build18-frozen-corpus.log
+            swift-test-full.log
+            static-verify.log
+          if-no-files-found: ignore
+          retention-days: 14
