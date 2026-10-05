@@ -58,8 +58,9 @@ public enum CandidateAnalysisResolver {
             opponentKingZonePressure: BoardTacticalMetricResolver.kingZoneAttackerCount(snapshot: after, checkedSide: opponentSide)
         )
 
+        let candidateSpecificLine = input.pv.first == input.move
         var warnings = input.analysisWarnings
-        if input.pv.first != input.move {
+        if !candidateSpecificLine {
             warnings.append("pv_first_move_mismatch")
         }
         let replyPreview: CandidateReplyPreview?
@@ -76,8 +77,8 @@ public enum CandidateAnalysisResolver {
             move: input.move,
             engineScore: CandidateScore(input.score),
             pv: input.pv,
-            comparisonStable: input.comparisonStable,
-            continuationStable: input.continuationStable,
+            comparisonStable: input.comparisonStable && candidateSpecificLine,
+            continuationStable: input.continuationStable && candidateSpecificLine,
             firstMoveEffect: effect,
             positionCommand: input.positionCommand,
             positionBefore: before,
