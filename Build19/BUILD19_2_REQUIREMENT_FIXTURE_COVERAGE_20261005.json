@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "stage": "Build19-2 Sequence / Counterfactual Evidence",
+  "date": "2026-10-05",
+  "source": "BUILD19_P_REAL_GAME_GAP_SAMPLES_20261005.json",
+  "sourceSampleCount": 30,
+  "validationMode": "REQUIREMENT_PROFILE_COVERAGE_NOT_SEQUENCE_REPLAY",
+  "policy": {
+    "planningLabelsAreRequirementsNotTruthLabels": true,
+    "alternativeCandidateInvented": false,
+    "pvInvented": false,
+    "sequenceReplayClaimedWithoutCandidatePV": false
+  },
+  "sourceProfileCounts": {
+    "BASE_PAIR": 12,
+    "PREVIOUS_REPLY": 7,
+    "EXCHANGE": 6,
+    "FORCING": 5
+  },
+  "sourceClassesCovered": {
+    "whyNowTrigger": [
+      "NONE_IDENTIFIED",
+      "DIRECT_PREVIOUS_MOVE",
+      "EXCHANGE_SEQUENCE",
+      "FORCING_TACTIC"
+    ],
+    "confidence": [
+      "high",
+      "medium",
+      "low",
+      "unresolved"
+    ],
+    "phase": [
+      "OPENING",
+      "MIDDLEGAME",
+      "ENDGAME"
+    ]
+  },
+  "build19_2ContractMapping": {
+    "BASE_PAIR": [
+      "CandidateSequenceEvidence",
+      "stableHorizonPly",
+      "SequenceDifferencePoint",
+      "CounterfactualBranchTimeline"
+    ],
+    "PREVIOUS_REPLY": [
+      "ObservedOpponentConsequence",
+      "OPPONENT_REPLY role",
+      "reply safety limitation"
+    ],
+    "EXCHANGE": [
+      "OPPONENT_RECAPTURE",
+      "SequenceExchangeEventEvidence",
+      "net ownership delta",
+      "equal-net exchange preservation"
+    ],
+    "FORCING": [
+      "CHECK difference",
+      "opponent reply event",
+      "PV-is-not-forced-proof limitation"
+    ]
+  },
+  "criticalGap": null,
+  "importantLimitation": "The Build19-P 30 samples are requirement metadata and do not provide a complete A/B candidate PV pair for each position. Build19-2 therefore does not fabricate alternatives or claim 30-position sequence replay. Real A/B sequence replay belongs to a later corpus that contains actual candidate-specific engine lines.",
+  "result": "PASS_REQUIREMENT_CONTRACT_COVERAGE"
+}
