@@ -1,0 +1,49 @@
+name: Build18-M Final Regression
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: build18-m-final-regression-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  final-main-regression:
+    runs-on: macos-15
+    timeout-minutes: 50
+    steps:
+      - name: Checkout final main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Record tested HEAD
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "$GITHUB_SHA" | tee BUILD18_M_TESTED_HEAD.txt
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+
+      - name: Run locked Build18-6R1 final regression on main
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x scripts/run_build18_6r1_ci.sh
+          ./scripts/run_build18_6r1_ci.sh
+
+      - name: Upload Build18-M final regression evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build18-M-final-regression-evidence
+          path: |
+            BUILD18_M_TESTED_HEAD.txt
+            build/build18-6r1
+          if-no-files-found: ignore
+          retention-days: 30
