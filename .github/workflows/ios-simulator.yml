@@ -211,6 +211,12 @@ jobs:
           else
             echo '{}' > simulator-context-diagnostic.json
           fi
+          HDS_JSON="$CONTAINER/Documents/ci-hds-m.json"
+          if [ -s "$HDS_JSON" ]; then
+            cp "$HDS_JSON" simulator-hds-m.json
+          else
+            echo '{}' > simulator-hds-m.json
+          fi
           cat simulator-result.txt
           echo "--- stage trace ---"
           cat simulator-stage.txt
@@ -287,12 +293,55 @@ jobs:
           grep -Fq "terminal_reason_ply=81" simulator-result.txt
           grep -Fq "drop_searchmoves_status=PASS" simulator-result.txt
           grep -Fq "analysis_quality_gate_status=PASS" simulator-result.txt
+          grep -Fq "hds_m_status=PASS" simulator-result.txt
+          grep -Fq "hds_m_schema=HDS-M-2.0" simulator-result.txt
+          grep -Fq "hds_m_positions=41,49,69" simulator-result.txt
+          grep -Fq "hds_m_41_status=recommended" simulator-result.txt
+          grep -Fq "hds_m_41_best=4g4f" simulator-result.txt
+          grep -Fq "hds_m_49_status=recommended" simulator-result.txt
+          grep -Fq "hds_m_49_best=3g2e" simulator-result.txt
+          grep -Fq "hds_m_69_status=provisional" simulator-result.txt
+          grep -Fq "hds_m_69_best=2g3h" simulator-result.txt
+          grep -Fq "hds_m_69_comparison_stable=false" simulator-result.txt
           grep -Fq "default_status=PASS候補" simulator-result.txt
           grep -Fq "bestmove:" simulator-result.txt
           grep -Fq "score:" simulator-result.txt
           grep -Fq "pv:" simulator-result.txt
           grep -Fq "ten_status=実機PASS候補" simulator-result.txt
           grep -Fq "10/10 completed" simulator-result.txt
+
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("simulator-hds-m.json")
+          doc = json.loads(path.read_text(encoding="utf-8"))
+          assert doc["schema"] == "HDS-M-2.0"
+          assert doc["passed"] is True
+          positions = doc["positions"]
+          assert [p["ply"] for p in positions] == [41, 49, 69]
+          assert [p["status"] for p in positions] == ["recommended", "recommended", "provisional"]
+          for position in positions:
+              assert position["headline"]
+              assert position["meaning"]
+              assert position["difference"]
+              assert position["horizon"]
+              assert position["confidenceDetail"]
+              assert position["learningCue"]
+              gates = position["gates"]
+              assert [g["gate"] for g in gates] == [
+                  "G1_CHOICE", "G2_CONTRAST", "G3_MECHANISM",
+                  "G4_HORIZON", "G5_EVIDENCE", "G6_UNCERTAINTY", "G7_LEARNING"
+              ]
+              assert all(g["passed"] for g in gates)
+          p49 = next(p for p in positions if p["ply"] == 49)
+          assert "取り返され" in p49["meaning"]
+          assert "角" in p49["meaning"]
+          p69 = next(p for p in positions if p["ply"] == 69)
+          assert "暫定候補" in p69["headline"]
+          assert "推奨" not in p69["headline"]
+          print("hds_m_json_audit=PASS")
+          PY
 
           python3 - <<'PY'
           import json
@@ -394,6 +443,7 @@ jobs:
             simulator-system.log
             simulator-context-diagnostic.json
             simulator-context-audit.txt
+            simulator-hds-m.json
             build/context-knowledge.json
             build/context-knowledge-summary.txt
             build/context-knowledge-build.log

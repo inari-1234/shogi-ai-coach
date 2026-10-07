@@ -231,6 +231,83 @@ enum SimulatorCIProbe {
         return (game, shallow)
     }
 
+    private static func makeHDSRegression() -> (KIFGame, [ShallowAnalysisEntry]) {
+        let (game, base) = makeTerminalRegression()
+        let blackPerspective: [Int: Int] = [
+            41: 1_200,
+            42: 0,
+            49: 2_400,
+            50: 0,
+            69: 3_600,
+            70: 0
+        ]
+        let shallow = base.map { entry in
+            ShallowAnalysisEntry(
+                id: entry.id,
+                ply: entry.ply,
+                actualMove: entry.actualMove,
+                bestMove: entry.actualMove,
+                scoreText: "cp 0",
+                blackPerspectiveCp: blackPerspective[entry.ply] ?? 0,
+                depthText: entry.depthText,
+                nodesText: entry.nodesText,
+                npsText: entry.npsText,
+                pv: entry.actualMove,
+                elapsedMs: entry.elapsedMs,
+                thermalBefore: entry.thermalBefore,
+                thermalAfter: entry.thermalAfter
+            )
+        }
+        return (game, shallow)
+    }
+
+    private static func hdsStatusText(_ status: RecommendationDecisionPresentation.Status) -> String {
+        switch status {
+        case .matched: return "matched"
+        case .recommended: return "recommended"
+        case .provisional: return "provisional"
+        }
+    }
+
+    private static func writeHDSMachineReport(
+        _ report: RecommendationDecisionHDSAudit.Report,
+        entries: [ContinuationSimulationEntry]
+    ) throws {
+        let byPly = Dictionary(uniqueKeysWithValues: entries.map { ($0.ply, $0) })
+        let payload: [[String: Any]] = report.positions.map { position in
+            let entry = byPly[position.ply]
+            let presentation = entry.map(RecommendationDecisionPresentation.make(entry:))
+            return [
+                "ply": position.ply,
+                "passed": position.passed,
+                "status": hdsStatusText(position.status),
+                "headline": presentation?.headline ?? "",
+                "meaning": presentation?.meaning ?? "",
+                "difference": presentation?.difference ?? "",
+                "horizon": presentation?.horizon ?? "",
+                "confidenceTitle": presentation?.confidenceTitle ?? "",
+                "confidenceDetail": presentation?.confidenceDetail ?? "",
+                "learningCue": presentation?.learningCue ?? "",
+                "gates": position.gates.map { gate in
+                    [
+                        "gate": gate.gate.rawValue,
+                        "passed": gate.passed,
+                        "detail": gate.detail
+                    ] as [String: Any]
+                }
+            ] as [String: Any]
+        }
+        let root: [String: Any] = [
+            "schema": "HDS-M-2.0",
+            "passed": report.passed,
+            "positions": payload
+        ]
+        let data = try JSONSerialization.data(withJSONObject: root, options: [.prettyPrinted, .sortedKeys])
+        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("ci-hds-m.json")
+        try data.write(to: url, options: .atomic)
+    }
+
     private struct AnalysisQualityGateResult {
         let normalStable: Bool
         let normalComparisonStable: Bool
@@ -1388,6 +1465,153 @@ enum SimulatorCIProbe {
             exit(13)
         }
 
+        let (hdsGame, hdsShallow) = makeHDSRegression()
+        let hdsDiagnosticURL: URL
+        do {
+            hdsDiagnosticURL = try DiagnosticExporter.write(
+                game: hdsGame,
+                fileName: "hds-41-49-69-regression.kif",
+                entries: hdsShallow,
+                status: "浅解析 PASS",
+                requestedMoveTimeMs: 1,
+                totalElapsedMs: 81,
+                error: nil
+            )
+        } catch {
+            writeReport([
+                "stage=hds_m_failed",
+                "hds_m_status=FAIL",
+                "hds_m_error=diagnostic \(error.localizedDescription)"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("hds_m_diagnostic_failed")
+            fflush(stdout)
+            exit(30)
+        }
+
+        let hdsDeep = DeepAnalysisViewModel()
+        await hdsDeep.analyze(
+            game: hdsGame,
+            shallowEntries: hdsShallow,
+            diagnosticURL: hdsDiagnosticURL,
+            deepMovetimeMs: 800,
+            multiPV: 3,
+            maxPositions: 3
+        )
+        let hdsPlies = hdsDeep.entries.map(\.ply)
+        guard hdsDeep.status == "深掘り PASS",
+              hdsPlies == [41, 49, 69] else {
+            writeReport([
+                "stage=hds_m_failed",
+                "hds_m_status=FAIL",
+                "hds_m_error=real-position selection mismatch",
+                "hds_m_deep_status=\(hdsDeep.status)",
+                "hds_m_plies=\(hdsPlies.map(String.init).joined(separator: ","))",
+                "hds_m_deep_summary_begin",
+                hdsDeep.summary,
+                "hds_m_deep_summary_end"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("hds_m_deep_failed")
+            fflush(stdout)
+            exit(31)
+        }
+
+        let hdsBoard = BoardReviewViewModel()
+        hdsBoard.prepare(
+            game: hdsGame,
+            deepEntries: hdsDeep.entries,
+            diagnosticURL: hdsDeep.diagnosticURL
+        )
+        guard hdsBoard.status == "盤面表示 PASS" else {
+            writeReport(["stage=hds_m_failed", "hds_m_status=FAIL", "hds_m_error=board review"].joined(separator: "\n") + "\n") 
+            SimulatorStage.mark("hds_m_board_failed")
+            fflush(stdout)
+            exit(32)
+        }
+
+        let hdsReason = ReasonAnalysisViewModel()
+        hdsReason.prepare(
+            game: hdsGame,
+            deepEntries: hdsDeep.entries,
+            diagnosticURL: hdsBoard.diagnosticURL
+        )
+        guard hdsReason.status == "理由解析 PASS" else {
+            writeReport(["stage=hds_m_failed", "hds_m_status=FAIL", "hds_m_error=reason analysis"].joined(separator: "\n") + "\n") 
+            SimulatorStage.mark("hds_m_reason_failed")
+            fflush(stdout)
+            exit(33)
+        }
+
+        let hdsContinuation = ContinuationSimulationViewModel()
+        hdsContinuation.prepare(
+            game: hdsGame,
+            deepEntries: hdsDeep.entries,
+            reasonEntries: hdsReason.entries,
+            diagnosticURL: hdsReason.diagnosticURL
+        )
+        guard hdsContinuation.status == "展開シミュレーション PASS",
+              hdsContinuation.entries.map(\.ply) == [41, 49, 69] else {
+            writeReport(["stage=hds_m_failed", "hds_m_status=FAIL", "hds_m_error=continuation simulation"].joined(separator: "\n") + "\n") 
+            SimulatorStage.mark("hds_m_continuation_failed")
+            fflush(stdout)
+            exit(34)
+        }
+
+        let hdsReport = RecommendationDecisionHDSAudit.evaluate(entries: hdsContinuation.entries)
+        do {
+            try writeHDSMachineReport(hdsReport, entries: hdsContinuation.entries)
+            try RecommendationDecisionPolicyAudit.validate(entries: hdsContinuation.entries)
+        } catch {
+            writeReport([
+                "stage=hds_m_failed",
+                "hds_m_status=FAIL",
+                "hds_m_error=\(error.localizedDescription)"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("hds_m_policy_failed_\(error.localizedDescription)")
+            fflush(stdout)
+            exit(35)
+        }
+
+        guard hdsReport.passed,
+              let hds41 = hdsContinuation.entries.first(where: { $0.ply == 41 }),
+              let hds49 = hdsContinuation.entries.first(where: { $0.ply == 49 }),
+              let hds69 = hdsContinuation.entries.first(where: { $0.ply == 69 }) else {
+            writeReport(["stage=hds_m_failed", "hds_m_status=FAIL", "hds_m_error=gate result"].joined(separator: "\n") + "\n") 
+            SimulatorStage.mark("hds_m_gate_failed")
+            fflush(stdout)
+            exit(36)
+        }
+
+        let hds41Presentation = RecommendationDecisionPresentation.make(entry: hds41)
+        let hds49Presentation = RecommendationDecisionPresentation.make(entry: hds49)
+        let hds69Presentation = RecommendationDecisionPresentation.make(entry: hds69)
+        guard hds41.recommended.moves.first?.usi == "4g4f",
+              hds41Presentation.status == .recommended,
+              hds41Presentation.difference.contains("実戦"),
+              !hds41Presentation.meaning.contains("この手単独では狙いを断定できません"),
+              hds49.recommended.moves.first?.usi == "3g2e",
+              hds49Presentation.status == .recommended,
+              hds49Presentation.meaning.contains("取り返され"),
+              hds49Presentation.meaning.contains("角"),
+              hds69.recommended.moves.first?.usi == "2g3h",
+              !hds69.comparisonStable,
+              hds69Presentation.status == .provisional,
+              hds69Presentation.headline.contains("暫定候補"),
+              !hds69Presentation.headline.contains("推奨") else {
+            writeReport([
+                "stage=hds_m_failed",
+                "hds_m_status=FAIL",
+                "hds_m_error=target semantic regression",
+                "hds_m_41_best=\(hds41.recommended.moves.first?.usi ?? "-")",
+                "hds_m_49_best=\(hds49.recommended.moves.first?.usi ?? "-")",
+                "hds_m_69_best=\(hds69.recommended.moves.first?.usi ?? "-")",
+                "hds_m_69_comparison_stable=\(hds69.comparisonStable)"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("hds_m_target_semantics_failed")
+            fflush(stdout)
+            exit(37)
+        }
+        SimulatorStage.mark("hds_m_pass_41_49_69")
+
         let probe = EngineProbe()
         await probe.runDefaultProbe()
         let defaultStatus = probe.status
@@ -1494,6 +1718,16 @@ enum SimulatorCIProbe {
             "quality_terminal_continuation_stable=\(qualityGate.terminalContinuationStable)",
             "quality_terminal_attempts=\(qualityGate.terminalAttempts)",
             "quality_terminal_bestmove=\(qualityGate.terminalBestMove)",
+            "hds_m_status=PASS",
+            "hds_m_schema=HDS-M-2.0",
+            "hds_m_positions=41,49,69",
+            "hds_m_41_status=\(hdsStatusText(hds41Presentation.status))",
+            "hds_m_41_best=\(hds41.recommended.moves.first?.usi ?? "-")",
+            "hds_m_49_status=\(hdsStatusText(hds49Presentation.status))",
+            "hds_m_49_best=\(hds49.recommended.moves.first?.usi ?? "-")",
+            "hds_m_69_status=\(hdsStatusText(hds69Presentation.status))",
+            "hds_m_69_best=\(hds69.recommended.moves.first?.usi ?? "-")",
+            "hds_m_69_comparison_stable=\(hds69.comparisonStable)",
             "deep_summary_begin",
             deep.summary,
             "deep_summary_end",

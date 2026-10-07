@@ -74,5 +74,6 @@ enum RecommendationDecisionPolicyAudit {
                 }
             }
         }
+        try RecommendationDecisionHDSAudit.validate(entries: entries)
     }
 }
