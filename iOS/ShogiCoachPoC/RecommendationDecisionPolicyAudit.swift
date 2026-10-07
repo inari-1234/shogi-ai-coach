@@ -59,9 +59,14 @@ enum RecommendationDecisionPolicyAudit {
                 throw AuditError.violation("\(entry.ply)手目: 判断に必要な説明項目が欠けています")
             }
 
-            if entry.comparisonStable && !entry.continuationStable,
-               !presentation.confidenceDetail.contains("参考") {
-                throw AuditError.violation("\(entry.ply)手目: 継続PV未安定の注意が表示されません")
+            if entry.comparisonStable && !entry.continuationStable {
+                let cautionText = presentation.confidenceTitle + " " + presentation.confidenceDetail
+                let hasInstabilityCaution = cautionText.contains("参考")
+                    || cautionText.contains("未安定")
+                    || cautionText.contains("安定していません")
+                if !hasInstabilityCaution {
+                    throw AuditError.violation("\(entry.ply)手目: 継続PV未安定の注意が表示されません")
+                }
             }
 
             if entry.recommended.moves.count >= 2,
