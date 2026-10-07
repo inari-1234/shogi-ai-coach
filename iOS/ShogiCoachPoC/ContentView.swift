@@ -118,7 +118,7 @@ struct ContentView: View {
                                 return
                             }
 
-                            analysisStatus = "推奨展開を組み立て中"
+                            analysisStatus = "候補展開を組み立て中"
                             continuation.prepare(
                                 game: game,
                                 deepEntries: deep.entries,
@@ -130,6 +130,13 @@ struct ContentView: View {
                             )
                             guard continuation.status == "展開シミュレーション PASS" else {
                                 analysisStatus = continuation.status
+                                return
+                            }
+
+                            do {
+                                try RecommendationDecisionPolicyAudit.validate(entries: continuation.entries)
+                            } catch {
+                                analysisStatus = "推奨説明 未PASS: \(error.localizedDescription)"
                                 return
                             }
 
