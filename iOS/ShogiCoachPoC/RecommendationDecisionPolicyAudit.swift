@@ -11,7 +11,8 @@ enum RecommendationDecisionPolicyAudit {
         }
     }
 
-    static func validate(entries: [ContinuationSimulationEntry]) throws {
+    @discardableResult
+    static func validate(entries: [ContinuationSimulationEntry]) throws -> [RecommendationDecisionHDSReport] {
         for entry in entries {
             guard let firstRecommended = entry.recommended.moves.first,
                   let firstActual = entry.actual.moves.first else {
@@ -55,8 +56,11 @@ enum RecommendationDecisionPolicyAudit {
 
             guard !presentation.meaning.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                   !presentation.difference.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                  !presentation.differenceHorizon.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                  !presentation.evidenceBasis.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                  !presentation.learningCue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                   !presentation.confidenceDetail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-                throw AuditError.violation("\(entry.ply)手目: 判断に必要な説明項目が欠けています")
+                throw AuditError.violation("\(entry.ply)手目: 判断に必要なHDS説明項目が欠けています")
             }
 
             if entry.comparisonStable && !entry.continuationStable,
@@ -73,6 +77,12 @@ enum RecommendationDecisionPolicyAudit {
                     throw AuditError.violation("\(entry.ply)手目: 即時取り返しを交換手順として説明できません")
                 }
             }
+        }
+
+        do {
+            return try RecommendationDecisionHDSAudit.validate(entries: entries)
+        } catch {
+            throw AuditError.violation(error.localizedDescription)
         }
     }
 }
