@@ -6,7 +6,10 @@ struct ShogiCoachPoCApp: App {
         WindowGroup {
             ContentView()
             #if targetEnvironment(simulator)
-            .task { await SimulatorCIProbe.runIfRequested() }
+            .task {
+                await RecommendationDecisionHDSRealGameProbe.runPreflightIfRequested()
+                await SimulatorCIProbe.runIfRequested()
+            }
             #endif
         }
     }
