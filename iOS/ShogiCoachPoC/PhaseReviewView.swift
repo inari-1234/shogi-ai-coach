@@ -81,7 +81,7 @@ struct PhaseReviewScreen: View {
                                         .frame(maxWidth: .infinity)
 
                                         if point.kind != .important {
-                                            Text(point.detail)
+                                            Text(displayText(point.detail, for: point))
                                                 .font(.footnote)
                                                 .foregroundStyle(.secondary)
                                         }
@@ -105,7 +105,7 @@ struct PhaseReviewScreen: View {
                 }
             }
             .sheet(item: $selectedContinuation) { entry in
-                ContinuationSimulationScreen(
+                RecommendationDecisionReviewScreen(
                     entries: [entry],
                     contextEntries: contextEntries,
                     recommendedExplanations: recommendedExplanations
@@ -151,7 +151,7 @@ struct PhaseReviewScreen: View {
             .frame(maxWidth: 390)
             .frame(maxWidth: .infinity)
 
-            Text(point.detail)
+            Text(displayText(point.detail, for: point))
                 .font(.body)
 
             if !point.evidence.isEmpty {
@@ -160,7 +160,7 @@ struct PhaseReviewScreen: View {
                         .font(.caption.bold())
                         .foregroundStyle(.secondary)
                     ForEach(Array(point.evidence.enumerated()), id: \.offset) { _, evidence in
-                        Label(evidence, systemImage: "checkmark.circle")
+                        Label(displayText(evidence, for: point), systemImage: "checkmark.circle")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     }
@@ -175,7 +175,9 @@ struct PhaseReviewScreen: View {
                     selectedContinuation = continuation
                 } label: {
                     Label(
-                        "推奨手と実戦手を動かして比較",
+                        continuation.comparisonStable
+                            ? "推奨手と実戦手を動かして比較"
+                            : "暫定候補と実戦手を動かして比較",
                         systemImage: "play.rectangle"
                     )
                     .frame(maxWidth: .infinity)
@@ -259,6 +261,17 @@ struct PhaseReviewScreen: View {
         case .endpoint:
             return "フェーズ終了時の盤面"
         }
+    }
+
+    private func displayText(_ text: String, for point: PhaseCoachPoint) -> String {
+        guard let continuationPly = point.continuationPly,
+              let continuation = continuationEntries.first(where: { $0.ply == continuationPly }),
+              !continuation.comparisonStable else {
+            return text
+        }
+        return text
+            .replacingOccurrences(of: "推奨手", with: "暫定候補")
+            .replacingOccurrences(of: "推奨", with: "暫定候補")
     }
 
     private var emptyState: some View {
