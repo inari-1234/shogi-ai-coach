@@ -7,12 +7,51 @@ on:
       - candidate/build19-vr1-recommendation-decision-explanation-corrective
   workflow_dispatch:
 
+permissions:
+  contents: write
+
+concurrency:
+  group: build19-vr1a-hds-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   source-snapshot:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Apply VR1A HDS-M source patch
+        if: github.ref_name == 'candidate/build19-vr1a-hds-m'
+        shell: bash
+        run: |
+          set -euo pipefail
+          PATCH=/tmp/build19-vr1a-hds.patch
+          base64 --decode scripts/build19_vr1a_hds.patch.gz.b64 | gzip -dc > "$PATCH"
+          if git apply --check "$PATCH"; then
+            git apply "$PATCH"
+          elif git apply --reverse --check "$PATCH"; then
+            echo 'hds_source_patch=ALREADY_APPLIED'
+          else
+            echo 'HDS patch is neither applicable nor already applied' >&2
+            exit 1
+          fi
+
+          if [ -n "$(git status --porcelain -- iOS/ShogiCoachPoC/RecommendationDecisionPresentation.swift iOS/ShogiCoachPoC/RecommendationDecisionPolicyAudit.swift iOS/ShogiCoachPoC/SimulatorCIProbe.swift .github/workflows/ios-simulator.yml)" ]; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add \
+              iOS/ShogiCoachPoC/RecommendationDecisionPresentation.swift \
+              iOS/ShogiCoachPoC/RecommendationDecisionPolicyAudit.swift \
+              iOS/ShogiCoachPoC/SimulatorCIProbe.swift \
+              .github/workflows/ios-simulator.yml
+            git commit -m 'Build19-VR1A integrate HDS-M real-position regression'
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+            echo 'hds_source_patch=UPDATED'
+          else
+            echo 'hds_source_patch=UNCHANGED'
+          fi
+
       - name: Collect VR1A harness sources
         shell: bash
         run: |
@@ -20,6 +59,7 @@ jobs:
           mkdir -p vr1a-source
           cp iOS/ShogiCoachPoC/RecommendationDecisionPresentation.swift vr1a-source/
           cp iOS/ShogiCoachPoC/RecommendationDecisionPolicyAudit.swift vr1a-source/
+          cp iOS/ShogiCoachPoC/RecommendationDecisionHDSAudit.swift vr1a-source/
           cp iOS/ShogiCoachPoC/SimulatorCIProbe.swift vr1a-source/
           cp iOS/ShogiCoachPoC/ContinuationSimulationViewModel.swift vr1a-source/
           cp iOS/ShogiCoachPoC/DeepAnalysisViewModel.swift vr1a-source/
@@ -30,6 +70,7 @@ jobs:
           cp .github/workflows/ios-simulator.yml vr1a-source/
           cp Package.swift vr1a-source/
           git rev-parse HEAD > vr1a-source/HEAD.txt
+
       - name: Upload VR1A source snapshot
         uses: actions/upload-artifact@v4
         with:
