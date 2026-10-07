@@ -1,0 +1,33 @@
+name: Build19-VR1A HDS Harness
+
+on:
+  push:
+    branches:
+      - candidate/build19-vr1-recommendation-decision-explanation-corrective
+  workflow_dispatch:
+
+jobs:
+  source-snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Collect VR1A harness sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p vr1a-source
+          cp iOS/ShogiCoachPoC/RecommendationDecisionPresentation.swift vr1a-source/
+          cp iOS/ShogiCoachPoC/RecommendationDecisionPolicyAudit.swift vr1a-source/
+          cp iOS/ShogiCoachPoC/SimulatorCIProbe.swift vr1a-source/
+          cp iOS/ShogiCoachPoC/ContentView.swift vr1a-source/
+          cp iOS/ShogiCoachPoC/PhaseReviewView.swift vr1a-source/
+          cp .github/workflows/ios-simulator.yml vr1a-source/
+          cp Package.swift vr1a-source/
+          git rev-parse HEAD > vr1a-source/HEAD.txt
+      - name: Upload VR1A source snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build19-VR1A-source-snapshot
+          path: vr1a-source
+          if-no-files-found: error
