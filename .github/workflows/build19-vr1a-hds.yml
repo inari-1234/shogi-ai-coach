@@ -3,6 +3,7 @@ name: Build19-VR1A HDS Harness
 on:
   push:
     branches:
+      - candidate/build19-vr1a-hds-m
       - candidate/build19-vr1-recommendation-decision-explanation-corrective
   workflow_dispatch:
 
@@ -20,6 +21,10 @@ jobs:
           cp iOS/ShogiCoachPoC/RecommendationDecisionPresentation.swift vr1a-source/
           cp iOS/ShogiCoachPoC/RecommendationDecisionPolicyAudit.swift vr1a-source/
           cp iOS/ShogiCoachPoC/SimulatorCIProbe.swift vr1a-source/
+          cp iOS/ShogiCoachPoC/ContinuationSimulationViewModel.swift vr1a-source/
+          cp iOS/ShogiCoachPoC/DeepAnalysisViewModel.swift vr1a-source/
+          cp iOS/ShogiCoachPoC/ReasonAnalysisViewModel.swift vr1a-source/
+          cp iOS/ShogiCoachPoC/DiagnosticExport.swift vr1a-source/
           cp iOS/ShogiCoachPoC/ContentView.swift vr1a-source/
           cp iOS/ShogiCoachPoC/PhaseReviewView.swift vr1a-source/
           cp .github/workflows/ios-simulator.yml vr1a-source/
