@@ -153,7 +153,8 @@ enum RecommendationDecisionHDSAudit {
 
     private static func hasConcreteMechanism(_ text: String) -> Bool {
         let tokens = [
-            "取", "交換", "取り返", "王手", "打", "成", "前へ", "後に", "その後", "直後", "PV", "手順", "盤面差"
+            "取", "交換", "取り返", "王手", "打", "成", "前へ", "後に", "その後", "直後", "PV", "手順", "盤面差",
+            "動か", "利き", "安全", "圧力", "守り"
         ]
         return tokens.contains { text.contains($0) }
     }
