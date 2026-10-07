@@ -32,6 +32,20 @@ targets:
         outputFiles:
           - "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/eval/nn.bin"
         basedOnDependencyAnalysis: true
+      - name: VR1A source snapshot diagnostic
+        script: |
+          set -euo pipefail
+          echo '=== VR1A_SOURCE_SNAPSHOT_BEGIN ==='
+          for f in \
+            "$SRCROOT/iOS/ShogiCoachPoC/RecommendationDecisionPresentation.swift" \
+            "$SRCROOT/iOS/ShogiCoachPoC/RecommendationDecisionPolicyAudit.swift" \
+            "$SRCROOT/iOS/ShogiCoachPoC/SimulatorCIProbe.swift"; do
+            echo "=== VR1A_FILE_BEGIN:${f#$SRCROOT/} ==="
+            cat "$f"
+            echo "=== VR1A_FILE_END:${f#$SRCROOT/} ==="
+          done
+          echo '=== VR1A_SOURCE_SNAPSHOT_END ==='
+        basedOnDependencyAnalysis: false
     info:
       path: iOS/ShogiCoachPoC/Info.plist
       properties:
