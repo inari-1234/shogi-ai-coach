@@ -1,7 +1,7 @@
 import Foundation
 
 struct RecommendationDecisionPresentation {
-    enum Status {
+    enum Status: Equatable {
         case matched
         case recommended
         case provisional
