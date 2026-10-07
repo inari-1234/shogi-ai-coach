@@ -177,7 +177,7 @@ struct ContentView: View {
                         .font(.headline)
 
                     if analysisStatus == "解析 PASS" {
-                        Text("重要局面を\(continuation.entries.count)件抽出しました。推奨手と実戦手を盤面で動かして比較できます。")
+                        Text("重要局面を\(continuation.entries.count)件抽出しました。推奨／暫定候補と実戦手を盤面で動かして比較できます。")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     }
@@ -241,7 +241,7 @@ struct ContentView: View {
                 }
             }
             .sheet(isPresented: $showingContinuationSimulation) {
-                ContinuationSimulationScreen(
+                RecommendationDecisionReviewScreen(
                     entries: continuation.entries,
                     contextEntries: contextAnalysis.entries,
                     recommendedExplanations: contextAnalysis.recommendedExplanations
