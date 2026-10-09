@@ -45,17 +45,17 @@ jobs:
           set -euxo pipefail
           bash tools/engine-verify/setup.sh AVX2
 
+      - name: Seed build provenance into evidence before qualification
+        run: |
+          set -euxo pipefail
+          mkdir -p tools/engine-verify/results/current/build
+          cp tools/engine-verify/.work/provenance.json tools/engine-verify/results/current/build/setup-provenance.json
+          cp tools/engine-verify/.work/build.log tools/engine-verify/results/current/build/build.log
+
       - name: Formal Q1-Q6 and C1-C5 qualification
         run: |
           set -euxo pipefail
           python3 tools/engine-verify/qualify_v4_entry.py qualify --out tools/engine-verify/results/current
-
-      - name: Copy build provenance into evidence
-        if: always()
-        run: |
-          mkdir -p tools/engine-verify/results/current/build
-          cp -f tools/engine-verify/.work/provenance.json tools/engine-verify/results/current/build/setup-provenance.json 2>/dev/null || true
-          cp -f tools/engine-verify/.work/build.log tools/engine-verify/results/current/build/build.log 2>/dev/null || true
 
       - name: Upload VE1-Q evidence
         if: always()
