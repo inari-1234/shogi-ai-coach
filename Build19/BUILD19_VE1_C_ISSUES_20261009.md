@@ -1,6 +1,6 @@
 # Build19-VE1-C Issue Backlog — 2026-10-09
 
-This file records threshold-calibration work identified during VE1-A review. It does **not** start VE1-C implementation and does not establish new Semantic Authority.
+This file records threshold-calibration and semantic-scoring work identified during VE1-A/VE1-B review. It does **not** start VE1-C implementation and does not establish new Semantic Authority.
 
 ## VE1C-001 — recalibrate cp-scale-dependent thresholds for FV24
 
@@ -33,14 +33,30 @@ The following production thresholds were introduced before the FV_SCALE=24 runti
 - evaluation-difference bands `<100`, `100..<300`, `300..<700`, `>=700 cp`
   - Change the user-facing description of the recommended-vs-actual evaluation difference.
 
-## Required VE1-C work
+### Required VE1C-001 work
 
 For each threshold above:
-
 1. establish representative FV24 positions and expected coaching/search behavior;
-2. measure the FV24 outputs using pinned engine/runtime provenance;
+2. measure FV24 outputs using pinned engine/runtime provenance;
 3. choose the threshold from semantic/behavioral evidence rather than numeric rescaling;
 4. add regression tests at both sides of each chosen decision boundary;
 5. keep historical FV16 records unchanged.
 
-The current VE1-A work only inventories and isolates these dependencies. It does not authorize threshold changes.
+## VE1C-002 — mate sign semantics in importance / meaningfulness
+
+Status: **OPEN / NOT IMPLEMENTED**
+
+Current risk: logic based only on `bestScoreText.hasPrefix("mate ")` cannot distinguish a winning mate from `mate -N` (the side to move is being mated). Search fluctuation could therefore incorrectly award the missed-mate importance bonus when the best line is a negative mate and the actual line is non-mate.
+
+Required semantics:
+- only positive mate values (`mate N`, `N > 0`) may qualify as a missed winning mate when the actual line does not preserve that winning mate;
+- negative mate values (`mate -N`) must never be classified as a missed winning mate;
+- score parsing should use structured mate sign/value rather than string prefix alone where practical;
+- add at least one positive-mate regression and one negative-mate regression;
+- ensure the same sign rule is used by both ranking and meaningfulness decisions.
+
+This item remains VE1-C scope unless VE1-B must touch the exact same scoring abstraction for its evidence-model work. If VE1-B changes that shared abstraction, it may add structural support, but VE1-C owns the semantic acceptance rule.
+
+## Boundary
+
+VE1-A remains formally PASS. VE1-B owns runtime evidence/search-contract hardening. VE1-C owns semantic threshold recalibration and mate-sign semantic acceptance. No historical expected values may be rewritten merely to fit new runtime output.
