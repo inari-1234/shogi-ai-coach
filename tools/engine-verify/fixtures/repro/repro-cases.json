@@ -1,0 +1,40 @@
+{
+  "schema_version": "ve1q-repro-v2",
+  "fixed_node_cases": [
+    {
+      "id": "startpos-50k",
+      "position": "position startpos",
+      "profile": "app-candidate",
+      "nodes": 50000,
+      "multipv": 3,
+      "repeats": 3
+    },
+    {
+      "id": "middlegame-250k",
+      "position": "position startpos moves 7g7f 3c3d 2g2f 5c5d 2f2e 8b5b 4i5h 5d5e 2e2d 2c2d 2h2d 5e5f 5g5f 2b8h+ 7i8h B*3c",
+      "profile": "reference",
+      "nodes": 250000,
+      "multipv": 3,
+      "repeats": 3,
+      "position_origin": "legal move sequence already covered by KIFParserTests; used here only as a reproducibility input"
+    },
+    {
+      "id": "searchmoves-100k",
+      "position": "position startpos",
+      "profile": "app-candidate",
+      "nodes": 100000,
+      "multipv": 3,
+      "repeats": 3,
+      "searchmoves": ["7g7f", "2g2f", "6i7h"]
+    }
+  ],
+  "movetime_control": {
+    "id": "middlegame-movetime-control",
+    "position": "position startpos moves 7g7f 3c3d 2g2f 5c5d 2f2e 8b5b 4i5h 5d5e 2e2d 2c2d 2h2d 5e5f 5g5f 2b8h+ 7i8h B*3c",
+    "profile": "app-current",
+    "movetime_ms": 400,
+    "multipv": 3,
+    "repeats": 5,
+    "expected_relation": "at-least-two-distinct-deterministic-views"
+  }
+}
