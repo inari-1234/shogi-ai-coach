@@ -71,13 +71,25 @@ public enum DeepImportanceSelector {
         return selected.sorted { candidates[$0].ply < candidates[$1].ply }
     }
 
-    public static func lossForImportance(_ candidate: DeepImportanceCandidate) -> Int {
-        if candidate.comparisonStable {
-            return candidate.actualLossCp ?? candidate.shallowEstimatedLossCp ?? 0
+    public static func lossForImportance(
+        actualLossCp: Int?,
+        shallowEstimatedLossCp: Int?,
+        comparisonStable: Bool
+    ) -> Int {
+        if comparisonStable {
+            return actualLossCp ?? shallowEstimatedLossCp ?? 0
         }
         // Deep-search instability is confidence metadata. When the deep comparison is
         // unstable, importance is derived from the already-selected shallow loss signal.
-        return candidate.shallowEstimatedLossCp ?? 0
+        return shallowEstimatedLossCp ?? 0
+    }
+
+    public static func lossForImportance(_ candidate: DeepImportanceCandidate) -> Int {
+        lossForImportance(
+            actualLossCp: candidate.actualLossCp,
+            shallowEstimatedLossCp: candidate.shallowEstimatedLossCp,
+            comparisonStable: candidate.comparisonStable
+        )
     }
 
     public static func importanceScore(_ candidate: DeepImportanceCandidate) -> Int {

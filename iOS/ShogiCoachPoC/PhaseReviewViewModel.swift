@@ -365,8 +365,16 @@ final class PhaseReviewViewModel: ObservableObject {
             let deepInPhase = deepEntries
                 .filter { $0.ply >= start.ply && $0.ply <= end.ply }
                 .sorted {
-                    let left = $0.actualLossCp ?? ($0.comparisonStable ? 0 : 10_000)
-                    let right = $1.actualLossCp ?? ($1.comparisonStable ? 0 : 10_000)
+                    let left = DeepImportanceSelector.lossForImportance(
+                        actualLossCp: $0.actualLossCp,
+                        shallowEstimatedLossCp: $0.shallowEstimatedLossCp,
+                        comparisonStable: $0.comparisonStable
+                    )
+                    let right = DeepImportanceSelector.lossForImportance(
+                        actualLossCp: $1.actualLossCp,
+                        shallowEstimatedLossCp: $1.shallowEstimatedLossCp,
+                        comparisonStable: $1.comparisonStable
+                    )
                     if left != right { return left > right }
                     return $0.ply < $1.ply
                 }
