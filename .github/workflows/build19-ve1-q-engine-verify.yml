@@ -1,0 +1,69 @@
+name: Build19 VE1-Q Engine Verify
+
+on:
+  push:
+    branches:
+      - candidate/build19-ve1-q-engine-verify
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      ENGINE_VERIFY_WORK: ${{ github.workspace }}/tools/engine-verify/.work
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Environment identity
+        run: |
+          set -euxo pipefail
+          python3 --version
+          swiftc --version
+          clang++ --version | head -1
+          uname -a
+
+      - name: Offline static and parity regression
+        run: |
+          set -euxo pipefail
+          python3 -m unittest discover -s tools/engine-verify/tests -v
+          python3 tools/engine-verify/qualify.py offline --out tools/engine-verify/results/offline
+
+      - name: Install archive dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y p7zip-full
+
+      - name: Build pinned engine and verify NNUE identity
+        run: |
+          set -euxo pipefail
+          bash tools/engine-verify/setup.sh AVX2
+
+      - name: Formal Q1-Q6 qualification
+        run: |
+          set -euxo pipefail
+          python3 tools/engine-verify/qualify.py qualify --out tools/engine-verify/results/current
+
+      - name: Copy build provenance into evidence
+        if: always()
+        run: |
+          mkdir -p tools/engine-verify/results/current/build
+          cp -f tools/engine-verify/.work/provenance.json tools/engine-verify/results/current/build/setup-provenance.json 2>/dev/null || true
+          cp -f tools/engine-verify/.work/build.log tools/engine-verify/results/current/build/build.log 2>/dev/null || true
+
+      - name: Upload VE1-Q evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build19-VE1-Q-evidence
+          path: |
+            tools/engine-verify/results/current
+            tools/engine-verify/results/offline
+          if-no-files-found: error
+          retention-days: 30
