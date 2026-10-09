@@ -33,7 +33,7 @@ jobs:
         run: |
           set -euxo pipefail
           python3 -m unittest discover -s tools/engine-verify/tests -v
-          python3 tools/engine-verify/qualify_v3_entry.py offline --out tools/engine-verify/results/offline
+          python3 tools/engine-verify/qualify_v4_entry.py offline --out tools/engine-verify/results/offline
 
       - name: Install archive dependency
         run: |
@@ -45,24 +45,10 @@ jobs:
           set -euxo pipefail
           bash tools/engine-verify/setup.sh AVX2
 
-      - name: Harness-independent C1 diagnostic
-        run: |
-          set -euxo pipefail
-          python3 tools/engine-verify/diagnose_c1_independent.py \
-            --work "$ENGINE_VERIFY_WORK" \
-            --out tools/engine-verify/results/diagnostic-independent
-
-      - name: Diagnostic-only C1 calibration locator
-        run: |
-          set -euxo pipefail
-          python3 tools/engine-verify/diagnose_c1.py \
-            --work "$ENGINE_VERIFY_WORK" \
-            --out tools/engine-verify/results/diagnostic
-
       - name: Formal Q1-Q6 and C1-C5 qualification
         run: |
           set -euxo pipefail
-          python3 tools/engine-verify/qualify_v3_entry.py qualify --out tools/engine-verify/results/current
+          python3 tools/engine-verify/qualify_v4_entry.py qualify --out tools/engine-verify/results/current
 
       - name: Copy build provenance into evidence
         if: always()
@@ -79,7 +65,5 @@ jobs:
           path: |
             tools/engine-verify/results/current
             tools/engine-verify/results/offline
-            tools/engine-verify/results/diagnostic
-            tools/engine-verify/results/diagnostic-independent
           if-no-files-found: error
           retention-days: 30
