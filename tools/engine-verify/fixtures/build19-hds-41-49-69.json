@@ -1,0 +1,33 @@
+{
+  "name": "build19-hds-41-49-69",
+  "source": "iOS/ShogiCoachPoC/SimulatorCIProbe.swift makeTerminalRegression() / makeFrozenHDSSemanticEntries() @ ae3cb68a",
+  "moves": "7g7f 3c3d 2g2f 8c8d 6g6f 2b3c 2h6h 3a3b 5i4h 6a5b 4h3h 5a4b 3h2h 7a6b 1g1f 8d8e 8h7g 3c4d 2h2g 2a3c 3i3h 2c2d 7i7h 8b8d 6i5h 3b2c 9i9h 5c5d 6f6e 8d8b 4g4f 1c1d 5h4g 4b3a 2g2h 6b5c 4f4e 4d7g+ 7h7g 4a3b 1i1h B*3e 3g3f 3e2f 3h2g 2d2e 2i3g 3a2b 4i3h 9c9d 6h6i 8a9c 6i2i 2c2d B*4f 3d3e 3f3e 3b2c 4g3f P*3d 2g2f 2e2f 3e3d S*2g 3h2g 2f2g+ 2h2g 1d1e 1f1e 1a1e P*2e 2c3d 2e2d 1e1h+ B*1d G*1c S*2c 1c2c 1d2c+ 2b1a G*1b",
+  "positions": [
+    {
+      "ply": 41,
+      "actual": "1i1h",
+      "pvs": {
+        "frozen best": "4g4f 3d3e 4i4h 2c3d 3g3f 3e3f 4f3f P*3e 3f4f 5b4b 3h2g 7c7d P*3g 3c4e 4f4g 4c4d",
+        "frozen actual": "1i1h 3c4e 5g5f 3a2b 3h2g 4c4d 4i3h 5b4c 3g3f 2b2a B*6f 9c9d 9g9f"
+      }
+    },
+    {
+      "ply": 49,
+      "actual": "4i3h",
+      "pvs": {
+        "frozen best": "3g2e 3c2e 2g2f P*2d 2h3i 7c7d 5g5f 5d5e 5f5e 8a7c B*4f 2b2a 2f2e 2d2e",
+        "frozen actual": "4i3h 5b4b 6h6i 2c2d 6i6h 4c4d 2g2f 2e2f 4e4d P*4e P*2g 2f2g+ 3h2g 5c4d"
+      }
+    },
+    {
+      "ply": 69,
+      "actual": "1f1e",
+      "pvs": {
+        "frozen best": "2g3h 2b3a 4f2d 5b4b 3d3c+ 4b3c 2d3e 4c4d P*2d P*2h 2i2h 2c1c 4e4d 5c4d 3e4d 3c4d 2d2c+ 1c2c 2h2c+",
+        "frozen actual": "1f1e 1a1e 1h1e 2d1e 3d3c+ 2c3c 2g3h P*2h 2i2h P*2f 3f2f L*2d P*2e 1e2f 2h2f G*1e"
+      }
+    }
+  ],
+  "authority_status": "HISTORICAL_DIAGNOSTIC_FIXTURE_ONLY",
+  "authority_note": "41/49/69 old Frozen data are retained only for historical diagnostic behavior; they are not semantic truth or new answer authority."
+}
