@@ -1,0 +1,6 @@
+info depth 8 seldepth 12 multipv 1 score cp 30 lowerbound nodes 100 nps 1000 time 10 pv 7g7f 3c3d
+info depth 8 seldepth 11 multipv 2 score mate 5 upperbound nodes 90 nps 900 time 9 pv P*2b 1a1b
+info depth 9 seldepth 13 multipv 1 score cp 40 lowerbound nodes 200 nps 2000 time 20 pv 2g2f 8c8d
+info depth 9 seldepth 14 multipv 1 score cp 42 lowerbound nodes 210 nps 2100 time 20 pv 2g2f 8c8d 2f2e
+info depth 7 seldepth 10 multipv 3 score cp -10 nodes 80 nps 800 time 8 pv 6g6f 3c3d
+bestmove 2g2f ponder 8c8d
