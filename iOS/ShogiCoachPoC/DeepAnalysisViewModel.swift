@@ -397,8 +397,10 @@ final class DeepAnalysisViewModel: ObservableObject {
     }
 
     private static func verifiedImportance(_ entry: DeepAnalysisEntry) -> Int {
+        // Search stability is confidence metadata, not business importance. Preserve the
+        // shallow-stage signal when a deep comparison is unstable, but never promote an
+        // unstable position solely because the engine search happened to fluctuate.
         var value = (entry.actualLossCp ?? entry.shallowEstimatedLossCp ?? 0) * 10
-        if !entry.comparisonStable { value += 2_000 }
         if entry.bestScoreText.hasPrefix("mate "),
            !entry.actualScoreText.hasPrefix("mate ") {
             value += 10_000

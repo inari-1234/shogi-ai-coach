@@ -1588,14 +1588,13 @@ enum SimulatorCIProbe {
         )
         let hdsPlies = hdsDeep.entries.map(\.ply)
         guard hdsDeep.status == "深掘り PASS",
-              hdsPlies.count == 3,
-              Set(hdsPlies).count == hdsPlies.count else {
+              hdsPlies == [41, 49, 69] else {
             writeReport([
                 "stage=hds_m_failed",
                 "hds_m_status=FAIL",
-                "hds_m_error=live real-position analysis failed",
+                "hds_m_error=real-position selection mismatch",
                 "hds_m_deep_status=\(hdsDeep.status)",
-                "hds_live_positions=\(hdsPlies.map(String.init).joined(separator: ","))",
+                "hds_m_plies=\(hdsPlies.map(String.init).joined(separator: ","))",
                 "hds_m_deep_summary_begin",
                 hdsDeep.summary,
                 "hds_m_deep_summary_end"
@@ -1639,7 +1638,7 @@ enum SimulatorCIProbe {
             diagnosticURL: hdsReason.diagnosticURL
         )
         guard hdsContinuation.status == "展開シミュレーション PASS",
-              hdsContinuation.entries.map(\.ply) == hdsPlies else {
+              hdsContinuation.entries.map(\.ply) == [41, 49, 69] else {
             writeReport(["stage=hds_m_failed", "hds_m_status=FAIL", "hds_m_error=continuation simulation"].joined(separator: "\n") + "\n") 
             SimulatorStage.mark("hds_m_continuation_failed")
             fflush(stdout)
@@ -1647,7 +1646,7 @@ enum SimulatorCIProbe {
         }
 
         // Live replay verifies that the real positions can flow through the current engine
-        // and all HDS gates. Selected plies and exact best moves are intentionally not frozen because a
+        // and all HDS gates. Exact best moves are intentionally not frozen because a
         // time-limited search can legitimately return a different top candidate.
         let hdsLiveReport = RecommendationDecisionHDSAudit.evaluate(entries: hdsContinuation.entries)
         do {
@@ -1880,7 +1879,6 @@ enum SimulatorCIProbe {
             "quality_terminal_attempts=\(qualityGate.terminalAttempts)",
             "quality_terminal_bestmove=\(qualityGate.terminalBestMove)",
             "hds_live_status=PASS",
-            "hds_live_positions=\(hdsPlies.map(String.init).joined(separator: ","))",
             "hds_live_41_best=\(hdsContinuation.entries.first(where: { $0.ply == 41 })?.recommended.moves.first?.usi ?? "-")",
             "hds_live_49_best=\(hdsContinuation.entries.first(where: { $0.ply == 49 })?.recommended.moves.first?.usi ?? "-")",
             "hds_live_69_best=\(hdsContinuation.entries.first(where: { $0.ply == 69 })?.recommended.moves.first?.usi ?? "-")",
