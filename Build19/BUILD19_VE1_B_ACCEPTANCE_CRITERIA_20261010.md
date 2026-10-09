@@ -80,20 +80,22 @@ PASS requires:
 
 ### B6 — Node-count search contract
 
-Regression tests and live deep-analysis verification must use a node-count budget rather than `movetime` as the primary deterministic search budget.
+Regression tests, live deep-analysis verification, and production iPhone deep analysis must use a node-count budget rather than `movetime` as the primary search completion condition.
 
-Before implementation completion, production iPhone policy must be explicitly selected and documented as one of:
-1. node budget only; or
-2. node budget plus a wall-clock safety ceiling used only as an abort/failsafe, never as the normal completion condition.
+The production policy is fixed as follows:
+- normal completion: reach the configured node budget;
+- safety protection: a wall-clock ceiling may abort a pathological/thermally degraded search;
+- a wall-clock ceiling is never a successful completion criterion;
+- a search stopped by the safety ceiling is recorded as `aborted/timeout` (or equivalent) and its partial result must not be promoted to a normal completed comparison;
+- the numeric wall-clock ceiling and node budgets must be chosen from measured device evidence during implementation and covered by regression tests. They must not be guessed or inherited from the current `movetime` values.
 
 PASS requires:
 - deterministic regression fixtures use the same node target across repeated runs;
-- raw USI evidence records the issued `go` command and final node count;
+- raw USI evidence records the issued `go nodes ...` command and final node count;
 - same-position repeated runs on the pinned engine/runtime satisfy the documented reproducibility tolerance for selected move, score kind, score/bound state and evidence completeness;
 - no regression expected value is changed merely to fit a timing-dependent run;
-- if a wall-clock ceiling is adopted, timeout/abort is represented separately from a completed node-budget search.
-
-VE1-B must not silently choose a wall-clock ceiling value without evidence. The value, if any, is a separate implementation decision with regression coverage.
+- safety-ceiling abort is represented separately from a completed node-budget search;
+- physical iPhone evidence demonstrates both a normal node-budget completion and, via a safe synthetic/test path if necessary, the abort-state handling contract.
 
 ### B7 — PV continuation stability is recorded per ply
 
@@ -122,8 +124,8 @@ VE1-B PASS requires all of the following evidence on one final candidate commit:
 2. deterministic node-budget regression on pinned YaneuraOu + pinned Suisho5 NNUE;
 3. Simulator E2E using production app code paths;
 4. iOS device build/IPA success;
-5. physical iPhone runtime evidence for the selected production search policy;
-6. raw USI transcript showing `BookFile=no_book`, `FV_SCALE=24`, `EvalDir`, search command, relevant `info` lines and `bestmove`;
+5. physical iPhone runtime evidence for the node-budget-plus-safety-ceiling production policy;
+6. raw USI transcript showing `BookFile=no_book`, `FV_SCALE=24`, `EvalDir`, `go nodes ...`, relevant `info` lines and `bestmove`;
 7. diagnostic export proving B3/B4/B5/B7 evidence fields survive end-to-end;
 8. existing VE1-A known-answer probes remain unchanged and PASS;
 9. HDS-M contract guard remains PASS; no modification of historical 41/49/69 expected positions without separately approved evidence.
