@@ -1,0 +1,83 @@
+{
+  "schema_version": "ve1q-known-answer-v1",
+  "cases": [
+    {
+      "id": "mate-in-1",
+      "kind": "engine_mate",
+      "sfen": "8k/9/7R1/9/9/9/9/9/K8 b G 1",
+      "expected_mate_ply": 1,
+      "expected_bestmove": "G*2b",
+      "source": "VE1-Q constructed minimal position; gold drop is protected by R2c and covers all king escapes"
+    },
+    {
+      "id": "mate-in-3",
+      "kind": "engine_mate",
+      "sfen": "9/9/3k5/4L4/4R4/2L6/9/9/K8 b r2b4g4s4n2l18p 1",
+      "expected_mate_ply": 3,
+      "source": "SDIN 3-move tsume-shogi problem 0038 SFEN, adapted only by adding the distant black king at 9i; answer length 3 plies is the fixture authority"
+    },
+    {
+      "id": "drop-searchmoves",
+      "kind": "engine_searchmoves",
+      "sfen": "8k/9/7R1/9/9/9/9/9/K8 b G 1",
+      "searchmoves": ["G*2b"],
+      "expected_bestmove": "G*2b"
+    },
+    {
+      "id": "in-check-position",
+      "kind": "in_check",
+      "sfen": "k3r4/9/9/9/9/9/9/9/4K4 b - 1",
+      "expected": true
+    },
+    {
+      "id": "threat-pass-prohibited-while-in-check",
+      "kind": "threat_guard",
+      "sfen": "k3r4/9/9/9/9/9/9/9/4K4 b - 1",
+      "expected_allowed": false
+    },
+    {
+      "id": "lowerbound-artificial-log",
+      "kind": "strict_log",
+      "raw_log": "fixtures/known-answer/lowerbound.log",
+      "allow_bounds": true,
+      "expected_bound": "lowerbound"
+    },
+    {
+      "id": "upperbound-artificial-log",
+      "kind": "strict_log",
+      "raw_log": "fixtures/known-answer/upperbound.log",
+      "allow_bounds": true,
+      "expected_bound": "upperbound"
+    },
+    {
+      "id": "multipv-depth-mismatch",
+      "kind": "strict_log",
+      "raw_log": "fixtures/known-answer/depth-mismatch.log",
+      "allow_bounds": true,
+      "expected_depths": [15, 13]
+    },
+    {
+      "id": "missing-score",
+      "kind": "strict_log_reject",
+      "raw_log": "fixtures/known-answer/missing-score.log",
+      "expected_error": "missing-score"
+    },
+    {
+      "id": "missing-pv",
+      "kind": "strict_log_reject",
+      "raw_log": "fixtures/known-answer/missing-pv.log",
+      "expected_error": "missing-pv"
+    },
+    {
+      "id": "illegal-move",
+      "kind": "engine_illegal_move",
+      "position": "position startpos moves 7g7z"
+    },
+    {
+      "id": "malformed-usi-line",
+      "kind": "strict_log_reject",
+      "raw_log": "fixtures/known-answer/malformed.log",
+      "expected_error": "malformed-info"
+    }
+  ]
+}
