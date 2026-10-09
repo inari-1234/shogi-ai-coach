@@ -1,0 +1,15 @@
+{
+  "schema_version": "ve1q-negative-v1",
+  "cases": [
+    {"id": "fv-scale-profile-mismatch", "mutation": "fv_scale_mismatch"},
+    {"id": "nnue-sha-mismatch", "mutation": "nnue_sha_mismatch"},
+    {"id": "yaneuraou-pin-mismatch", "mutation": "engine_pin_mismatch"},
+    {"id": "malformed-raw-log", "mutation": "malformed_raw_log"},
+    {"id": "missing-provenance", "mutation": "missing_provenance"},
+    {"id": "illegal-fixture", "mutation": "illegal_fixture"},
+    {"id": "unknown-profile", "mutation": "unknown_profile"},
+    {"id": "missing-expected-raw-log", "mutation": "missing_raw_log"},
+    {"id": "broken-candidate-list", "mutation": "broken_candidate_list"},
+    {"id": "incompatible-schema-version", "mutation": "incompatible_schema"}
+  ]
+}
