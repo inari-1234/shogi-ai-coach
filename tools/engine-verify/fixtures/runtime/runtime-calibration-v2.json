@@ -1,0 +1,67 @@
+{
+  "schema_version": "ve1q-runtime-calibration-v2",
+  "authority": "independent-review-correction-2026-10-09",
+  "correction_record": "fixtures/runtime/C1_REVIEW_CORRECTION_20261009.md",
+  "cases": [
+    {
+      "id": "startpos-depth1",
+      "position": "position startpos",
+      "go": "depth 1",
+      "multipv": 1,
+      "threads": 1,
+      "expected": {
+        "app-current": {
+          "fv_scale": 16,
+          "score_type": "cp",
+          "score_value": 164,
+          "bound": null,
+          "bestmove": "7g7f"
+        },
+        "app-candidate": {
+          "fv_scale": 24,
+          "score_type": "cp",
+          "score_value": 108,
+          "bound": null,
+          "bestmove": "7g7f"
+        }
+      },
+      "scale_invariant": {
+        "formula": "abs(cp16*16 - cp24*24) <= tolerance",
+        "tolerance": 40,
+        "expected_scaled_16": 2624,
+        "expected_scaled_24": 2592
+      },
+      "authority_note": "Confirmed independently by reviewer and VE1-Q CI on separately built pinned-engine environments; formal acceptance still requires fresh raw logs in the qualifying run."
+    },
+    {
+      "id": "corrected-review-sfen-depth1",
+      "position": "position sfen lnsgk1snl/1r4gb1/p1pppp1pp/1p4p2/7P1/2P6/PPBPPPP1P/7R1/LNSGKGSNL w - 8",
+      "go": "depth 1",
+      "multipv": 1,
+      "threads": 1,
+      "expected": {
+        "app-current": {
+          "fv_scale": 16,
+          "score_type": "cp",
+          "score_value": 236,
+          "bound": null,
+          "bestmove": "2b7g+"
+        },
+        "app-candidate": {
+          "fv_scale": 24,
+          "score_type": "cp",
+          "score_value": 157,
+          "bound": null,
+          "bestmove": "2b7g+"
+        }
+      },
+      "scale_invariant": {
+        "formula": "abs(cp16*16 - cp24*24) <= tolerance",
+        "tolerance": 40,
+        "expected_scaled_16": 3776,
+        "expected_scaled_24": 3768
+      },
+      "authority_note": "Corrected effective position from the review-side command that contained an illegal eighth move. The SFEN is used directly so the illegal move cannot be silently reintroduced. Formal acceptance requires a fresh raw log from this SFEN."
+    }
+  ]
+}
