@@ -1,0 +1,22 @@
+{
+  "schema_version": "ve1q-runtime-calibration-v1",
+  "authority": "independent-review-runtime-known-answer",
+  "position": "position startpos",
+  "go": "depth 1",
+  "multipv": 1,
+  "expected": {
+    "app-current": {
+      "fv_scale": 16,
+      "score_type": "cp",
+      "score_value": 236,
+      "bound": null
+    },
+    "app-candidate": {
+      "fv_scale": 24,
+      "score_type": "cp",
+      "score_value": 157,
+      "bound": null
+    }
+  },
+  "note": "The cp values were supplied by the independent VE1-Q review as deterministic depth-1 runtime observations. They are qualification known answers, not semantic chess/shogi truth labels."
+}
