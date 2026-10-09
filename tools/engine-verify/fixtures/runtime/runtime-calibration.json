@@ -3,7 +3,7 @@
   "authority": "independent-review-runtime-known-answer",
   "position": "position startpos",
   "go": "depth 1",
-  "multipv": 1,
+  "multipv": 3,
   "expected": {
     "app-current": {
       "fv_scale": 16,
@@ -18,5 +18,5 @@
       "bound": null
     }
   },
-  "note": "The cp values were supplied by the independent VE1-Q review as deterministic depth-1 runtime observations. They are qualification known answers, not semantic chess/shogi truth labels."
+  "note": "The cp values were supplied by the independent VE1-Q review as deterministic depth-1 runtime observations. The probe uses MultiPV 3 because both app-current and app-candidate formal profiles use MultiPV 3. These are qualification known answers, not semantic shogi truth labels."
 }
