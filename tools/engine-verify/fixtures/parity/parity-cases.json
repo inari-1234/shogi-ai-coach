@@ -3,6 +3,7 @@
   "cases": [
     {"id": "selected-fields", "raw_log": "fixtures/parity/selected-fields.log"},
     {"id": "missing-score-swift-compat", "raw_log": "fixtures/parity/missing-score-swift-compat.log"},
-    {"id": "missing-pv-swift-compat", "raw_log": "fixtures/parity/missing-pv-swift-compat.log"}
+    {"id": "missing-pv-swift-compat", "raw_log": "fixtures/parity/missing-pv-swift-compat.log"},
+    {"id": "protocol-edge-lines", "raw_log": "fixtures/parity/protocol-edge-lines.log"}
   ]
 }
