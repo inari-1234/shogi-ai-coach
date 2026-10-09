@@ -369,60 +369,23 @@ final class DeepAnalysisViewModel: ObservableObject {
         _ analyzed: [DeepAnalysisEntry],
         maxPositions: Int
     ) -> [DeepAnalysisEntry] {
-        guard !analyzed.isEmpty else { return [] }
-        let limit = max(1, min(5, maxPositions))
-        let ranked = analyzed.sorted {
-            let left = verifiedImportance($0)
-            let right = verifiedImportance($1)
-            if left != right { return left > right }
-            return $0.ply < $1.ply
+        let candidates = analyzed.map { entry in
+            DeepImportanceCandidate(
+                ply: entry.ply,
+                shallowEstimatedLossCp: entry.shallowEstimatedLossCp,
+                actualLossCp: entry.actualLossCp,
+                bestMove: entry.bestMove,
+                actualMove: entry.actualMove,
+                bestScoreText: entry.bestScoreText,
+                actualScoreText: entry.actualScoreText,
+                opponentBestReply: entry.opponentBestReply,
+                comparisonStable: entry.comparisonStable
+            )
         }
-
-        var selected: [DeepAnalysisEntry] = []
-        for entry in ranked {
-            let meaningful = !entry.comparisonStable
-                || (entry.actualLossCp ?? 0) >= 80
-                || (entry.bestScoreText.hasPrefix("mate ")
-                    && !entry.actualScoreText.hasPrefix("mate "))
-            if !meaningful && !selected.isEmpty { continue }
-            if selected.contains(where: { likelySameEvent($0, entry) }) { continue }
-            selected.append(entry)
-            if selected.count == limit { break }
-        }
-
-        if selected.isEmpty, let first = ranked.first {
-            selected = [first]
-        }
-        return selected.sorted { $0.ply < $1.ply }
-    }
-
-    private static func verifiedImportance(_ entry: DeepAnalysisEntry) -> Int {
-        // Search stability is confidence metadata, not business importance. Preserve the
-        // shallow-stage signal when a deep comparison is unstable, but never promote an
-        // unstable position solely because the engine search happened to fluctuate.
-        var value = (entry.actualLossCp ?? entry.shallowEstimatedLossCp ?? 0) * 10
-        if entry.bestScoreText.hasPrefix("mate "),
-           !entry.actualScoreText.hasPrefix("mate ") {
-            value += 10_000
-        }
-        if entry.bestMove != entry.actualMove { value += 100 }
-        return value
-    }
-
-    private static func likelySameEvent(
-        _ lhs: DeepAnalysisEntry,
-        _ rhs: DeepAnalysisEntry
-    ) -> Bool {
-        guard abs(lhs.ply - rhs.ply) <= 4 else { return false }
-        let sameBestDestination = moveDestination(lhs.bestMove) == moveDestination(rhs.bestMove)
-        let sameReplyDestination = moveDestination(lhs.opponentBestReply)
-            == moveDestination(rhs.opponentBestReply)
-        return sameBestDestination && sameReplyDestination
-    }
-
-    private static func moveDestination(_ move: String) -> String {
-        guard move != "-", move.count >= 2 else { return move }
-        return String(move.suffix(2))
+        return DeepImportanceSelector.selectIndices(
+            candidates,
+            maxPositions: maxPositions
+        ).map { analyzed[$0] }
     }
 
     private static func makeSummary(
