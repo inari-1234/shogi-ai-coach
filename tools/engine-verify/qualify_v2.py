@@ -7,16 +7,36 @@ after-run audit of the initial qualification attempt.
 """
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 from typing import Any
 
 import qualify as base
+import ve1q_harness as harness
 from ve1q_harness import (
     deterministic_repro_view,
     execute_engine_search,
     finalize_run_provenance,
     strict_validate_raw_log,
 )
+
+
+# Q5 must hash the formal entrypoint too. The base harness source hash predates
+# this corrective runner, so revision 2 extends it deterministically with this
+# file and publishes a distinct harness version in every formal provenance row.
+_BASE_TOOL_SOURCE_HASH = harness.tool_source_hash
+
+
+def formal_tool_source_hash() -> str:
+    h = hashlib.sha256()
+    h.update(_BASE_TOOL_SOURCE_HASH().encode("ascii"))
+    h.update(b"\0qualify_v2.py\0")
+    h.update(Path(__file__).read_bytes())
+    return h.hexdigest()
+
+
+harness.tool_source_hash = formal_tool_source_hash
+harness.HARNESS_VERSION = "Build19-VE1-Q/1.1"
 
 
 def q3_repro(work: Path, out_dir: Path) -> tuple[base.Gate, list[dict[str, Any]]]:
