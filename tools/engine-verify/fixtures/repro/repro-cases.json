@@ -32,9 +32,10 @@
     "id": "middlegame-movetime-control",
     "position": "position startpos moves 7g7f 3c3d 2g2f 5c5d 2f2e 8b5b 4i5h 5d5e 2e2d 2c2d 2h2d 5e5f 5g5f 2b8h+ 7i8h B*3c",
     "profile": "app-current",
-    "movetime_ms": 400,
+    "movetime_ms": 50,
     "multipv": 3,
-    "repeats": 5,
-    "expected_relation": "at-least-two-distinct-deterministic-views"
+    "repeats": 10,
+    "expected_relation": "at-least-two-distinct-deterministic-views",
+    "control_note": "Short wall-clock budget and ten fresh-engine repeats are intentionally used as a sensitivity control; fixed-node cases remain the reproducibility authority."
   }
 }
