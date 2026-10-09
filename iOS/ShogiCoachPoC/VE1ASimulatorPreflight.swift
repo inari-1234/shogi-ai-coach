@@ -23,11 +23,14 @@ enum VE1ASimulatorPreflight {
         write(["stage=started", "ve1a_status=RUNNING"])
 
         do {
-            let c1 = try await EngineRuntimeVerifier.shared.runC1KnownAnswer()
+            // This control must execute before any qualified FV_SCALE=24 session in this
+            // process. YaneuraOu's embedded runtime retains option state across local
+            // sessions, so running C1 first would make an omitted FV_SCALE inherit 24.
             let missingScale = try await EngineRuntimeVerifier.shared
                 .runMissingFVScaleNegativeControl()
             let wrongNNUEActualSHA = try await EngineRuntimeVerifier.shared
                 .runWrongNNUEIdentityNegativeControl()
+            let c1 = try await EngineRuntimeVerifier.shared.runC1KnownAnswer()
             let gitCommit = Bundle.main.object(
                 forInfoDictionaryKey: "GitCommit"
             ) as? String ?? "unknown"
@@ -51,12 +54,12 @@ enum VE1ASimulatorPreflight {
                 "negative_missing_fv_scale_bestmove=\(missingScale.bestMove)",
                 "negative_wrong_nnue_status=PASS",
                 "negative_wrong_nnue_actual_sha256=\(wrongNNUEActualSHA)",
-                "c1_transcript_begin",
-                c1.transcript.joined(separator: "\n"),
-                "c1_transcript_end",
                 "missing_fv_scale_transcript_begin",
                 missingScale.transcript.joined(separator: "\n"),
-                "missing_fv_scale_transcript_end"
+                "missing_fv_scale_transcript_end",
+                "c1_transcript_begin",
+                c1.transcript.joined(separator: "\n"),
+                "c1_transcript_end"
             ]
             write(lines)
             fflush(stdout)
