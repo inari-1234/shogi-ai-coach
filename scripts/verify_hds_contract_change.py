@@ -9,7 +9,6 @@ from pathlib import Path
 FIXTURE = Path("tools/engine-verify/fixtures/build19-hds-41-49-69.json")
 PROBE = Path("iOS/ShogiCoachPoC/SimulatorCIProbe.swift")
 WORKFLOW = Path(".github/workflows/ios-simulator.yml")
-EVIDENCE_GLOB = "Build19/HDS_CONTRACT_CHANGE_EVIDENCE_*.json"
 
 
 def fail(message: str) -> None:
@@ -65,7 +64,7 @@ def verify_surfaces(plies: list[int]) -> None:
     if f'hds_m_positions={compact}' not in workflow:
         fail("ios-simulator result assertion does not match canonical fixture")
 
-    normalized = re.sub(r"\\s+", "", workflow)
+    normalized = re.sub(r"\s+", "", workflow)
     expected_json_assert = (
         'assert[p["ply"]forpinpositions]=='
         + "[" + ",".join(str(p) for p in plies) + "]"
