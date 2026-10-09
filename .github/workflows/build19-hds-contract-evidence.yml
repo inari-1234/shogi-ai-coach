@@ -1,0 +1,46 @@
+name: Build19 HDS Contract Evidence
+
+on:
+  push:
+    branches:
+      - main
+      - 'candidate/**'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hds-contract-evidence:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve comparison base
+        id: base
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=''
+          if [ "${{ github.event_name }}" = 'pull_request' ]; then
+            git fetch origin "${GITHUB_BASE_REF}"
+            BASE=$(git merge-base HEAD "origin/${GITHUB_BASE_REF}")
+          elif [ "${{ github.event_name }}" = 'push' ]; then
+            BEFORE='${{ github.event.before }}'
+            if [ -n "$BEFORE" ] && [ "$BEFORE" != '0000000000000000000000000000000000000000' ]; then
+              BASE="$BEFORE"
+            fi
+          fi
+          echo "base=$BASE" >> "$GITHUB_OUTPUT"
+
+      - name: Verify HDS-M regression contract evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/verify_hds_contract_change.py --base '${{ steps.base.outputs.base }}'
