@@ -25,12 +25,14 @@ enum VE1ASimulatorPreflight {
         do {
             // This control must execute before any qualified FV_SCALE=24 session in this
             // process. YaneuraOu's embedded runtime retains option state across local
-            // sessions, so running C1 first would make an omitted FV_SCALE inherit 24.
+            // sessions, so running a qualified probe first would make an omitted
+            // FV_SCALE inherit 24.
             let missingScale = try await EngineRuntimeVerifier.shared
                 .runMissingFVScaleNegativeControl()
             let wrongNNUEActualSHA = try await EngineRuntimeVerifier.shared
                 .runWrongNNUEIdentityNegativeControl()
             let c1 = try await EngineRuntimeVerifier.shared.runC1KnownAnswer()
+            let correctedC1 = try await EngineRuntimeVerifier.shared.runCorrectedC1KnownAnswer()
             let gitCommit = Bundle.main.object(
                 forInfoDictionaryKey: "GitCommit"
             ) as? String ?? "unknown"
@@ -40,7 +42,7 @@ enum VE1ASimulatorPreflight {
                 "ve1a_status=PASS",
                 "platform=simulator",
                 "git_commit=\(gitCommit)",
-                "c1_position=position startpos",
+                "c1_position=\(c1.positionCommand)",
                 "c1_go=go depth 1",
                 "c1_threads=1",
                 "c1_multipv=1",
@@ -48,6 +50,14 @@ enum VE1ASimulatorPreflight {
                 "c1_cp=\(c1.cp)",
                 "c1_bestmove=\(c1.bestMove)",
                 "c1_depth=\(c1.depth.map(String.init) ?? "nil")",
+                "corrected_c1_position=\(correctedC1.positionCommand)",
+                "corrected_c1_go=go depth 1",
+                "corrected_c1_threads=1",
+                "corrected_c1_multipv=1",
+                "corrected_c1_fv_scale=\(correctedC1.fvScale.map(String.init) ?? "nil")",
+                "corrected_c1_cp=\(correctedC1.cp)",
+                "corrected_c1_bestmove=\(correctedC1.bestMove)",
+                "corrected_c1_depth=\(correctedC1.depth.map(String.init) ?? "nil")",
                 "nnue_sha256=\(c1.nnueSHA256)",
                 "negative_missing_fv_scale_status=PASS",
                 "negative_missing_fv_scale_cp=\(missingScale.cp)",
@@ -59,7 +69,10 @@ enum VE1ASimulatorPreflight {
                 "missing_fv_scale_transcript_end",
                 "c1_transcript_begin",
                 c1.transcript.joined(separator: "\n"),
-                "c1_transcript_end"
+                "c1_transcript_end",
+                "corrected_c1_transcript_begin",
+                correctedC1.transcript.joined(separator: "\n"),
+                "corrected_c1_transcript_end"
             ]
             write(lines)
             fflush(stdout)
