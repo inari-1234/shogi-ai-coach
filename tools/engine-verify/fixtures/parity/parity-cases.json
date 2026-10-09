@@ -1,0 +1,8 @@
+{
+  "schema_version": "ve1q-parity-v1",
+  "cases": [
+    {"id": "selected-fields", "raw_log": "fixtures/parity/selected-fields.log"},
+    {"id": "missing-score-swift-compat", "raw_log": "fixtures/parity/missing-score-swift-compat.log"},
+    {"id": "missing-pv-swift-compat", "raw_log": "fixtures/parity/missing-pv-swift-compat.log"}
+  ]
+}
