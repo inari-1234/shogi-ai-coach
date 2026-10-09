@@ -1,42 +1,60 @@
 # Build19-VE1-Q — Verification Harness Qualification
 
-This directory is the formal verification harness for **Build19-VE1-Q**. It is scoped to harness qualification only. It does **not** advance Build20, HDS-H, or establish new 41/49/69 Semantic Authority.
+This directory is the formal verification harness for **Build19-VE1-Q**. It is scoped to harness qualification only. It does **not** advance Build20, HDS-H, VE1-B corrective implementation, or establish new 41/49/69 Semantic Authority.
 
 The 41/49/69 data in `fixtures/build19-hds-41-49-69.json` are retained only as **Historical Diagnostic Fixture** data. They are not truth labels for VE1-Q.
 
 ## Formal gates
 
-`qualify.py` implements the handoff Q1–Q6 gates:
+The current formal entrypoint is `qualify_v3_entry.py`, which binds the v3 runner and its supplemental fixtures/tests into the Q5 source identity.
 
-- **Q1** — compile the repository's current Swift `USIParser` + `USIAccumulator`, feed the exact same raw logs to Swift and Python, and compare selected MultiPV evidence including score type/value/bound, depth, seldepth, nodes, nps, time, PV, rank, bestmove and ponder.
-- **Q2** — frozen known-answer / protocol-edge fixtures: mate-in-1, mate-in-3, drop `searchmoves`, in-check handling, threat-pass prohibition while checked, lower/upper bound logs, unequal MultiPV depth, missing score, missing PV, illegal move, malformed USI.
-- **Q3** — repeat fixed-node, Threads=1 searches and compare formal deterministic fields: bestmove, exact score, bound, depth, seldepth, nodes, MultiPV ordering and PV.
-- **Q4** — explicit named profiles from `profiles.json`: `app-current`, `app-candidate`, `reference`. Reports record FV_SCALE, search mode/budget, Threads, Hash and MultiPV.
-- **Q5** — mandatory provenance including repository/tool identity, pinned YaneuraOu identity, engine and NNUE SHA-256, fixture SHA, full advertised/applied USI options, profile/budget, OS/CPU/Python, raw log, timestamps and exit status.
+- **Q1** — compile the repository's current Swift `USIParser` + `USIAccumulator`, feed the exact same raw logs to Swift and Python, and compare selected MultiPV evidence including score type/value/bound, depth, seldepth, nodes, nps, time, PV, rank, bestmove and ponder. Formal engine qualification additionally sends **every generated `raw/*.usi.log`** through both implementations. Protocol-edge coverage includes negative mate values, `info string`, and `currmove` tokens.
+- **Q2** — frozen known-answer / protocol-edge fixtures plus runtime FV_SCALE known answers: mate-in-1, mate-in-3, drop `searchmoves`, in-check handling, threat-pass prohibition while checked, lower/upper bound logs, unequal MultiPV depth, missing score, missing PV, illegal move, malformed USI, and deterministic depth-1 FV16/FV24 evaluation checks.
+- **Q3** — repeat Threads=1 fixed-node searches and compare formal deterministic fields: bestmove, score, bound, depth, seldepth, nodes, MultiPV ordering and PV. v3 covers startpos 50k, a legal middlegame 250k position, a 100k `searchmoves` comparison, and a movetime control that must produce at least two distinct deterministic views to prove the detector can observe non-reproducibility.
+- **Q4** — explicit named profiles from `profiles.json`: `app-current`, `app-candidate`, `reference`. Formal qualification must actually execute `app-current`, not only validate its JSON definition.
+- **Q5** — mandatory provenance including repository/tool identity, pinned YaneuraOu identity, engine and NNUE SHA-256, fixture SHA, full advertised/applied USI options, profile/budget, OS/CPU/Python, raw log, timestamps and exit status. v3 additionally binds the raw `setoption name FV_SCALE` command and raw `loading eval file .../nn.bin` evidence back to provenance and the actual NNUE file hash.
 - **Q6** — fail-closed negative tests for the ten handoff-required failure classes. A false PASS fails VE1-Q.
 
-## Profiles
+## Independent-review supplemental conditions
 
-`profiles.json` freezes the *profile semantics* required for qualification:
+VE1-Q FREEZE additionally requires C1-C5:
 
-- `app-current`: FV_SCALE 16 equivalent, movetime, Threads 1, Hash 64, MultiPV 3.
+- **C1** — runtime FV_SCALE known answers: fixed position, `depth 1`, FV16=`cp 236`, FV24=`cp 157`.
+- **C2** — actual `app-current` engine execution plus an explicit scope limitation.
+- **C3** — Swift/Python parity over all generated raw USI logs plus protocol-edge lines.
+- **C4** — raw-log/provenance cross-check for FV_SCALE and loaded NNUE path/hash.
+- **C5** — expanded fixed-node reproducibility plus movetime sensitivity control.
+
+A v3 `FREEZE_CANDIDATE_MANIFEST.json` is emitted only when **Q1-Q6 and C1-C5 all PASS**.
+
+## Profiles and scope limitation
+
+`profiles.json` defines the qualification engine settings:
+
+- `app-current`: FV_SCALE 16, movetime 400 ms, Threads 1, Hash 64, MultiPV 3.
 - `app-candidate`: FV_SCALE 24, fixed nodes, Threads 1, Hash 64, MultiPV 3.
 - `reference`: FV_SCALE 24, fixed nodes with full provenance.
 
-The node budgets in this directory are qualification budgets only and are explicitly **not** production-frozen thresholds.
+**Profiles reproduce engine settings only; they do not reproduce the app comparison procedure** (MultiPV candidate generation -> `searchmoves` comparison -> progressive search extension). That procedure must be separately verified by VE1-E before it can be treated as reproduced application behavior.
+
+The node budgets in this directory are qualification budgets only and are explicitly **not** production-frozen thresholds. The current `reference` profile remains `qualification-only-unfrozen`; its depth/MultiPV policy must be reconsidered before VE1-D reference analysis authority is established.
+
+## Known app-side issue discovered by Q1
+
+`missing-score-swift-compat` correctly passes parity because Python reproduces current Swift behavior. However, current `USIAccumulator` can replace a scored entry with a later selected scoreless `info` entry, leaving app-side evaluation `nil`. This is recorded as **VE1B-001** in `Build19/BUILD19_VE1_B_ISSUES_20261009.md`. VE1-Q records the defect only; it does not implement the VE1-B correction.
 
 ## Running
 
 ```bash
-# Static / parser / Swift parity checks only. Expected overall status is HOLD
-# because Q3 and Q5 require the pinned engine artifacts.
-python3 tools/engine-verify/qualify.py offline
+# Static/parser/Swift parity checks only. Expected overall status is HOLD because
+# runtime C1-C5, Q3 and Q5 require the pinned engine artifacts.
+python3 tools/engine-verify/qualify_v3_entry.py offline
 
 # Build exact pinned YaneuraOu + Suisho5
 bash tools/engine-verify/setup.sh
 
-# Formal Q1-Q6 execution
-python3 tools/engine-verify/qualify.py qualify
+# Formal Q1-Q6 + C1-C5 execution
+python3 tools/engine-verify/qualify_v3_entry.py qualify
 ```
 
 A formal PASS creates:
@@ -53,4 +71,4 @@ On FAIL/HOLD, no freeze-candidate manifest is produced.
 
 ## Pre-qualification verifier
 
-The input harness's existing verifier is retained only for historical/exploratory diagnostics. Its 41/49/69 outputs are historical observations only; they cannot be used to establish new Semantic Authority. The formal VE1-Q entrypoint is `qualify.py`.
+The input harness's existing verifier and the earlier `qualify.py` / `qualify_v2.py` runners are retained for audit history. They are not the current formal v3 entrypoint. Their 41/49/69 outputs remain historical observations only and cannot establish new Semantic Authority.
