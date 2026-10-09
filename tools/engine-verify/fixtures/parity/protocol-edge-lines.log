@@ -1,0 +1,4 @@
+info string loading eval file : /tmp/eval/nn.bin
+info depth 3 seldepth 5 multipv 1 score cp 12 nodes 80 nps 2000 time 40 currmove 7g7f currmovenumber 1 pv 7g7f 3c3d
+info depth 4 seldepth 7 multipv 1 score mate -3 nodes 120 nps 2400 time 50 currmove 2g2f currmovenumber 2 pv 2g2f 8c8d
+bestmove 2g2f ponder 8c8d
