@@ -1,0 +1,33 @@
+{
+  "schema_version": "ve1q-profile-v1",
+  "authority_note": "Qualification profiles only. app-candidate/reference node budgets are not production-frozen authorities.",
+  "profiles": {
+    "app-current": {
+      "fv_scale": 16,
+      "search_mode": "movetime",
+      "movetime_ms": 400,
+      "threads": 1,
+      "hash_mb": 64,
+      "multipv": 3,
+      "budget_status": "current-app-replica-default-for-qualification"
+    },
+    "app-candidate": {
+      "fv_scale": 24,
+      "search_mode": "nodes",
+      "nodes": 50000,
+      "threads": 1,
+      "hash_mb": 64,
+      "multipv": 3,
+      "budget_status": "qualification-only-unfrozen"
+    },
+    "reference": {
+      "fv_scale": 24,
+      "search_mode": "nodes",
+      "nodes": 250000,
+      "threads": 1,
+      "hash_mb": 256,
+      "multipv": 3,
+      "budget_status": "qualification-only-unfrozen"
+    }
+  }
+}
