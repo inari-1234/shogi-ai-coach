@@ -1,0 +1,180 @@
+name: Build19 VE1-A Runtime Verify
+
+on:
+  push:
+    branches:
+      - candidate/build19-ve1-a-app-engine-runtime
+  workflow_dispatch:
+
+concurrency:
+  group: build19-ve1-a-runtime-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-verify:
+    runs-on: macos-15
+    timeout-minutes: 25
+    steps:
+      - name: Checkout VE1-A candidate
+        uses: actions/checkout@v4
+
+      - name: Core regression and cp impact inventory
+        shell: bash
+        run: |
+          set -euxo pipefail
+          swift test 2>&1 | tee ve1a-swift-test.log
+          python3 scripts/ve1a_cp_impact_audit.py 2>&1 | tee ve1a-cp-impact.log
+
+      - name: Restore pinned engine assets
+        uses: actions/cache@v4
+        with:
+          path: |
+            native/third_party/YaneuraOu
+            iOS/ShogiCoachPoC/eval/nn.bin
+          key: shogi-engine-assets-v2
+
+      - name: Install build tools
+        shell: bash
+        run: |
+          set -euxo pipefail
+          command -v xcodegen >/dev/null 2>&1 || brew install xcodegen
+          command -v pod >/dev/null 2>&1 || brew install cocoapods
+          if [ ! -s iOS/ShogiCoachPoC/eval/nn.bin ]; then
+            command -v 7z >/dev/null 2>&1 || brew install p7zip
+          fi
+
+      - name: Prepare pinned engine and verified NNUE
+        shell: bash
+        run: |
+          set -euxo pipefail
+          chmod +x scripts/*.sh
+          ./scripts/fetch_yaneuraou.sh
+          ./scripts/fetch_eval.sh
+          ./scripts/patch_yaneuraou_ios.sh
+          EXPECTED='768068f0d534a0603a5d38bcd143de6bbca820d5f1c95a14d40863e5b7892d76'
+          ACTUAL=$(shasum -a 256 iOS/ShogiCoachPoC/eval/nn.bin | awk '{print $1}')
+          test "$ACTUAL" = "$EXPECTED"
+          printf 'source_nnue_sha256=%s\n' "$ACTUAL" | tee ve1a-nnue-source.txt
+
+      - name: Generate Xcode project
+        shell: bash
+        run: |
+          set -euxo pipefail
+          xcodegen generate
+          pod install
+          test -d ShogiCoachPoC.xcworkspace
+
+      - name: Build iOS Simulator app
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -workspace ShogiCoachPoC.xcworkspace \
+            -scheme ShogiCoachPoC \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/VE1ASimulatorDerivedData \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
+            GIT_COMMIT_SHA="$GITHUB_SHA" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            build 2>&1 | tee ve1a-simulator-build.log
+
+      - name: Verify bundled NNUE identity
+        shell: bash
+        run: |
+          set -euxo pipefail
+          APP='build/VE1ASimulatorDerivedData/Build/Products/Release-iphonesimulator/ShogiCoachPoC.app'
+          EXPECTED='768068f0d534a0603a5d38bcd143de6bbca820d5f1c95a14d40863e5b7892d76'
+          test -d "$APP"
+          test -s "$APP/eval/nn.bin"
+          ACTUAL=$(shasum -a 256 "$APP/eval/nn.bin" | awk '{print $1}')
+          test "$ACTUAL" = "$EXPECTED"
+          printf 'bundle_nnue_sha256=%s\n' "$ACTUAL" | tee ve1a-nnue-bundle.txt
+
+      - name: Run VE1-A C1 and executable negative controls
+        shell: bash
+        run: |
+          set -euxo pipefail
+          APP='build/VE1ASimulatorDerivedData/Build/Products/Release-iphonesimulator/ShogiCoachPoC.app'
+          xcrun simctl list devices available --json > ve1a-simulator-devices.json
+          UDID=$(python3 - <<'PY'
+          import json
+          data = json.load(open('ve1a-simulator-devices.json'))
+          for devices in data['devices'].values():
+              for device in devices:
+                  if device.get('isAvailable') and 'iPhone' in device.get('name', ''):
+                      print(device['udid'])
+                      raise SystemExit(0)
+          raise SystemExit('No available iPhone simulator')
+          PY
+          )
+          xcrun simctl boot "$UDID" 2>/dev/null || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl install "$UDID" "$APP"
+          xcrun simctl launch "$UDID" com.inari1234.shogicoachpoc --ve1a-runtime-smoke \
+            2>&1 | tee ve1a-simulator-launch.log
+
+          CONTAINER=$(xcrun simctl get_app_container "$UDID" com.inari1234.shogicoachpoc data)
+          REPORT="$CONTAINER/Documents/ve1a-runtime.txt"
+          COMPLETE=0
+          for _ in $(seq 1 60); do
+            if [ -s "$REPORT" ]; then
+              if grep -Fq 'stage=complete' "$REPORT"; then
+                COMPLETE=1
+                break
+              fi
+              if grep -Fq 'stage=failed' "$REPORT"; then
+                break
+              fi
+            fi
+            sleep 1
+          done
+          if [ -s "$REPORT" ]; then
+            cp "$REPORT" ve1a-runtime.txt
+          else
+            echo 'stage=no_report' > ve1a-runtime.txt
+          fi
+          cat ve1a-runtime.txt
+          xcrun simctl spawn "$UDID" log show --last 5m --style compact \
+            --predicate 'process == "ShogiCoachPoC"' > ve1a-simulator-system.log 2>&1 || true
+          xcrun simctl shutdown "$UDID" 2>/dev/null || true
+
+          test "$COMPLETE" -eq 1
+          grep -Fq 've1a_status=PASS' ve1a-runtime.txt
+          grep -Fq 'c1_position=position startpos' ve1a-runtime.txt
+          grep -Fq 'c1_go=go depth 1' ve1a-runtime.txt
+          grep -Fq 'c1_threads=1' ve1a-runtime.txt
+          grep -Fq 'c1_multipv=1' ve1a-runtime.txt
+          grep -Fq 'c1_fv_scale=24' ve1a-runtime.txt
+          grep -Fq 'c1_cp=108' ve1a-runtime.txt
+          grep -Fq 'c1_bestmove=7g7f' ve1a-runtime.txt
+          grep -Fq 'c1_depth=1' ve1a-runtime.txt
+          grep -Fq 'nnue_sha256=768068f0d534a0603a5d38bcd143de6bbca820d5f1c95a14d40863e5b7892d76' ve1a-runtime.txt
+          grep -Fq 'negative_missing_fv_scale_status=PASS' ve1a-runtime.txt
+          grep -Fq 'negative_missing_fv_scale_cp=164' ve1a-runtime.txt
+          grep -Fq 'negative_wrong_nnue_status=PASS' ve1a-runtime.txt
+
+      - name: Upload VE1-A automated evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build19-VE1-A-automated-evidence
+          path: |
+            ve1a-runtime.txt
+            ve1a-simulator-launch.log
+            ve1a-simulator-system.log
+            ve1a-simulator-build.log
+            ve1a-swift-test.log
+            ve1a-cp-impact.log
+            ve1a-nnue-source.txt
+            ve1a-nnue-bundle.txt
+            build/ve1a-cp-impact.json
+            build/ve1a-cp-impact.md
+          if-no-files-found: warn
+          retention-days: 30

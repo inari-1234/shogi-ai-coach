@@ -42,9 +42,8 @@ actor EngineUSISession {
             transport = nil
         }
 
-        guard let evalURL = Bundle.main.url(forResource: "nn", withExtension: "bin", subdirectory: "eval") else {
-            throw ProbeError.evalMissing
-        }
+        let verifiedNNUE = try EngineRuntimeIdentity.verifyBundledNNUE()
+        let evalURL = verifiedNNUE.url
 
         let link = LocalUSITransport()
         transport = link
@@ -62,6 +61,7 @@ actor EngineUSISession {
             try await link.send("setoption name USI_Hash value 64")
             currentMultiPV = max(1, multiPV)
             try await link.send("setoption name MultiPV value \(currentMultiPV)")
+            try await link.send("setoption name FV_SCALE value \(EngineRuntimeAuthority.fvScale)")
             try await link.send("setoption name EvalDir value \(evalURL.deletingLastPathComponent().path)")
             try await link.send("isready")
             SimulatorStage.mark("isready_sent")

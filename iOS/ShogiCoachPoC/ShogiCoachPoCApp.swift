@@ -4,9 +4,12 @@ import SwiftUI
 struct ShogiCoachPoCApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            VE1ARootView()
             #if targetEnvironment(simulator)
-            .task { await SimulatorCIProbe.runIfRequested() }
+            .task {
+                await VE1ASimulatorPreflight.runIfRequested()
+                await SimulatorCIProbe.runIfRequested()
+            }
             #endif
         }
     }

@@ -43,10 +43,8 @@ enum EngineRuntimeVerificationError: Error, LocalizedError {
     }
 }
 
-actor EngineRuntimeVerifier {
-    static let shared = EngineRuntimeVerifier()
-
-    func verifyBundledNNUE() throws -> (url: URL, sha256: String) {
+enum EngineRuntimeIdentity {
+    static func verifyBundledNNUE() throws -> (url: URL, sha256: String) {
         guard let evalURL = Bundle.main.url(
             forResource: "nn",
             withExtension: "bin",
@@ -57,8 +55,30 @@ actor EngineRuntimeVerifier {
         return (evalURL, try verifyNNUE(at: evalURL))
     }
 
+    static func verifyNNUE(at url: URL) throws -> String {
+        let actual = try sha256Hex(of: url)
+        guard actual == EngineRuntimeAuthority.expectedNNUESHA256 else {
+            throw EngineRuntimeVerificationError.nnueIdentityMismatch(
+                expected: EngineRuntimeAuthority.expectedNNUESHA256,
+                actual: actual
+            )
+        }
+        return actual
+    }
+
+    static func sha256Hex(of url: URL) throws -> String {
+        let data = try Data(contentsOf: url, options: [.mappedIfSafe])
+        return SHA256.hash(data: data)
+            .map { String(format: "%02x", $0) }
+            .joined()
+    }
+}
+
+actor EngineRuntimeVerifier {
+    static let shared = EngineRuntimeVerifier()
+
     func runC1KnownAnswer() async throws -> EngineRuntimeVerificationResult {
-        let verified = try verifyBundledNNUE()
+        let verified = try EngineRuntimeIdentity.verifyBundledNNUE()
         let result = try await runStartposDepth1(
             evalURL: verified.url,
             nnueSHA256: verified.sha256,
@@ -84,7 +104,7 @@ actor EngineRuntimeVerifier {
     }
 
     func runMissingFVScaleNegativeControl() async throws -> EngineRuntimeVerificationResult {
-        let verified = try verifyBundledNNUE()
+        let verified = try EngineRuntimeIdentity.verifyBundledNNUE()
         let result = try await runStartposDepth1(
             evalURL: verified.url,
             nnueSHA256: verified.sha256,
@@ -113,35 +133,17 @@ actor EngineRuntimeVerifier {
             to: temporaryURL,
             options: .atomic
         )
-        let actual = try sha256Hex(of: temporaryURL)
+        let actual = try EngineRuntimeIdentity.sha256Hex(of: temporaryURL)
 
         do {
-            _ = try verifyNNUE(at: temporaryURL)
-        } catch EngineRuntimeVerificationError.nnueIdentityMismatch {
+            _ = try EngineRuntimeIdentity.verifyNNUE(at: temporaryURL)
+        } catch EngineRuntimeVerificationError.nnueIdentityMismatch(_, _) {
             return actual
         }
 
         throw EngineRuntimeVerificationError.negativeControlDidNotFail(
             "wrong NNUE SHA was accepted"
         )
-    }
-
-    private func verifyNNUE(at url: URL) throws -> String {
-        let actual = try sha256Hex(of: url)
-        guard actual == EngineRuntimeAuthority.expectedNNUESHA256 else {
-            throw EngineRuntimeVerificationError.nnueIdentityMismatch(
-                expected: EngineRuntimeAuthority.expectedNNUESHA256,
-                actual: actual
-            )
-        }
-        return actual
-    }
-
-    private func sha256Hex(of url: URL) throws -> String {
-        let data = try Data(contentsOf: url, options: [.mappedIfSafe])
-        return SHA256.hash(data: data)
-            .map { String(format: "%02x", $0) }
-            .joined()
     }
 
     private func runStartposDepth1(
@@ -157,7 +159,11 @@ actor EngineRuntimeVerifier {
 
             transcript.append("> usi")
             try await link.send("usi")
-            let usiOK = try await link.readUntil({ $0 == "usiok" }, timeoutSeconds: 5, label: "ve1a-usiok")
+            let usiOK = try await link.readUntil(
+                { $0 == "usiok" },
+                timeoutSeconds: 5,
+                label: "ve1a-usiok"
+            )
             transcript.append("< \(usiOK)")
 
             let commands: [String] = [
@@ -182,7 +188,11 @@ actor EngineRuntimeVerifier {
 
             transcript.append("> isready")
             try await link.send("isready")
-            let readyOK = try await link.readUntil({ $0 == "readyok" }, timeoutSeconds: 20, label: "ve1a-readyok")
+            let readyOK = try await link.readUntil(
+                { $0 == "readyok" },
+                timeoutSeconds: 20,
+                label: "ve1a-readyok"
+            )
             transcript.append("< \(readyOK)")
 
             transcript.append("> usinewgame")
@@ -210,7 +220,9 @@ actor EngineRuntimeVerifier {
             guard let result = finalResult,
                   let primary = result.principalVariations.first,
                   let score = primary.score else {
-                throw EngineRuntimeVerificationError.protocolFailure("bestmove/primary score missing")
+                throw EngineRuntimeVerificationError.protocolFailure(
+                    "bestmove/primary score missing"
+                )
             }
 
             let cp: Int
