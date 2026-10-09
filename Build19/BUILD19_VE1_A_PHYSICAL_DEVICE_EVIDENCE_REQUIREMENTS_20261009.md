@@ -24,15 +24,23 @@ Run both probes with FV_SCALE=24 and the pinned bundled NNUE.
 
 - raw USI transcript from engine initialization through each `bestmove`;
 - the `setoption name FV_SCALE value 24` line;
-- evidence identifying/loading the NNUE file;
+- evidence identifying/loading the NNUE file, including `EvalDir`, initialization output, bundled path and SHA-256;
 - final relevant `info` line(s) containing the score;
 - `bestmove` line;
-- iPhone model;
+- iPhone hardware model identifier;
 - iOS version;
 - app version/build number;
+- tested Git commit;
 - bundled `nn.bin` SHA-256.
 
 Pinned bundled NNUE SHA-256:
 `768068f0d534a0603a5d38bcd143de6bbca820d5f1c95a14d40863e5b7892d76`
 
-A mismatch is an investigation condition. Do not change the expected values to fit a device result.
+## Mismatch policy
+
+Any mismatch or missing provenance keeps **VE1-A = HOLD / NOT PASS**.
+
+- Do not change `108`, `157`, `7g7f`, `2b7g+`, the pinned SFEN, FV_SCALE, or the pinned NNUE SHA to fit a device result.
+- Preserve and share the raw device evidence before changing implementation.
+- Investigate runtime provenance, bundled NNUE identity/loading, FV_SCALE/options, exact position input, depth, parser/accumulator behavior, and architecture/runtime differences.
+- Only a fresh physical-device rerun that matches the unchanged authority may clear the HOLD.

@@ -8,16 +8,26 @@ enum EngineRuntimeAuthority {
     static let c1Depth = 1
     static let c1ExpectedCp = 108
     static let c1ExpectedBestMove = "7g7f"
+    static let correctedC1SFEN = "lnsgk1snl/1r4gb1/p1pppp1pp/1p4p2/7P1/2P6/PPBPPPP1P/7R1/LNSGKGSNL w - 8"
+    static let correctedC1ExpectedCp = 157
+    static let correctedC1ExpectedBestMove = "2b7g+"
     static let missingFVScaleExpectedCp = 164
 }
 
 struct EngineRuntimeVerificationResult: Sendable {
+    let positionCommand: String
     let cp: Int
     let bestMove: String
     let depth: Int?
+    let nnuePath: String
     let nnueSHA256: String
     let fvScale: Int?
     let transcript: [String]
+}
+
+struct EngineRuntimePhysicalEvidenceSuite: Sendable {
+    let startpos: EngineRuntimeVerificationResult
+    let correctedC1: EngineRuntimeVerificationResult
 }
 
 enum EngineRuntimeVerificationError: Error, LocalizedError {
@@ -84,23 +94,53 @@ actor EngineRuntimeVerifier {
             nnueSHA256: verified.sha256,
             fvScale: EngineRuntimeAuthority.fvScale
         )
-
-        guard result.depth == EngineRuntimeAuthority.c1Depth else {
-            throw EngineRuntimeVerificationError.knownAnswerMismatch(
-                "depth expected=\(EngineRuntimeAuthority.c1Depth) actual=\(result.depth.map(String.init) ?? "nil")"
-            )
-        }
-        guard result.cp == EngineRuntimeAuthority.c1ExpectedCp else {
-            throw EngineRuntimeVerificationError.knownAnswerMismatch(
-                "cp expected=\(EngineRuntimeAuthority.c1ExpectedCp) actual=\(result.cp)"
-            )
-        }
-        guard result.bestMove == EngineRuntimeAuthority.c1ExpectedBestMove else {
-            throw EngineRuntimeVerificationError.knownAnswerMismatch(
-                "bestmove expected=\(EngineRuntimeAuthority.c1ExpectedBestMove) actual=\(result.bestMove)"
-            )
-        }
+        try validateKnownAnswer(
+            result,
+            expectedCp: EngineRuntimeAuthority.c1ExpectedCp,
+            expectedBestMove: EngineRuntimeAuthority.c1ExpectedBestMove,
+            label: "startpos"
+        )
         return result
+    }
+
+    func runCorrectedC1KnownAnswer() async throws -> EngineRuntimeVerificationResult {
+        let verified = try EngineRuntimeIdentity.verifyBundledNNUE()
+        let result = try await runPositionDepth1(
+            positionCommand: "position sfen \(EngineRuntimeAuthority.correctedC1SFEN)",
+            evalURL: verified.url,
+            nnueSHA256: verified.sha256,
+            fvScale: EngineRuntimeAuthority.fvScale
+        )
+        try validateKnownAnswer(
+            result,
+            expectedCp: EngineRuntimeAuthority.correctedC1ExpectedCp,
+            expectedBestMove: EngineRuntimeAuthority.correctedC1ExpectedBestMove,
+            label: "corrected-c1"
+        )
+        return result
+    }
+
+    /// Physical-device evidence intentionally returns raw actual values without
+    /// converting a numeric mismatch into a thrown known-answer error. The UI
+    /// must retain/share the transcript and mark VE1-A HOLD on any mismatch.
+    func runPhysicalDeviceEvidenceSuite() async throws -> EngineRuntimePhysicalEvidenceSuite {
+        let verified = try EngineRuntimeIdentity.verifyBundledNNUE()
+        let startpos = try await runPositionDepth1(
+            positionCommand: "position startpos",
+            evalURL: verified.url,
+            nnueSHA256: verified.sha256,
+            fvScale: EngineRuntimeAuthority.fvScale
+        )
+        let correctedC1 = try await runPositionDepth1(
+            positionCommand: "position sfen \(EngineRuntimeAuthority.correctedC1SFEN)",
+            evalURL: verified.url,
+            nnueSHA256: verified.sha256,
+            fvScale: EngineRuntimeAuthority.fvScale
+        )
+        return EngineRuntimePhysicalEvidenceSuite(
+            startpos: startpos,
+            correctedC1: correctedC1
+        )
     }
 
     func runMissingFVScaleNegativeControl() async throws -> EngineRuntimeVerificationResult {
@@ -146,7 +186,44 @@ actor EngineRuntimeVerifier {
         )
     }
 
+    private func validateKnownAnswer(
+        _ result: EngineRuntimeVerificationResult,
+        expectedCp: Int,
+        expectedBestMove: String,
+        label: String
+    ) throws {
+        guard result.depth == EngineRuntimeAuthority.c1Depth else {
+            throw EngineRuntimeVerificationError.knownAnswerMismatch(
+                "\(label) depth expected=\(EngineRuntimeAuthority.c1Depth) actual=\(result.depth.map(String.init) ?? "nil")"
+            )
+        }
+        guard result.cp == expectedCp else {
+            throw EngineRuntimeVerificationError.knownAnswerMismatch(
+                "\(label) cp expected=\(expectedCp) actual=\(result.cp)"
+            )
+        }
+        guard result.bestMove == expectedBestMove else {
+            throw EngineRuntimeVerificationError.knownAnswerMismatch(
+                "\(label) bestmove expected=\(expectedBestMove) actual=\(result.bestMove)"
+            )
+        }
+    }
+
     private func runStartposDepth1(
+        evalURL: URL,
+        nnueSHA256: String,
+        fvScale: Int?
+    ) async throws -> EngineRuntimeVerificationResult {
+        try await runPositionDepth1(
+            positionCommand: "position startpos",
+            evalURL: evalURL,
+            nnueSHA256: nnueSHA256,
+            fvScale: fvScale
+        )
+    }
+
+    private func runPositionDepth1(
+        positionCommand: String,
         evalURL: URL,
         nnueSHA256: String,
         fvScale: Int?
@@ -159,12 +236,12 @@ actor EngineRuntimeVerifier {
 
             transcript.append("> usi")
             try await link.send("usi")
-            let usiOK = try await link.readUntil(
-                { $0 == "usiok" },
+            transcript.append(contentsOf: try await readUntilRecording(
+                link,
+                predicate: { $0 == "usiok" },
                 timeoutSeconds: 5,
                 label: "ve1a-usiok"
-            )
-            transcript.append("< \(usiOK)")
+            ))
 
             let commands: [String] = [
                 "setoption name Threads value 1",
@@ -188,17 +265,17 @@ actor EngineRuntimeVerifier {
 
             transcript.append("> isready")
             try await link.send("isready")
-            let readyOK = try await link.readUntil(
-                { $0 == "readyok" },
+            transcript.append(contentsOf: try await readUntilRecording(
+                link,
+                predicate: { $0 == "readyok" },
                 timeoutSeconds: 20,
                 label: "ve1a-readyok"
-            )
-            transcript.append("< \(readyOK)")
+            ))
 
             transcript.append("> usinewgame")
             try await link.send("usinewgame")
-            transcript.append("> position startpos")
-            try await link.send("position startpos")
+            transcript.append("> \(positionCommand)")
+            try await link.send(positionCommand)
             transcript.append("> go depth 1")
             try await link.send("go depth 1")
 
@@ -208,9 +285,7 @@ actor EngineRuntimeVerifier {
             while ContinuousClock.now < deadline {
                 let remaining = ContinuousClock.now.duration(to: deadline)
                 let line = try await link.nextLine(timeout: remaining, label: "ve1a-bestmove")
-                if line.hasPrefix("info ") || line.hasPrefix("bestmove ") {
-                    transcript.append("< \(line)")
-                }
+                transcript.append("< \(line)")
                 if let result = accumulator.consume(line) {
                     finalResult = result
                     break
@@ -244,9 +319,11 @@ actor EngineRuntimeVerifier {
             await link.close()
 
             return EngineRuntimeVerificationResult(
+                positionCommand: positionCommand,
                 cp: cp,
                 bestMove: result.bestMove.move,
                 depth: primary.depth,
+                nnuePath: evalURL.path,
                 nnueSHA256: nnueSHA256,
                 fvScale: fvScale,
                 transcript: transcript
@@ -256,5 +333,24 @@ actor EngineRuntimeVerifier {
             await link.close()
             throw error
         }
+    }
+
+    private func readUntilRecording(
+        _ link: LocalUSITransport,
+        predicate: @escaping @Sendable (String) -> Bool,
+        timeoutSeconds: Double,
+        label: String
+    ) async throws -> [String] {
+        let deadline = ContinuousClock.now.advanced(by: .seconds(timeoutSeconds))
+        var lines: [String] = []
+        while ContinuousClock.now < deadline {
+            let remaining = ContinuousClock.now.duration(to: deadline)
+            let line = try await link.nextLine(timeout: remaining, label: label)
+            lines.append("< \(line)")
+            if predicate(line) {
+                return lines
+            }
+        }
+        throw EngineUSISession.ProbeError.timeout(label)
     }
 }
