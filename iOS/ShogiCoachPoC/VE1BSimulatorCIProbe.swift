@@ -135,9 +135,11 @@ enum VE1BSimulatorCIProbe {
                 }
             }
 
+            let evidenceDecoder = JSONDecoder()
+            evidenceDecoder.dateDecodingStrategy = .iso8601
             guard let evidenceURL = deep.searchEvidenceURL,
                   let data = try? Data(contentsOf: evidenceURL),
-                  let document = try? JSONDecoder().decode(VE1BSearchEvidenceDocument.self, from: data),
+                  let document = try? evidenceDecoder.decode(VE1BSearchEvidenceDocument.self, from: data),
                   document.schemaVersion == 4,
                   document.status == "深掘り PASS",
                   document.policyAuthorityStatus == "UNFROZEN_CALIBRATION",
