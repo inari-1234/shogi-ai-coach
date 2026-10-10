@@ -41,7 +41,7 @@ jobs:
           set -euxo pipefail
           rm -rf build/ve1b-node-contract
           mkdir -p build/ve1b-node-contract
-          python3 tools/engine-verify/ve1b_node_contract.py \
+          python3 tools/engine-verify/ve1b_node_contract_entry.py \
             --work "$ENGINE_VERIFY_WORK" \
             --out build/ve1b-node-contract
 
