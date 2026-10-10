@@ -1,0 +1,74 @@
+name: Build19 VE1-B Node Contract
+
+on:
+  push:
+    branches:
+      - candidate/build19-ve1-b-implementation
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      ENGINE_VERIFY_WORK: ${{ github.workspace }}/tools/engine-verify/.work
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Core regression
+        run: |
+          set -euxo pipefail
+          swift test
+
+      - name: Install archive dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y p7zip-full
+
+      - name: Build pinned YaneuraOu and verify NNUE identity
+        run: |
+          set -euxo pipefail
+          bash tools/engine-verify/setup.sh AVX2
+
+      - name: VE1-B native node / TT / book contract
+        run: |
+          set -euxo pipefail
+          rm -rf build/ve1b-node-contract
+          mkdir -p build/ve1b-node-contract
+          python3 tools/engine-verify/ve1b_node_contract.py \
+            --work "$ENGINE_VERIFY_WORK" \
+            --out build/ve1b-node-contract
+
+      - name: Verify evidence status and provenance
+        run: |
+          set -euxo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          result = json.loads(Path('build/ve1b-node-contract/result.json').read_text())
+          assert result['status'] == 'PASS', result
+          assert result['authority_status'] == 'AUTOMATED_CALIBRATION_FIXTURE_NOT_PRODUCTION_AUTHORITY'
+          provenance = json.loads(Path('tools/engine-verify/.work/provenance.json').read_text())
+          assert provenance['engine_commit'] == 'a5ee2786c0030edc7d4a1cdfe94b04dffec55493'
+          assert provenance['nnue_sha256'] == '768068f0d534a0603a5d38bcd143de6bbca820d5f1c95a14d40863e5b7892d76'
+          Path('build/ve1b-node-contract/provenance.json').write_text(
+              json.dumps(provenance, indent=2, sort_keys=True) + '\n'
+          )
+          PY
+
+      - name: Upload VE1-B node-contract evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build19-VE1-B-node-contract-evidence
+          path: |
+            build/ve1b-node-contract
+            tools/engine-verify/.work/provenance.json
+          if-no-files-found: error
+          retention-days: 30
