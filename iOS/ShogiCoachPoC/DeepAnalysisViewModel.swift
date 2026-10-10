@@ -471,10 +471,10 @@ final class DeepAnalysisViewModel: ObservableObject {
             "position selection mode: \(productionSelectionMode ? "production" : "regression")",
             "search budget mode: nodes",
             "node policy: \(policy.authorityStatus)",
-            "candidate discovery: \(policy.candidateDiscoveryNodes) nodes / MultiPV \(multiPV)",
-            "confirmation tiers: \(policy.confirmationNodeTiers.map(String.init).joined(separator: ",")) nodes",
+            "candidate discovery tiers: \(policy.candidateDiscoveryNodeTiers.map(String.init).joined(separator: ",")) nodes / MultiPV \(multiPV) / cold each tier",
+            "fixed-pair confirmation tiers: \(policy.confirmationNodeTiers.map(String.init).joined(separator: ",")) nodes",
             "safety ceiling: \(policy.safetyCeilingMs) ms (abort only)",
-            "comparison: cold discovery -> cold searchmoves -> warm increasing tiers",
+            "search series: cold MultiPV each discovery tier -> cold searchmoves -> warm fixed-pair increasing tiers",
             "comparison stable: \(stable)/\(entries.count)",
             "continuation stable: \(continuationStable)/\(entries.count)",
             "total elapsed: \(totalElapsedMs) ms"
