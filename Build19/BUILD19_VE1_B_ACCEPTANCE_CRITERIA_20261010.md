@@ -2,11 +2,11 @@
 
 Date: 2026-10-10
 Base: VE1-A formal PASS commit `3252adb0fb5a066fc90362d978eec7f196f62135`.
-Status: **CONTRACT CANDIDATE / IMPLEMENTATION NOT STARTED**
+Status: **IMPLEMENTATION IN PROGRESS / NOT FORMAL PASS**
 
 ## Purpose
 
-VE1-B defines the runtime search and evidence contract that VE1-C through VE1-E may rely on. This document fixes acceptance conditions before implementation. It does not itself change production behavior.
+VE1-B defines the runtime search and evidence contract that VE1-C through VE1-E may rely on. The acceptance conditions were fixed before implementation and are now amended where implementation review exposed a missing candidate-discovery convergence requirement. VE1-B remains incomplete until all formal evidence gates pass.
 
 ## Scope and acceptance gates
 
@@ -74,7 +74,7 @@ Minimum retained fields per relevant `info` observation:
 
 PASS requires diagnostics to expose every retained MultiPV candidate rather than only the selected line, and unit/regression tests prove the fields survive parser -> accumulator -> analysis result -> diagnostic export.
 
-### B5 — Stability means convergence under deeper search, not same-budget reproducibility
+### B5 — Stability means convergence under deeper search, including candidate identity
 
 A single search observation must never be labeled `stable` merely because no contradiction was observed.
 
@@ -82,21 +82,44 @@ A single search observation must never be labeled `stable` merely because no con
 
 Stability confirmation must use different search budgets in an explicitly ordered increasing series, such as `N -> 2N -> 4N` nodes. Numeric budgets are selected under B6 from measured evidence; these symbols define the relationship, not final values.
 
+#### B5.1 Candidate identity is part of the conclusion
+
+A fixed `searchmoves discoveredBest actual` series is not sufficient to prove stability if `discoveredBest` was selected only once at the shallowest budget. Such a series can prove only that a preselected pair behaves consistently; it cannot prove that unrestricted deeper search still considers that move the leading candidate.
+
+Therefore:
+- unrestricted MultiPV candidate discovery must be re-run at each increasing candidate-discovery tier;
+- each candidate-discovery tier starts from a cold TT boundary;
+- the full ranked MultiPV observations/order are retained as evidence at every tier;
+- candidate Top-1 identity is included in the B5 semantic/conclusion fingerprint;
+- if the highest qualifying increasing tiers disagree on candidate Top-1, the result cannot be `stable`, even if the fixed-pair comparison itself is unchanged;
+- an earlier Top-1 disagreement may remain in evidence while later tiers converge, but `stable` requires the documented highest-tier agreement rule to be satisfied;
+- bounded, aborted, inconsistent, or otherwise non-qualifying candidate discovery cannot support stability for that tier.
+
+VE1-B deliberately does **not** introduce a new cp threshold for a “nearly equal” candidate set. `UNIQUE` / `MULTIPLE_GOOD` grouping and any numerical near-tie boundary remain VE1-C/VE1-D calibration scope. Until then, Top-1 changes are treated conservatively as reliability/confidence evidence and the complete MultiPV list is retained for later calibration.
+
+#### B5.2 Fixed-pair convergence remains a separate claim
+
+After the unrestricted candidate-discovery series, direct comparison must start from a fresh cold TT boundary. The deepest unrestricted candidate Top-1 and the actual move may then be compared using the fixed `searchmoves` confirmation series under B6. Candidate-ranking convergence and fixed-pair comparison convergence are distinct claims and must not be collapsed into one.
+
 Required state model:
 - one valid qualifying budget tier => `unconfirmed`;
-- two or more valid qualifying observations at **distinct increasing node budgets** may become `stable` when the conclusion remains in agreement as search is deepened;
+- two or more valid qualifying observations at **distinct increasing node budgets** may become `stable` when the complete conclusion fingerprint remains in agreement as search is deepened;
 - same-budget repeats may establish `reproducible`, but must not advance `unconfirmed` to `stable`;
 - conflicting qualifying observations across increasing tiers => `unstable`;
 - invalid, bounded-at-target, aborted, inconsistent-bestmove, or otherwise insufficient evidence => `unknown` / `unconfirmed` as appropriate, never `stable`.
 
 Where three or more tiers are available, stability is assessed from the highest completed qualifying tiers according to the documented agreement rule. A contradiction at a later/deeper qualifying tier invalidates an earlier stability claim. VE1-B must not recalibrate existing cp semantic thresholds while implementing this state model; threshold calibration remains VE1-C.
 
+`topCandidateGapCp` (or equivalent rank-1/rank-2 gap) must not be published from the shallow first discovery. If exposed, it must come from the deepest retained unrestricted candidate-discovery result, require exact scores for both leading candidates, and be withheld when overall B5 convergence is not stable. It must not be used to invent `MULTIPLE_GOOD` semantics before VE1-C.
+
 PASS requires:
 - one-tier fixture returns `unconfirmed`;
 - two same-budget identical repeats remain `unconfirmed` for stability, while optionally proving reproducibility;
 - two distinct increasing tiers that agree can return `stable`;
 - `N` disagreeing but `2N` and `4N` agreeing is represented according to the documented highest-tier convergence rule and preserves the earlier disagreement in evidence;
-- a later/deeper contradiction returns `unstable` or otherwise removes `stable`;
+- a later/deeper fixed-pair contradiction returns `unstable` or otherwise removes `stable`;
+- a later/deeper unrestricted MultiPV Top-1 change prevents `stable` even when the fixed-pair fingerprint is unchanged;
+- full per-tier candidate discovery evidence is retained for audit;
 - downstream coaching cannot treat `unconfirmed` as equivalent to `stable`.
 
 ### B6 — Node-count search, transposition-table, role-budget and abort contract
@@ -123,11 +146,11 @@ Before B6 can be frozen, the runtime policy must explicitly name:
 
 Node determinism is not sufficient if the transposition table (TT/hash) depends on earlier searches. VE1-B therefore fixes the TT policy:
 
-1. **New logical search series starts cold.** Before candidate discovery, before direct comparison/confirmation, and whenever the position or search role changes, the TT must be cleared using a sequence proven to clear the table in the pinned YaneuraOu build.
-2. **Do not assume `isready` or `usinewgame` clears TT.** Their behavior must be verified against the pinned engine implementation/runtime. The adopted clear operation/sequence must have an executable regression proving that prior unrelated searches cannot change the result of the next cold-start series.
-3. **Within one confirmation series, TT is intentionally retained.** Increasing tiers run in fixed ascending order (`N -> 2N -> 4N`, or the final evidence-based equivalent) and inherit TT state from the immediately preceding tier. These are separate `go nodes ...` invocations; the node value is the budget for that invocation, not a cumulative absolute node counter.
-4. **Candidate discovery does not seed direct comparison.** After the MultiPV candidate-discovery role completes, clear TT before the `searchmoves` direct-comparison/confirmation series. This prevents discovery order/history from biasing the comparison role.
-5. Every evidence record must identify the TT reset/generation boundary and tier order well enough to reproduce the series.
+1. **Each unrestricted candidate-discovery tier starts cold.** Candidate-discovery ranking at a deeper node budget must not merely inherit the shallower discovery search's TT history. Each increasing discovery tier therefore uses a fresh verified TT-clear boundary.
+2. **Direct comparison starts cold and isolated from discovery.** After the complete candidate-discovery series, clear TT before the `searchmoves` direct-comparison/confirmation series. Discovery order/history must not seed the comparison role.
+3. **Within one fixed-pair confirmation series, TT is intentionally retained.** Increasing tiers run in fixed ascending order (`N -> 2N -> 4N`, or the final evidence-based equivalent) and inherit TT state from the immediately preceding comparison tier. These are separate `go nodes ...` invocations; the node value is the budget for that invocation, not a cumulative absolute node counter.
+4. **Do not assume a TT-clear sequence without proof.** The adopted `isready` / engine-specific reset behavior must be verified against the pinned YaneuraOu implementation/runtime. An executable regression must prove that prior unrelated searches cannot change the next cold-start series result within the reproducibility contract.
+5. Every evidence record must identify the TT reset/generation boundary and tier order well enough to reproduce both the candidate-discovery series and the direct-comparison series.
 
 PASS requires order-independence fixtures: analyzing unrelated position A before target B must produce the same cold-start B result as analyzing B first, within the exact reproducibility contract.
 
@@ -136,15 +159,16 @@ PASS requires order-independence fixtures: analyzing unrelated position A before
 A node budget applies to the **whole engine search invocation**, not independently to each MultiPV candidate.
 
 The contract distinguishes at least:
-- candidate discovery: e.g. MultiPV 3, one role-specific total node budget `D`;
-- direct comparison/confirmation: e.g. `searchmoves` with MultiPV 2, role-specific increasing total budgets such as `N`, `2N`, `4N`.
+- candidate discovery: unrestricted MultiPV (e.g. MultiPV 3) at an increasing role-specific discovery schedule such as `D -> 2D -> 4D`, with each tier cold;
+- direct comparison/confirmation: `searchmoves` with MultiPV 2 and role-specific increasing total budgets such as `N -> 2N -> 4N`, with a cold start before the series and staged TT reuse inside it.
 
 `D` and `N` do not have to be numerically equal. Their final values/ratios must be selected from evidence and then frozen. “Same conditions” means same search role, position, options, searchmoves set/order where semantically relevant, MultiPV setting, TT-start policy, node tier and pinned engine/runtime provenance. It does **not** mean dividing the total node budget equally among MultiPV candidates, and VE1-B must not invent a per-candidate node quota that the engine does not implement.
 
 PASS requires:
 - raw evidence records search role, MultiPV, searchmoves, total node budget and TT state for each invocation;
 - repeated same-budget cold-start runs verify reproducibility;
-- increasing-budget warm-within-series runs verify convergence/stability separately under B5;
+- unrestricted candidate discovery is re-run at each increasing discovery tier and preserves ranking evidence;
+- increasing-budget fixed-pair confirmation runs verify comparison convergence separately under B5;
 - candidate-discovery and direct-comparison budgets are reported separately and never conflated as a single “same time/same effort” value.
 
 #### B6.4 B6 overall evidence
@@ -186,7 +210,7 @@ Because stability semantics depend on the node-search and TT contract, implement
 1. B1 — BookFile alignment;
 2. B2/B3/B4 — parser, bound semantics and lossless evidence model;
 3. B6 — node search, TT isolation/reuse, role budgets, device/abort policy;
-4. B5/B7 — convergence-based stability and per-ply confirmed PV;
+4. B5/B7 — convergence-based candidate/comparison stability and per-ply confirmed PV;
 5. full regression / Simulator / device-build / physical-iPhone evidence.
 
 B8 remains explicitly deferred to VE1-C unless an unavoidable shared-abstraction change is documented before implementation.
@@ -196,7 +220,7 @@ B8 remains explicitly deferred to VE1-C unless an unavoidable shared-abstraction
 VE1-B PASS requires all of the following evidence on one final candidate commit:
 
 1. `swift test` covering parser/accumulator/evidence/bound-consistency/stability/PV contract;
-2. deterministic node-budget reproducibility and increasing-budget convergence regression on pinned YaneuraOu + pinned Suisho5 NNUE;
+2. deterministic node-budget reproducibility and increasing-budget candidate-discovery + fixed-pair convergence regression on pinned YaneuraOu + pinned Suisho5 NNUE;
 3. TT isolation/order-independence regression plus fixed within-series tier-order evidence;
 4. Simulator E2E using production app code paths;
 5. iOS device build/IPA success;
@@ -208,7 +232,9 @@ VE1-B PASS requires all of the following evidence on one final candidate commit:
 
 ## Non-goals / boundaries
 
+- `FV_SCALE=24` is already formal VE1-A runtime authority; do not describe it as a VE1-B candidate value or revert it to 16.
 - Do not recalibrate FV24 semantic cp thresholds in VE1-B; that remains VE1-C.
+- Do not create a new near-tie/`MULTIPLE_GOOD` cp threshold in VE1-B; that remains VE1-C/VE1-D calibration scope.
 - Do not create new 41/49/69 Semantic Authority.
 - Do not start HDS-H or Build20.
 - Do not treat physical device build success as physical runtime evidence.
@@ -217,3 +243,5 @@ VE1-B PASS requires all of the following evidence on one final candidate commit:
 ## Formal completion rule
 
 VE1-B is PASS only when B1-B7 are implemented and all required evidence gates pass on one final candidate commit. B8 may remain deferred to VE1-C if untouched by VE1-B implementation, but the deferral must remain explicit in the final VE1-B report.
+
+Normative clarification history: `BUILD19_VE1_B_CANDIDATE_DISCOVERY_CONVERGENCE_AMENDMENT_20261010.md` records why candidate discovery was added to the B5 fingerprint after implementation review exposed the shallow-Top-1/fixed-pair defect.
