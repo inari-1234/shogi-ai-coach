@@ -8,6 +8,7 @@ struct ShogiCoachPoCApp: App {
             #if targetEnvironment(simulator)
             .task {
                 await VE1ASimulatorPreflight.runIfRequested()
+                await VE1BSimulatorCIProbe.runIfRequested()
                 await SimulatorCIProbe.runIfRequested()
             }
             #endif
