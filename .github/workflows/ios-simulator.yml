@@ -237,7 +237,7 @@ jobs:
           grep -Fq "deep_status=深掘り PASS" simulator-result.txt
           grep -Fq "deep_count=3" simulator-result.txt
           grep -Fq "deep_multipv=3" simulator-result.txt
-          grep -Fq "deep_adaptive_policy=adaptive-v2" simulator-result.txt
+          grep -Fq "deep_adaptive_policy=ve1b-node-UNFROZEN_CALIBRATION" simulator-result.txt
           grep -Fq "deep_diagnostic_schema=2" simulator-result.txt
           grep -Fq "board_display_status=盤面表示 PASS" simulator-result.txt
           grep -Fq "board_display_count=3" simulator-result.txt
@@ -260,7 +260,7 @@ jobs:
           grep -Fq "context_status=局面文脈解析 PASS" simulator-result.txt
           grep -Fq "context_count=5" simulator-result.txt
           grep -Fq "context_schema=8" simulator-result.txt
-          grep -Fq "context_refinement_policy=selective-low-unresolved-v1" simulator-result.txt
+          grep -Fq "context_refinement_policy=ve1b-deep-authority-reuse-v2" simulator-result.txt
           grep -Fq "context_selective_refinement_status=PASS" simulator-result.txt
           grep -Fq "context_selective_refinement_unresolved=true" simulator-result.txt
           grep -Fq "context_semantics_status=PASS" simulator-result.txt
@@ -358,7 +358,7 @@ jobs:
           assert context["knowledgeLoadStatus"] == "PASS"
           assert context["knowledgeSourceIDs"] == ["denryusen:dr4-hardware2:2024"]
           assert context["knowledgeRecordCount"] == 1281
-          assert context["refinementPolicy"] == "selective-low-unresolved-v1"
+          assert context["refinementPolicy"] == "ve1b-deep-authority-reuse-v2"
           assert len(context["refinementCompletedPlies"]) <= len(context["refinementCandidatePlies"])
 
           positions = context["positions"]
