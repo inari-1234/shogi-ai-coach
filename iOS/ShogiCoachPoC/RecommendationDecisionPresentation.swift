@@ -27,17 +27,15 @@ struct RecommendationDecisionPresentation {
     let learningCue: String
 
     static func make(entry: ContinuationSimulationEntry) -> Self {
-        let firstRecommended = entry.recommended.moves.first
-        let firstActual = entry.actual.moves.first
-        let sameMove = firstRecommended?.usi == firstActual?.usi
+        let sameMove = entry.recommendedMove.usi == entry.actualMove.usi
+        let recommendedLabel = entry.recommendedMove.label
 
         if !entry.comparisonStable {
-            let label = firstRecommended?.label ?? "候補手"
             return .init(
                 status: .provisional,
-                headline: "暫定候補 \(label)",
+                headline: "暫定候補 \(recommendedLabel)",
                 meaning: concreteMeaning(entry: entry, allowRecommendationClaim: false),
-                difference: contrastText(entry: entry, recommended: firstRecommended, actual: firstActual, status: .provisional),
+                difference: contrastText(entry: entry, status: .provisional),
                 confidenceTitle: "比較判定を保留",
                 confidenceDetail: "再解析後も評価順序または評価差が安定していません。この手は上位候補として確認できますが、推奨手とは確定しません。",
                 recommendedRouteLabel: "暫定候補",
@@ -48,12 +46,11 @@ struct RecommendationDecisionPresentation {
         }
 
         if sameMove {
-            let label = firstRecommended?.label ?? "候補手"
             return .init(
                 status: .matched,
-                headline: "実戦手 \(label) は最善候補と一致",
+                headline: "実戦手 \(recommendedLabel) は最善候補と一致",
                 meaning: concreteMeaning(entry: entry, allowRecommendationClaim: true),
-                difference: contrastText(entry: entry, recommended: firstRecommended, actual: firstActual, status: .matched),
+                difference: contrastText(entry: entry, status: .matched),
                 confidenceTitle: entry.continuationStable ? "一致を確認" : "一致・読み筋は参考",
                 confidenceDetail: entry.continuationStable
                     ? "同条件比較で実戦手と最善候補が一致し、継続PVも安定しています。"
@@ -65,12 +62,11 @@ struct RecommendationDecisionPresentation {
             )
         }
 
-        let label = firstRecommended?.label ?? "候補手"
         return .init(
             status: .recommended,
-            headline: "推奨 \(label)",
+            headline: "推奨 \(recommendedLabel)",
             meaning: concreteMeaning(entry: entry, allowRecommendationClaim: true),
-            difference: contrastText(entry: entry, recommended: firstRecommended, actual: firstActual, status: .recommended),
+            difference: contrastText(entry: entry, status: .recommended),
             confidenceTitle: entry.continuationStable ? "比較根拠あり" : "候補順位は安定・読み筋は参考",
             confidenceDetail: entry.continuationStable
                 ? "同じ探索条件での比較と継続PVの両方が安定しています。上の比較理由を判断材料として扱えます。"
@@ -134,12 +130,10 @@ struct RecommendationDecisionPresentation {
 
     private static func contrastText(
         entry: ContinuationSimulationEntry,
-        recommended: ContinuationMoveStep?,
-        actual: ContinuationMoveStep?,
         status: Status
     ) -> String {
-        let recommendedLabel = recommended?.label ?? "候補手"
-        let actualLabel = actual?.label ?? "実戦手"
+        let recommendedLabel = entry.recommendedMove.label
+        let actualLabel = entry.actualMove.label
         if status == .matched {
             return "候補と実戦はいずれも \(recommendedLabel) です。\(entry.reasonSummary)"
         }
