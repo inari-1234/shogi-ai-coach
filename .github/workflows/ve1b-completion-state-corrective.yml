@@ -6,6 +6,7 @@ on:
       - candidate/build19-ve1-b-implementation
     paths:
       - tools/apply_ve1b_completion_state_corrective.py
+      - tools/fix_ve1b_completion_corrective_driver.py
       - .github/workflows/ve1b-completion-state-corrective.yml
   workflow_dispatch:
 
@@ -26,12 +27,19 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
+          python3 tools/fix_ve1b_completion_corrective_driver.py
           python3 tools/apply_ve1b_completion_state_corrective.py
           git diff --check
           grep -Fq 'enum DeepAnalysisRunState' iOS/ShogiCoachPoC/DeepAnalysisViewModel.swift
           grep -Fq 'deepCompletionNegativeContractPasses' iOS/ShogiCoachPoC/SimulatorCIProbe.swift
           grep -Fq 'presentation.status == .provisional' iOS/ShogiCoachPoC/SimulatorCIProbe.swift
           ! grep -Fq 'actualAnalysisSource.hasPrefix("equal-condition")' iOS/ShogiCoachPoC/SimulatorCIProbe.swift
+          python3 - <<'PY'
+          from pathlib import Path
+          text = Path('iOS/ShogiCoachPoC/SimulatorCIProbe.swift').read_text()
+          assert '\\\\.' not in text, 'double-escaped Swift keypath remains'
+          assert text.count('actualAnalysisSource.hasPrefix("node-equal-condition")') >= 3
+          PY
 
       - name: Core regression
         shell: bash
