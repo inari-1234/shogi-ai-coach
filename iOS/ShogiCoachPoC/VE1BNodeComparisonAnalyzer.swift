@@ -3,15 +3,31 @@ import ShogiCoachCore
 
 struct VE1BNodeSearchPolicy: Sendable {
     let candidateDiscoveryNodes: Int
+    let candidateDiscoveryNodeTiers: [Int]
     let confirmationNodeTiers: [Int]
     let safetyCeilingMs: Int
     let authorityStatus: String
+
+    init(
+        candidateDiscoveryNodes: Int,
+        candidateDiscoveryNodeTiers: [Int]? = nil,
+        confirmationNodeTiers: [Int],
+        safetyCeilingMs: Int,
+        authorityStatus: String
+    ) {
+        self.candidateDiscoveryNodes = candidateDiscoveryNodes
+        self.candidateDiscoveryNodeTiers = candidateDiscoveryNodeTiers ?? confirmationNodeTiers
+        self.confirmationNodeTiers = confirmationNodeTiers
+        self.safetyCeilingMs = safetyCeilingMs
+        self.authorityStatus = authorityStatus
+    }
 
     /// Calibration-only values used to exercise VE1-B on Simulator/device.
     /// These values are NOT production authority and must be replaced/frozen
     /// only after the B6 physical-device measurements are accepted.
     static let calibrationUnfrozen = VE1BNodeSearchPolicy(
         candidateDiscoveryNodes: 50_000,
+        candidateDiscoveryNodeTiers: [50_000, 100_000, 200_000],
         confirmationNodeTiers: [50_000, 100_000, 200_000],
         safetyCeilingMs: 15_000,
         authorityStatus: "UNFROZEN_CALIBRATION"
@@ -20,14 +36,22 @@ struct VE1BNodeSearchPolicy: Sendable {
     func validate() throws {
         guard candidateDiscoveryNodes > 0,
               safetyCeilingMs > 0,
+              candidateDiscoveryNodeTiers.count >= 2,
+              candidateDiscoveryNodeTiers.count == confirmationNodeTiers.count,
+              candidateDiscoveryNodeTiers.first == candidateDiscoveryNodes,
               confirmationNodeTiers.count >= 2 else {
             throw EngineUSISession.ProbeError.protocolError("VE1-B node policy is incomplete")
         }
+        try Self.validateIncreasing(candidateDiscoveryNodeTiers, label: "candidate discovery")
+        try Self.validateIncreasing(confirmationNodeTiers, label: "confirmation")
+    }
+
+    private static func validateIncreasing(_ tiers: [Int], label: String) throws {
         var previous = 0
-        for value in confirmationNodeTiers {
+        for value in tiers {
             guard value > previous else {
                 throw EngineUSISession.ProbeError.protocolError(
-                    "VE1-B confirmation node tiers must be strictly increasing"
+                    "VE1-B \(label) node tiers must be strictly increasing"
                 )
             }
             previous = value
@@ -79,6 +103,8 @@ struct VE1BNodeComparisonResult: Sendable {
     let policy: VE1BNodeSearchPolicy
     let candidateLines: [VE1BEngineLine]
     let discoveryEvidence: VE1BSearchAttemptRecord
+    let discoveryTierEvidence: [VE1BSearchAttemptRecord]
+    let candidateDiscoveryTopMoves: [String]
     let attempts: [VE1BNodeComparisonAttempt]
     let stability: VE1BStabilityAssessment
     let comparisonInstabilityReasons: [String]
@@ -95,10 +121,11 @@ struct VE1BNodeComparisonResult: Sendable {
     var confirmedBestPV: [String] { stability.confirmedBestPVPrefix }
     var confirmedActualPV: [String] { stability.confirmedActualPVPrefix }
     var totalElapsedMs: Int {
-        discoveryEvidence.elapsedMs + attempts.reduce(0) { $0 + $1.evidence.elapsedMs }
+        discoveryTierEvidence.reduce(0) { $0 + $1.elapsedMs }
+            + attempts.reduce(0) { $0 + $1.evidence.elapsedMs }
     }
     var evidenceRecords: [VE1BSearchAttemptRecord] {
-        [discoveryEvidence] + attempts.map(\.evidence)
+        discoveryTierEvidence + attempts.map(\.evidence)
     }
     var finalNodeBudget: Int { finalAttempt.nodeBudget }
 }
@@ -114,6 +141,14 @@ enum VE1BNodeComparisonAnalyzer {
     // Frozen only as pre-existing behavior. VE1-C owns semantic recalibration.
     private static let lossSwingThresholdCp = 120
 
+    private struct DiscoveryTier {
+        let nodeBudget: Int
+        let lines: [VE1BEngineLine]
+        let topLine: VE1BEngineLine
+        let qualifiesForStability: Bool
+        let evidence: VE1BSearchAttemptRecord
+    }
+
     static func analyze(
         session: EngineUSISession,
         command: String,
@@ -124,48 +159,70 @@ enum VE1BNodeComparisonAnalyzer {
         try policy.validate()
         let candidateMultiPV = max(1, candidateCount)
         var evidence: [VE1BSearchAttemptRecord] = []
+        var discoveryTiers: [DiscoveryTier] = []
 
-        _ = try await session.resetForColdSeries(reason: "candidate_discovery")
-        let discoverySample = try await session.analyzePositionNodes(
-            command: command,
-            nodeBudget: policy.candidateDiscoveryNodes,
-            safetyCeilingMs: policy.safetyCeilingMs,
-            role: .candidateDiscovery,
-            multiPV: candidateMultiPV
-        )
-        let discoveryRecord = VE1BSearchAttemptRecord(
-            attemptID: "discovery-\(policy.candidateDiscoveryNodes)-tt\(discoverySample.ttGeneration)",
-            positionCommand: command,
-            multiPV: candidateMultiPV,
-            searchMoves: [],
-            sample: discoverySample
-        )
-        evidence.append(discoveryRecord)
+        // Candidate identity itself is part of the B5 conclusion. Each discovery
+        // tier therefore starts cold and re-runs unrestricted MultiPV at a deeper
+        // node budget. A shallow Top-1 is never frozen and merely re-compared.
+        for (index, nodes) in policy.candidateDiscoveryNodeTiers.enumerated() {
+            _ = try await session.resetForColdSeries(reason: "candidate_discovery_\(index)")
+            let sample = try await session.analyzePositionNodes(
+                command: command,
+                nodeBudget: nodes,
+                safetyCeilingMs: policy.safetyCeilingMs,
+                role: .candidateDiscovery,
+                multiPV: candidateMultiPV
+            )
+            let record = VE1BSearchAttemptRecord(
+                attemptID: "discovery-\(index)-\(nodes)-tt\(sample.ttGeneration)",
+                positionCommand: command,
+                multiPV: candidateMultiPV,
+                searchMoves: [],
+                sample: sample
+            )
+            evidence.append(record)
 
-        guard discoverySample.isNormalCompletedResult,
-              let discoveryResult = discoverySample.result else {
+            guard sample.isNormalCompletedResult,
+                  let result = sample.result else {
+                throw VE1BNodeComparisonFailure(
+                    detail: "candidate discovery tier \(nodes) did not complete normally (\(sample.completion.rawValue))",
+                    evidence: evidence
+                )
+            }
+
+            let lines = result.principalVariations
+                .prefix(candidateMultiPV)
+                .compactMap(makeLine)
+            guard let topLine = lines.first else {
+                throw VE1BNodeComparisonFailure(
+                    detail: "candidate discovery tier \(nodes) has no scored PV",
+                    evidence: evidence
+                )
+            }
+
+            discoveryTiers.append(
+                DiscoveryTier(
+                    nodeBudget: nodes,
+                    lines: lines,
+                    topLine: topLine,
+                    qualifiesForStability: topLine.boundKind == .exact,
+                    evidence: record
+                )
+            )
+        }
+
+        guard let deepestDiscovery = discoveryTiers.last else {
             throw VE1BNodeComparisonFailure(
-                detail: "candidate discovery did not complete normally (\(discoverySample.completion.rawValue))",
+                detail: "candidate discovery produced no tiers",
                 evidence: evidence
             )
         }
 
-        let candidates = discoveryResult.principalVariations
-            .prefix(candidateMultiPV)
-            .compactMap(makeLine)
-        guard let discoveredBest = candidates.first else {
-            throw VE1BNodeComparisonFailure(
-                detail: "candidate discovery has no scored PV",
-                evidence: evidence
-            )
-        }
-
-        // Candidate discovery identifies which move(s) the direct-comparison
-        // series must test. A bounded final MultiPV observation is preserved as
-        // bounded provenance under B3, but is not itself a semantic/stability
-        // conclusion. Exactness is established only by the cold direct-
-        // comparison/confirmation tiers below. In particular, a bounded
-        // discovery score must never be used to publish a candidate gap.
+        // The deepest unrestricted discovery chooses the move used for the
+        // fixed-pair diagnostic series. Whether that move is itself converged is
+        // decided separately by the per-tier candidateTopMove fingerprints below.
+        let discoveredBest = deepestDiscovery.topLine
+        let candidates = deepestDiscovery.lines
         let searchMoves = discoveredBest.move == actualMove
             ? [discoveredBest.move]
             : [discoveredBest.move, actualMove]
@@ -179,6 +236,7 @@ enum VE1BNodeComparisonAnalyzer {
         var conclusionGroup = 0
 
         for (index, nodes) in policy.confirmationNodeTiers.enumerated() {
+            let discoveryTier = discoveryTiers[index]
             let role: EngineSearchRole = index == 0 ? .directComparison : .confirmation
             let sample = try await session.analyzePositionNodes(
                 command: command,
@@ -208,7 +266,7 @@ enum VE1BNodeComparisonAnalyzer {
             let lines = result.principalVariations.compactMap(makeLine)
             guard let comparedBest = lines.first(where: { $0.move == discoveredBest.move }) else {
                 throw VE1BNodeComparisonFailure(
-                    detail: "node tier \(nodes) missing discovered-best line",
+                    detail: "node tier \(nodes) missing deepest-discovery best line",
                     evidence: evidence
                 )
             }
@@ -228,12 +286,23 @@ enum VE1BNodeComparisonAnalyzer {
                 && isBetter(comparedActual.score, than: comparedBest.score)
             let loss = centipawnLoss(best: comparedBest, actual: comparedActual)
             var reasons: [String] = []
+            if discoveryTier.topLine.boundKind != .exact {
+                reasons.append("candidate_discovery_bounded_at_target")
+            }
             if comparedBest.boundKind != .exact || comparedActual.boundKind != .exact {
                 reasons.append("bounded_at_target")
             }
             if inversion { reasons.append("comparison_inversion") }
 
+            // Eligibility failures are different from a valid deeper conclusion
+            // that disagrees with an earlier tier. Candidate Top-1 changes remain
+            // qualifying observations and are encoded in the stability fingerprint.
             let currentQualifies = reasons.isEmpty
+            if index > 0,
+               discoveryTiers[index - 1].topLine.move != discoveryTier.topLine.move {
+                reasons.append("candidate_top1_changed")
+            }
+
             if let previousQualifying {
                 let pairReasons = disagreementReasons(
                     previous: previousQualifying,
@@ -269,7 +338,7 @@ enum VE1BNodeComparisonAnalyzer {
             }
         }
 
-        let tiers = attempts.map { attempt in
+        let tiers = attempts.enumerated().map { index, attempt in
             VE1BConfirmationTier(
                 nodeBudget: attempt.nodeBudget,
                 conclusionFingerprint: attempt.qualifiesForStability
@@ -277,7 +346,8 @@ enum VE1BNodeComparisonAnalyzer {
                     : nil,
                 qualifiesForStability: attempt.qualifiesForStability,
                 bestPV: attempt.bestLine.pvMoves,
-                actualPV: attempt.actualLine.pvMoves
+                actualPV: attempt.actualLine.pvMoves,
+                candidateTopMove: discoveryTiers[index].topLine.move
             )
         }
         let stability = VE1BStabilityEvaluator.assess(tiers)
@@ -303,12 +373,14 @@ enum VE1BNodeComparisonAnalyzer {
         return VE1BNodeComparisonResult(
             policy: policy,
             candidateLines: candidates,
-            discoveryEvidence: discoveryRecord,
+            discoveryEvidence: discoveryTiers[0].evidence,
+            discoveryTierEvidence: discoveryTiers.map(\.evidence),
+            candidateDiscoveryTopMoves: discoveryTiers.map { $0.topLine.move },
             attempts: attempts,
             stability: stability,
             comparisonInstabilityReasons: comparisonReasons,
             continuationInstabilityReasons: continuationReasons,
-            topCandidateGapCp: candidateGap(candidates)
+            topCandidateGapCp: stability.state == .stable ? candidateGap(candidates) : nil
         )
     }
 
@@ -334,9 +406,6 @@ enum VE1BNodeComparisonAnalyzer {
         inversion: Bool
     ) -> [String] {
         var reasons: [String] = []
-        if previous.bestLine.move != best.move {
-            reasons.append("bestmove_changed")
-        }
         if scoreKind(previous.bestLine.score) != scoreKind(best.score) {
             reasons.append("best_score_kind_changed")
         }
