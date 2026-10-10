@@ -6,14 +6,16 @@ private func tier(
     _ fingerprint: String,
     qualifies: Bool = true,
     bestPV: [String] = ["7g7f", "3c3d", "2g2f"],
-    actualPV: [String] = ["2g2f", "8c8d", "7g7f"]
+    actualPV: [String] = ["2g2f", "8c8d", "7g7f"],
+    candidateTopMove: String? = nil
 ) -> VE1BConfirmationTier {
     VE1BConfirmationTier(
         nodeBudget: nodes,
         conclusionFingerprint: fingerprint,
         qualifiesForStability: qualifies,
         bestPV: bestPV,
-        actualPV: actualPV
+        actualPV: actualPV,
+        candidateTopMove: candidateTopMove
     )
 }
 
@@ -72,6 +74,28 @@ private func tier(
     ])
     #expect(result.state == .unstable)
     #expect(result.convergenceBudgets.isEmpty)
+}
+
+@Test func ve1bDeepCandidateTop1ChangePreventsStableEvenWhenPairComparisonAgrees() {
+    let result = VE1BStabilityEvaluator.assess([
+        tier(50_000, "pair-0", candidateTopMove: "4f7c+"),
+        tier(100_000, "pair-0", candidateTopMove: "4f7c+"),
+        tier(200_000, "pair-0", candidateTopMove: "P*2e")
+    ])
+    #expect(result.state == .unstable)
+    #expect(result.convergenceBudgets.isEmpty)
+    #expect(result.earlierConflictObserved == true)
+}
+
+@Test func ve1bCandidateTop1MayConvergeOnlyWhenHighestIncreasingTiersAgree() {
+    let result = VE1BStabilityEvaluator.assess([
+        tier(50_000, "pair-0", candidateTopMove: "4g5f"),
+        tier(100_000, "pair-0", candidateTopMove: "3g3f"),
+        tier(200_000, "pair-0", candidateTopMove: "3g3f")
+    ])
+    #expect(result.state == .stable)
+    #expect(result.convergenceBudgets == [100_000, 200_000])
+    #expect(result.earlierConflictObserved == true)
 }
 
 @Test func ve1bInvalidTierDoesNotConfirmStability() {
