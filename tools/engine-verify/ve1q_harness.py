@@ -101,15 +101,17 @@ def load_profiles(path: Path | None = None) -> dict[str, dict[str, Any]]:
 
 def validate_profile_config(name: str, p: dict[str, Any]) -> None:
     expected: dict[str, dict[str, Any]] = {
-        "app-current": {"fv_scale": 16, "search_mode": "movetime", "threads": 1, "hash_mb": 64, "multipv": 3},
-        "app-candidate": {"fv_scale": 24, "search_mode": "nodes", "threads": 1, "hash_mb": 64, "multipv": 3},
-        "reference": {"fv_scale": 24, "search_mode": "nodes"},
+        "app-current": {"fv_scale": 16, "search_mode": "movetime", "threads": 1, "hash_mb": 64, "multipv": 3, "pv_interval_ms": 0},
+        "app-candidate": {"fv_scale": 24, "search_mode": "nodes", "threads": 1, "hash_mb": 64, "multipv": 3, "pv_interval_ms": 0},
+        "reference": {"fv_scale": 24, "search_mode": "nodes", "pv_interval_ms": 0},
     }
     if name not in expected: raise ValidationError("unknown-profile", name)
     for k, v in expected[name].items():
         if p.get(k) != v: raise ValidationError("profile-requirement-mismatch", f"{name}.{k}: {p.get(k)!r} != {v!r}")
     for k in ("threads", "hash_mb", "multipv"):
         if not isinstance(p.get(k), int) or p[k] < 1: raise ValidationError("profile-invalid-setting", f"{name}.{k}")
+    if not isinstance(p.get("pv_interval_ms"), int) or p["pv_interval_ms"] != 0:
+        raise ValidationError("profile-requirement-mismatch", f"{name}.pv_interval_ms must be 0")
     if p["search_mode"] == "nodes":
         if not isinstance(p.get("nodes"), int) or p["nodes"] <= 0: raise ValidationError("profile-missing-budget", name)
     elif p["search_mode"] == "movetime":
@@ -349,12 +351,12 @@ class Engine:
         self.work = work; self.profile_name = profile_name; self.config = config; raw_log.parent.mkdir(parents=True, exist_ok=True); self.log = raw_log.open("w", encoding="utf-8")
         self.p = subprocess.Popen([str((work / "engine").resolve())], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1, cwd=str(work))
         self.usi_options_reported: list[str] = []
-        self.options_applied = {"Threads": config["threads"], "USI_Hash": config["hash_mb"], "MultiPV": config["multipv"], "FV_SCALE": config["fv_scale"], "EvalDir": str((work / "eval").resolve()), "BookFile": "no_book"}
+        self.options_applied = {"Threads": config["threads"], "USI_Hash": config["hash_mb"], "MultiPV": config["multipv"], "FV_SCALE": config["fv_scale"], "PvInterval": config["pv_interval_ms"], "EvalDir": str((work / "eval").resolve()), "BookFile": "no_book"}
         self.send("usi")
         for line in self._read_until_prefix("usiok"):
             if line.startswith("option name "): self.usi_options_reported.append(line)
         advertised = {line.split(" name ",1)[1].split(" type ",1)[0] for line in self.usi_options_reported if " type " in line}
-        for required in ("Threads", "USI_Hash", "MultiPV", "FV_SCALE", "EvalDir"):
+        for required in ("Threads", "USI_Hash", "MultiPV", "FV_SCALE", "PvInterval", "EvalDir"):
             if required not in advertised: raise ValidationError("engine-option-missing", required)
         for k, v in self.options_applied.items(): self.send(f"setoption name {k} value {v}")
         self.send("isready"); self._read_until_prefix("readyok"); self.send("usinewgame")
@@ -402,11 +404,11 @@ def base_provenance(work: Path) -> dict[str, Any]:
 
 
 def run_provenance(base: dict[str, Any], run: EngineRun, fixture_obj: Any) -> dict[str, Any]:
-    p = dict(base); p.update({"run_id": run.id, "fixture_sha256": canonical_sha(fixture_obj), "full_usi_options": run.usi_options_reported, "options_applied": run.options_applied, "profile": run.profile, "search_mode": run.config["search_mode"], "node_budget": run.config.get("nodes"), "movetime_ms": run.config.get("movetime_ms"), "threads": run.config["threads"], "hash_mb": run.config["hash_mb"], "multipv": run.config["multipv"], "fv_scale": run.config["fv_scale"], "raw_usi_log_path": str(run.raw_log_path), "start_timestamp": run.started_at, "end_timestamp": run.ended_at, "exit_status": run.exit_status}); validate_provenance(p); return p
+    p = dict(base); p.update({"run_id": run.id, "fixture_sha256": canonical_sha(fixture_obj), "full_usi_options": run.usi_options_reported, "options_applied": run.options_applied, "profile": run.profile, "search_mode": run.config["search_mode"], "node_budget": run.config.get("nodes"), "movetime_ms": run.config.get("movetime_ms"), "threads": run.config["threads"], "hash_mb": run.config["hash_mb"], "multipv": run.config["multipv"], "fv_scale": run.config["fv_scale"], "pv_interval_ms": run.config["pv_interval_ms"], "raw_usi_log_path": str(run.raw_log_path), "start_timestamp": run.started_at, "end_timestamp": run.ended_at, "exit_status": run.exit_status}); validate_provenance(p); return p
 
 
 def validate_provenance(p: dict[str, Any]) -> None:
-    required = ["repository", "harness_version", "tool_commit", "tool_source_sha256", "yaneuraou_commit", "engine_binary_sha256", "nnue_sha256", "fixture_sha256", "full_usi_options", "profile", "search_mode", "threads", "hash_mb", "multipv", "fv_scale", "os", "cpu_architecture", "python_version", "raw_usi_log_path", "start_timestamp", "end_timestamp", "exit_status"]
+    required = ["repository", "harness_version", "tool_commit", "tool_source_sha256", "yaneuraou_commit", "engine_binary_sha256", "nnue_sha256", "fixture_sha256", "full_usi_options", "profile", "search_mode", "threads", "hash_mb", "multipv", "fv_scale", "pv_interval_ms", "os", "cpu_architecture", "python_version", "raw_usi_log_path", "start_timestamp", "end_timestamp", "exit_status"]
     missing = [k for k in required if k not in p or p[k] is None or p[k] == ""]
     if missing: raise ValidationError("missing-provenance", ",".join(missing))
     if not re.fullmatch(r"[0-9a-f]{40}", str(p.get("tool_commit", ""))): raise ValidationError("missing-provenance", "tool_commit")
@@ -415,6 +417,7 @@ def validate_provenance(p: dict[str, Any]) -> None:
     profiles = load_profiles()
     if p["profile"] not in profiles: raise ValidationError("unknown-profile")
     if p["fv_scale"] != profiles[p["profile"]]["fv_scale"]: raise ValidationError("profile-requirement-mismatch")
+    if p["pv_interval_ms"] != profiles[p["profile"]]["pv_interval_ms"] or p["pv_interval_ms"] != 0: raise ValidationError("profile-requirement-mismatch", "pv_interval_ms")
     if p["search_mode"] == "nodes" and not p.get("node_budget"): raise ValidationError("missing-provenance", "node_budget")
     if p["search_mode"] == "movetime" and not p.get("movetime_ms"): raise ValidationError("missing-provenance", "movetime_ms")
 
