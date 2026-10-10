@@ -13,19 +13,22 @@ public struct VE1BConfirmationTier: Equatable, Sendable {
     public let qualifiesForStability: Bool
     public let bestPV: [String]
     public let actualPV: [String]
+    public let candidateTopMove: String?
 
     public init(
         nodeBudget: Int,
         conclusionFingerprint: String?,
         qualifiesForStability: Bool,
         bestPV: [String] = [],
-        actualPV: [String] = []
+        actualPV: [String] = [],
+        candidateTopMove: String? = nil
     ) {
         self.nodeBudget = nodeBudget
         self.conclusionFingerprint = conclusionFingerprint
         self.qualifiesForStability = qualifiesForStability
         self.bestPV = bestPV
         self.actualPV = actualPV
+        self.candidateTopMove = candidateTopMove
     }
 }
 
@@ -61,12 +64,17 @@ public enum VE1BStabilityEvaluator {
     /// Evaluates stability as convergence under increasing node budgets.
     /// Repeating the same node budget can test reproducibility but can never
     /// provide an additional stability tier.
+    ///
+    /// VE1-B candidate discovery is also part of the conclusion: when a tier
+    /// supplies candidateTopMove, Top-1 identity is included in the semantic
+    /// fingerprint. A fixed searchmoves pair therefore cannot appear stable if
+    /// unrestricted deeper MultiPV discovery changes the leading candidate.
     public static func assess(_ tiers: [VE1BConfirmationTier]) -> VE1BStabilityAssessment {
         let attemptedBudgets = tiers.filter { $0.nodeBudget > 0 }.map(\.nodeBudget)
         let valid = tiers.filter {
             $0.qualifiesForStability
                 && $0.nodeBudget > 0
-                && $0.conclusionFingerprint != nil
+                && semanticFingerprint($0) != nil
         }
 
         guard !valid.isEmpty else {
@@ -83,7 +91,7 @@ public enum VE1BStabilityEvaluator {
 
         let grouped = Dictionary(grouping: valid, by: \.nodeBudget)
         let reproducibilityConflict = grouped.values.contains { sameBudget in
-            Set(sameBudget.compactMap(\.conclusionFingerprint)).count > 1
+            Set(sameBudget.compactMap(semanticFingerprint)).count > 1
         }
 
         let budgets = grouped.keys.sorted()
@@ -139,7 +147,7 @@ public enum VE1BStabilityEvaluator {
 
         let highest = representatives[representatives.count - 1]
         let previous = representatives[representatives.count - 2]
-        guard highest.conclusionFingerprint == previous.conclusionFingerprint else {
+        guard semanticFingerprint(highest) == semanticFingerprint(previous) else {
             return VE1BStabilityAssessment(
                 state: .unstable,
                 distinctQualifyingBudgets: budgets,
@@ -151,16 +159,16 @@ public enum VE1BStabilityEvaluator {
             )
         }
 
-        let fingerprint = highest.conclusionFingerprint
+        let fingerprint = semanticFingerprint(highest)
         var suffix: [VE1BConfirmationTier] = []
         for tier in representatives.reversed() {
-            guard tier.conclusionFingerprint == fingerprint else { break }
+            guard semanticFingerprint(tier) == fingerprint else { break }
             suffix.append(tier)
         }
         suffix.reverse()
 
         let earlier = representatives.dropLast(suffix.count)
-        let earlierConflict = earlier.contains { $0.conclusionFingerprint != fingerprint }
+        let earlierConflict = earlier.contains { semanticFingerprint($0) != fingerprint }
         let bestPrefix = commonPrefix(suffix.map(\.bestPV))
         let actualPrefix = commonPrefix(suffix.map(\.actualPV))
 
@@ -173,6 +181,12 @@ public enum VE1BStabilityEvaluator {
             confirmedBestPVPrefix: bestPrefix,
             confirmedActualPVPrefix: actualPrefix
         )
+    }
+
+    private static func semanticFingerprint(_ tier: VE1BConfirmationTier) -> String? {
+        guard let base = tier.conclusionFingerprint else { return nil }
+        guard let candidateTopMove = tier.candidateTopMove else { return base }
+        return "\(base)|candidateTop=\(candidateTopMove)"
     }
 
     public static func commonPrefix(_ lines: [[String]]) -> [String] {
