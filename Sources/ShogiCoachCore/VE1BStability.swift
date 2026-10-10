@@ -62,6 +62,7 @@ public enum VE1BStabilityEvaluator {
     /// Repeating the same node budget can test reproducibility but can never
     /// provide an additional stability tier.
     public static func assess(_ tiers: [VE1BConfirmationTier]) -> VE1BStabilityAssessment {
+        let attemptedBudgets = tiers.filter { $0.nodeBudget > 0 }.map(\.nodeBudget)
         let valid = tiers.filter {
             $0.qualifiesForStability
                 && $0.nodeBudget > 0
@@ -101,6 +102,24 @@ public enum VE1BStabilityEvaluator {
                 convergenceBudgets: [],
                 earlierConflictObserved: true,
                 reproducibilityConflictObserved: true,
+                confirmedBestPVPrefix: [],
+                confirmedActualPVPrefix: []
+            )
+        }
+
+        // A deeper attempted tier that is bounded, aborted, inconsistent, or
+        // otherwise non-qualifying invalidates an earlier stability claim. The
+        // deeper target remains unconfirmed rather than silently falling back to
+        // the shallower pair.
+        if let deepestAttempted = attemptedBudgets.max(),
+           let deepestQualifying = budgets.max(),
+           deepestAttempted > deepestQualifying {
+            return VE1BStabilityAssessment(
+                state: .unconfirmed,
+                distinctQualifyingBudgets: budgets,
+                convergenceBudgets: [],
+                earlierConflictObserved: false,
+                reproducibilityConflictObserved: false,
                 confirmedBestPVPrefix: [],
                 confirmedActualPVPrefix: []
             )

@@ -83,6 +83,16 @@ private func tier(
     #expect(result.distinctQualifyingBudgets == [10_000])
 }
 
+@Test func ve1bDeeperInvalidTierRemovesEarlierStableClaim() {
+    let result = VE1BStabilityEvaluator.assess([
+        tier(10_000, "A"),
+        tier(20_000, "A"),
+        tier(40_000, "A", qualifies: false)
+    ])
+    #expect(result.state == .unconfirmed)
+    #expect(result.convergenceBudgets.isEmpty)
+}
+
 @Test func ve1bConfirmedPVUsesOnlyStableConvergenceSuffix() {
     let result = VE1BStabilityEvaluator.assess([
         tier(
