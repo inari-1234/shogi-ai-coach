@@ -58,6 +58,11 @@ struct VE1BSearchAttemptRecord: Codable, Sendable {
     let maxObservedNodes: UInt64
     let bestMove: String?
     let bestMoveConsistency: String?
+    let selectedMove: String?
+    let selectedScoreKind: String?
+    let selectedScoreValue: Int?
+    let selectedBoundKind: String?
+    let selectedPV: [String]
     let observations: [VE1BSearchObservationRecord]
 
     init(
@@ -85,6 +90,29 @@ struct VE1BSearchAttemptRecord: Codable, Sendable {
         maxObservedNodes = sample.maxObservedNodes
         bestMove = sample.result?.bestMove.move
         bestMoveConsistency = sample.result?.bestMoveConsistency.rawValue
+
+        if let selected = sample.result?.principalVariations.first {
+            selectedMove = selected.pv.first
+            switch selected.score {
+            case .centipawn(let value, _):
+                selectedScoreKind = "cp"
+                selectedScoreValue = value
+            case .mate(let value, _):
+                selectedScoreKind = value >= 0 ? "mate_win" : "mate_loss"
+                selectedScoreValue = value
+            case .none:
+                selectedScoreKind = nil
+                selectedScoreValue = nil
+            }
+            selectedBoundKind = (selected.boundKind ?? .exact).rawValue
+            selectedPV = selected.pv
+        } else {
+            selectedMove = nil
+            selectedScoreKind = nil
+            selectedScoreValue = nil
+            selectedBoundKind = nil
+            selectedPV = []
+        }
         observations = sample.observations.map(VE1BSearchObservationRecord.init)
     }
 }
@@ -112,8 +140,101 @@ struct VE1BPositionEvidenceRecord: Codable, Sendable {
         self.confirmedBestPVPlyCount = confirmedBestPVPlyCount
         self.confirmedActualPVPlyCount = confirmedActualPVPlyCount
         self.attempts = attempts
-        self.stabilityEvidenceTiers = stabilityEvidenceTiers
-        self.stabilityReasons = stabilityReasons
+
+        let derived = stabilityEvidenceTiers.isEmpty
+            ? Self.deriveStabilityEvidence(from: attempts)
+            : stabilityEvidenceTiers
+        self.stabilityEvidenceTiers = derived
+        if stabilityReasons.isEmpty && !derived.isEmpty {
+            self.stabilityReasons = VE1BStabilityReclassifier.assess(
+                evidence: derived,
+                rules: .ve1bCalibration
+            ).comparisonInstabilityReasons
+        } else {
+            self.stabilityReasons = stabilityReasons
+        }
+    }
+
+    private static func deriveStabilityEvidence(
+        from attempts: [VE1BSearchAttemptRecord]
+    ) -> [VE1BStabilityEvidenceTier] {
+        let discovery = attempts.filter { $0.measurementTarget == "candidate_discovery" }
+        let recommended = attempts.filter { $0.measurementTarget == "recommended_move" }
+        let actual = attempts.filter { $0.measurementTarget == "actual_move" }
+        guard !discovery.isEmpty, !recommended.isEmpty, !actual.isEmpty else { return [] }
+
+        return recommended.sorted { $0.nodeBudget < $1.nodeBudget }.compactMap { best in
+            guard let candidate = discovery.last(where: { $0.nodeBudget == best.nodeBudget }),
+                  let played = actual.last(where: { $0.nodeBudget == best.nodeBudget }),
+                  let candidateMove = candidate.selectedMove,
+                  let candidateBound = candidate.selectedBoundKind,
+                  let bestMove = best.selectedMove,
+                  let bestKind = best.selectedScoreKind,
+                  let bestBound = best.selectedBoundKind,
+                  let actualMove = played.selectedMove,
+                  let actualKind = played.selectedScoreKind,
+                  let actualBound = played.selectedBoundKind else {
+                return nil
+            }
+
+            let inversion = bestMove != actualMove && Self.isBetter(
+                kind: actualKind,
+                value: played.selectedScoreValue,
+                thanKind: bestKind,
+                value: best.selectedScoreValue
+            )
+            let loss: Int?
+            if bestMove == actualMove {
+                loss = 0
+            } else if bestKind == "cp",
+                      actualKind == "cp",
+                      let bestValue = best.selectedScoreValue,
+                      let actualValue = played.selectedScoreValue,
+                      bestValue >= actualValue {
+                loss = bestValue - actualValue
+            } else {
+                loss = nil
+            }
+
+            return VE1BStabilityEvidenceTier(
+                nodeBudget: best.nodeBudget,
+                candidateTopMove: candidateMove,
+                candidateTopBoundKind: candidateBound,
+                bestMove: bestMove,
+                bestScoreKind: bestKind,
+                bestScoreValue: best.selectedScoreValue,
+                bestBoundKind: bestBound,
+                bestPV: best.selectedPV,
+                actualMove: actualMove,
+                actualScoreKind: actualKind,
+                actualScoreValue: played.selectedScoreValue,
+                actualBoundKind: actualBound,
+                actualPV: played.selectedPV,
+                lossCp: loss,
+                comparisonInversion: inversion
+            )
+        }
+    }
+
+    private static func isBetter(
+        kind: String,
+        value: Int?,
+        thanKind otherKind: String,
+        value otherValue: Int?
+    ) -> Bool {
+        let left = orderingKey(kind: kind, value: value)
+        let right = orderingKey(kind: otherKind, value: otherValue)
+        if left.category != right.category { return left.category > right.category }
+        return left.value > right.value
+    }
+
+    private static func orderingKey(kind: String, value: Int?) -> (category: Int, value: Int) {
+        switch kind {
+        case "mate_win": return (2, -(abs(value ?? Int.max)))
+        case "cp": return (1, value ?? Int.min)
+        case "mate_loss": return (0, abs(value ?? Int.max))
+        default: return (-1, Int.min)
+        }
     }
 }
 
