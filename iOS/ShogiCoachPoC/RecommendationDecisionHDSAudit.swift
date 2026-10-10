@@ -58,15 +58,56 @@ enum RecommendationDecisionHDSAudit {
                 .joined(separator: " / ")
             throw AuditError.violation("\(position.ply)手目 HDS-M FAIL [\(failed)]: \(details)")
         }
+
+        for entry in entries where entry.recommended.moves.isEmpty && entry.actual.moves.isEmpty {
+            let presentation = RecommendationDecisionPresentation.make(entry: entry)
+            guard presentation.headline.contains(entry.recommendedMove.label),
+                  presentation.difference.contains(entry.recommendedMove.label),
+                  presentation.difference.contains(entry.actualMove.label) else {
+                throw AuditError.violation("\(entry.ply)手目 HDS-M FAIL [G2_CONTRAST]: 空PVでも根手の名称を保持できていません")
+            }
+            guard let position = report.positions.first(where: { $0.ply == entry.ply }),
+                  position.gates.first(where: { $0.gate == .contrast })?.passed == true else {
+                throw AuditError.violation("\(entry.ply)手目 HDS-M FAIL [G2_CONTRAST]: 空PVの根手比較がG2を通過していません")
+            }
+        }
+
+        if let source = entries.first(where: {
+            $0.recommended.moves.isEmpty
+                && $0.actual.moves.isEmpty
+                && $0.recommendedMove.usi != $0.actualMove.usi
+        }) {
+            let stableEmptyPVFixture = ContinuationSimulationEntry(
+                id: source.id,
+                ply: source.ply,
+                orientation: source.orientation,
+                comparisonStable: true,
+                continuationStable: false,
+                actualLossCp: source.actualLossCp,
+                recommendedMove: source.recommendedMove,
+                actualMove: source.actualMove,
+                recommended: source.recommended,
+                actual: source.actual,
+                reasonSummary: source.reasonSummary
+            )
+            let presentation = RecommendationDecisionPresentation.make(entry: stableEmptyPVFixture)
+            guard presentation.status != .matched,
+                  presentation.status == .recommended,
+                  presentation.headline.contains(source.recommendedMove.label),
+                  presentation.difference.contains(source.recommendedMove.label),
+                  presentation.difference.contains(source.actualMove.label) else {
+                throw AuditError.violation("\(source.ply)手目 HDS-M FAIL [ROOT_MOVE_REGRESSION]: 空PVの異なる根手を一致扱いしています")
+            }
+        }
     }
 
     private static func evaluate(entry: ContinuationSimulationEntry) -> PositionResult {
         let presentation = RecommendationDecisionPresentation.make(entry: entry)
         let firstRecommended = entry.recommended.moves.first
-        let firstActual = entry.actual.moves.first
-        let sameMove = firstRecommended?.usi == firstActual?.usi
-        let recommendedLabel = firstRecommended?.label ?? ""
-        let actualLabel = firstActual?.label ?? ""
+        let sameMove = entry.recommendedMove.usi == entry.actualMove.usi
+        let recommendedLabel = entry.recommendedMove.label
+        let actualLabel = entry.actualMove.label
+        let mechanismLabel = firstRecommended?.label ?? ""
 
         let choicePass: Bool
         if !entry.comparisonStable {
@@ -95,7 +136,7 @@ enum RecommendationDecisionHDSAudit {
         ]
         let mechanismPass = !presentation.meaning.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             && !unresolvedPhrases.contains(where: { presentation.meaning.contains($0) })
-            && (recommendedLabel.isEmpty || presentation.meaning.contains(recommendedLabel) || hasConcreteMechanism(presentation.meaning))
+            && (mechanismLabel.isEmpty || presentation.meaning.contains(mechanismLabel) || hasConcreteMechanism(presentation.meaning))
             && !isScoreOnly(presentation.meaning)
 
         let horizonPass: Bool
