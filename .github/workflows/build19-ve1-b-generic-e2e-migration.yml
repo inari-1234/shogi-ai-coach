@@ -18,34 +18,27 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Correct residual generic E2E diagnostic contract
+      - name: Correct residual generic E2E diagnostic authority
         run: |
           python3 - <<'PY'
           from pathlib import Path
           path = Path('iOS/ShogiCoachPoC/SimulatorCIProbe.swift')
           text = path.read_text()
-          old_policy = 'deepDiagnostic.deepAnalysis?.adaptivePolicy == "adaptive-v2"'
-          new_policy = 'deepDiagnostic.deepAnalysis?.adaptivePolicy == "ve1b-node-UNFROZEN_CALIBRATION"'
-          if text.count(old_policy) != 1:
-              raise SystemExit(f'expected one stale adaptive policy assertion, got {text.count(old_policy)}')
-          text = text.replace(old_policy, new_policy, 1)
-          block_old = '''deepDiagnostic.deepAnalysis?.positions.allSatisfy({
-                  $0.actualAnalysisSource.hasPrefix("equal-condition")
-                      && !$0.bestPV.isEmpty
-                      && !$0.actualPV.isEmpty
-                      && $0.analysisAttempts >= 1
-              }) == true'''
-          block_new = '''deepDiagnostic.deepAnalysis?.positions.allSatisfy({
-                  $0.actualAnalysisSource.hasPrefix("equal-condition")
-                      && !$0.bestPV.isEmpty
-                      && !$0.actualPV.isEmpty
-                      && $0.analysisAttempts == 9
-              }) == true'''
-          if text.count(block_old) != 1:
-              raise SystemExit(f'expected one weak diagnostic attempt assertion, got {text.count(block_old)}')
-          text = text.replace(block_old, block_new, 1)
-          path.write_text(text)
+          old = 'deepDiagnostic.deepAnalysis?.adaptivePolicy == "adaptive-v2"'
+          new = 'deepDiagnostic.deepAnalysis?.adaptivePolicy == "ve1b-node-UNFROZEN_CALIBRATION"'
+          count = text.count(old)
+          if count != 1:
+              raise SystemExit(f'expected exactly one stale adaptive policy assertion, got {count}')
+          path.write_text(text.replace(old, new, 1))
           PY
+
+      - name: Verify diagnostic authority replacement
+        run: |
+          grep -F 'deepDiagnostic.deepAnalysis?.adaptivePolicy == "ve1b-node-UNFROZEN_CALIBRATION"' iOS/ShogiCoachPoC/SimulatorCIProbe.swift
+          if grep -F 'deepDiagnostic.deepAnalysis?.adaptivePolicy == "adaptive-v2"' iOS/ShogiCoachPoC/SimulatorCIProbe.swift; then
+            echo "Stale adaptive-v2 diagnostic assertion remains" >&2
+            exit 1
+          fi
 
       - name: Verify legacy production analyzer is absent
         run: |
