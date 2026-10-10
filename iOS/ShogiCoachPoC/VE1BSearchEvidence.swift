@@ -100,6 +100,7 @@ struct VE1BSearchEvidenceDocument: Codable, Sendable {
     let status: String
     let policyAuthorityStatus: String
     let candidateDiscoveryNodes: Int
+    let candidateDiscoveryNodeTiers: [Int]
     let confirmationNodeTiers: [Int]
     let safetyCeilingMs: Int
     let positions: [VE1BPositionEvidenceRecord]
@@ -116,11 +117,12 @@ enum VE1BSearchEvidenceExporter {
         error: String?
     ) throws -> URL {
         let document = VE1BSearchEvidenceDocument(
-            schemaVersion: 1,
+            schemaVersion: 2,
             generatedAt: Date(),
             status: status,
             policyAuthorityStatus: policy.authorityStatus,
             candidateDiscoveryNodes: policy.candidateDiscoveryNodes,
+            candidateDiscoveryNodeTiers: policy.candidateDiscoveryNodeTiers,
             confirmationNodeTiers: policy.confirmationNodeTiers,
             safetyCeilingMs: policy.safetyCeilingMs,
             positions: positions,
