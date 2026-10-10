@@ -429,6 +429,22 @@ jobs:
           print(summary, end="")
           PY
 
+      - name: Verification-only annotate probe result
+        if: always()
+        shell: bash
+        run: |
+          f=simulator-result.txt
+          if [ ! -f "$f" ]; then echo "::error title=probe::no simulator-result.txt"; exit 0; fi
+          echo "::notice title=probe-stage::$(grep -E '^stage=|_error=|_failed|=FAIL' "$f" | head -20 | tr '\n' '|')"
+          grep -o 'grep -Fq "[^"$]*"' .github/workflows/ios-simulator.yml | sed 's/^grep -Fq "//;s/"$//' \
+            | while IFS= read -r k; do grep -Fq -- "$k" "$f" || echo "$k"; done > missing.txt || true
+          echo "::warning title=missing-keys::$(head -30 missing.txt | tr '\n' '|')"
+          for k in $(cut -d= -f1 missing.txt | sort -u | head -6); do
+            echo "::notice title=actual-$k::$(grep -F "$k=" "$f" | head -2 | tr '\n' '|')"
+          done
+          echo "::notice title=stage-trace::$(tail -15 simulator-stage.txt 2>/dev/null | tr '\n' '|')"
+          python3 -c 'import json;d=json.load(open("simulator-hds-m.json"));print("::notice title=hds-m::passed=%s plies=%s status=%s"%(d.get("passed"),[p.get("ply") for p in d.get("positions",[])],[p.get("status") for p in d.get("positions",[])]))' || true
+
       - name: Upload simulator diagnostics
         if: always()
         uses: actions/upload-artifact@v4
