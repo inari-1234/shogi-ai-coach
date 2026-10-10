@@ -246,7 +246,8 @@ actor EngineRuntimeVerifier {
             let commands: [String] = [
                 "setoption name Threads value 1",
                 "setoption name USI_Hash value 64",
-                "setoption name MultiPV value 1"
+                "setoption name MultiPV value 1",
+                "setoption name BookFile value no_book"
             ]
             for command in commands {
                 transcript.append("> \(command)")
