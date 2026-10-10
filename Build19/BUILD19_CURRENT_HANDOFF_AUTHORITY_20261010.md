@@ -58,6 +58,7 @@ Additional fixed rules:
 10. **Mate-sign semantic acceptance remains VE1-C scope (`VE1C-002`).** Do not silently solve/freeze it inside VE1-B unless an unavoidable shared abstraction change is explicitly justified and requalified.
 11. **No silent input repair.** Engine/NNUE/profile/fixture mismatches fail rather than being substituted with convenient alternatives.
 12. **Preserve raw evidence.** Human-readable summaries never replace raw USI logs and machine-readable evidence/provenance.
+13. **The current 120cp `loss_changed` threshold is not calibrated authority.** It is stored as `UNFROZEN_VE1C_CALIBRATION` metadata solely so current labels can be reproduced and later recalculated from saved evidence without rerunning the engine.
 
 ## 4. 41 / 49 / 69 historical diagnostic positions
 
@@ -125,36 +126,58 @@ Do not tune a threshold on the holdout and then call the same holdout independen
 
 ## 7. VE1-B corrected B5/B6 search model
 
-The first VE1-B implementation contained a serious logical defect:
+Two sequential defects were identified and corrected during VE1-B review.
 
-- one shallow unrestricted MultiPV search selected `discoveredBest`;
-- later `N -> 2N -> 4N` searches were restricted to `searchmoves discoveredBest actual`;
-- therefore the fixed pair could look converged without ever checking whether unrestricted deeper search still ranked `discoveredBest` first.
+### Defect 1 — shallow Top-1 was frozen
 
-That model is superseded by `BUILD19_VE1_B_CANDIDATE_DISCOVERY_CONVERGENCE_AMENDMENT_20261010.md`.
+The first VE1-B implementation selected `discoveredBest` once at shallow search and then only compared that fixed pair at deeper budgets. That could not prove that unrestricted deeper search still preferred the same move.
 
-Current required model:
-
-### Candidate-discovery series
+The candidate-discovery correction remains mandatory:
 
 - unrestricted MultiPV candidate discovery is re-run at every increasing node tier;
-- each discovery tier starts from a cold TT boundary;
-- full ranked MultiPV evidence is preserved;
-- candidate Top-1 identity is part of the B5 convergence fingerprint;
-- if the highest qualifying increasing tiers disagree on Top-1, the result cannot be `stable`.
+- every discovery tier starts from a cold TT boundary;
+- the full ranked MultiPV observations, including exact/lowerbound/upperbound state, are retained at every tier;
+- candidate Top-1 identity remains part of the B5 convergence evidence/fingerprint.
 
-VE1-B does **not** invent a new cp threshold for a "nearly equal" candidate set. That semantic grouping remains VE1-C calibration scope. Until then, Top-1 changes are treated conservatively as reliability evidence and the full MultiPV list is retained for later calibration.
+`candidate_top1_changed` is an independent reliability reason code. It is **not** synonymous with `MULTIPLE_GOOD`. VE1-C owns near-tie/multiple-good semantics and must be able to inspect the saved full candidate sets.
 
-### Direct-comparison series
+### Defect 2 — MultiPV2 pair measurement generated boundary-only weaker lines
 
-- after candidate discovery, reset to a fresh cold TT boundary;
-- use the deepest unrestricted candidate Top-1 and the actual move for the fixed-pair diagnostic comparison;
-- within this single confirmation series, increasing node tiers may retain TT under the staged-reuse contract;
-- candidate-discovery TT history must not seed direct comparison.
+The next implementation measured recommended and actual moves together with `searchmoves recommended actual`, MultiPV 2. Review showed that the weaker line can remain `upperbound`/`lowerbound` at the target, causing even a clear position to be non-qualifying under the correct B3 rule.
 
-Candidate-ranking convergence and fixed-pair comparison convergence are different claims and must not be collapsed into one.
+That method is superseded by:
 
-## 8. `topCandidateGapCp`
+`BUILD19_VE1_B_INDEPENDENT_SINGLE_MOVE_COMPARISON_AMENDMENT_20261010.md`
+
+Current direct-comparison contract for every node tier `N`:
+
+1. cold TT reset;
+2. `searchmoves <recommended>` / MultiPV 1 / `go nodes N`;
+3. preserve complete evidence;
+4. cold TT reset again;
+5. `searchmoves <actual>` / MultiPV 1 / `go nodes N`;
+6. preserve complete evidence;
+7. form the tier comparison only after both searches complete normally.
+
+Therefore **N means N nodes per move**. No TT is inherited between the two moves or between comparison tiers. With three candidate-discovery tiers plus three recommended and three actual measurements, the corrected path is **9 engine searches per analyzed position**.
+
+B3 is not weakened. If a single-move target still ends bounded, it remains bounded/non-exact and cannot silently support an exact stable tier.
+
+## 8. Evidence-only stability reclassification
+
+Stability labels must be reproducible from saved Evidence JSON alone.
+
+The Evidence document must retain:
+
+- explicit stability rules used for the stored label, including the current uncalibrated 120cp `loss_changed` value;
+- candidate Top-1 identity/bound state per discovery tier;
+- independently measured recommended and actual score kind/value/bound/PV per comparison tier;
+- derived loss/inversion inputs;
+- node budget, TT generation, issued command, selected final line, all raw observations, and raw USI provenance.
+
+A regression must serialize the evidence, decode it, rerun the classifier without an engine, and reproduce the same state/reason set. VE1-C may later substitute a calibrated rule set and relabel this stored evidence without rerunning search.
+
+## 9. `topCandidateGapCp`
 
 The shallow first-discovery gap is not authority.
 
@@ -166,17 +189,20 @@ If exposed at all, the gap must:
 
 It must not be used to create a `MULTIPLE_GOOD` threshold before VE1-C calibration.
 
-## 9. Required VE1-B regression
+## 10. Required VE1-B regression
 
-The regression suite must include a negative case with this shape:
+The regression suite must include at least:
 
-- fixed-pair comparison fingerprint appears unchanged;
-- unrestricted candidate discovery changes Top-1 at the deepest tier;
-- expected result: **not stable**.
+- a fixed comparison whose unrestricted candidate Top-1 changes at the deepest tier; expected result: **not stable**;
+- six direct-comparison search invocations across three tiers, each MultiPV 1 with exactly one `searchmoves` move and a distinct cold TT generation;
+- node-budget evidence ordered `N,N,2N,2N,4N,4N`, where each value is per move;
+- saved Evidence JSON -> decode -> evidence-only classifier produces the same stored stability state/reasons;
+- all candidate-discovery MultiPV observations remain retained for later `MULTIPLE_GOOD` calibration;
+- normally completed `unstable`/`unconfirmed` analysis is not treated as engine execution failure and does not expose unqualified cp loss or top-candidate gap.
 
-A synthetic 69-like fixture is suitable for the contract test. Observed real-position numerical outputs remain diagnostic unless they independently satisfy the numeric evidence policy.
+A synthetic 69-like fixture is suitable for the Top-1-change contract test. Observed real-position numerical outputs remain diagnostic unless they independently satisfy the numeric evidence policy.
 
-## 10. VE1-B formal completion boundary
+## 11. VE1-B formal completion boundary
 
 VE1-B is not complete merely because Swift unit tests pass.
 
@@ -185,24 +211,29 @@ Final PASS requires one final candidate revision to satisfy all applicable B-gat
 - parser/evidence behavior and VE1B-001;
 - bound handling;
 - candidate-discovery convergence;
-- fixed-pair convergence;
-- TT isolation/reuse semantics;
+- independent cold single-move comparison convergence;
+- TT isolation semantics;
+- evidence-only stability reclassification;
 - `BookFile=no_book`;
 - abort/incomplete handling;
 - Simulator/E2E regression;
 - device build;
-- required physical-iPhone measurements;
+- required physical-iPhone measurements using the corrected nine-search-per-position path;
 - production node-budget/search-policy decision and evidence.
+
+**Do not perform or accept B6 physical-iPhone production-policy measurement from the superseded six-search/MultiPV2 schedule.** First finish the automated/Core/Simulator/device-build validation of the corrected method. Only then measure the corrected method on physical iPhone and choose/freeze production budgets and safety ceiling.
 
 Until that boundary is met, report **VE1-B IN PROGRESS / NOT FORMAL PASS**.
 
-## 11. Immediate restart instruction
+## 12. Immediate restart instruction
 
 When resuming from this document:
 
 1. inspect the current `candidate/build19-ve1-b-implementation` HEAD;
-2. confirm the candidate-discovery convergence amendment is present;
+2. confirm both VE1-B amendments are present, especially the independent-single-move comparison amendment;
 3. inspect all CI/regression results for that exact HEAD;
-4. fix deterministic failures without weakening the contract;
-5. if automated gates pass, continue to the required physical-iPhone B6 evidence / production-search-policy decision;
-6. do not advance to VE1-C until VE1-B receives an evidence-backed formal PASS.
+4. verify the production path performs 3 cold discovery searches plus 6 independent cold single-move comparison searches per analyzed position;
+5. verify Evidence JSON can reproduce the stored stability label/reasons without an engine rerun;
+6. fix deterministic failures without weakening B3/B5/B6 evidence rules;
+7. only after all automated/Simulator/device-build gates pass, perform the corrected-method physical-iPhone B6 evidence / production-search-policy decision;
+8. do not advance to VE1-C until VE1-B receives an evidence-backed formal PASS.
