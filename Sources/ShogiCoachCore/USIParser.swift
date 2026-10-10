@@ -5,7 +5,7 @@ public enum USIParser {
         let tokens = line.split(whereSeparator: { $0.isWhitespace }).map(String.init)
         guard tokens.first == "info" else { return nil }
 
-        var result = USIInfo()
+        var result = USIInfo(rawLine: line)
         var i = 1
 
         while i < tokens.count {
