@@ -100,7 +100,11 @@ enum VE1BSimulatorCIProbe {
                       discovery.allSatisfy({
                           $0.multiPV == 3
                               && $0.searchMoves.isEmpty
+                              && $0.pvIntervalMs == 0
+                              && $0.observationCount == $0.observations.count
                               && !$0.observations.isEmpty
+                              && $0.selectedBoundKind == "exact"
+                              && $0.selectedDepth != nil
                       }),
                       Set(discovery.map(\.ttGeneration)).count == 3,
                       comparison.map(\.role) == expectedRoles,
@@ -109,9 +113,13 @@ enum VE1BSimulatorCIProbe {
                       comparison.allSatisfy({
                           $0.multiPV == 1
                               && $0.searchMoves.count == 1
+                              && $0.pvIntervalMs == 0
+                              && $0.observationCount == $0.observations.count
                               && $0.selectedMove == $0.searchMoves.first
                               && $0.selectedScoreKind != nil
-                              && $0.selectedBoundKind != nil
+                              && $0.selectedBoundKind == "exact"
+                              && $0.selectedDepth != nil
+                              && $0.selectedNodes != nil
                       }),
                       Set(comparison.map(\.ttGeneration)).count == 6,
                       Set(entry.searchEvidence.map(\.ttGeneration)).count == 9,
@@ -122,7 +130,7 @@ enum VE1BSimulatorCIProbe {
                               && $0.maxObservedNodes >= UInt64($0.nodeBudget)
                       }) else {
                     throw EngineUSISession.ProbeError.protocolError(
-                        "VE1-B CI independent-cold TT/role/node contract mismatch at ply \(entry.ply)"
+                        "VE1-B CI independent-cold TT/role/node/completed-iteration contract mismatch at ply \(entry.ply)"
                     )
                 }
             }
@@ -130,11 +138,13 @@ enum VE1BSimulatorCIProbe {
             guard let evidenceURL = deep.searchEvidenceURL,
                   let data = try? Data(contentsOf: evidenceURL),
                   let document = try? JSONDecoder().decode(VE1BSearchEvidenceDocument.self, from: data),
-                  document.schemaVersion == 3,
+                  document.schemaVersion == 4,
                   document.status == "深掘り PASS",
                   document.policyAuthorityStatus == "UNFROZEN_CALIBRATION",
                   document.stabilityRules.lossSwingThresholdCp == 120,
                   document.stabilityRules.authorityStatus == "UNFROZEN_VE1C_CALIBRATION",
+                  document.pvIntervalMs == 0,
+                  document.measurementDefinition == "deepest_fully_completed_exact_iteration",
                   document.candidateDiscoveryNodeTiers == policy.candidateDiscoveryNodeTiers,
                   document.confirmationNodeTiers == policy.confirmationNodeTiers,
                   document.positions.count == 3,
@@ -145,9 +155,14 @@ enum VE1BSimulatorCIProbe {
             var reclassifiedMatches = 0
             for position in document.positions {
                 guard position.attempts.count == 9,
-                      position.stabilityEvidenceTiers.count == 3 else {
+                      position.stabilityEvidenceTiers.count == 3,
+                      position.attempts.allSatisfy({
+                          $0.pvIntervalMs == 0
+                              && $0.selectedBoundKind == "exact"
+                              && $0.selectedDepth != nil
+                      }) else {
                     throw EngineUSISession.ProbeError.protocolError(
-                        "VE1-B CI persisted stability evidence missing at ply \(position.ply)"
+                        "VE1-B CI persisted completed-iteration evidence missing at ply \(position.ply)"
                     )
                 }
                 let recomputed = VE1BStabilityReclassifier.assess(
@@ -179,13 +194,15 @@ enum VE1BSimulatorCIProbe {
                 "node_policy=\(policy.authorityStatus)",
                 "comparison_method=independent_cold_single_move_multipv1",
                 "nodes_semantics=per_move",
+                "pv_interval_ms=0",
+                "measurement=deepest_fully_completed_exact_iteration",
                 "discovery_tiers=\(policy.candidateDiscoveryNodeTiers.map(String.init).joined(separator: ","))",
                 "confirmation_tiers=\(policy.confirmationNodeTiers.map(String.init).joined(separator: ","))",
                 "attempts_per_position=9",
                 "stable_count=\(stableCount)",
                 "withheld_unstable_loss_count=\(withheldLossCount)",
                 "withheld_unconfirmed_gap_count=\(withheldGapCount)",
-                "evidence_schema=3",
+                "evidence_schema=4",
                 "evidence_positions=\(document.positions.count)",
                 "evidence_only_reclassification_matches=\(reclassifiedMatches)",
                 "incomplete_attempts=\(document.incompleteAttempts.count)"
