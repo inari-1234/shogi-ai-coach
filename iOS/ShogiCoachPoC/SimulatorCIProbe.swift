@@ -703,6 +703,31 @@ enum SimulatorCIProbe {
                       && !$0.actualPV.isEmpty
                       && $0.analysisAttempts >= 1
               }) == true else {
+            var diagEntryLines: [String] = []
+            for entry in deep.entries {
+                let loss = entry.actualLossCp.map { String($0) } ?? "nil"
+                let candPV = entry.candidates.allSatisfy { !$0.pv.isEmpty && !$0.move.isEmpty }
+                var line = "#\(entry.ply) cand=\(entry.candidates.count) att=\(entry.analysisAttempts)"
+                line += " ev=\(entry.searchEvidence.count) src=\(entry.actualAnalysisSource)"
+                line += " mt=\(entry.finalMovetimeMs) auth=\(entry.nodePolicyAuthorityStatus)"
+                line += " disc=\(entry.candidateDiscoveryNodes) tiers=\(entry.confirmationNodeTiers)"
+                line += " final=\(entry.finalNodeBudget) bestPV=\(entry.bestPV.count) actPV=\(entry.actualPV.count)"
+                line += " candPV=\(candPV) stab=\(entry.stabilityState) cs=\(entry.comparisonStable) loss=\(loss)"
+                diagEntryLines.append(line)
+            }
+            var diagDocText = "no_url"
+            if let url = deep.diagnosticURL {
+                if let data = try? Data(contentsOf: url) {
+                    if let doc = try? JSONDecoder.iso8601.decode(ShogiDiagnosticDocument.self, from: data) {
+                        let d = doc.deepAnalysis
+                        diagDocText = "schema=\(doc.schemaVersion) ver=\(doc.app.version) build=\(doc.app.build) status=\(d?.status ?? "-") mpv=\(d?.multiPV ?? -1) policy=\(d?.adaptivePolicy ?? "-") done=\(d?.completedPositions ?? -1) pos=\(d?.positions.count ?? -1) src=\((d?.positions ?? []).map { $0.actualAnalysisSource }.joined(separator: ","))"
+                    } else {
+                        diagDocText = "decode_failed"
+                    }
+                } else {
+                    diagDocText = "read_failed"
+                }
+            }
             writeReport([
                 "stage=deep_failed",
                 "kif_status=PASS",
@@ -710,6 +735,15 @@ enum SimulatorCIProbe {
                 "diagnostic_status=PASS",
                 "deep_status=FAIL",
                 "deep_count=\(deepCount)",
+                // Verification-only diagnostics (not for merge).
+                "deep_diag_completion=\(deepCompletionValid)",
+                "deep_diag_negative=\(deepNegativeContractValid)",
+                "deep_diag_valid=\(deepValid)",
+                "deep_diag_nonstable_suppression=\(nonStableSuppressionValid)",
+                "deep_diag_runstate=\(deep.displayStatus)",
+                "deep_diag_entries=\(diagEntryLines.joined(separator: " ; "))",
+                "deep_diag_diag_url=\(deep.diagnosticURL != nil)",
+                "deep_diag_doc=\(diagDocText)",
                 "deep_summary_begin",
                 deep.summary,
                 "deep_summary_end"
