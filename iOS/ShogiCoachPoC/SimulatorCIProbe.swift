@@ -946,10 +946,51 @@ enum SimulatorCIProbe {
                       && !position.actual.targetShapeSummary.isEmpty
               }) == true,
               (try? RecommendationDecisionPolicyAudit.validate(entries: continuation.entries)) != nil else {
+            var contDiag: [String] = []
+            contDiag.append("cont_diag_status=\(continuationStatus)")
+            contDiag.append("cont_diag_count=\(continuationCount)/\(deep.entries.count)")
+            contDiag.append("cont_diag_valid=\(continuationValid)")
+            for entry in continuation.entries {
+                let source = deep.entries.first(where: { $0.ply == entry.ply })
+                var line = "cont_diag_entry=#\(entry.ply)"
+                line += " cBest=\(source?.confirmedBestPV.count ?? -1) cAct=\(source?.confirmedActualPV.count ?? -1)"
+                line += " recMoves=\(entry.recommended.moves.count) recBlocks=\(entry.recommended.developmentBlocks.count)"
+                line += " actMoves=\(entry.actual.moves.count) actBlocks=\(entry.actual.developmentBlocks.count)"
+                line += " recFirst=\(entry.recommended.moves.first?.usi ?? "-") best=\(source?.bestMove ?? "-")"
+                line += " actFirst=\(entry.actual.moves.first?.usi ?? "-") actual=\(source?.actualMove ?? "-")"
+                line += " recSum=\(!entry.recommended.summary.isEmpty) actSum=\(!entry.actual.summary.isEmpty)"
+                line += " recShape=\(!entry.recommended.targetShapeSummary.isEmpty) actShape=\(!entry.actual.targetShapeSummary.isEmpty)"
+                let recLabels = entry.recommended.moves.allSatisfy { !$0.label.isEmpty && !$0.factText.isEmpty && !$0.coachText.isEmpty && $0.factText != $0.coachText }
+                let actLabels = entry.actual.moves.allSatisfy { !$0.label.isEmpty && !$0.factText.isEmpty && !$0.coachText.isEmpty && $0.factText != $0.coachText }
+                line += " recLabels=\(recLabels) actLabels=\(actLabels) cs=\(entry.comparisonStable)"
+                contDiag.append(line)
+            }
+            if let url = continuation.diagnosticURL, let data = try? Data(contentsOf: url) {
+                if let doc = try? JSONDecoder.iso8601.decode(ShogiDiagnosticDocument.self, from: data) {
+                    let c = doc.continuationSimulation
+                    var line = "cont_diag_doc=schema=\(doc.schemaVersion) ver=\(doc.app.version) build=\(doc.app.build)"
+                    line += " status=\(c?.status ?? "-") done=\(c?.completedPositions ?? -1) pos=\(c?.positions.count ?? -1)"
+                    for position in c?.positions ?? [] {
+                        line += " #\(position.ply):rec=\(position.recommended.moves.count),act=\(position.actual.moves.count),recShape=\(!position.recommended.targetShapeSummary.isEmpty),actShape=\(!position.actual.targetShapeSummary.isEmpty)"
+                    }
+                    contDiag.append(line)
+                } else {
+                    contDiag.append("cont_diag_doc=decode_failed")
+                }
+            } else {
+                contDiag.append("cont_diag_doc=no_url_or_read_failed")
+            }
+            do {
+                try RecommendationDecisionPolicyAudit.validate(entries: continuation.entries)
+                contDiag.append("cont_diag_policy=PASS")
+            } catch {
+                contDiag.append("cont_diag_policy=FAIL \(error.localizedDescription)")
+            }
             writeReport([
                 "stage=continuation_simulation_failed",
                 "continuation_status=FAIL",
                 "continuation_count=\(continuationCount)",
+                contDiag.joined(separator: "\n"),
                 "continuation_summary_begin",
                 continuation.summary,
                 "continuation_summary_end"
