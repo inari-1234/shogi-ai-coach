@@ -143,10 +143,12 @@ jobs:
           grep -Fq 'node_policy=UNFROZEN_CALIBRATION' ve1b-simulator-result.txt
           grep -Fq 'comparison_method=independent_cold_single_move_multipv1' ve1b-simulator-result.txt
           grep -Fq 'nodes_semantics=per_move' ve1b-simulator-result.txt
+          grep -Fq 'pv_interval_ms=0' ve1b-simulator-result.txt
+          grep -Fq 'measurement=deepest_fully_completed_exact_iteration' ve1b-simulator-result.txt
           grep -Fq 'discovery_tiers=50000,100000,200000' ve1b-simulator-result.txt
           grep -Fq 'confirmation_tiers=50000,100000,200000' ve1b-simulator-result.txt
           grep -Fq 'attempts_per_position=9' ve1b-simulator-result.txt
-          grep -Fq 'evidence_schema=3' ve1b-simulator-result.txt
+          grep -Fq 'evidence_schema=4' ve1b-simulator-result.txt
           grep -Fq 'evidence_positions=3' ve1b-simulator-result.txt
           grep -Fq 'evidence_only_reclassification_matches=3' ve1b-simulator-result.txt
           grep -Fq 'incomplete_attempts=0' ve1b-simulator-result.txt
@@ -155,11 +157,13 @@ jobs:
           import json
           from pathlib import Path
           doc = json.loads(Path('ve1b-search-evidence.json').read_text(encoding='utf-8'))
-          assert doc['schemaVersion'] == 3
+          assert doc['schemaVersion'] == 4
           assert doc['status'] == '深掘り PASS'
           assert doc['policyAuthorityStatus'] == 'UNFROZEN_CALIBRATION'
           assert doc['stabilityRules']['lossSwingThresholdCp'] == 120
           assert doc['stabilityRules']['authorityStatus'] == 'UNFROZEN_VE1C_CALIBRATION'
+          assert doc['pvIntervalMs'] == 0
+          assert doc['measurementDefinition'] == 'deepest_fully_completed_exact_iteration'
           assert doc['candidateDiscoveryNodeTiers'] == [50000, 100000, 200000]
           assert doc['confirmationNodeTiers'] == [50000, 100000, 200000]
           assert len(doc['positions']) == 3
@@ -189,10 +193,14 @@ jobs:
               assert [a['nodeBudget'] for a in comparison] == expected_budgets
               assert len({a['ttGeneration'] for a in comparison}) == 6
               assert len({a['ttGeneration'] for a in attempts}) == 9
+              assert all(a['pvIntervalMs'] == 0 for a in attempts)
+              assert all(a['observationCount'] == len(a['observations']) for a in attempts)
+              assert all(a['selectedBoundKind'] == 'exact' for a in attempts)
+              assert all(a['selectedDepth'] is not None for a in attempts)
+              assert all(a['completion'] == 'node_budget_reached' for a in attempts)
               assert all(a['multiPV'] == 1 for a in comparison)
               assert all(len(a['searchMoves']) == 1 for a in comparison)
               assert all(a['selectedMove'] == a['searchMoves'][0] for a in comparison)
-              assert all(a['completion'] == 'node_budget_reached' for a in attempts)
               assert len(position['stabilityEvidenceTiers']) == 3
           print('ve1b_simulator_evidence_audit=PASS')
           PY
