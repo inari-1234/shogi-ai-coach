@@ -1,0 +1,54 @@
+name: Build19 VE1-B Generic Workflow Authority Corrective
+
+on:
+  push:
+    branches:
+      - candidate/build19-ve1-b-implementation
+    paths:
+      - .github/workflows/build19-ve1-b-generic-workflow-authority-corrective.yml
+
+permissions:
+  contents: write
+
+jobs:
+  correct:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Replace stale generic E2E authority assertions
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('.github/workflows/ios-simulator.yml')
+          text = path.read_text()
+          replacements = {
+              'deep_adaptive_policy=adaptive-v2': 'deep_adaptive_policy=ve1b-node-UNFROZEN_CALIBRATION',
+              'context_refinement_policy=selective-low-unresolved-v1': 'context_refinement_policy=ve1b-deep-authority-reuse-v2',
+              'context["refinementPolicy"] == "selective-low-unresolved-v1"': 'context["refinementPolicy"] == "ve1b-deep-authority-reuse-v2"',
+          }
+          for old, new in replacements.items():
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'expected exactly one {old!r}, got {count}')
+              text = text.replace(old, new, 1)
+          path.write_text(text)
+          PY
+
+      - name: Verify old authority strings absent
+        run: |
+          ! grep -F 'deep_adaptive_policy=adaptive-v2' .github/workflows/ios-simulator.yml
+          ! grep -F 'context_refinement_policy=selective-low-unresolved-v1' .github/workflows/ios-simulator.yml
+          ! grep -F 'context["refinementPolicy"] == "selective-low-unresolved-v1"' .github/workflows/ios-simulator.yml
+          grep -F 'deep_adaptive_policy=ve1b-node-UNFROZEN_CALIBRATION' .github/workflows/ios-simulator.yml
+          grep -F 'context_refinement_policy=ve1b-deep-authority-reuse-v2' .github/workflows/ios-simulator.yml
+
+      - name: Commit workflow authority correction
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/workflows/ios-simulator.yml
+          git commit -m "VE1-B: align generic workflow assertions with node authority"
+          git push origin HEAD:candidate/build19-ve1-b-implementation
