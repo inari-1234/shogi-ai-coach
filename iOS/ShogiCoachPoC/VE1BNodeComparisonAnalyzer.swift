@@ -159,13 +159,13 @@ enum VE1BNodeComparisonAnalyzer {
                 evidence: evidence
             )
         }
-        guard discoveredBest.boundKind == .exact else {
-            throw VE1BNodeComparisonFailure(
-                detail: "candidate discovery MultiPV1 is bounded at target",
-                evidence: evidence
-            )
-        }
 
+        // Candidate discovery identifies which move(s) the direct-comparison
+        // series must test. A bounded final MultiPV observation is preserved as
+        // bounded provenance under B3, but is not itself a semantic/stability
+        // conclusion. Exactness is established only by the cold direct-
+        // comparison/confirmation tiers below. In particular, a bounded
+        // discovery score must never be used to publish a candidate gap.
         let searchMoves = discoveredBest.move == actualMove
             ? [discoveredBest.move]
             : [discoveredBest.move, actualMove]
@@ -369,6 +369,8 @@ enum VE1BNodeComparisonAnalyzer {
 
     private static func candidateGap(_ candidates: [VE1BEngineLine]) -> Int? {
         guard candidates.count >= 2,
+              candidates[0].boundKind == .exact,
+              candidates[1].boundKind == .exact,
               let first = candidates[0].centipawn,
               let second = candidates[1].centipawn else { return nil }
         return max(0, first - second)
