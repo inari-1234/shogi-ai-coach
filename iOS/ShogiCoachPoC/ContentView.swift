@@ -183,6 +183,15 @@ struct ContentView: View {
                     Text(analysisStatus)
                         .font(.headline)
 
+                    if let searchEvidenceURL = deep.searchEvidenceURL {
+                        ShareLink(item: searchEvidenceURL) {
+                            Label("VE1-B探索証拠JSONを共有", systemImage: "square.and.arrow.up")
+                        }
+                        Text("深掘りが未完了の場合も、nodes・TT境界・MultiPV・bound・生USIを含む探索証拠を確認できます。")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+
                     if analysisStatus == "解析 PASS" {
                         Text("重要局面を\(continuation.entries.count)件抽出しました。推奨／暫定候補と実戦手を盤面で動かして比較できます。")
                             .font(.footnote)
