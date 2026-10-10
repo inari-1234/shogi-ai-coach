@@ -22,10 +22,20 @@ enum EngineNodeSearchCompletion: String, Sendable {
     case nodeBudgetReached = "node_budget_reached"
     case earlyEngineTermination = "early_engine_termination"
     case safetyAborted = "safety_aborted"
+    case noCompletedExactIteration = "no_completed_exact_iteration"
+}
+
+enum VE1BEngineEvidenceAuthority {
+    static let pvIntervalMs = 0
 }
 
 struct NodeProbeSample: Sendable {
+    /// VE1-B semantic measurement result: the deepest fully completed exact
+    /// iterative-deepening snapshot. This is intentionally distinct from the
+    /// engine's terminal observation, which may be a bounded partial iteration.
     let result: EngineProbeResult?
+    /// Raw accumulator result at `bestmove`; retained for provenance/diagnosis.
+    let terminalResult: EngineProbeResult?
     let observations: [USIInfo]
     let completion: EngineNodeSearchCompletion
     let elapsedMs: Int
@@ -41,8 +51,7 @@ struct NodeProbeSample: Sendable {
 
     var isNormalCompletedResult: Bool {
         completion == .nodeBudgetReached
-            && result?.bestMoveConsistency == .consistent
-            && result?.principalVariations.first?.score != nil
+            && result?.principalVariations.first?.hasExactScore == true
             && result?.principalVariations.first?.pv.isEmpty == false
     }
 }
@@ -99,6 +108,7 @@ actor EngineUSISession {
             currentMultiPV = max(1, multiPV)
             try await link.send("setoption name MultiPV value \(currentMultiPV)")
             try await link.send("setoption name FV_SCALE value \(EngineRuntimeAuthority.fvScale)")
+            try await link.send("setoption name PvInterval value \(VE1BEngineEvidenceAuthority.pvIntervalMs)")
             try await link.send("setoption name BookFile value no_book")
             try await link.send("setoption name EvalDir value \(evalURL.deletingLastPathComponent().path)")
             try await link.send("isready")
@@ -121,8 +131,8 @@ actor EngineUSISession {
     ///
     /// The pinned YaneuraOu `YaneuraOuEngine::isready()` calls
     /// `tt.clear(threads)`. VE1-B therefore uses `isready`/`readyok` as the
-    /// explicit TT reset boundary. Increasing node tiers within one confirmation
-    /// series intentionally do NOT call this method and inherit TT state.
+    /// explicit TT reset boundary. Corrected VE1-B comparison invokes this
+    /// before every discovery and every single-move measurement.
     @discardableResult
     func resetForColdSeries(reason: String) async throws -> Int {
         guard let link = transport else {
@@ -165,6 +175,7 @@ actor EngineUSISession {
                 currentMultiPV = requested
             }
         }
+        let requiredMultiPV = currentMultiPV
 
         try await link.send(command)
 
@@ -233,6 +244,26 @@ actor EngineUSISession {
             }
         }
 
+        let completedExactSnapshot = USICompletedIterationSelector.deepestExactSnapshot(
+            observations: observations,
+            requiredMultiPV: requiredMultiPV
+        )
+        let measurementResult: EngineProbeResult?
+        if let terminal = finalResult,
+           let completedExactSnapshot {
+            // `bestmove` can reflect the interrupted terminal iteration. Preserve
+            // its raw consistency separately, but use the completed exact snapshot
+            // as the VE1-B semantic measurement.
+            measurementResult = EngineProbeResult(
+                bestMove: terminal.bestMove,
+                principalVariations: completedExactSnapshot,
+                observations: observations,
+                bestMoveConsistency: terminal.bestMoveConsistency
+            )
+        } else {
+            measurementResult = nil
+        }
+
         let elapsed = started.duration(to: .now)
         let components = elapsed.components
         let elapsedMs = Int(components.seconds * 1000)
@@ -241,10 +272,12 @@ actor EngineUSISession {
         let completion: EngineNodeSearchCompletion
         if safetyAborted {
             completion = .safetyAborted
-        } else if maxObservedNodes >= UInt64(nodeBudget) {
-            completion = .nodeBudgetReached
-        } else {
+        } else if maxObservedNodes < UInt64(nodeBudget) {
             completion = .earlyEngineTermination
+        } else if measurementResult == nil {
+            completion = .noCompletedExactIteration
+        } else {
+            completion = .nodeBudgetReached
         }
 
         if let finalResult {
@@ -252,9 +285,15 @@ actor EngineUSISession {
                 "ve1b_node_bestmove_\(finalResult.bestMove.move)_consistency_\(finalResult.bestMoveConsistency.rawValue)"
             )
         }
+        if let measurementDepth = measurementResult?.principalVariations.first?.depth {
+            SimulatorStage.mark("ve1b_completed_exact_depth_\(measurementDepth)")
+        } else if completion == .noCompletedExactIteration {
+            SimulatorStage.mark("ve1b_no_completed_exact_iteration")
+        }
 
         return NodeProbeSample(
-            result: finalResult,
+            result: measurementResult,
+            terminalResult: finalResult,
             observations: observations,
             completion: completion,
             elapsedMs: elapsedMs,
