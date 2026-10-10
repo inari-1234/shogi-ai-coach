@@ -632,7 +632,7 @@ enum SimulatorCIProbe {
               deepDiagnostic.app.build == "16",
               deepDiagnostic.deepAnalysis?.status == "深掘り PASS",
               deepDiagnostic.deepAnalysis?.multiPV == 3,
-              deepDiagnostic.deepAnalysis?.adaptivePolicy == "adaptive-v2",
+              deepDiagnostic.deepAnalysis?.adaptivePolicy == "ve1b-node-UNFROZEN_CALIBRATION",
               deepDiagnostic.deepAnalysis?.completedPositions == 3,
               deepDiagnostic.deepAnalysis?.positions.count == 3,
               deepDiagnostic.deepAnalysis?.positions.allSatisfy({
