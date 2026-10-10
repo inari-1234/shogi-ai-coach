@@ -36,12 +36,12 @@ jobs:
           set -euxo pipefail
           bash tools/engine-verify/setup.sh AVX2
 
-      - name: VE1-B native node / TT / book contract
+      - name: VE1-B native independent-single-move node / TT / book contract
         run: |
           set -euxo pipefail
           rm -rf build/ve1b-node-contract
           mkdir -p build/ve1b-node-contract
-          python3 tools/engine-verify/ve1b_node_contract_entry.py \
+          python3 tools/engine-verify/ve1b_independent_single_move_contract.py \
             --work "$ENGINE_VERIFY_WORK" \
             --out build/ve1b-node-contract
 
@@ -54,6 +54,23 @@ jobs:
           result = json.loads(Path('build/ve1b-node-contract/result.json').read_text())
           assert result['status'] == 'PASS', result
           assert result['authority_status'] == 'AUTOMATED_CALIBRATION_FIXTURE_NOT_PRODUCTION_AUTHORITY'
+          assert result['schema_version'] == 've1b-independent-single-move-contract-v2'
+          assert result['comparison_method'] == 'independent_cold_single_move_multipv1'
+          assert result['nodes_semantics'] == 'per_move'
+          assert len(result['candidate_discovery']['tt_generations']) == 3
+          assert len(set(result['candidate_discovery']['tt_generations'])) == 3
+          comparisons = result['independent_single_move_comparisons']
+          assert [x['node_budget_per_move'] for x in comparisons] == [50000, 100000, 200000]
+          generations = []
+          for item in comparisons:
+              generations.extend([
+                  item['recommended_tt_generation'],
+                  item['actual_tt_generation'],
+              ])
+              assert item['recommended']['go_command'].count('searchmoves') == 1
+              assert item['actual']['go_command'].count('searchmoves') == 1
+          assert len(set(generations)) == 6
+
           provenance = json.loads(Path('tools/engine-verify/.work/provenance.json').read_text())
           assert provenance['engine_commit'] == 'a5ee2786c0030edc7d4a1cdfe94b04dffec55493'
           assert provenance['nnue_sha256'] == '768068f0d534a0603a5d38bcd143de6bbca820d5f1c95a14d40863e5b7892d76'
