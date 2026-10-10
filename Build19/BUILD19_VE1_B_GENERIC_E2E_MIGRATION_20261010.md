@@ -2,6 +2,7 @@
 
 Date: 2026-10-10
 Status: corrective contract (pre-B6)
+Applied migration commit: `b46fc7c2b6d9e80ce4aca6b846417af516c5cb6d`
 
 ## Purpose
 
