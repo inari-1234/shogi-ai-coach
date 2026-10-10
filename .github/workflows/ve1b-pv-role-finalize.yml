@@ -1,0 +1,163 @@
+name: VE1-B PV Role Finalization
+
+on:
+  push:
+    branches:
+      - candidate/build19-ve1-b-pv-role-finalize
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: macos-15
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: candidate/build19-ve1-b-pv-role-finalize
+          fetch-depth: 0
+
+      - name: Apply final PV-role boundary and authority updates
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          def read(path):
+              return Path(path).read_text(encoding='utf-8')
+
+          def write(path, text):
+              Path(path).write_text(text, encoding='utf-8')
+
+          def replace_once(path, old, new):
+              text = read(path)
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{path}: expected one match, found {count}: {old[:100]!r}')
+              write(path, text.replace(old, new, 1))
+
+          # ContentView: expose observation-only reference PVs without routing them
+          # into Reason/HDS/Continuation.
+          path = 'iOS/ShogiCoachPoC/ContentView.swift'
+          replace_once(
+              path,
+              '''    var body: some View {\n''',
+              '''    private var unconfirmedReferenceEntries: [DeepAnalysisEntry] {\n        deep.entries.filter { entry in\n            !entry.comparisonStable\n                && (!entry.referenceBestPV.isEmpty || !entry.referenceActualPV.isEmpty)\n        }\n    }\n\n    var body: some View {\n'''
+          )
+          replace_once(
+              path,
+              '''                        Text("エンジンの根拠一覧は通常の振り返りには表示せず、診断JSONに保持しています。")\n                            .font(.footnote)\n                            .foregroundStyle(.secondary)\n\n                        if let diagnosticURL {\n''',
+              '''                        Text("エンジンの根拠一覧は通常の振り返りには表示せず、診断JSONに保持しています。")\n                            .font(.footnote)\n                            .foregroundStyle(.secondary)\n\n                        if !unconfirmedReferenceEntries.isEmpty {\n                            DisclosureGroup("未確認の参考読み筋") {\n                                Text("最深の完了済みexact探索から得た表示専用情報です。理由・推奨・展開シミュレーションの根拠には使用しません。")\n                                    .font(.footnote)\n                                    .foregroundStyle(.secondary)\n\n                                ForEach(unconfirmedReferenceEntries, id: \\.ply) { entry in\n                                    VStack(alignment: .leading, spacing: 4) {\n                                        Text("\\(entry.ply)手目")\n                                            .font(.subheadline)\n                                            .bold()\n                                        Text("候補側（未確認）: \\(entry.referenceBestPV.isEmpty ? \"取得なし\" : entry.referenceBestPV)")\n                                        Text("実戦手側（未確認）: \\(entry.referenceActualPV.isEmpty ? \"取得なし\" : entry.referenceActualPV)")\n                                    }\n                                    .font(.system(.caption, design: .monospaced))\n                                    .textSelection(.enabled)\n                                }\n                            }\n                        }\n\n                        if let diagnosticURL {\n'''
+          )
+
+          # Context explanation layer: make confirmed-only consumption explicit.
+          path = 'iOS/ShogiCoachPoC/ContextAnalysisViewModel.swift'
+          text = read(path)
+          counts = {
+              'deep.bestPV.split': text.count('deep.bestPV.split'),
+              'deep.actualPV.split': text.count('deep.actualPV.split'),
+          }
+          if counts != {'deep.bestPV.split': 3, 'deep.actualPV.split': 1}:
+              raise SystemExit(f'{path}: unexpected legacy PV references: {counts}')
+          text = text.replace('deep.bestPV.split', 'deep.confirmedBestPV.split')
+          text = text.replace('deep.actualPV.split', 'deep.confirmedActualPV.split')
+          write(path, text)
+
+          # Presentation hardening: nil/nil can never mean the routes matched.
+          path = 'iOS/ShogiCoachPoC/RecommendationDecisionPresentation.swift'
+          replace_once(
+              path,
+              '''        let firstRecommended = entry.recommended.moves.first\n        let firstActual = entry.actual.moves.first\n        let sameMove = firstRecommended?.usi == firstActual?.usi\n''',
+              '''        let firstRecommended = entry.recommended.moves.first\n        let firstActual = entry.actual.moves.first\n        let sameMove: Bool\n        if let firstRecommended, let firstActual {\n            sameMove = firstRecommended.usi == firstActual.usi\n        } else {\n            sameMove = false\n        }\n'''
+          )
+
+          # New highest-priority amendment.
+          amendment = '''# Build19-VE1-B — Confirmed PV / Reference PV Role Separation Amendment\n\nDate: 2026-10-10\nStatus: **NORMATIVE VE1-B AMENDMENT / IMPLEMENTATION MUST PASS FINAL GATES**\n\n## 1. Purpose\n\nVE1-B distinguishes a PV that is qualified for semantic use from a PV that is merely useful as an observation. This amendment resolves the generic Simulator E2E failure exposed after the completed-iteration/bound contract was corrected. It does **not** weaken B3, B5, B6 or B7 and does not add an engine search.\n\n## 2. Two PV roles\n\n### 2.1 `confirmedPV`\n\n`confirmedBestPV` / `confirmedActualPV` are the only PVs authorized for explanation, branch comparison, continuation simulation, HDS evidence and causal coaching claims. They are the stability-confirmed common prefix produced by the VE1-B classifier.\n\nFor `unstable`, `unconfirmed` or otherwise non-qualified continuation evidence, an empty confirmed PV is a **valid safe result**. Empty confirmed PV must not be repaired by copying a deeper unconfirmed observation.\n\n### 2.2 `referencePV`\n\n`referenceBestPV` / `referenceActualPV` are observation-only. They are derived from already-saved direct-measurement Evidence and therefore require no additional engine search.\n\nA reference PV may be selected only from an attempt that:\n\n- has the matching direct target (`recommended_move` or `actual_move`);\n- completed with `node_budget_reached`;\n- selected an `exact` completed iteration;\n- contains a non-empty selected PV.\n\nAmong qualifying attempts, use the deepest node tier; depth is only a tie-breaker. If no qualifying attempt exists, the reference PV is empty. A terminal lowerbound/upperbound is never promoted into reference PV.\n\n## 3. Mandatory semantic boundary\n\nThe following consumers may read **confirmed PV only**:\n\n- Reason analysis;\n- HDS G4/G5 or equivalent explanation-fidelity logic;\n- continuation / development simulation;\n- counterfactual or causal explanation;\n- any recommendation wording that implies a verified continuation.\n\n`referencePV` must never be used to fill an empty confirmed PV, establish a difference mechanism, generate a continuation route, or upgrade confidence/stability.\n\nThe context/explanation layer must use explicit `confirmed*` accessors where it consumes deep PV evidence so that future refactors cannot accidentally switch to reference observations.\n\n## 4. UI rule\n\nWhen a non-qualified reference PV is shown to a user, it must be labeled **未確認** and identified as display-only. The UI must state that it is not used as the basis for the reason, recommendation or continuation simulation.\n\nStable/qualified coaching continues to use confirmed PV. The reference display exists only to avoid discarding useful observational information while preserving the semantic safety boundary.\n\n## 5. Generic production-path E2E contract\n\nFor a normally completed non-stable sample where direct exact measurements exist:\n\n- `referenceBestPV` and `referenceActualPV` must be non-empty;\n- `confirmedBestPV` and `confirmedActualPV` must remain empty;\n- Reason output must contain only the empty confirmed PV, not the reference PV;\n- Continuation routes must remain empty;\n- presentation must remain `provisional` / `比較保留` / `暫定候補`;\n- policy audit must accept this as a valid non-stable state.\n\nFor stable samples, confirmed PV must be present and downstream consumers may use that confirmed evidence.\n\nThe production-path E2E must include the non-stable case as a **negative leakage test**. A test that merely checks reference PV existence is insufficient.\n\n## 6. Historical correction: bound / PvInterval\n\nThe previous handoff wording that described the 49-ply issue as a bound line being accepted as the final score is not current authority. B3 correctly rejected the deeper bound; the failure mode was that no qualifying exact completed iteration remained available under the then-observed output.\n\nThe completed-iteration authority in `BUILD19_VE1_B_PV_INTERVAL_COMPLETED_ITERATION_AMENDMENT_20261010.md` already requires `PvInterval=0` and selection of the deepest fully completed exact iteration. Commit `046ba47` implemented that correction and the dedicated VE1-B contract path passed. Do not reopen the old `PvInterval=300` diagnosis as the current generic-E2E blocker without new evidence.\n\n## 7. TT correction\n\nAll nine searches in the corrected VE1-B per-position path are cold:\n\n- 3 unrestricted candidate-discovery tiers;\n- 3 independent recommended-move tiers;\n- 3 independent actual-move tiers.\n\nEach invocation receives its own cold TT boundary. No N -> 2N -> 4N series is authorized to inherit a warm TT. Any older base-document wording that says otherwise is superseded by the later amendments and this clarification.\n\n## 8. Scope and completion boundary\n\nThis amendment changes evidence role semantics and downstream handling only. It does not change:\n\n- the nine-search engine schedule;\n- node budgets;\n- B6 physical-device thresholds;\n- candidate discovery rules;\n- B3 exact/bound qualification;\n- VE1-C calibration ownership.\n\nVE1-B remains **NOT FORMAL PASS** until the final candidate commit passes the required Core/Simulator/device gates and the frozen physical-iPhone B6 acceptance contract. A generic Simulator PASS after this amendment authorizes moving to physical B6; it does not itself complete VE1-B.\n'''
+          write('Build19/BUILD19_VE1_B_PV_ROLE_SEPARATION_AMENDMENT_20261010.md', amendment)
+
+          # Contract index: install the new amendment as highest-priority authority.
+          path = 'Build19/BUILD19_VE1_B_CONTRACT_INDEX_20261010.md'
+          text = read(path)
+          marker = 'Authority order for VE1-B work, highest priority first where wording conflicts:\n\n'
+          if text.count(marker) != 1:
+              raise SystemExit(f'{path}: authority marker mismatch')
+          before, rest = text.split(marker, 1)
+          list_part, tail = rest.split('\n\nImplementation must not begin', 1)
+          lines = list_part.splitlines()
+          bumped = []
+          for line in lines:
+              m = re.match(r'^(\\d+)\\. (.*)$', line)
+              bumped.append(f'{int(m.group(1))+1}. {m.group(2)}' if m else line)
+          first = ('1. `BUILD19_VE1_B_PV_ROLE_SEPARATION_AMENDMENT_20261010.md` — highest-priority PV role authority. '
+                   '`confirmedPV` is the only explanation/continuation authority; `referencePV` is exact completed direct-measurement observation only, must be labeled 未確認 when displayed, and is forbidden from filling or influencing confirmed semantic evidence. '
+                   'It also records the current all-nine-search cold-TT interpretation and the corrected historical bound/PvInterval description.')
+          text = before + marker + first + '\n' + '\n'.join(bumped) + '\n\nImplementation must not begin' + tail
+          fixed = 'Additional fixed rules carried forward:\n\n'
+          if text.count(fixed) != 1:
+              raise SystemExit(f'{path}: fixed-rule marker mismatch')
+          text = text.replace(fixed, fixed + '- `confirmedPV` is the only PV authority for Reason/HDS/Continuation; `referencePV` is observation/display-only and may never backfill an empty confirmed PV;\n', 1)
+          write(path, text)
+
+          # Current handoff: correct branch, blocker, PvInterval/bound and TT wording.
+          path = 'Build19/BUILD19_CURRENT_HANDOFF_AUTHORITY_20261010.md'
+          text = read(path)
+          old_branch = '`candidate/build19-ve1-b-implementation`'
+          if text.count(old_branch) != 2:
+              raise SystemExit(f'{path}: expected two old branch mentions, found {text.count(old_branch)}')
+          text = text.replace(old_branch, '`candidate/build19-ve1-b-pv-role-finalize`')
+          section4 = '## 4. 41 / 49 / 69 historical diagnostic positions\n'
+          if text.count(section4) != 1:
+              raise SystemExit(f'{path}: section 4 marker mismatch')
+          role_section = '''## 3A. Current PV evidence-role authority and current blocker correction\n\nThe current authority is `BUILD19_VE1_B_PV_ROLE_SEPARATION_AMENDMENT_20261010.md`.\n\n- `confirmedBestPV` / `confirmedActualPV`: stability-confirmed common prefix; the **only** PV allowed to drive Reason, HDS, continuation/counterfactual simulation or verified causal explanation. Empty is valid for non-stable evidence.\n- `referenceBestPV` / `referenceActualPV`: deepest qualifying completed-exact direct-measurement PV from already-saved Evidence. It is observation/display-only, must be labeled **未確認**, and cannot backfill confirmed evidence.\n- all nine searches are cold: 3 discovery + 3 recommended + 3 actual; no warm N -> 2N -> 4N inheritance is current authority.\n\nThe generic Simulator failure observed in run `38056325984` was not an engine-search failure. Completion/evidence counts and non-stable loss suppression were valid; the stale E2E assertion incorrectly required every deep result to have a non-empty confirmed PV. The sampled positions were `unconfirmed`/`unstable`, for which the stability evaluator correctly returned an empty confirmed common prefix.\n\nThe earlier `PvInterval=300` / completed-iteration problem is not the current blocker. `BUILD19_VE1_B_PV_INTERVAL_COMPLETED_ITERATION_AMENDMENT_20261010.md` requires `PvInterval=0`, and commit `046ba47` implemented that correction. Also preserve the historical distinction: B3 did **not** accept a deeper bound as a final exact score; it rejected the bound, which left no qualifying exact completed result under the earlier observation path.\n\nThe current remediation therefore separates confirmed and reference PV roles, keeps non-stable coaching provisional, and adds a negative E2E guard proving that reference PV cannot leak into explanation/continuation.\n\n'''
+          text = text.replace(section4, role_section + section4, 1)
+
+          restart = '## 12. Immediate restart instruction\n'
+          if text.count(restart) != 1:
+              raise SystemExit(f'{path}: restart marker mismatch')
+          prefix, _ = text.split(restart, 1)
+          restart_body = '''## 12. Immediate restart instruction\n\nWhen resuming from this document:\n\n1. inspect `candidate/build19-ve1-b-pv-role-finalize` and its exact HEAD;\n2. confirm `BUILD19_VE1_B_PV_ROLE_SEPARATION_AMENDMENT_20261010.md` is present and highest priority in the VE1-B Contract Index;\n3. verify the production path still performs 3 cold discovery + 3 cold recommended + 3 cold actual searches and uses `PvInterval=0`;\n4. verify non-stable samples may have non-empty **reference** PV while confirmed PV, Reason continuation evidence and continuation routes remain empty/provisional;\n5. require the generic production-path Simulator E2E, Core regression, HDS contract evidence and iOS Device Build to PASS on the same final candidate revision;\n6. only after those automated gates pass, perform physical-iPhone B6 exactly under `BUILD19_VE1_B_B6_PREMEASUREMENT_ACCEPTANCE_20261010.md` (primary 50k/100k/200k first; only the pre-authorized 25k/50k/100k fallback if required);\n7. freeze a production node/search policy only from accepted B6 evidence;\n8. do not advance to VE1-C until VE1-B receives an evidence-backed formal PASS.\n'''
+          write(path, prefix + restart_body)
+
+          # Static guard: referencePV may appear in its defining/UI/probe files and
+          # contract docs, but never in semantic downstream implementation files.
+          forbidden = [
+              'iOS/ShogiCoachPoC/ReasonAnalysisViewModel.swift',
+              'iOS/ShogiCoachPoC/ContinuationSimulationViewModel.swift',
+              'iOS/ShogiCoachPoC/ContextAnalysisViewModel.swift',
+              'iOS/ShogiCoachPoC/RecommendationDecisionPresentation.swift',
+              'iOS/ShogiCoachPoC/RecommendationDecisionHDSAudit.swift',
+          ]
+          for file in forbidden:
+              t = read(file)
+              if 'referenceBestPV' in t or 'referenceActualPV' in t:
+                  raise SystemExit(f'{file}: forbidden referencePV semantic dependency')
+
+          print('VE1-B PV role finalization patch applied')
+          PY
+
+          git diff --check
+
+      - name: Core regression
+        run: |
+          set -euo pipefail
+          swift test
+          ./scripts/verify.sh
+
+      - name: Commit final candidate changes and remove temporary workflow
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/ve1b-pv-role-finalize.yml
+          git add iOS/ShogiCoachPoC/ContentView.swift \
+                  iOS/ShogiCoachPoC/ContextAnalysisViewModel.swift \
+                  iOS/ShogiCoachPoC/RecommendationDecisionPresentation.swift \
+                  Build19/BUILD19_VE1_B_PV_ROLE_SEPARATION_AMENDMENT_20261010.md \
+                  Build19/BUILD19_VE1_B_CONTRACT_INDEX_20261010.md \
+                  Build19/BUILD19_CURRENT_HANDOFF_AUTHORITY_20261010.md
+          git diff --cached --check
+          git commit -m 'VE1-B: finalize confirmed/reference PV authority'
+          git push origin HEAD:candidate/build19-ve1-b-pv-role-finalize
