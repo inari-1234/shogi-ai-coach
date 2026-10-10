@@ -47,6 +47,7 @@ struct VE1BSearchAttemptRecord: Codable, Sendable {
     let measurementTarget: String
     let nodeBudget: Int
     let safetyCeilingMs: Int
+    let pvIntervalMs: Int
     let issuedGoCommand: String
     let ttGeneration: Int
     let multiPV: Int
@@ -56,13 +57,34 @@ struct VE1BSearchAttemptRecord: Codable, Sendable {
     let thermalBefore: String
     let thermalAfter: String
     let maxObservedNodes: UInt64
+    let observationCount: Int
+
+    /// Raw terminal `bestmove` provenance. This may belong to a deeper partial
+    /// iteration than the completed exact measurement below.
     let bestMove: String?
     let bestMoveConsistency: String?
+
+    /// VE1-B measurement selected from the deepest fully completed exact
+    /// iteration. Its own depth/nodes are retained and never relabeled as the
+    /// requested node target.
     let selectedMove: String?
     let selectedScoreKind: String?
     let selectedScoreValue: Int?
     let selectedBoundKind: String?
+    let selectedDepth: Int?
+    let selectedSelDepth: Int?
+    let selectedNodes: UInt64?
     let selectedPV: [String]
+
+    /// Last scored PV-bearing info line emitted by the engine, retained only as
+    /// terminal provenance. It is allowed to be lowerbound/upperbound.
+    let terminalScoredMove: String?
+    let terminalScoredScoreKind: String?
+    let terminalScoredScoreValue: Int?
+    let terminalScoredBoundKind: String?
+    let terminalScoredDepth: Int?
+    let terminalScoredNodes: UInt64?
+
     let observations: [VE1BSearchObservationRecord]
 
     init(
@@ -79,6 +101,7 @@ struct VE1BSearchAttemptRecord: Codable, Sendable {
         self.measurementTarget = measurementTarget
         nodeBudget = sample.nodeBudget
         safetyCeilingMs = sample.safetyCeilingMs
+        pvIntervalMs = VE1BEngineEvidenceAuthority.pvIntervalMs
         issuedGoCommand = sample.issuedGoCommand
         ttGeneration = sample.ttGeneration
         self.multiPV = multiPV
@@ -88,8 +111,9 @@ struct VE1BSearchAttemptRecord: Codable, Sendable {
         thermalBefore = sample.thermalBefore
         thermalAfter = sample.thermalAfter
         maxObservedNodes = sample.maxObservedNodes
-        bestMove = sample.result?.bestMove.move
-        bestMoveConsistency = sample.result?.bestMoveConsistency.rawValue
+        observationCount = sample.observations.count
+        bestMove = sample.terminalResult?.bestMove.move
+        bestMoveConsistency = sample.terminalResult?.bestMoveConsistency.rawValue
 
         if let selected = sample.result?.principalVariations.first {
             selectedMove = selected.pv.first
@@ -105,14 +129,48 @@ struct VE1BSearchAttemptRecord: Codable, Sendable {
                 selectedScoreValue = nil
             }
             selectedBoundKind = (selected.boundKind ?? .exact).rawValue
+            selectedDepth = selected.depth
+            selectedSelDepth = selected.selDepth
+            selectedNodes = selected.nodes
             selectedPV = selected.pv
         } else {
             selectedMove = nil
             selectedScoreKind = nil
             selectedScoreValue = nil
             selectedBoundKind = nil
+            selectedDepth = nil
+            selectedSelDepth = nil
+            selectedNodes = nil
             selectedPV = []
         }
+
+        if let terminal = sample.observations.last(where: {
+            $0.score != nil && !$0.pv.isEmpty
+        }) {
+            terminalScoredMove = terminal.pv.first
+            switch terminal.score {
+            case .centipawn(let value, _):
+                terminalScoredScoreKind = "cp"
+                terminalScoredScoreValue = value
+            case .mate(let value, _):
+                terminalScoredScoreKind = value >= 0 ? "mate_win" : "mate_loss"
+                terminalScoredScoreValue = value
+            case .none:
+                terminalScoredScoreKind = nil
+                terminalScoredScoreValue = nil
+            }
+            terminalScoredBoundKind = terminal.boundKind?.rawValue
+            terminalScoredDepth = terminal.depth
+            terminalScoredNodes = terminal.nodes
+        } else {
+            terminalScoredMove = nil
+            terminalScoredScoreKind = nil
+            terminalScoredScoreValue = nil
+            terminalScoredBoundKind = nil
+            terminalScoredDepth = nil
+            terminalScoredNodes = nil
+        }
+
         observations = sample.observations.map(VE1BSearchObservationRecord.init)
     }
 }
@@ -244,6 +302,8 @@ struct VE1BSearchEvidenceDocument: Codable, Sendable {
     let status: String
     let policyAuthorityStatus: String
     let stabilityRules: VE1BStabilityRules
+    let pvIntervalMs: Int
+    let measurementDefinition: String
     let candidateDiscoveryNodes: Int
     let candidateDiscoveryNodeTiers: [Int]
     let confirmationNodeTiers: [Int]
@@ -262,11 +322,13 @@ enum VE1BSearchEvidenceExporter {
         error: String?
     ) throws -> URL {
         let document = VE1BSearchEvidenceDocument(
-            schemaVersion: 3,
+            schemaVersion: 4,
             generatedAt: Date(),
             status: status,
             policyAuthorityStatus: policy.authorityStatus,
             stabilityRules: .ve1bCalibration,
+            pvIntervalMs: VE1BEngineEvidenceAuthority.pvIntervalMs,
+            measurementDefinition: "deepest_fully_completed_exact_iteration",
             candidateDiscoveryNodes: policy.candidateDiscoveryNodes,
             candidateDiscoveryNodeTiers: policy.candidateDiscoveryNodeTiers,
             confirmationNodeTiers: policy.confirmationNodeTiers,
