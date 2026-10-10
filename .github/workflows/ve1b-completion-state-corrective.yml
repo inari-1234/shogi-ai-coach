@@ -1,0 +1,57 @@
+name: VE1-B Completion State Corrective
+
+on:
+  push:
+    branches:
+      - candidate/build19-ve1-b-implementation
+    paths:
+      - tools/apply_ve1b_completion_state_corrective.py
+      - .github/workflows/ve1b-completion-state-corrective.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply-and-verify:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply deterministic corrective patch
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 tools/apply_ve1b_completion_state_corrective.py
+          git diff --check
+          grep -Fq 'enum DeepAnalysisRunState' iOS/ShogiCoachPoC/DeepAnalysisViewModel.swift
+          grep -Fq 'deepCompletionNegativeContractPasses' iOS/ShogiCoachPoC/SimulatorCIProbe.swift
+          grep -Fq 'presentation.status == .provisional' iOS/ShogiCoachPoC/SimulatorCIProbe.swift
+          ! grep -Fq 'actualAnalysisSource.hasPrefix("equal-condition")' iOS/ShogiCoachPoC/SimulatorCIProbe.swift
+
+      - name: Core regression
+        shell: bash
+        run: |
+          set -euxo pipefail
+          swift test
+          ./scripts/verify.sh
+
+      - name: Commit corrective implementation
+        shell: bash
+        run: |
+          set -euxo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            iOS/ShogiCoachPoC/DeepAnalysisViewModel.swift \
+            iOS/ShogiCoachPoC/ContentView.swift \
+            iOS/ShogiCoachPoC/SimulatorCIProbe.swift \
+            Build19/BUILD19_VE1_B_GENERIC_E2E_MIGRATION_20261010.md \
+            Build19/BUILD19_VE1_B_B6_PREMEASUREMENT_ACCEPTANCE_20261010.md
+          git diff --cached --quiet && { echo 'No implementation diff'; exit 1; }
+          git commit -m 'VE1-B: separate completion state from semantic stability'
+          git push origin HEAD:candidate/build19-ve1-b-implementation
