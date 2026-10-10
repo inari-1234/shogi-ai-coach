@@ -86,6 +86,21 @@ void runEngine(int fd) {
   USIEngine usi;
   usi.set_engine(engine);
 
+  // VE1-B completion telemetry: YaneuraOu's node-limit stop check uses this
+  // same ThreadPool::nodes_searched() counter. Emit the final value immediately
+  // before the ordinary bestmove callback so the Swift side can distinguish a
+  // true node-budget completion from an engine-side early termination. The
+  // line is legal scoreless USI info and is retained losslessly without
+  // replacing the selected scored PV.
+  auto originalBestmove = engine.get_on_bestmove();
+  engine.set_on_bestmove(
+      [&engine, originalBestmove](auto bestmove, auto ponder) {
+        const auto finalNodes = engine.get_threads().nodes_searched();
+        sync_cout << "info nodes " << finalNodes
+                  << " string ve1b_final_nodes" << sync_endl;
+        originalBestmove(bestmove, ponder);
+      });
+
   sync_cout << "info string bridge_dispatch_ready" << sync_endl;
 
   std::string command;

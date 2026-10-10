@@ -49,6 +49,15 @@ import Testing
     #expect(info?.pv == ["2g2f", "8c8d"])
 }
 
+@Test func parsesVE1BFinalNodeTelemetryAsScorelessObservation() {
+    let line = "info nodes 100123 string ve1b_final_nodes"
+    let info = USIParser.parseInfo(line)
+    #expect(info?.nodes == 100123)
+    #expect(info?.score == nil)
+    #expect(info?.pv.isEmpty == true)
+    #expect(info?.rawLine == line)
+}
+
 @Test func bestMoveResignIsPreserved() {
     #expect(USIParser.parseBestMove("bestmove resign")?.move == "resign")
 }
