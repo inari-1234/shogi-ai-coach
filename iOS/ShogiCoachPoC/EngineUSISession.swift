@@ -11,6 +11,42 @@ struct ProbeSample: Sendable {
     let thermalAfter: String
 }
 
+enum EngineSearchRole: String, Sendable {
+    case candidateDiscovery = "candidate_discovery"
+    case directComparison = "direct_comparison"
+    case confirmation = "confirmation"
+    case diagnostic = "diagnostic"
+}
+
+enum EngineNodeSearchCompletion: String, Sendable {
+    case nodeBudgetReached = "node_budget_reached"
+    case earlyEngineTermination = "early_engine_termination"
+    case safetyAborted = "safety_aborted"
+}
+
+struct NodeProbeSample: Sendable {
+    let result: EngineProbeResult?
+    let observations: [USIInfo]
+    let completion: EngineNodeSearchCompletion
+    let elapsedMs: Int
+    let memoryBytesAfter: UInt64?
+    let thermalBefore: String
+    let thermalAfter: String
+    let issuedGoCommand: String
+    let searchRole: EngineSearchRole
+    let nodeBudget: Int
+    let safetyCeilingMs: Int
+    let ttGeneration: Int
+    let maxObservedNodes: UInt64
+
+    var isNormalCompletedResult: Bool {
+        completion == .nodeBudgetReached
+            && result?.bestMoveConsistency == .consistent
+            && result?.principalVariations.first?.score != nil
+            && result?.principalVariations.first?.pv.isEmpty == false
+    }
+}
+
 actor EngineUSISession {
     enum ProbeError: Error, LocalizedError {
         case engineStartFailed(Int32)
@@ -34,6 +70,7 @@ actor EngineUSISession {
 
     private var transport: LocalUSITransport?
     private var currentMultiPV = 1
+    private var ttGeneration = 0
 
     func beginAnalysis(multiPV: Int = 1) async throws {
         if let old = transport {
@@ -68,16 +105,173 @@ actor EngineUSISession {
             SimulatorStage.mark("isready_sent")
             _ = try await link.readUntil({ $0 == "readyok" }, timeoutSeconds: 20, label: "readyok")
             SimulatorStage.mark("readyok")
+            ttGeneration = 1
 
             try await link.send("usinewgame")
         } catch {
             try? await link.send("quit")
             await link.close()
             transport = nil
+            ttGeneration = 0
             throw error
         }
     }
 
+    /// Starts a new cold logical search series.
+    ///
+    /// The pinned YaneuraOu `YaneuraOuEngine::isready()` calls
+    /// `tt.clear(threads)`. VE1-B therefore uses `isready`/`readyok` as the
+    /// explicit TT reset boundary. Increasing node tiers within one confirmation
+    /// series intentionally do NOT call this method and inherit TT state.
+    @discardableResult
+    func resetForColdSeries(reason: String) async throws -> Int {
+        guard let link = transport else {
+            throw ProbeError.protocolError("解析セッションが開始されていません")
+        }
+        try await link.send("isready")
+        SimulatorStage.mark("ve1b_tt_reset_isready_\(reason)")
+        _ = try await link.readUntil({ $0 == "readyok" }, timeoutSeconds: 20, label: "ve1b-tt-reset-readyok")
+        ttGeneration += 1
+        try await link.send("usinewgame")
+        SimulatorStage.mark("ve1b_tt_generation_\(ttGeneration)")
+        return ttGeneration
+    }
+
+    func analyzePositionNodes(
+        command: String,
+        nodeBudget: Int,
+        safetyCeilingMs: Int,
+        role: EngineSearchRole,
+        searchMoves: [String] = [],
+        multiPV: Int? = nil
+    ) async throws -> NodeProbeSample {
+        guard let link = transport else {
+            throw ProbeError.protocolError("解析セッションが開始されていません")
+        }
+        guard command.hasPrefix("position ") else {
+            throw ProbeError.protocolError("positionコマンドが不正です")
+        }
+        guard nodeBudget > 0 else {
+            throw ProbeError.protocolError("nodeBudgetは1以上が必要です")
+        }
+        guard safetyCeilingMs > 0 else {
+            throw ProbeError.protocolError("safetyCeilingMsは1以上が必要です")
+        }
+
+        if let multiPV {
+            let requested = max(1, multiPV)
+            if requested != currentMultiPV {
+                try await link.send("setoption name MultiPV value \(requested)")
+                currentMultiPV = requested
+            }
+        }
+
+        try await link.send(command)
+
+        let thermalBefore = RuntimeMetrics.thermalState
+        let started = ContinuousClock.now
+        var accumulator = USIAccumulator()
+        var observations: [USIInfo] = []
+        var maxObservedNodes: UInt64 = 0
+        let searchClause = searchMoves.isEmpty
+            ? ""
+            : " searchmoves " + searchMoves.joined(separator: " ")
+        let goCommand = "go nodes \(nodeBudget)\(searchClause)"
+        try await link.send(goCommand)
+        SimulatorStage.mark(searchMoves.isEmpty ? "go_nodes_sent" : "go_nodes_searchmoves_sent")
+
+        let deadline = ContinuousClock.now.advanced(
+            by: .seconds(Double(safetyCeilingMs) / 1000.0)
+        )
+        var finalResult: EngineProbeResult?
+        var safetyAborted = false
+
+        while ContinuousClock.now < deadline {
+            let remaining = ContinuousClock.now.duration(to: deadline)
+            do {
+                let line = try await link.nextLine(timeout: remaining, label: "ve1b-node-bestmove")
+                if let info = USIParser.parseInfo(line), !line.hasPrefix("info string ") {
+                    observations.append(info)
+                    if let nodes = info.nodes {
+                        maxObservedNodes = max(maxObservedNodes, nodes)
+                    }
+                }
+                if let result = accumulator.consume(line) {
+                    finalResult = result
+                    break
+                }
+            } catch ProbeError.timeout(_) {
+                safetyAborted = true
+                break
+            }
+        }
+
+        if finalResult == nil && !safetyAborted {
+            safetyAborted = true
+        }
+
+        if safetyAborted {
+            try? await link.send("stop")
+            SimulatorStage.mark("ve1b_node_safety_abort_stop_sent")
+            let stopDeadline = ContinuousClock.now.advanced(by: .seconds(2))
+            while ContinuousClock.now < stopDeadline && finalResult == nil {
+                let remaining = ContinuousClock.now.duration(to: stopDeadline)
+                do {
+                    let line = try await link.nextLine(timeout: remaining, label: "ve1b-node-stop-bestmove")
+                    if let info = USIParser.parseInfo(line), !line.hasPrefix("info string ") {
+                        observations.append(info)
+                        if let nodes = info.nodes {
+                            maxObservedNodes = max(maxObservedNodes, nodes)
+                        }
+                    }
+                    if let result = accumulator.consume(line) {
+                        finalResult = result
+                    }
+                } catch {
+                    break
+                }
+            }
+        }
+
+        let elapsed = started.duration(to: .now)
+        let components = elapsed.components
+        let elapsedMs = Int(components.seconds * 1000)
+            + Int(components.attoseconds / 1_000_000_000_000_000)
+
+        let completion: EngineNodeSearchCompletion
+        if safetyAborted {
+            completion = .safetyAborted
+        } else if maxObservedNodes >= UInt64(nodeBudget) {
+            completion = .nodeBudgetReached
+        } else {
+            completion = .earlyEngineTermination
+        }
+
+        if let finalResult {
+            SimulatorStage.mark(
+                "ve1b_node_bestmove_\(finalResult.bestMove.move)_consistency_\(finalResult.bestMoveConsistency.rawValue)"
+            )
+        }
+
+        return NodeProbeSample(
+            result: finalResult,
+            observations: observations,
+            completion: completion,
+            elapsedMs: elapsedMs,
+            memoryBytesAfter: RuntimeMetrics.physicalFootprintBytes,
+            thermalBefore: thermalBefore,
+            thermalAfter: RuntimeMetrics.thermalState,
+            issuedGoCommand: goCommand,
+            searchRole: role,
+            nodeBudget: nodeBudget,
+            safetyCeilingMs: safetyCeilingMs,
+            ttGeneration: ttGeneration,
+            maxObservedNodes: maxObservedNodes
+        )
+    }
+
+    /// Legacy movetime API retained for shallow/non-VE1-B callers while the deep
+    /// analysis path migrates to `analyzePositionNodes`.
     func analyzePosition(
         command: String,
         movetimeMs: Int,
@@ -157,6 +351,7 @@ actor EngineUSISession {
         await link.close()
         transport = nil
         currentMultiPV = 1
+        ttGeneration = 0
     }
 
     func run(sfen: String, movetimeMs: Int, multiPV: Int) async throws -> ProbeSample {
