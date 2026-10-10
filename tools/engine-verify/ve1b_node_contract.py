@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-"""Build19 VE1-B native node/TT/book contract verification.
+"""Build19 VE1-B native node/TT/book/evidence contract verification.
 
 This runner validates search-control semantics only. The node budgets below are
 AUTOMATED_CALIBRATION_FIXTURE values, not production Semantic Authority.
+
+VE1-B measurement authority is the deepest fully completed exact iterative-
+deepening snapshot. A deeper terminal lowerbound/upperbound remains raw evidence
+and is never relabeled as an exact target-depth score.
 """
 from __future__ import annotations
 
@@ -21,6 +25,7 @@ from typing import Optional
 FIXTURE_N = 50_000
 FIXTURE_TIERS = [50_000, 100_000, 200_000]
 FV_SCALE = 24
+PV_INTERVAL_MS = 0
 
 
 class ContractFailure(RuntimeError):
@@ -46,6 +51,11 @@ class SearchResult:
     primary_nodes: Optional[int]
     primary_score: Optional[Score]
     primary_pv: list[str]
+    terminal_primary_depth: Optional[int]
+    terminal_primary_nodes: Optional[int]
+    terminal_primary_score: Optional[Score]
+    terminal_primary_pv: list[str]
+    info_observation_count: int
     max_observed_nodes: int
     bestmove_consistent: bool
     transcript: list[str]
@@ -54,7 +64,10 @@ class SearchResult:
         return {
             "bestmove": self.bestmove,
             "primary_score": asdict(self.primary_score) if self.primary_score else None,
+            "primary_depth": self.primary_depth,
+            "primary_nodes": self.primary_nodes,
             "primary_pv": self.primary_pv,
+            "terminal_primary_score": asdict(self.terminal_primary_score) if self.terminal_primary_score else None,
             "bestmove_consistent": self.bestmove_consistent,
         }
 
@@ -91,6 +104,7 @@ class Engine:
             "setoption name USI_Hash value 64",
             "setoption name MultiPV value 1",
             f"setoption name FV_SCALE value {FV_SCALE}",
+            f"setoption name PvInterval value {PV_INTERVAL_MS}",
             "setoption name BookFile value no_book",
             f"setoption name EvalDir value {self.eval_dir}",
         ):
@@ -135,7 +149,7 @@ class Engine:
             self.multi_pv = value
 
     def cold_reset(self, reason: str) -> int:
-        self.send(f"isready")
+        self.send("isready")
         self.read_until(lambda x: x == "readyok", 30, f"readyok/{reason}")
         self.tt_generation += 1
         self.send("usinewgame")
@@ -159,6 +173,7 @@ class Engine:
         self.send(go)
 
         latest_scored: dict[int, dict] = {}
+        scored_observations: list[dict] = []
         max_nodes = 0
         bestmove = None
         ponder = None
@@ -172,6 +187,7 @@ class Engine:
                     if parsed.get("nodes") is not None:
                         max_nodes = max(max_nodes, parsed["nodes"])
                     if parsed.get("score") is not None and parsed.get("pv"):
+                        scored_observations.append(parsed)
                         rank = parsed.get("multipv", 1)
                         current = latest_scored.get(rank)
                         if should_replace(current, parsed):
@@ -189,19 +205,27 @@ class Engine:
 
         if bestmove is None:
             raise ContractFailure(f"{label}: bestmove timeout")
-        primary = latest_scored.get(1)
-        if not primary:
-            raise ContractFailure(f"{label}: no scored MultiPV1 observation")
         if max_nodes < nodes:
             raise ContractFailure(
                 f"{label}: observed nodes {max_nodes} did not reach requested {nodes}"
             )
-        pv = primary.get("pv") or []
-        consistent = bool(pv) and pv[0] == bestmove
+
+        exact_snapshot = select_deepest_exact_snapshot(scored_observations, multipv)
+        if exact_snapshot is None:
+            raise ContractFailure(f"{label}: no completed exact iteration")
+        primary = exact_snapshot[0]
+        terminal_primary = latest_scored.get(1)
+        if terminal_primary is None:
+            raise ContractFailure(f"{label}: no scored terminal MultiPV1 observation")
+
+        terminal_pv = terminal_primary.get("pv") or []
+        consistent = bool(terminal_pv) and terminal_pv[0] == bestmove
         if not consistent:
             raise ContractFailure(
-                f"{label}: bestmove/PV1 mismatch bestmove={bestmove} pv_head={pv[0] if pv else None}"
+                f"{label}: bestmove/terminal-PV1 mismatch bestmove={bestmove} "
+                f"pv_head={terminal_pv[0] if terminal_pv else None}"
             )
+
         return SearchResult(
             label=label,
             position=position,
@@ -212,7 +236,12 @@ class Engine:
             primary_seldepth=primary.get("seldepth"),
             primary_nodes=primary.get("nodes"),
             primary_score=primary.get("score"),
-            primary_pv=pv,
+            primary_pv=primary.get("pv") or [],
+            terminal_primary_depth=terminal_primary.get("depth"),
+            terminal_primary_nodes=terminal_primary.get("nodes"),
+            terminal_primary_score=terminal_primary.get("score"),
+            terminal_primary_pv=terminal_pv,
+            info_observation_count=len(scored_observations),
             max_observed_nodes=max_nodes,
             bestmove_consistent=consistent,
             transcript=self.transcript[start_index:],
@@ -271,6 +300,64 @@ def parse_info(line: str) -> Optional[dict]:
     return result
 
 
+def select_deepest_exact_snapshot(observations: list[dict], required_multipv: int) -> Optional[list[dict]]:
+    if required_multipv <= 0:
+        return None
+    exact = [
+        (index, item)
+        for index, item in enumerate(observations)
+        if item.get("depth") is not None
+        and 1 <= item.get("multipv", 1) <= required_multipv
+        and item.get("score") is not None
+        and item["score"].bound == "exact"
+        and item.get("pv")
+    ]
+    for depth in sorted({item["depth"] for _, item in exact}, reverse=True):
+        snapshot: list[dict] = []
+        for rank in range(1, required_multipv + 1):
+            candidates = [
+                (index, item)
+                for index, item in exact
+                if item["depth"] == depth and item.get("multipv", 1) == rank
+            ]
+            if not candidates:
+                snapshot = []
+                break
+            _, selected = max(
+                candidates,
+                key=lambda pair: (
+                    pair[1].get("nodes") or 0,
+                    pair[1].get("time") or 0,
+                    pair[0],
+                ),
+            )
+            snapshot.append(selected)
+        if len(snapshot) == required_multipv:
+            return sorted(snapshot, key=lambda item: item.get("multipv", 1))
+    return None
+
+
+def verify_completed_iteration_selector() -> dict:
+    exact = parse_info("info depth 12 seldepth 18 nodes 42000 score cp 560 pv 3g2e 8c8d")
+    bounded = parse_info("info depth 13 seldepth 19 nodes 50000 score cp 605 lowerbound pv 3g2e 8c8d")
+    assert exact is not None and bounded is not None
+    selected = select_deepest_exact_snapshot([exact, bounded], 1)
+    if not selected or selected[0].get("depth") != 12 or selected[0]["score"].bound != "exact":
+        raise ContractFailure("completed-iteration selector promoted terminal bound")
+
+    bound_only = parse_info("info depth 12 seldepth 18 nodes 50000 score cp -58 upperbound pv 4i3h")
+    assert bound_only is not None
+    if select_deepest_exact_snapshot([bound_only], 1) is not None:
+        raise ContractFailure("bound-only search was not rejected as incomplete")
+
+    return {
+        "status": "PASS",
+        "deepest_completed_exact_depth": 12,
+        "terminal_bound_depth": 13,
+        "bound_only_result": "INCOMPLETE",
+    }
+
+
 def should_replace(current: Optional[dict], candidate: dict) -> bool:
     if candidate.get("score") is None:
         return False
@@ -292,8 +379,7 @@ def should_replace(current: Optional[dict], candidate: dict) -> bool:
 
 
 def result_dict(result: SearchResult) -> dict:
-    data = asdict(result)
-    return data
+    return asdict(result)
 
 
 def assert_same(label: str, left: SearchResult, right: SearchResult) -> None:
@@ -328,6 +414,7 @@ def run_contract(work: Path, out: Path) -> dict:
     out.mkdir(parents=True, exist_ok=True)
 
     tt_proof = verify_tt_source(work)
+    selector_proof = verify_completed_iteration_selector()
     e = Engine(engine_path, work, eval_dir)
     all_transcript: list[str] = []
     book_dir = work / "book"
@@ -358,8 +445,7 @@ def run_contract(work: Path, out: Path) -> dict:
         order_b2 = e.search("order_B_after_A", "position startpos", FIXTURE_N)
         assert_same("TT cold-start order independence", order_b1, order_b2)
 
-        # C. Candidate discovery must not seed direct comparison. The transcript
-        # explicitly contains isready/readyok between the roles.
+        # C. Candidate discovery must not seed direct comparison.
         e.cold_reset("candidate_discovery")
         discovery = e.search(
             "candidate_discovery",
@@ -373,7 +459,7 @@ def run_contract(work: Path, out: Path) -> dict:
         if generation_at_compare <= generation_after_discovery:
             raise ContractFailure("TT generation did not advance between discovery and comparison")
 
-        # D. Within one confirmation series, retain TT and deepen in fixed order.
+        # D. Legacy warm-series fixture retained only for backward contract coverage.
         warm: list[SearchResult] = []
         warm_generation = e.tt_generation
         for nodes in FIXTURE_TIERS:
@@ -401,16 +487,21 @@ def run_contract(work: Path, out: Path) -> dict:
         all_transcript = list(e.transcript)
         if not any(x == "> setoption name BookFile value no_book" for x in all_transcript):
             raise ContractFailure("BookFile=no_book command missing")
+        if not any(x == f"> setoption name PvInterval value {PV_INTERVAL_MS}" for x in all_transcript):
+            raise ContractFailure("PvInterval=0 command missing")
         if any("can't read file : book/standard_book.db" in x for x in all_transcript):
             raise ContractFailure("opening-book read warning appeared despite BookFile=no_book")
 
-        result = {
-            "schema_version": "ve1b-node-contract-v1",
+        return {
+            "schema_version": "ve1b-node-contract-v2",
             "status": "PASS",
             "authority_status": "AUTOMATED_CALIBRATION_FIXTURE_NOT_PRODUCTION_AUTHORITY",
             "fixture_node_budget": FIXTURE_N,
             "fixture_confirmation_tiers": FIXTURE_TIERS,
             "fv_scale": FV_SCALE,
+            "pv_interval_ms": PV_INTERVAL_MS,
+            "measurement_definition": "deepest_fully_completed_exact_iteration",
+            "completed_iteration_selector": selector_proof,
             "tt_source_proof": tt_proof,
             "same_budget_reproducibility": {
                 "interpretation": "reproducibility_only_not_stability",
@@ -433,7 +524,6 @@ def run_contract(work: Path, out: Path) -> dict:
                 "with_standard_book_db_present": result_dict(book_present),
             },
         }
-        return result
     finally:
         e.close()
         if all_transcript:
@@ -453,7 +543,7 @@ def main() -> int:
         result = run_contract(args.work.resolve(), args.out.resolve())
     except Exception as exc:
         failure = {
-            "schema_version": "ve1b-node-contract-v1",
+            "schema_version": "ve1b-node-contract-v2",
             "status": "FAIL",
             "authority_status": "AUTOMATED_CALIBRATION_FIXTURE_NOT_PRODUCTION_AUTHORITY",
             "error": str(exc),
@@ -474,6 +564,8 @@ def main() -> int:
         "authority_status": result["authority_status"],
         "fixture_node_budget": result["fixture_node_budget"],
         "fixture_confirmation_tiers": result["fixture_confirmation_tiers"],
+        "pv_interval_ms": result["pv_interval_ms"],
+        "measurement_definition": result["measurement_definition"],
     }, indent=2))
     return 0
 
