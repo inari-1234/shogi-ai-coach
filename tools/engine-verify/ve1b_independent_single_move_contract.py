@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
-"""Build19 VE1-B corrected native node/TT/book contract.
+"""Build19 VE1-B corrected native node/TT/book/evidence contract.
 
 Comparison authority in this verifier is the independent single-move method:
 for each node tier, recommended and actual moves are measured separately with
 MultiPV1 and a fresh TT clear before EACH invocation. Node N means N nodes per
 move. Numeric fixture budgets remain calibration-only, not production authority.
+
+`PvInterval=0` is mandatory so every completed iterative-deepening result is
+emitted. The measurement is the deepest fully completed exact iteration; a
+terminal bound is retained as provenance only.
 """
 from __future__ import annotations
 
@@ -38,6 +42,14 @@ def verify_tt_source(work: Path) -> dict:
     }
 
 
+def require_exact_measurement(label: str, result: base.SearchResult) -> None:
+    score = result.primary_score
+    if score is None or score.bound != "exact":
+        raise base.ContractFailure(f"{label}: completed exact measurement missing")
+    if result.primary_depth is None or result.primary_nodes is None or not result.primary_pv:
+        raise base.ContractFailure(f"{label}: completed exact measurement provenance incomplete")
+
+
 def run_contract(work: Path, out: Path) -> dict:
     engine_path = (work / "engine").resolve()
     eval_dir = (work / "eval").resolve()
@@ -48,6 +60,7 @@ def run_contract(work: Path, out: Path) -> dict:
     out.mkdir(parents=True, exist_ok=True)
 
     tt_proof = verify_tt_source(work)
+    selector_proof = base.verify_completed_iteration_selector()
     e = base.Engine(engine_path, work, eval_dir)
     all_transcript: list[str] = []
     book_dir = work / "book"
@@ -63,6 +76,8 @@ def run_contract(work: Path, out: Path) -> dict:
         repro1 = e.search("same_budget_cold_1", "position startpos", FIXTURE_N)
         e.cold_reset("repro_2")
         repro2 = e.search("same_budget_cold_2", "position startpos", FIXTURE_N)
+        require_exact_measurement("same_budget_cold_1", repro1)
+        require_exact_measurement("same_budget_cold_2", repro2)
         base.assert_same("same-budget cold reproducibility", repro1, repro2)
 
         # B. A cold target must not inherit an unrelated prior position.
@@ -76,6 +91,8 @@ def run_contract(work: Path, out: Path) -> dict:
         )
         e.cold_reset("order_target_B_after_A")
         order_b2 = e.search("order_B_after_A", "position startpos", FIXTURE_N)
+        require_exact_measurement("order_B_first", order_b1)
+        require_exact_measurement("order_B_after_A", order_b2)
         base.assert_same("TT cold-start order independence", order_b1, order_b2)
 
         # C. Every unrestricted candidate-discovery tier starts cold.
@@ -84,14 +101,14 @@ def run_contract(work: Path, out: Path) -> dict:
         for index, nodes in enumerate(FIXTURE_TIERS):
             e.cold_reset(f"candidate_discovery_{index}")
             discovery_generations.append(e.tt_generation)
-            discoveries.append(
-                e.search(
-                    f"candidate_discovery_{nodes}",
-                    "position startpos",
-                    nodes,
-                    multipv=3,
-                )
+            discovery = e.search(
+                f"candidate_discovery_{nodes}",
+                "position startpos",
+                nodes,
+                multipv=3,
             )
+            require_exact_measurement(f"candidate_discovery_{nodes}", discovery)
+            discoveries.append(discovery)
         if len(set(discovery_generations)) != len(FIXTURE_TIERS):
             raise base.ContractFailure("candidate discovery did not receive distinct cold TT generations")
 
@@ -109,6 +126,7 @@ def run_contract(work: Path, out: Path) -> dict:
                 multipv=1,
                 searchmoves=["7g7f"],
             )
+            require_exact_measurement(f"recommended_{nodes}", recommended)
 
             e.cold_reset(f"comparison_actual_{index}")
             actual_generation = e.tt_generation
@@ -119,6 +137,7 @@ def run_contract(work: Path, out: Path) -> dict:
                 multipv=1,
                 searchmoves=["2g2f"],
             )
+            require_exact_measurement(f"actual_{nodes}", actual)
             comparison_generations.extend([best_generation, actual_generation])
 
             if recommended.go_command != f"go nodes {nodes} searchmoves 7g7f":
@@ -153,18 +172,23 @@ def run_contract(work: Path, out: Path) -> dict:
         all_transcript = list(e.transcript)
         if not any(x == "> setoption name BookFile value no_book" for x in all_transcript):
             raise base.ContractFailure("BookFile=no_book command missing")
+        if not any(x == f"> setoption name PvInterval value {base.PV_INTERVAL_MS}" for x in all_transcript):
+            raise base.ContractFailure("PvInterval=0 command missing")
         if any("can't read file : book/standard_book.db" in x for x in all_transcript):
             raise base.ContractFailure("opening-book read warning appeared despite BookFile=no_book")
 
         return {
-            "schema_version": "ve1b-independent-single-move-contract-v2",
+            "schema_version": "ve1b-independent-single-move-contract-v3",
             "status": "PASS",
             "authority_status": "AUTOMATED_CALIBRATION_FIXTURE_NOT_PRODUCTION_AUTHORITY",
             "comparison_method": "independent_cold_single_move_multipv1",
             "nodes_semantics": "per_move",
+            "measurement_definition": "deepest_fully_completed_exact_iteration",
+            "pv_interval_ms": base.PV_INTERVAL_MS,
             "fixture_node_budget": FIXTURE_N,
             "fixture_confirmation_tiers": FIXTURE_TIERS,
             "fv_scale": base.FV_SCALE,
+            "completed_iteration_selector": selector_proof,
             "tt_source_proof": tt_proof,
             "same_budget_reproducibility": {
                 "interpretation": "reproducibility_only_not_stability",
@@ -207,7 +231,7 @@ def main() -> int:
         result = run_contract(args.work.resolve(), args.out.resolve())
     except Exception as exc:
         failure = {
-            "schema_version": "ve1b-independent-single-move-contract-v2",
+            "schema_version": "ve1b-independent-single-move-contract-v3",
             "status": "FAIL",
             "authority_status": "AUTOMATED_CALIBRATION_FIXTURE_NOT_PRODUCTION_AUTHORITY",
             "error": str(exc),
@@ -229,6 +253,8 @@ def main() -> int:
         "comparison_method": result["comparison_method"],
         "nodes_semantics": result["nodes_semantics"],
         "fixture_confirmation_tiers": result["fixture_confirmation_tiers"],
+        "pv_interval_ms": result["pv_interval_ms"],
+        "measurement_definition": result["measurement_definition"],
     }, indent=2))
     return 0
 
