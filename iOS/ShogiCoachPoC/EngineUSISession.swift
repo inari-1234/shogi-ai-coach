@@ -62,6 +62,7 @@ actor EngineUSISession {
             currentMultiPV = max(1, multiPV)
             try await link.send("setoption name MultiPV value \(currentMultiPV)")
             try await link.send("setoption name FV_SCALE value \(EngineRuntimeAuthority.fvScale)")
+            try await link.send("setoption name BookFile value no_book")
             try await link.send("setoption name EvalDir value \(evalURL.deletingLastPathComponent().path)")
             try await link.send("isready")
             SimulatorStage.mark("isready_sent")
@@ -125,6 +126,11 @@ actor EngineUSISession {
 
         guard let result = finalResult else { throw ProbeError.timeout("bestmove") }
         SimulatorStage.mark("bestmove_received")
+        guard result.bestMoveConsistency == .consistent else {
+            throw ProbeError.protocolError(
+                "bestmoveとMultiPV 1位PV先頭手が不一致: bestmove=\(result.bestMove.move) consistency=\(result.bestMoveConsistency.rawValue)"
+            )
+        }
         guard let primary = result.principalVariations.first,
               primary.score != nil,
               !primary.pv.isEmpty else {
