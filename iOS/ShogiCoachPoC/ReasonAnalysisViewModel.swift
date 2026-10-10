@@ -78,9 +78,9 @@ final class ReasonAnalysisViewModel: ObservableObject {
                     throw ReasonAnalysisError.invalidPly(deep.ply)
                 }
                 let kifMove = game.moves[deep.ply - 1]
-                let bestPV = deep.bestPV
+                let bestPV = deep.confirmedBestPV
                 let bestMoves = Self.pvMoves(bestPV)
-                let actualMoves = Self.pvMoves(deep.actualPV)
+                let actualMoves = Self.pvMoves(deep.confirmedActualPV)
                 let bestReply = bestMoves.dropFirst().first ?? "-"
                 let actualReply = actualMoves.dropFirst().first ?? "-"
 
@@ -218,7 +218,7 @@ final class ReasonAnalysisViewModel: ObservableObject {
                     actualScore: deep.actualScoreText,
                     actualLossCp: deep.actualLossCp,
                     bestPV: bestPV,
-                    actualPV: deep.actualPV,
+                    actualPV: deep.confirmedActualPV,
                     bestReply: bestReply,
                     actualReply: actualReply,
                     facts: facts,

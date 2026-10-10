@@ -111,14 +111,16 @@ final class ContinuationSimulationViewModel: ObservableObject {
                 let reasonSummary = reasonByPly[deep.ply]?.interpretation.text
                     ?? "この局面はエンジンPVを盤面で比較します。"
                 let recommendedMoves = try Self.normalizedPVMoves(
-                    pv: deep.bestPV,
+                    pv: deep.confirmedBestPV,
                     expectedFirstMove: deep.bestMove,
-                    scoreText: deep.bestScoreText
+                    scoreText: deep.bestScoreText,
+                    allowEmptyWhenUnconfirmed: !deep.continuationStable
                 )
                 let actualMoves = try Self.normalizedPVMoves(
-                    pv: deep.actualPV,
+                    pv: deep.confirmedActualPV,
                     expectedFirstMove: deep.actualMove,
-                    scoreText: deep.actualScoreText
+                    scoreText: deep.actualScoreText,
+                    allowEmptyWhenUnconfirmed: !deep.continuationStable
                 )
 
                 let recommended = try Self.makeRoute(
@@ -230,10 +232,12 @@ final class ContinuationSimulationViewModel: ObservableObject {
     private static func normalizedPVMoves(
         pv: String,
         expectedFirstMove: String,
-        scoreText: String
+        scoreText: String,
+        allowEmptyWhenUnconfirmed: Bool
     ) throws -> [String] {
         let parsed = pv.split(whereSeparator: { $0.isWhitespace }).map(String.init)
         guard let first = parsed.first else {
+            if allowEmptyWhenUnconfirmed { return [] }
             throw ContinuationSimulationError.emptyPV(expectedFirstMove)
         }
         guard first == expectedFirstMove else {
@@ -375,6 +379,11 @@ final class ContinuationSimulationViewModel: ObservableObject {
         moves: [ContinuationMoveStep],
         userSide: ShogiSide
     ) -> String {
+        guard !moves.isEmpty else {
+            return routeKind == .recommended
+                ? "推奨側の確認済み読み筋はありません（未確認の参考読み筋は説明に使用しません）。"
+                : "実戦側の確認済み読み筋はありません（未確認の参考読み筋は説明に使用しません）。"
+        }
         let kingSquare = final.squares.first {
             $0.value.side == userSide && $0.value.kind == .king
         }?.key
@@ -560,7 +569,7 @@ final class ContinuationSimulationViewModel: ObservableObject {
         reasonSummary: String
     ) -> String {
         guard let first = moves.first else {
-            return "読み筋を取得できませんでした。"
+            return "確認済みの読み筋はありません。未確認の参考読み筋は説明根拠には使用しません。"
         }
 
         if kind == .recommended,

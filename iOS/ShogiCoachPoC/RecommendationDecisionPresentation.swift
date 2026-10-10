@@ -31,6 +31,22 @@ struct RecommendationDecisionPresentation {
         let firstActual = entry.actual.moves.first
         let sameMove = firstRecommended?.usi == firstActual?.usi
 
+        if !entry.comparisonStable {
+            let label = firstRecommended?.label ?? "候補手"
+            return .init(
+                status: .provisional,
+                headline: "暫定候補 \(label)",
+                meaning: concreteMeaning(entry: entry, allowRecommendationClaim: false),
+                difference: contrastText(entry: entry, recommended: firstRecommended, actual: firstActual, status: .provisional),
+                confidenceTitle: "比較判定を保留",
+                confidenceDetail: "再解析後も評価順序または評価差が安定していません。この手は上位候補として確認できますが、推奨手とは確定しません。",
+                recommendedRouteLabel: "暫定候補",
+                recommendedRouteMeaningTitle: "暫定候補ルートで確認できること",
+                horizon: "比較が安定していないため、実戦手との差が有利になる時点は確定しません。",
+                learningCue: "候補順位が安定しないときは一手を正解扱いせず、複数候補と相手の応手を比較します。"
+            )
+        }
+
         if sameMove {
             let label = firstRecommended?.label ?? "候補手"
             return .init(
@@ -46,22 +62,6 @@ struct RecommendationDecisionPresentation {
                 recommendedRouteMeaningTitle: "最善手と実戦手の意味",
                 horizon: "実戦手と最善候補が一致しているため、候補間の差が現れる手順はありません。",
                 learningCue: "最善候補と実戦手が一致した局面でも、相手の次の応手まで確認して判断が崩れないか確かめます。"
-            )
-        }
-
-        if !entry.comparisonStable {
-            let label = firstRecommended?.label ?? "候補手"
-            return .init(
-                status: .provisional,
-                headline: "暫定候補 \(label)",
-                meaning: concreteMeaning(entry: entry, allowRecommendationClaim: false),
-                difference: contrastText(entry: entry, recommended: firstRecommended, actual: firstActual, status: .provisional),
-                confidenceTitle: "比較判定を保留",
-                confidenceDetail: "再解析後も評価順序または評価差が安定していません。この手は上位候補として確認できますが、推奨手とは確定しません。",
-                recommendedRouteLabel: "暫定候補",
-                recommendedRouteMeaningTitle: "暫定候補ルートで確認できること",
-                horizon: "比較が安定していないため、実戦手との差が有利になる時点は確定しません。",
-                learningCue: "候補順位が安定しないときは一手を正解扱いせず、複数候補と相手の応手を比較します。"
             )
         }
 

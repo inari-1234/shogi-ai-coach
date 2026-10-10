@@ -13,13 +13,9 @@ enum RecommendationDecisionPolicyAudit {
 
     static func validate(entries: [ContinuationSimulationEntry]) throws {
         for entry in entries {
-            guard let firstRecommended = entry.recommended.moves.first,
-                  let firstActual = entry.actual.moves.first else {
-                throw AuditError.violation("\(entry.ply)手目: 比較ルートの先頭手がありません")
-            }
-
+            let firstRecommended = entry.recommended.moves.first
+            let firstActual = entry.actual.moves.first
             let presentation = RecommendationDecisionPresentation.make(entry: entry)
-            let sameMove = firstRecommended.usi == firstActual.usi
 
             if !entry.comparisonStable {
                 guard presentation.status == .provisional else {
@@ -32,13 +28,18 @@ enum RecommendationDecisionPolicyAudit {
                 guard presentation.recommendedRouteLabel == "暫定候補" else {
                     throw AuditError.violation("\(entry.ply)手目: 比較保留時に推奨ルート表記が残っています")
                 }
-            } else if sameMove {
-                guard presentation.status == .matched else {
-                    throw AuditError.violation("\(entry.ply)手目: 実戦手一致を正しく表示できません")
-                }
             } else {
-                guard presentation.status == .recommended else {
-                    throw AuditError.violation("\(entry.ply)手目: 安定比較を推奨として提示できません")
+                guard let firstRecommended, let firstActual else {
+                    throw AuditError.violation("\(entry.ply)手目: 安定比較なのに確認済み比較ルートの先頭手がありません")
+                }
+                if firstRecommended.usi == firstActual.usi {
+                    guard presentation.status == .matched else {
+                        throw AuditError.violation("\(entry.ply)手目: 実戦手一致を正しく表示できません")
+                    }
+                } else {
+                    guard presentation.status == .recommended else {
+                        throw AuditError.violation("\(entry.ply)手目: 安定比較を推奨として提示できません")
+                    }
                 }
             }
 
@@ -69,7 +70,8 @@ enum RecommendationDecisionPolicyAudit {
                 }
             }
 
-            if entry.recommended.moves.count >= 2,
+            if let firstRecommended,
+               entry.recommended.moves.count >= 2,
                let captured = firstRecommended.effect.capturedPiece,
                entry.recommended.moves[1].effect.capturedPiece == firstRecommended.effect.pieceAfter,
                entry.recommended.moves[1].effect.destination == firstRecommended.effect.destination {

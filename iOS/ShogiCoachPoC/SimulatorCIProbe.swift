@@ -654,8 +654,11 @@ enum SimulatorCIProbe {
             $0.candidates.count == 3
                 && !$0.bestMove.isEmpty
                 && !$0.actualMove.isEmpty
-                && !$0.bestPV.isEmpty
-                && !$0.actualPV.isEmpty
+                && !$0.referenceBestPV.isEmpty
+                && !$0.referenceActualPV.isEmpty
+                && ($0.comparisonStable
+                    ? (!$0.confirmedBestPV.isEmpty && !$0.confirmedActualPV.isEmpty)
+                    : ($0.confirmedBestPV.isEmpty && $0.confirmedActualPV.isEmpty))
                 && $0.actualAnalysisSource.hasPrefix("node-equal-condition")
                 && $0.analysisAttempts == 9
                 && $0.finalMovetimeMs == 0
@@ -697,11 +700,17 @@ enum SimulatorCIProbe {
               deepDiagnostic.deepAnalysis?.adaptivePolicy == "ve1b-node-UNFROZEN_CALIBRATION",
               deepDiagnostic.deepAnalysis?.completedPositions == 3,
               deepDiagnostic.deepAnalysis?.positions.count == 3,
-              deepDiagnostic.deepAnalysis?.positions.allSatisfy({
-                  $0.actualAnalysisSource.hasPrefix("node-equal-condition")
-                      && !$0.bestPV.isEmpty
-                      && !$0.actualPV.isEmpty
-                      && $0.analysisAttempts >= 1
+              deepDiagnostic.deepAnalysis?.positions.allSatisfy({ position in
+                  guard let source = deep.entries.first(where: { $0.ply == position.ply }) else {
+                      return false
+                  }
+                  return position.actualAnalysisSource.hasPrefix("node-equal-condition")
+                      && position.bestPV == source.confirmedBestPV
+                      && position.actualPV == source.confirmedActualPV
+                      && (source.comparisonStable
+                          ? (!position.bestPV.isEmpty && !position.actualPV.isEmpty)
+                          : (position.bestPV.isEmpty && position.actualPV.isEmpty))
+                      && position.analysisAttempts >= 1
               }) == true else {
             writeReport([
                 "stage=deep_failed",
@@ -787,6 +796,9 @@ enum SimulatorCIProbe {
         let reasonStatus = reason.status
         let reasonCount = reason.entries.count
         let reasonValid = reason.entries.allSatisfy { entry in
+            guard let source = deep.entries.first(where: { $0.ply == entry.ply }) else {
+                return false
+            }
             let factIDs = Set(entry.facts.map(\.id))
             let validLevels = entry.facts.allSatisfy {
                 $0.level == .engineConfirmed || $0.level == .pvObserved
@@ -796,8 +808,8 @@ enum SimulatorCIProbe {
             return entry.facts.count >= 4
                 && validLevels
                 && linkedInterpretation
-                && !entry.bestPV.isEmpty
-                && !entry.actualPV.isEmpty
+                && entry.bestPV == source.confirmedBestPV
+                && entry.actualPV == source.confirmedActualPV
         }
         guard reasonStatus == "理由解析 PASS",
               reasonCount == deep.entries.count,
@@ -861,16 +873,29 @@ enum SimulatorCIProbe {
         let continuationStatus = continuation.status
         let continuationCount = continuation.entries.count
         let continuationValid = continuation.entries.allSatisfy { entry in
-            guard let recommendedFirst = entry.recommended.moves.first,
-                  let actualFirst = entry.actual.moves.first else {
+            guard let source = deep.entries.first(where: { $0.ply == entry.ply }) else {
                 return false
             }
-            return recommendedFirst.usi == deep.entries.first(where: { $0.ply == entry.ply })?.bestMove
-                && actualFirst.usi == deep.entries.first(where: { $0.ply == entry.ply })?.actualMove
+            let recommendedRouteValid: Bool
+            if source.confirmedBestPV.isEmpty {
+                recommendedRouteValid = entry.recommended.moves.isEmpty
+                    && entry.recommended.developmentBlocks.isEmpty
+            } else {
+                recommendedRouteValid = entry.recommended.moves.first?.usi == source.bestMove
+                    && !entry.recommended.developmentBlocks.isEmpty
+            }
+            let actualRouteValid: Bool
+            if source.confirmedActualPV.isEmpty {
+                actualRouteValid = entry.actual.moves.isEmpty
+                    && entry.actual.developmentBlocks.isEmpty
+            } else {
+                actualRouteValid = entry.actual.moves.first?.usi == source.actualMove
+                    && !entry.actual.developmentBlocks.isEmpty
+            }
+            return recommendedRouteValid
+                && actualRouteValid
                 && entry.recommended.moves.count <= 10
                 && entry.actual.moves.count <= 10
-                && !entry.recommended.developmentBlocks.isEmpty
-                && !entry.actual.developmentBlocks.isEmpty
                 && !entry.recommended.summary.isEmpty
                 && !entry.actual.summary.isEmpty
                 && entry.recommended.moves.allSatisfy {
@@ -905,12 +930,22 @@ enum SimulatorCIProbe {
               continuationDiagnostic.continuationSimulation?.status == "展開シミュレーション PASS",
               continuationDiagnostic.continuationSimulation?.completedPositions == deep.entries.count,
               continuationDiagnostic.continuationSimulation?.positions.count == deep.entries.count,
-              continuationDiagnostic.continuationSimulation?.positions.allSatisfy({
-                  !$0.recommended.moves.isEmpty
-                      && !$0.actual.moves.isEmpty
-                      && !$0.recommended.targetShapeSummary.isEmpty
-                      && !$0.actual.targetShapeSummary.isEmpty
-              }) == true else {
+              continuationDiagnostic.continuationSimulation?.positions.allSatisfy({ position in
+                  guard let source = deep.entries.first(where: { $0.ply == position.ply }) else {
+                      return false
+                  }
+                  let recommendedBoundary = source.confirmedBestPV.isEmpty
+                      ? position.recommended.moves.isEmpty
+                      : !position.recommended.moves.isEmpty
+                  let actualBoundary = source.confirmedActualPV.isEmpty
+                      ? position.actual.moves.isEmpty
+                      : !position.actual.moves.isEmpty
+                  return recommendedBoundary
+                      && actualBoundary
+                      && !position.recommended.targetShapeSummary.isEmpty
+                      && !position.actual.targetShapeSummary.isEmpty
+              }) == true,
+              (try? RecommendationDecisionPolicyAudit.validate(entries: continuation.entries)) != nil else {
             writeReport([
                 "stage=continuation_simulation_failed",
                 "continuation_status=FAIL",
@@ -927,6 +962,12 @@ enum SimulatorCIProbe {
             guard let item = continuation.entries.first(where: { $0.ply == deepEntry.ply }) else { return false }
             let presentation = RecommendationDecisionPresentation.make(entry: item)
             return !item.comparisonStable
+                && deepEntry.referenceBestPV.isEmpty == false
+                && deepEntry.referenceActualPV.isEmpty == false
+                && deepEntry.confirmedBestPV.isEmpty
+                && deepEntry.confirmedActualPV.isEmpty
+                && item.recommended.moves.isEmpty
+                && item.actual.moves.isEmpty
                 && presentation.status == .provisional
                 && presentation.status.badgeText == "比較保留"
                 && presentation.headline.contains("暫定候補")
