@@ -89,8 +89,8 @@ struct ContentView: View {
                                 shallowEntries: shallow.entries,
                                 diagnosticURL: shallow.diagnosticURL
                             )
-                            guard deep.status == "深掘り PASS" else {
-                                analysisStatus = deep.status
+                            guard deep.runState.isCompleted else {
+                                analysisStatus = deep.displayStatus
                                 return
                             }
 
@@ -182,6 +182,12 @@ struct ContentView: View {
 
                     Text(analysisStatus)
                         .font(.headline)
+
+                    if deep.runState != .idle {
+                        Text(deep.displayStatus)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
 
                     if let searchEvidenceURL = deep.searchEvidenceURL {
                         ShareLink(item: searchEvidenceURL) {

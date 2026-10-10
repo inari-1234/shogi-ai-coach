@@ -61,3 +61,16 @@ Because shallow output affects which positions are selected, B6 must nevertheles
 The numerical acceptance rules for these measurements are frozen separately in `BUILD19_VE1_B_B6_PREMEASUREMENT_ACCEPTANCE_20261010.md` before physical B6 data are used.
 
 Therefore B6 does not treat the current 150 ms shallow pass as authority; it treats its selection reproducibility as an acceptance variable. VE1-B cannot FORMAL PASS while that B6 decision is unresolved.
+
+## Completed / incomplete / error state contract
+
+Generic E2E and the app UI must not use a semantic stability label as an execution-success label.
+`DeepAnalysisViewModel` therefore exposes a structured run state:
+
+- `completed`: all selected searches/evidence completed. The state carries separate `stable`, `unstable`, and `unconfirmed` counts; their sum must equal the completed-position count.
+- `incomplete`: an operational search did not complete (for example safety abort or missing completed evidence). This is never accepted as a successful E2E completion.
+- `error`: input/protocol/export/diagnostic failure.
+
+A completed `unstable` or `unconfirmed` position is not dropped. It must continue through board review, reason analysis, continuation simulation and HDS presentation. `actualLossCp` remains suppressed and the decision presentation remains provisional/hold. Generic E2E records per-ply state/reason codes for audit but does not require any particular historical ply to be `stable`.
+
+The generic E2E contains explicit negative structural checks proving that the completion gate rejects: (1) incomplete/aborted state, (2) fewer than 9 search-evidence records for any expected position, and (3) state-count totals that do not equal the expected position count. These are structural failures, not semantic expected labels.

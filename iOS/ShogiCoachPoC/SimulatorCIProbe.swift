@@ -519,6 +519,54 @@ enum SimulatorCIProbe {
         }
     }
 
+    private static func deepCompletionContractPass(
+        state: DeepAnalysisRunState,
+        expectedPositions: Int,
+        entryCount: Int,
+        attemptCounts: [Int],
+        evidenceCounts: [Int]
+    ) -> Bool {
+        guard case .completed(let counts) = state,
+              counts.total == expectedPositions,
+              entryCount == expectedPositions,
+              attemptCounts.count == expectedPositions,
+              evidenceCounts.count == expectedPositions,
+              attemptCounts.allSatisfy({ $0 == 9 }),
+              evidenceCounts.allSatisfy({ $0 == 9 }) else {
+            return false
+        }
+        return true
+    }
+
+    private static func deepCompletionNegativeContractPasses() -> Bool {
+        let abortRejected = !deepCompletionContractPass(
+            state: .incomplete(
+                reason: "safety_aborted",
+                completedPositions: 2,
+                expectedPositions: 3
+            ),
+            expectedPositions: 3,
+            entryCount: 2,
+            attemptCounts: [9, 9],
+            evidenceCounts: [9, 9]
+        )
+        let missingEvidenceRejected = !deepCompletionContractPass(
+            state: .completed(.init(stable: 1, unstable: 1, unconfirmed: 1)),
+            expectedPositions: 3,
+            entryCount: 3,
+            attemptCounts: [9, 9, 9],
+            evidenceCounts: [9, 8, 9]
+        )
+        let countMismatchRejected = !deepCompletionContractPass(
+            state: .completed(.init(stable: 1, unstable: 1, unconfirmed: 0)),
+            expectedPositions: 3,
+            entryCount: 3,
+            attemptCounts: [9, 9, 9],
+            evidenceCounts: [9, 9, 9]
+        )
+        return abortRejected && missingEvidenceRejected && countMismatchRejected
+    }
+
     static func runIfRequested() async {
         guard ProcessInfo.processInfo.arguments.contains("--ci-smoke") else { return }
 
@@ -608,7 +656,7 @@ enum SimulatorCIProbe {
                 && !$0.actualMove.isEmpty
                 && !$0.bestPV.isEmpty
                 && !$0.actualPV.isEmpty
-                && $0.actualAnalysisSource.hasPrefix("equal-condition")
+                && $0.actualAnalysisSource.hasPrefix("node-equal-condition")
                 && $0.analysisAttempts == 9
                 && $0.finalMovetimeMs == 0
                 && $0.nodePolicyAuthorityStatus == "UNFROZEN_CALIBRATION"
@@ -618,9 +666,23 @@ enum SimulatorCIProbe {
                 && $0.searchEvidence.count == 9
                 && $0.candidates.allSatisfy { !$0.pv.isEmpty && !$0.move.isEmpty }
         }
-        guard deepStatus == "深掘り PASS",
+        let deepCompletionValid = deepCompletionContractPass(
+            state: deep.runState,
+            expectedPositions: 3,
+            entryCount: deepCount,
+            attemptCounts: deep.entries.map(\.analysisAttempts),
+            evidenceCounts: deep.entries.map { $0.searchEvidence.count }
+        )
+        let deepNegativeContractValid = deepCompletionNegativeContractPasses()
+        let nonStableDeepEntries = deep.entries.filter { $0.stabilityState != VE1BStabilityState.stable.rawValue }
+        let nonStableSuppressionValid = nonStableDeepEntries.allSatisfy {
+            !$0.comparisonStable && $0.actualLossCp == nil
+        }
+        guard deepCompletionValid,
+              deepNegativeContractValid,
               deepCount == 3,
               deepValid,
+              nonStableSuppressionValid,
               let deepDiagnosticURL = deep.diagnosticURL,
               let deepDiagnosticData = try? Data(contentsOf: deepDiagnosticURL),
               let deepDiagnostic = try? JSONDecoder.iso8601.decode(
@@ -636,7 +698,7 @@ enum SimulatorCIProbe {
               deepDiagnostic.deepAnalysis?.completedPositions == 3,
               deepDiagnostic.deepAnalysis?.positions.count == 3,
               deepDiagnostic.deepAnalysis?.positions.allSatisfy({
-                  $0.actualAnalysisSource.hasPrefix("equal-condition")
+                  $0.actualAnalysisSource.hasPrefix("node-equal-condition")
                       && !$0.bestPV.isEmpty
                       && !$0.actualPV.isEmpty
                       && $0.analysisAttempts >= 1
@@ -701,6 +763,19 @@ enum SimulatorCIProbe {
             fflush(stdout)
             exit(8)
         }
+        let boardCarriesNonStable = Set(boardReview.entries.map(\.ply)).isSuperset(
+            of: Set(nonStableDeepEntries.map(\.ply))
+        )
+        guard boardCarriesNonStable else {
+            writeReport([
+                "stage=board_display_failed",
+                "board_display_status=FAIL",
+                "board_display_error=non-stable positions were dropped"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("board_display_nonstable_dropped")
+            fflush(stdout)
+            exit(8)
+        }
         SimulatorStage.mark("board_display_pass")
 
         let reason = ReasonAnalysisViewModel()
@@ -753,6 +828,24 @@ enum SimulatorCIProbe {
                 "reason_summary_end"
             ].joined(separator: "\n") + "\n")
             SimulatorStage.mark("reason_analysis_failed")
+            fflush(stdout)
+            exit(10)
+        }
+        let reasonNonStableValid = nonStableDeepEntries.allSatisfy { deepEntry in
+            guard let reasonEntry = reason.entries.first(where: { $0.ply == deepEntry.ply }) else { return false }
+            return reasonEntry.actualLossCp == nil
+                && reasonEntry.facts.contains(where: {
+                    $0.kind == "score_comparison"
+                        && $0.text.contains("評価損失は断定しない")
+                })
+        }
+        guard reasonNonStableValid else {
+            writeReport([
+                "stage=reason_analysis_failed",
+                "reason_status=FAIL",
+                "reason_error=non-stable loss suppression/provisional wording missing"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("reason_nonstable_contract_failed")
             fflush(stdout)
             exit(10)
         }
@@ -827,6 +920,24 @@ enum SimulatorCIProbe {
                 "continuation_summary_end"
             ].joined(separator: "\n") + "\n")
             SimulatorStage.mark("continuation_simulation_failed")
+            fflush(stdout)
+            exit(15)
+        }
+        let continuationNonStableValid = nonStableDeepEntries.allSatisfy { deepEntry in
+            guard let item = continuation.entries.first(where: { $0.ply == deepEntry.ply }) else { return false }
+            let presentation = RecommendationDecisionPresentation.make(entry: item)
+            return !item.comparisonStable
+                && presentation.status == .provisional
+                && presentation.badgeText == "比較保留"
+                && presentation.headline.contains("暫定候補")
+        }
+        guard continuationNonStableValid else {
+            writeReport([
+                "stage=continuation_simulation_failed",
+                "continuation_status=FAIL",
+                "continuation_error=non-stable provisional presentation missing"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("continuation_nonstable_contract_failed")
             fflush(stdout)
             exit(15)
         }
@@ -1161,6 +1272,40 @@ enum SimulatorCIProbe {
             fflush(stdout)
             exit(12)
         }
+        let unstableContinuation = ContinuationSimulationViewModel()
+        unstableContinuation.prepare(
+            game: unstableGame,
+            deepEntries: [unstableDeepEntry],
+            reasonEntries: unstableReason.entries,
+            diagnosticURL: unstableReason.diagnosticURL
+        )
+        guard unstableContinuation.status == "展開シミュレーション PASS",
+              let unstableContinuationEntry = unstableContinuation.entries.first,
+              !unstableContinuationEntry.comparisonStable else {
+            writeReport([
+                "stage=reason_unstable_failed",
+                "reason_unstable_status=FAIL",
+                "reason_unstable_error=unstable continuation was dropped or promoted"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("reason_unstable_continuation_failed")
+            fflush(stdout)
+            exit(12)
+        }
+        let unstablePresentation = RecommendationDecisionPresentation.make(entry: unstableContinuationEntry)
+        let unstableHDSReport = RecommendationDecisionHDSAudit.evaluate(entries: unstableContinuation.entries)
+        guard unstablePresentation.status == .provisional,
+              unstablePresentation.badgeText == "比較保留",
+              unstablePresentation.headline.contains("暫定候補"),
+              unstableHDSReport.passed else {
+            writeReport([
+                "stage=reason_unstable_failed",
+                "reason_unstable_status=FAIL",
+                "reason_unstable_error=provisional/HDS contract missing"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("reason_unstable_hds_failed")
+            fflush(stdout)
+            exit(12)
+        }
         SimulatorStage.mark("reason_unstable_pass")
 
         let recaptureDeepEntry = DeepAnalysisEntry(
@@ -1358,12 +1503,12 @@ enum SimulatorCIProbe {
             multiPV: 3,
             maxPositions: 1
         )
-        guard terminalDeep.status == "深掘り PASS",
+        guard terminalDeep.runState.isCompleted,
               terminalDeep.entries.count == 1,
               let terminalEntry = terminalDeep.entries.first,
               terminalEntry.ply == 81,
               terminalEntry.actualMove == "G*1b",
-              terminalEntry.actualAnalysisSource.hasPrefix("equal-condition"),
+              terminalEntry.actualAnalysisSource.hasPrefix("node-equal-condition"),
               terminalEntry.candidates.contains(where: { $0.move == "G*1b" }),
               !terminalEntry.actualPV.isEmpty else {
             writeReport([
@@ -1671,6 +1816,28 @@ enum SimulatorCIProbe {
             exit(34)
         }
 
+        let hdsLiveNonStablePlies = Set(
+            hdsDeep.entries.filter { !$0.comparisonStable }.map(\.ply)
+        )
+        let hdsLiveNonStableValid = hdsLiveNonStablePlies.allSatisfy { ply in
+            guard let deepEntry = hdsDeep.entries.first(where: { $0.ply == ply }),
+                  let item = hdsContinuation.entries.first(where: { $0.ply == ply }) else { return false }
+            let presentation = RecommendationDecisionPresentation.make(entry: item)
+            return deepEntry.actualLossCp == nil
+                && !item.comparisonStable
+                && presentation.status == .provisional
+        }
+        guard hdsLiveNonStableValid else {
+            writeReport([
+                "stage=hds_m_failed",
+                "hds_m_status=FAIL",
+                "hds_m_error=live unstable propagation"
+            ].joined(separator: "\n") + "\n")
+            SimulatorStage.mark("hds_m_live_unstable_propagation_failed")
+            fflush(stdout)
+            exit(35)
+        }
+
         // Live replay verifies that the real positions can flow through the current engine
         // and all HDS gates. Exact best moves are intentionally not frozen because a
         // time-limited search can legitimately return a different top candidate.
@@ -1827,7 +1994,14 @@ enum SimulatorCIProbe {
             "diagnostic_build=\(diagnostic.app.build)",
             "diagnostic_git=\(diagnostic.app.gitCommit)",
             "deep_status=\(deepStatus)",
+            "deep_display_status=\(deep.displayStatus)",
             "deep_count=\(deepCount)",
+            "deep_stable_count=\(deep.runState.completionCounts?.stable ?? -1)",
+            "deep_unstable_count=\(deep.runState.completionCounts?.unstable ?? -1)",
+            "deep_unconfirmed_count=\(deep.runState.completionCounts?.unconfirmed ?? -1)",
+            "deep_negative_contract_status=PASS",
+            "deep_nonstable_suppression_status=PASS",
+            "deep_stability_by_ply=\(deep.entries.map { "#\($0.ply):\($0.stabilityState):\($0.instabilityReasons.joined(separator: ","))" }.joined(separator: ";"))",
             "deep_multipv=\(deepDiagnostic.deepAnalysis?.multiPV ?? 0)",
             "deep_adaptive_policy=\(deepDiagnostic.deepAnalysis?.adaptivePolicy ?? "-")",
             "deep_diagnostic_schema=\(deepDiagnostic.schemaVersion)",

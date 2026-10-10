@@ -51,10 +51,75 @@ struct DeepAnalysisEntry: Identifiable {
     let searchEvidence: [VE1BSearchAttemptRecord]
 }
 
+struct DeepAnalysisCompletionCounts: Equatable, Sendable {
+    let stable: Int
+    let unstable: Int
+    let unconfirmed: Int
+
+    var total: Int { stable + unstable + unconfirmed }
+
+    static func classify(_ entries: [DeepAnalysisEntry]) -> Self {
+        var stable = 0
+        var unstable = 0
+        var unconfirmed = 0
+        for entry in entries {
+            switch entry.stabilityState {
+            case VE1BStabilityState.stable.rawValue:
+                stable += 1
+            case VE1BStabilityState.unstable.rawValue:
+                unstable += 1
+            case VE1BStabilityState.unconfirmed.rawValue,
+                 VE1BStabilityState.unknown.rawValue:
+                unconfirmed += 1
+            default:
+                // An unknown future label must never disappear from the accounting.
+                unconfirmed += 1
+            }
+        }
+        return .init(stable: stable, unstable: unstable, unconfirmed: unconfirmed)
+    }
+}
+
+enum DeepAnalysisRunState: Equatable, Sendable {
+    case idle
+    case running
+    case completed(DeepAnalysisCompletionCounts)
+    case incomplete(reason: String, completedPositions: Int, expectedPositions: Int)
+    case error(message: String)
+
+    var isCompleted: Bool {
+        if case .completed = self { return true }
+        return false
+    }
+
+    var completionCounts: DeepAnalysisCompletionCounts? {
+        if case .completed(let counts) = self { return counts }
+        return nil
+    }
+
+    var displayText: String {
+        switch self {
+        case .idle:
+            return "深掘り 未解析"
+        case .running:
+            return "深掘り 解析中"
+        case .completed(let counts):
+            return "深掘り 完了（安定 \(counts.stable) / 不安定 \(counts.unstable) / 未確認 \(counts.unconfirmed)）"
+        case .incomplete(_, let completed, let expected):
+            return "深掘り 未完了（\(completed)/\(expected)局面）"
+        case .error(let message):
+            return "深掘り エラー: \(message)"
+        }
+    }
+}
+
 @MainActor
 final class DeepAnalysisViewModel: ObservableObject {
     @Published private(set) var status = "未解析"
+    @Published private(set) var runState: DeepAnalysisRunState = .idle
     @Published private(set) var summary = ""
+
+    var displayStatus: String { runState.displayText }
     @Published private(set) var entries: [DeepAnalysisEntry] = []
     @Published private(set) var isRunning = false
     @Published private(set) var diagnosticURL: URL?
@@ -66,6 +131,7 @@ final class DeepAnalysisViewModel: ObservableObject {
 
     func reset() {
         status = "未解析"
+        runState = .idle
         summary = ""
         entries = []
         isRunning = false
@@ -87,12 +153,16 @@ final class DeepAnalysisViewModel: ObservableObject {
         guard shallowEntries.count == game.moves.count,
               !shallowEntries.isEmpty else {
             status = "深掘り 未PASS"
-            summary = "工程3の全局面解析結果が揃っていません"
+            let message = "工程3の全局面解析結果が揃っていません"
+            runState = .error(message: message)
+            summary = message
             return
         }
         guard let sourceDiagnosticURL else {
             status = "深掘り 未PASS"
-            summary = "工程3の診断JSONがありません"
+            let message = "工程3の診断JSONがありません"
+            runState = .error(message: message)
+            summary = message
             return
         }
 
@@ -110,7 +180,9 @@ final class DeepAnalysisViewModel: ObservableObject {
         )
         guard !selection.items.isEmpty else {
             status = "深掘り 未PASS"
-            summary = "重要局面候補を抽出できません"
+            let message = "重要局面候補を抽出できません"
+            runState = .error(message: message)
+            summary = message
             return
         }
 
@@ -122,6 +194,7 @@ final class DeepAnalysisViewModel: ObservableObject {
         searchEvidenceURL = nil
         incompleteSearchEvidence = []
         status = "深掘り 準備中"
+        runState = .running
         SimulatorStage.mark("deep_start_count_\(selection.items.count)")
 
         let totalStarted = ContinuousClock.now
@@ -224,14 +297,27 @@ final class DeepAnalysisViewModel: ObservableObject {
                     maxPositions: maxPositions
                 )
                 : analyzedEntries
+            let counts = DeepAnalysisCompletionCounts.classify(entries)
+            guard counts.total == entries.count else {
+                throw EngineUSISession.ProbeError.protocolError(
+                    "深掘り状態件数不整合: stable+unstable+unconfirmed=\(counts.total), entries=\(entries.count)"
+                )
+            }
+            runState = .completed(counts)
             status = "深掘り PASS"
         } catch {
             await session.endAnalysis()
             if let failure = error as? VE1BNodeComparisonFailure {
                 incompleteSearchEvidence = failure.evidence
                 status = "深掘り 未PASS（解析未完了）"
+                runState = .incomplete(
+                    reason: error.localizedDescription,
+                    completedPositions: analyzedEntries.count,
+                    expectedPositions: selection.items.count
+                )
             } else {
                 status = "深掘り 未PASS"
+                runState = .error(message: error.localizedDescription)
             }
             entries = productionSelectionMode
                 ? Self.finalizeImportantEntries(
@@ -270,6 +356,7 @@ final class DeepAnalysisViewModel: ObservableObject {
             diagnosticError = evidenceError
             finalError = finalError.map { "\($0); \(evidenceError)" } ?? evidenceError
             status = "深掘り 未PASS"
+            runState = .error(message: evidenceError)
             SimulatorStage.mark("ve1b_search_evidence_json_error_\(error.localizedDescription)")
         }
 
@@ -347,12 +434,15 @@ final class DeepAnalysisViewModel: ObservableObject {
             let message = error.localizedDescription
             diagnosticError = diagnosticError.map { "\($0); \(message)" } ?? message
             status = "深掘り 未PASS"
+            runState = .error(message: "診断JSON更新失敗: \(message)")
             summary += "\n診断JSON更新失敗: \(message)"
             SimulatorStage.mark("deep_diagnostic_json_error_\(message)")
         }
 
-        if status == "深掘り PASS" {
-            SimulatorStage.mark("deep_complete_\(entries.count)")
+        if case .completed(let counts) = runState {
+            SimulatorStage.mark(
+                "deep_complete_\(entries.count)_stable_\(counts.stable)_unstable_\(counts.unstable)_unconfirmed_\(counts.unconfirmed)"
+            )
         }
         isRunning = false
     }
@@ -461,7 +551,7 @@ final class DeepAnalysisViewModel: ObservableObject {
         productionSelectionMode: Bool,
         error: String?
     ) -> String {
-        let stable = entries.filter(\.comparisonStable).count
+        let counts = DeepAnalysisCompletionCounts.classify(entries)
         let continuationStable = entries.filter(\.continuationStable).count
         var lines = [
             "focus: \(focus)",
@@ -474,8 +564,10 @@ final class DeepAnalysisViewModel: ObservableObject {
             "candidate discovery tiers: \(policy.candidateDiscoveryNodeTiers.map(String.init).joined(separator: ",")) nodes / MultiPV \(multiPV) / cold each tier",
             "fixed-pair confirmation tiers: \(policy.confirmationNodeTiers.map(String.init).joined(separator: ",")) nodes",
             "safety ceiling: \(policy.safetyCeilingMs) ms (abort only)",
-            "search series: cold MultiPV each discovery tier -> cold searchmoves -> warm fixed-pair increasing tiers",
-            "comparison stable: \(stable)/\(entries.count)",
+            "search series: cold MultiPV each discovery tier -> independent cold MultiPV1 searchmoves for recommended and actual at every tier",
+            "comparison stable: \(counts.stable)/\(entries.count)",
+            "comparison unstable: \(counts.unstable)/\(entries.count)",
+            "comparison unconfirmed: \(counts.unconfirmed)/\(entries.count)",
             "continuation stable: \(continuationStable)/\(entries.count)",
             "total elapsed: \(totalElapsedMs) ms"
         ]

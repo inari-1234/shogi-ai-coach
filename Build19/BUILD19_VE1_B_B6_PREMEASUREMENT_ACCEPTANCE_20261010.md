@@ -66,8 +66,8 @@ The shallow Top-3/Top-1 agreement metrics are selection-reproducibility metrics 
 The primary calibration policy to test first is fixed before measurement as:
 
 - candidate discovery: `50,000 -> 100,000 -> 200,000` nodes, unrestricted MultiPV 3, cold TT at every tier;
-- fixed-pair confirmation: `50,000 -> 100,000 -> 200,000` nodes, fresh cold boundary before the series, then the documented within-series TT policy;
-- nine search invocations per analyzed position under the current comparison design;
+- independent comparison: at each `50,000 -> 100,000 -> 200,000` tier, measure the recommended move and actual move separately with MultiPV 1, one `searchmoves` move, and a fresh cold TT boundary before **each** invocation; no warm pair series is permitted;
+- nine search invocations per analyzed position under the current comparison design (3 cold unrestricted discovery + 3 cold recommended + 3 cold actual);
 - per-search wall-clock safety ceiling: **15,000 ms**;
 - authority before PASS: `UNFROZEN_CALIBRATION`.
 
