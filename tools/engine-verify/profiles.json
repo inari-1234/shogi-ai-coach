@@ -1,6 +1,6 @@
 {
   "schema_version": "ve1q-profile-v1",
-  "authority_note": "Qualification profiles only. app-candidate/reference node budgets are not production-frozen authorities.",
+  "authority_note": "Qualification profiles only. app-candidate/reference node budgets are not production-frozen authorities. PvInterval=0 is VE1-B evidence authority so completed exact iterations are emitted consistently.",
   "profiles": {
     "app-current": {
       "fv_scale": 16,
@@ -9,6 +9,7 @@
       "threads": 1,
       "hash_mb": 64,
       "multipv": 3,
+      "pv_interval_ms": 0,
       "budget_status": "current-app-replica-default-for-qualification"
     },
     "app-candidate": {
@@ -18,6 +19,7 @@
       "threads": 1,
       "hash_mb": 64,
       "multipv": 3,
+      "pv_interval_ms": 0,
       "budget_status": "qualification-only-unfrozen"
     },
     "reference": {
@@ -27,6 +29,7 @@
       "threads": 1,
       "hash_mb": 256,
       "multipv": 3,
+      "pv_interval_ms": 0,
       "budget_status": "qualification-only-unfrozen"
     }
   }
