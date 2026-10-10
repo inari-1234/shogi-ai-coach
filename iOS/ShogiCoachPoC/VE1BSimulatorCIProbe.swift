@@ -1,4 +1,5 @@
 import Foundation
+import ShogiCoachCore
 
 #if targetEnvironment(simulator)
 @MainActor
