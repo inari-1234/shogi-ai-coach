@@ -414,60 +414,81 @@ enum SimulatorCIProbe {
     private static func runAnalysisQualityGate(
         terminalGame: KIFGame
     ) async throws -> AnalysisQualityGateResult {
-        guard AdaptiveComparisonAnalyzer.analysisTiers(baseMovetimeMs: 800) == [800, 1600, 2400] else {
-            throw EngineUSISession.ProbeError.protocolError("adaptive tier policy mismatch")
-        }
         guard terminalGame.moves.count >= 81,
               let terminalMove = terminalGame.moves.last else {
             throw EngineUSISession.ProbeError.protocolError("quality gate positions missing")
         }
 
+        // Calibration-only Simulator budget. The gate validates VE1-B mechanics,
+        // not production node authority; B6 owns the production policy decision.
+        let policy = VE1BNodeSearchPolicy(
+            candidateDiscoveryNodes: 10_000,
+            candidateDiscoveryNodeTiers: [10_000, 20_000, 40_000],
+            confirmationNodeTiers: [10_000, 20_000, 40_000],
+            safetyCeilingMs: 15_000,
+            authorityStatus: "SIMULATOR_QUALITY_GATE_CALIBRATION_UNFROZEN"
+        )
+        try policy.validate()
+
         let session = EngineUSISession()
         try await session.beginAnalysis(multiPV: 3)
         do {
+            func validateContract(_ result: VE1BNodeComparisonResult, label: String) throws {
+                guard result.attempts.map(\.nodeBudget) == policy.confirmationNodeTiers,
+                      result.discoveryTierEvidence.count == policy.candidateDiscoveryNodeTiers.count,
+                      result.evidenceRecords.count == 9,
+                      result.finalNodeBudget == 40_000 else {
+                    throw EngineUSISession.ProbeError.protocolError(
+                        "\(label) VE1-B tier/evidence contract mismatch"
+                    )
+                }
+            }
+
             let normalMove = terminalGame.moves[40]
-            let normal = try await AdaptiveComparisonAnalyzer.analyze(
+            let normal = try await VE1BNodeComparisonAnalyzer.analyze(
                 session: session,
                 command: normalMove.positionBefore,
                 actualMove: normalMove.usi,
-                baseMovetimeMs: 800,
-                candidateCount: 3
+                candidateCount: 3,
+                policy: policy
             )
+            try validateContract(normal, label: "normal")
             let normalFinal = normal.finalAttempt
-            let normalPVUsable = normalFinal.bestLine.pvMoves.count >= 4
-                && normalFinal.actualLine.pvMoves.count >= 3
-            let normalExplicitlyUnstableForPV = normal.continuationInstabilityReasons.contains("best_pv_short")
-                || normal.continuationInstabilityReasons.contains("actual_pv_short")
+            let normalPVUsable = normal.confirmedBestPV.count >= 3
+                && normal.confirmedActualPV.count >= 2
+            let normalExplicitlyUnstableForPV = !normal.continuationStable
+                && !normal.continuationInstabilityReasons.isEmpty
             guard !normalFinal.bestLine.pvMoves.isEmpty,
                   !normalFinal.actualLine.pvMoves.isEmpty,
                   normalPVUsable || normalExplicitlyUnstableForPV else {
                 throw EngineUSISession.ProbeError.protocolError(
-                    "normal quality position lacks usable PV without instability flag"
+                    "normal quality position lacks confirmed PV or instability evidence"
                 )
             }
 
-            let close = try await AdaptiveComparisonAnalyzer.analyze(
+            let close = try await VE1BNodeComparisonAnalyzer.analyze(
                 session: session,
                 command: "position startpos",
                 actualMove: "7g7f",
-                baseMovetimeMs: 800,
-                candidateCount: 3
+                candidateCount: 3,
+                policy: policy
             )
-            if let gap = close.attempts.first?.topGapCp,
-               gap <= 40,
-               close.attempts.count < 2 {
+            try validateContract(close, label: "candidate")
+            guard close.candidateLines.count >= 2,
+                  close.attempts.count == policy.confirmationNodeTiers.count else {
                 throw EngineUSISession.ProbeError.protocolError(
-                    "close candidates did not trigger adaptive extension"
+                    "candidate comparison did not execute the full fixed-node confirmation series"
                 )
             }
 
-            let terminal = try await AdaptiveComparisonAnalyzer.analyze(
+            let terminal = try await VE1BNodeComparisonAnalyzer.analyze(
                 session: session,
                 command: terminalMove.positionBefore,
                 actualMove: terminalMove.usi,
-                baseMovetimeMs: 800,
-                candidateCount: 3
+                candidateCount: 3,
+                policy: policy
             )
+            try validateContract(terminal, label: "terminal")
             let terminalFinal = terminal.finalAttempt
             guard terminalMove.usi == "G*1b",
                   terminalFinal.actualLine.move == terminalMove.usi,
@@ -480,13 +501,13 @@ enum SimulatorCIProbe {
 
             await session.endAnalysis()
             return AnalysisQualityGateResult(
-                normalStable: normal.stable,
+                normalStable: normal.comparisonStable && normal.continuationStable,
                 normalComparisonStable: normal.comparisonStable,
                 normalContinuationStable: normal.continuationStable,
                 normalAttempts: normal.attempts.count,
-                closeGapCp: close.attempts.first?.topGapCp,
+                closeGapCp: close.topCandidateGapCp,
                 closeAttempts: close.attempts.count,
-                terminalStable: terminal.stable,
+                terminalStable: terminal.comparisonStable && terminal.continuationStable,
                 terminalComparisonStable: terminal.comparisonStable,
                 terminalContinuationStable: terminal.continuationStable,
                 terminalAttempts: terminal.attempts.count,
@@ -588,8 +609,13 @@ enum SimulatorCIProbe {
                 && !$0.bestPV.isEmpty
                 && !$0.actualPV.isEmpty
                 && $0.actualAnalysisSource.hasPrefix("equal-condition")
-                && $0.analysisAttempts >= 1
-                && $0.finalMovetimeMs == 200
+                && $0.analysisAttempts == 9
+                && $0.finalMovetimeMs == 0
+                && $0.nodePolicyAuthorityStatus == "UNFROZEN_CALIBRATION"
+                && $0.candidateDiscoveryNodes == 50_000
+                && $0.confirmationNodeTiers == [50_000, 100_000, 200_000]
+                && $0.finalNodeBudget == 200_000
+                && $0.searchEvidence.count == 9
                 && $0.candidates.allSatisfy { !$0.pv.isEmpty && !$0.move.isEmpty }
         }
         guard deepStatus == "深掘り PASS",
@@ -1048,7 +1074,7 @@ enum SimulatorCIProbe {
             diagnosticURL: refinementDiagnosticURL
         )
         guard refinementReview.status == "局面文脈解析 PASS",
-              refinementReview.usedAdditionalEngineSearch,
+              !refinementReview.usedAdditionalEngineSearch,
               refinementReview.refinementCandidatePlies == [1],
               refinementReview.refinementCompletedPlies == [1],
               refinementReview.entries.first?.analysis.selectedIntent == .unresolved,

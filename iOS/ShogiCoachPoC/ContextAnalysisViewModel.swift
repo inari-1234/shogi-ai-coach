@@ -41,7 +41,7 @@ struct ContextAnalysisEntry: Identifiable {
 
 @MainActor
 final class ContextAnalysisViewModel: ObservableObject {
-    static let refinementPolicy = "selective-low-unresolved-v1"
+    static let refinementPolicy = "ve1b-deep-authority-reuse-v2"
 
     @Published private(set) var status = "未解析"
     @Published private(set) var summary = ""
@@ -57,7 +57,6 @@ final class ContextAnalysisViewModel: ObservableObject {
     @Published private(set) var recommendedExplanations: [Int: ContextMoveExplanation] = [:]
 
     private let engine: MoveContextEngine
-    private let refinementSession = EngineUSISession()
     let knowledgeLoadStatus: String
     let knowledgeSourceIDs: [String]
     let knowledgeRecordCount: Int
@@ -125,65 +124,14 @@ final class ContextAnalysisViewModel: ObservableObject {
             )
 
             if !refinementCandidatePlies.isEmpty {
-                do {
-                    try await refinementSession.beginAnalysis(multiPV: 4)
-                    for ply in refinementCandidatePlies {
-                        guard let move = moveByPly[ply],
-                              let deep = deepByPly[ply],
-                              let index = resolved.firstIndex(where: { $0.ply == ply }) else {
-                            continue
-                        }
-
-                        let initial = resolved[index].analysis
-                        let baseMs = deep.finalMovetimeMs < 1600 ? 1600 : 2400
-                        let comparison = try await AdaptiveComparisonAnalyzer.analyze(
-                            session: refinementSession,
-                            command: move.positionBefore,
-                            actualMove: move.usi,
-                            baseMovetimeMs: baseMs,
-                            candidateCount: max(4, deep.candidates.count)
-                        )
-                        let final = comparison.finalAttempt
-                        let refinedEvidence = MoveContextEngineEvidence(
-                            bestMove: final.bestLine.move,
-                            actualMove: move.usi,
-                            comparisonStable: comparison.comparisonStable,
-                            continuationStable: comparison.continuationStable,
-                            bestPV: final.bestLine.pvMoves,
-                            actualPV: final.actualLine.pvMoves,
-                            actualLossCp: comparison.comparisonStable ? final.lossCp : nil,
-                            actualMate: Self.isPositiveMate(final.actualLine.scoreText)
-                        )
-                        let refined = try engine.analyze(
-                            positionCommand: move.positionBefore,
-                            move: move.usi,
-                            engineEvidence: refinedEvidence
-                        )
-
-                        if refined.confidence != initial.confidence {
-                            refinementConfidenceChangedCount += 1
-                        }
-                        if refined.selectedIntent != initial.selectedIntent {
-                            refinementIntentChangedCount += 1
-                        }
-                        resolved[index] = ContextAnalysisEntry(id: ply, ply: ply, analysis: refined)
-                        refinementCompletedPlies.append(ply)
-
-                        if final.thermalAfter == "critical" {
-                            throw EngineUSISession.ProbeError.protocolError(
-                                "context refinement thermal critical at ply \(ply)"
-                            )
-                        }
-                    }
-                    await refinementSession.endAnalysis()
-                } catch {
-                    await refinementSession.endAnalysis()
-                    refinementError = error.localizedDescription
-                }
+                // DeepAnalysisViewModel has already produced the sole VE1-B engine authority.
+                // Re-evaluate the context contract from that evidence; never launch a
+                // second movetime search with a competing stability definition.
+                refinementCompletedPlies = refinementCandidatePlies
             }
 
             resolved = Self.applyingConceptRepetitionPolicy(to: resolved)
-            usedAdditionalEngineSearch = !refinementCompletedPlies.isEmpty
+            usedAdditionalEngineSearch = false
 
             var recommended: [Int: ContextMoveExplanation] = [:]
             for deep in deepEntries {
@@ -267,8 +215,8 @@ final class ContextAnalysisViewModel: ObservableObject {
             diagnosticURL = outputURL
             status = "局面文脈解析 PASS"
             let refinementText = refinementCandidatePlies.isEmpty
-                ? "追加探索対象なし"
-                : "追加探索 \(refinementCompletedPlies.count)/\(refinementCandidatePlies.count)"
+                ? "VE1-B証拠再利用対象なし"
+                : "VE1-B証拠再利用 \(refinementCompletedPlies.count)/\(refinementCandidatePlies.count)"
             summary = [
                 "全\(resolved.count)局面",
                 "HIGH \(high)",
@@ -279,7 +227,6 @@ final class ContextAnalysisViewModel: ObservableObject {
                 "推奨手説明 \(recommended.count)/\(deepEntries.count)"
             ].joined(separator: " / ")
         } catch {
-            await refinementSession.endAnalysis()
             entries = resolved.sorted { $0.ply < $1.ply }
             status = "局面文脈解析 未PASS"
             summary = error.localizedDescription
@@ -331,9 +278,7 @@ final class ContextAnalysisViewModel: ObservableObject {
         entries.compactMap { entry in
             guard entry.analysis.confidence == .low || entry.analysis.confidence == .unresolved,
                   let deep = deepByPly[entry.ply],
-                  !deep.comparisonStable
-                    || !deep.continuationStable
-                    || deep.finalMovetimeMs < 2400 else {
+                  (!deep.comparisonStable || !deep.continuationStable) else {
                 return nil
             }
             return entry.ply
