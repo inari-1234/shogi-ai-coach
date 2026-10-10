@@ -23,22 +23,46 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Apply deterministic corrective patch
+      - name: Apply corrective patch and normalize text
         shell: bash
         run: |
           set -euxo pipefail
           python3 tools/fix_ve1b_completion_corrective_driver.py
           python3 tools/apply_ve1b_completion_state_corrective.py
-          git diff --check
+          python3 - <<'PY'
+          from pathlib import Path
+          for name in [
+              'Build19/BUILD19_VE1_B_GENERIC_E2E_MIGRATION_20261010.md',
+              'Build19/BUILD19_VE1_B_B6_PREMEASUREMENT_ACCEPTANCE_20261010.md',
+          ]:
+              p = Path(name)
+              p.write_text(p.read_text(encoding='utf-8').rstrip() + '\n', encoding='utf-8')
+          PY
+
+      - name: Static syntax and structural contract checks
+        shell: bash
+        run: |
+          set -euxo pipefail
+          swiftc -parse \
+            iOS/ShogiCoachPoC/DeepAnalysisViewModel.swift \
+            iOS/ShogiCoachPoC/ContentView.swift \
+            iOS/ShogiCoachPoC/SimulatorCIProbe.swift
           grep -Fq 'enum DeepAnalysisRunState' iOS/ShogiCoachPoC/DeepAnalysisViewModel.swift
+          grep -Fq 'case incomplete(reason:' iOS/ShogiCoachPoC/DeepAnalysisViewModel.swift
+          grep -Fq 'case error(message:' iOS/ShogiCoachPoC/DeepAnalysisViewModel.swift
           grep -Fq 'deepCompletionNegativeContractPasses' iOS/ShogiCoachPoC/SimulatorCIProbe.swift
           grep -Fq 'presentation.status == .provisional' iOS/ShogiCoachPoC/SimulatorCIProbe.swift
           ! grep -Fq 'actualAnalysisSource.hasPrefix("equal-condition")' iOS/ShogiCoachPoC/SimulatorCIProbe.swift
           python3 - <<'PY'
           from pathlib import Path
-          text = Path('iOS/ShogiCoachPoC/SimulatorCIProbe.swift').read_text()
-          assert '\\\\.' not in text, 'double-escaped Swift keypath remains'
-          assert text.count('actualAnalysisSource.hasPrefix("node-equal-condition")') >= 3
+          deep = Path('iOS/ShogiCoachPoC/DeepAnalysisViewModel.swift').read_text()
+          sim = Path('iOS/ShogiCoachPoC/SimulatorCIProbe.swift').read_text()
+          assert '\\\\.' not in sim, 'double-escaped Swift keypath remains'
+          assert sim.count('actualAnalysisSource.hasPrefix("node-equal-condition")') >= 3
+          assert 'actualLossCp == nil' in sim
+          assert 'deepNegativeContractValid' in sim
+          assert 'deep_stability_by_ply=' in sim
+          assert 'comparison unstable:' in deep and 'comparison unconfirmed:' in deep
           PY
 
       - name: Core regression
