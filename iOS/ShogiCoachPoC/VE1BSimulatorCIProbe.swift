@@ -46,7 +46,7 @@ enum VE1BSimulatorCIProbe {
                 throw EngineUSISession.ProbeError.protocolError("VE1-B CI shallow analysis failed")
             }
 
-            let policy = VE1BNodeSearchPolicy.calibrationUnfrozen
+            let policy: VE1BNodeSearchPolicy = .calibrationUnfrozen
             let deep = DeepAnalysisViewModel()
             await deep.analyze(
                 game: game,
