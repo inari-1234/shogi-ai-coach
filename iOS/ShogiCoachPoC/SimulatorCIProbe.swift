@@ -928,7 +928,7 @@ enum SimulatorCIProbe {
             let presentation = RecommendationDecisionPresentation.make(entry: item)
             return !item.comparisonStable
                 && presentation.status == .provisional
-                && presentation.badgeText == "比較保留"
+                && presentation.status.badgeText == "比較保留"
                 && presentation.headline.contains("暫定候補")
         }
         guard continuationNonStableValid else {
@@ -1294,7 +1294,7 @@ enum SimulatorCIProbe {
         let unstablePresentation = RecommendationDecisionPresentation.make(entry: unstableContinuationEntry)
         let unstableHDSReport = RecommendationDecisionHDSAudit.evaluate(entries: unstableContinuation.entries)
         guard unstablePresentation.status == .provisional,
-              unstablePresentation.badgeText == "比較保留",
+              unstablePresentation.status.badgeText == "比較保留",
               unstablePresentation.headline.contains("暫定候補"),
               unstableHDSReport.passed else {
             writeReport([
