@@ -5,10 +5,16 @@ Status: **PRE-IMPLEMENTATION CONTRACT**
 
 Authority order for VE1-B work:
 
-1. `BUILD19_VE1_B_ACCEPTANCE_CRITERIA_20261010.md` — formal pass/fail gates for B1-B8.
+1. `BUILD19_VE1_B_ACCEPTANCE_CRITERIA_20261010.md` — formal pass/fail gates for B1-B8, including node-budget convergence, TT state, role-budget and abort semantics.
 2. `BUILD19_VE1_B_ISSUES_20261009.md` — previously discovered issue backlog and implementation notes.
 3. `BUILD19_VE1_A_FORMAL_PASS_20261010.md` — frozen VE1-A runtime baseline and physical-device evidence summary.
 4. `BUILD19_VE1_A_PHYSICAL_DEVICE_EVIDENCE_REQUIREMENTS_20261009.md` — unchanged known-answer provenance/mismatch policy.
 5. `BUILD19_VE1_C_ISSUES_20261009.md` — deferred semantic threshold/mate-sign work; not VE1-B implementation scope unless an unavoidable shared abstraction change is explicitly justified.
 
 Implementation must not begin by changing expected outputs. It begins from the VE1-A formal runtime candidate `3252adb0fb5a066fc90362d978eec7f196f62135` and must preserve the VE1-A known answers throughout VE1-B.
+
+Required implementation order:
+
+`B1 -> B2/B3/B4 -> B6 -> B5/B7 -> full regression / Simulator / device build / physical iPhone evidence`.
+
+B6 precedes B5/B7 because stability is defined as convergence under increasing node budgets, and therefore depends on the finalized node-budget, TT-isolation/reuse, search-role and abort contract. Same-budget repetition is reproducibility evidence only and cannot establish stability.
