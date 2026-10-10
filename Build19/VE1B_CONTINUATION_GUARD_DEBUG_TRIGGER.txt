@@ -1,0 +1,2 @@
+Diagnostic-only trigger for candidate/verify-ve1b-continuation-guard.
+Do not merge this file into the implementation branch.
