@@ -143,8 +143,9 @@ then B6 may freeze `50k/100k/200k` with the 15 s safety ceiling as production au
 
 If the primary schedule fails any Deep operational gate, do **not** alter thresholds after seeing the result. The only pre-authorized fallback schedule is:
 
-- candidate discovery: `25,000 -> 50,000 -> 100,000` nodes;
-- fixed-pair confirmation: `25,000 -> 50,000 -> 100,000` nodes;
+- candidate discovery: `25,000 -> 50,000 -> 100,000` nodes, unrestricted MultiPV 3, cold TT at every tier;
+- independent comparison: at each `25,000 -> 50,000 -> 100,000` tier, measure recommended and actual separately with MultiPV 1, one `searchmoves` move, and a fresh cold TT boundary before **each** invocation;
+- nine search invocations per analyzed position (3 cold unrestricted discovery + 3 cold recommended + 3 cold actual);
 - safety ceiling remains **15,000 ms**.
 
 The fallback must rerun the **entire B6 standard and stress qualification**. It cannot inherit PASS evidence from the primary schedule.
