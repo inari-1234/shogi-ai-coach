@@ -62,7 +62,7 @@ private func evidenceTier(
 
 @Test func ve1bLossThresholdIsExplicitRuleNotEngineState() {
     let evidence = [
-        evidenceTier(nodes: 50_000, candidate: "P*2e", bestScore: 700, actualScore: 138),,
+        evidenceTier(nodes: 50_000, candidate: "P*2e", bestScore: 700, actualScore: 138),
         evidenceTier(nodes: 100_000, candidate: "P*2e", bestScore: 750, actualScore: 118),
         evidenceTier(nodes: 200_000, candidate: "P*2e", bestScore: 700, actualScore: 230)
     ]
