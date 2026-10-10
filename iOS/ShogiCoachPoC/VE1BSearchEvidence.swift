@@ -85,3 +85,55 @@ struct VE1BSearchAttemptRecord: Codable, Sendable {
         observations = sample.observations.map(VE1BSearchObservationRecord.init)
     }
 }
+
+struct VE1BPositionEvidenceRecord: Codable, Sendable {
+    let ply: Int
+    let stabilityState: String
+    let confirmedBestPVPlyCount: Int
+    let confirmedActualPVPlyCount: Int
+    let attempts: [VE1BSearchAttemptRecord]
+}
+
+struct VE1BSearchEvidenceDocument: Codable, Sendable {
+    let schemaVersion: Int
+    let generatedAt: Date
+    let status: String
+    let policyAuthorityStatus: String
+    let candidateDiscoveryNodes: Int
+    let confirmationNodeTiers: [Int]
+    let safetyCeilingMs: Int
+    let positions: [VE1BPositionEvidenceRecord]
+    let incompleteAttempts: [VE1BSearchAttemptRecord]
+    let error: String?
+}
+
+enum VE1BSearchEvidenceExporter {
+    static func write(
+        status: String,
+        policy: VE1BNodeSearchPolicy,
+        positions: [VE1BPositionEvidenceRecord],
+        incompleteAttempts: [VE1BSearchAttemptRecord],
+        error: String?
+    ) throws -> URL {
+        let document = VE1BSearchEvidenceDocument(
+            schemaVersion: 1,
+            generatedAt: Date(),
+            status: status,
+            policyAuthorityStatus: policy.authorityStatus,
+            candidateDiscoveryNodes: policy.candidateDiscoveryNodes,
+            confirmationNodeTiers: policy.confirmationNodeTiers,
+            safetyCeilingMs: policy.safetyCeilingMs,
+            positions: positions,
+            incompleteAttempts: incompleteAttempts,
+            error: error
+        )
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+        encoder.dateEncodingStrategy = .iso8601
+        let data = try encoder.encode(document)
+        let directory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let url = directory.appendingPathComponent("ve1b-search-evidence.json")
+        try data.write(to: url, options: .atomic)
+        return url
+    }
+}
