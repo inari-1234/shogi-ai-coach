@@ -40,6 +40,15 @@ struct DeepAnalysisEntry: Identifiable {
     let finalMovetimeMs: Int
     let adaptiveTriggered: Bool
     let topCandidateGapCp: Int?
+    let stabilityState: String
+    let confirmedBestPVPlyCount: Int
+    let confirmedActualPVPlyCount: Int
+    let nodePolicyAuthorityStatus: String
+    let candidateDiscoveryNodes: Int
+    let confirmationNodeTiers: [Int]
+    let safetyCeilingMs: Int
+    let finalNodeBudget: Int
+    let searchEvidence: [VE1BSearchAttemptRecord]
 }
 
 @MainActor
@@ -50,7 +59,9 @@ final class DeepAnalysisViewModel: ObservableObject {
     @Published private(set) var isRunning = false
     @Published private(set) var diagnosticURL: URL?
     @Published private(set) var diagnosticError: String?
+    @Published private(set) var searchEvidenceURL: URL?
 
+    private(set) var incompleteSearchEvidence: [VE1BSearchAttemptRecord] = []
     private let session = EngineUSISession()
 
     func reset() {
@@ -60,6 +71,8 @@ final class DeepAnalysisViewModel: ObservableObject {
         isRunning = false
         diagnosticURL = nil
         diagnosticError = nil
+        searchEvidenceURL = nil
+        incompleteSearchEvidence = []
     }
 
     func analyze(
@@ -68,7 +81,8 @@ final class DeepAnalysisViewModel: ObservableObject {
         diagnosticURL sourceDiagnosticURL: URL?,
         deepMovetimeMs: Int = 800,
         multiPV: Int = 3,
-        maxPositions: Int = 5
+        maxPositions: Int = 5,
+        nodePolicy: VE1BNodeSearchPolicy = .calibrationUnfrozen
     ) async {
         guard shallowEntries.count == game.moves.count,
               !shallowEntries.isEmpty else {
@@ -82,8 +96,11 @@ final class DeepAnalysisViewModel: ObservableObject {
             return
         }
 
-        let productionQualityMode = deepMovetimeMs >= 800
-        let provisionalLimit = productionQualityMode
+        // This legacy parameter only preserves the pre-VE1-B position-selection
+        // mode used by regression fixtures. It is no longer an engine search
+        // budget. All deep engine searches below are node-budgeted.
+        let productionSelectionMode = deepMovetimeMs >= 800
+        let provisionalLimit = productionSelectionMode
             ? min(8, max(maxPositions, 7))
             : maxPositions
         let selection = Self.selectImportantPositions(
@@ -102,6 +119,8 @@ final class DeepAnalysisViewModel: ObservableObject {
         summary = ""
         diagnosticURL = nil
         diagnosticError = nil
+        searchEvidenceURL = nil
+        incompleteSearchEvidence = []
         status = "深掘り 準備中"
         SimulatorStage.mark("deep_start_count_\(selection.items.count)")
 
@@ -119,33 +138,35 @@ final class DeepAnalysisViewModel: ObservableObject {
                 let shallow = shallowEntries[selected.index]
                 SimulatorStage.mark("deep_ply_\(move.ply)_start")
 
-                let comparison = try await AdaptiveComparisonAnalyzer.analyze(
+                let comparison = try await VE1BNodeComparisonAnalyzer.analyze(
                     session: session,
                     command: move.positionBefore,
                     actualMove: move.usi,
-                    baseMovetimeMs: deepMovetimeMs,
-                    candidateCount: multiPV
+                    candidateCount: multiPV,
+                    policy: nodePolicy
                 )
                 let final = comparison.finalAttempt
 
-                let candidateLines = final.candidateLines.enumerated().map { index, line in
+                let candidateLines = comparison.candidateLines.enumerated().map { index, line in
                     DeepCandidateLine(
                         id: index + 1,
                         rank: index + 1,
                         move: line.move,
                         scoreText: line.scoreText,
                         centipawn: line.centipawn,
-                        depthText: line.depthText,
-                        nodesText: line.nodesText,
-                        npsText: line.npsText,
+                        depthText: line.depth.map(String.init) ?? "-",
+                        nodesText: line.nodes.map(String.init) ?? "-",
+                        npsText: line.nps.map(String.init) ?? "-",
                         pv: line.pvText,
                         opponentReply: line.opponentReply
                     )
                 }
 
                 let source = final.bestLine.move == move.usi
-                    ? "equal-condition-same-move"
-                    : "equal-condition"
+                    ? "node-equal-condition-same-move"
+                    : "node-equal-condition"
+                let confirmedBestPV = comparison.confirmedBestPV
+                let confirmedActualPV = comparison.confirmedActualPV
                 let entry = DeepAnalysisEntry(
                     id: move.ply,
                     ply: move.ply,
@@ -156,30 +177,39 @@ final class DeepAnalysisViewModel: ObservableObject {
                     bestScoreText: final.bestLine.scoreText,
                     actualScoreText: final.actualLine.scoreText,
                     actualLossCp: comparison.comparisonStable ? final.lossCp : nil,
-                    bestPV: final.bestLine.pvText,
-                    actualPV: final.actualLine.pvText,
+                    bestPV: confirmedBestPV.joined(separator: " "),
+                    actualPV: confirmedActualPV.joined(separator: " "),
                     actualAnalysisSource: source,
-                    opponentBestReply: final.bestLine.opponentReply,
+                    opponentBestReply: confirmedBestPV.dropFirst().first ?? "-",
                     candidates: candidateLines,
                     elapsedMs: comparison.totalElapsedMs,
-                    thermalBefore: comparison.attempts.first?.thermalBefore ?? "unknown",
-                    thermalAfter: final.thermalAfter,
+                    thermalBefore: comparison.discoveryEvidence.thermalBefore,
+                    thermalAfter: final.evidence.thermalAfter,
                     comparisonStable: comparison.comparisonStable,
                     instabilityReasons: comparison.comparisonInstabilityReasons,
                     continuationStable: comparison.continuationStable,
                     continuationInstabilityReasons: comparison.continuationInstabilityReasons,
-                    analysisAttempts: comparison.attempts.count,
-                    finalMovetimeMs: comparison.finalMovetimeMs,
-                    adaptiveTriggered: comparison.adaptiveTriggered,
-                    topCandidateGapCp: final.topGapCp
+                    analysisAttempts: comparison.evidenceRecords.count,
+                    finalMovetimeMs: 0,
+                    adaptiveTriggered: comparison.attempts.count > 1,
+                    topCandidateGapCp: comparison.topCandidateGapCp,
+                    stabilityState: comparison.stability.state.rawValue,
+                    confirmedBestPVPlyCount: confirmedBestPV.count,
+                    confirmedActualPVPlyCount: confirmedActualPV.count,
+                    nodePolicyAuthorityStatus: nodePolicy.authorityStatus,
+                    candidateDiscoveryNodes: nodePolicy.candidateDiscoveryNodes,
+                    confirmationNodeTiers: nodePolicy.confirmationNodeTiers,
+                    safetyCeilingMs: nodePolicy.safetyCeilingMs,
+                    finalNodeBudget: comparison.finalNodeBudget,
+                    searchEvidence: comparison.evidenceRecords
                 )
                 analyzedEntries.append(entry)
 
                 SimulatorStage.mark(
-                    "deep_ply_\(move.ply)_done_best_\(entry.bestMove)_actual_\(entry.actualMove)_comparison_\(entry.comparisonStable)_continuation_\(entry.continuationStable)_attempts_\(entry.analysisAttempts)"
+                    "deep_ply_\(move.ply)_done_best_\(entry.bestMove)_actual_\(entry.actualMove)_stability_\(entry.stabilityState)_final_nodes_\(entry.finalNodeBudget)_attempts_\(entry.analysisAttempts)"
                 )
 
-                if final.thermalAfter == "critical" {
+                if final.evidence.thermalAfter == "critical" {
                     throw EngineUSISession.ProbeError.protocolError(
                         "thermal critical at ply \(move.ply)"
                     )
@@ -188,7 +218,7 @@ final class DeepAnalysisViewModel: ObservableObject {
 
             await session.endAnalysis()
 
-            entries = productionQualityMode
+            entries = productionSelectionMode
                 ? Self.finalizeImportantEntries(
                     analyzedEntries,
                     maxPositions: maxPositions
@@ -197,14 +227,19 @@ final class DeepAnalysisViewModel: ObservableObject {
             status = "深掘り PASS"
         } catch {
             await session.endAnalysis()
-            entries = productionQualityMode
+            if let failure = error as? VE1BNodeComparisonFailure {
+                incompleteSearchEvidence = failure.evidence
+                status = "深掘り 未PASS（解析未完了）"
+            } else {
+                status = "深掘り 未PASS"
+            }
+            entries = productionSelectionMode
                 ? Self.finalizeImportantEntries(
                     analyzedEntries,
                     maxPositions: maxPositions
                 )
                 : analyzedEntries
             finalError = error.localizedDescription
-            status = "深掘り 未PASS"
             SimulatorStage.mark("deep_error_\(error.localizedDescription)")
         }
 
@@ -213,26 +248,52 @@ final class DeepAnalysisViewModel: ObservableObject {
             to: ContinuousClock.now
         )
 
+        do {
+            searchEvidenceURL = try VE1BSearchEvidenceExporter.write(
+                status: status,
+                policy: nodePolicy,
+                positions: analyzedEntries.map { entry in
+                    VE1BPositionEvidenceRecord(
+                        ply: entry.ply,
+                        stabilityState: entry.stabilityState,
+                        confirmedBestPVPlyCount: entry.confirmedBestPVPlyCount,
+                        confirmedActualPVPlyCount: entry.confirmedActualPVPlyCount,
+                        attempts: entry.searchEvidence
+                    )
+                },
+                incompleteAttempts: incompleteSearchEvidence,
+                error: finalError
+            )
+            SimulatorStage.mark("ve1b_search_evidence_json_written")
+        } catch {
+            let evidenceError = "VE1-B探索証拠JSON更新失敗: \(error.localizedDescription)"
+            diagnosticError = evidenceError
+            finalError = finalError.map { "\($0); \(evidenceError)" } ?? evidenceError
+            status = "深掘り 未PASS"
+            SimulatorStage.mark("ve1b_search_evidence_json_error_\(error.localizedDescription)")
+        }
+
         summary = Self.makeSummary(
             entries: entries,
             provisionalCount: selection.items.count,
             analyzedCount: analyzedEntries.count,
-            deepMovetimeMs: deepMovetimeMs,
             multiPV: multiPV,
             totalElapsedMs: totalElapsedMs,
             focus: selection.focus,
+            policy: nodePolicy,
+            productionSelectionMode: productionSelectionMode,
             error: finalError
         )
 
         let deepInfo = ShogiDiagnosticDocument.DeepAnalysisInfo(
             status: status,
-            requestedMoveTimeMs: deepMovetimeMs,
+            requestedMoveTimeMs: 0,
             multiPV: multiPV,
             selectedPositions: selection.items.count,
             completedPositions: entries.count,
             totalElapsedMs: totalElapsedMs,
             focus: selection.focus,
-            adaptivePolicy: "adaptive-v2",
+            adaptivePolicy: "ve1b-node-\(nodePolicy.authorityStatus)",
             positions: entries.map { entry in
                 .init(
                     ply: entry.ply,
@@ -268,7 +329,7 @@ final class DeepAnalysisViewModel: ObservableObject {
                     continuationStable: entry.continuationStable,
                     continuationInstabilityReasons: entry.continuationInstabilityReasons,
                     analysisAttempts: entry.analysisAttempts,
-                    finalMovetimeMs: entry.finalMovetimeMs,
+                    finalMovetimeMs: 0,
                     adaptiveTriggered: entry.adaptiveTriggered,
                     topCandidateGapCp: entry.topCandidateGapCp
                 )
@@ -283,10 +344,11 @@ final class DeepAnalysisViewModel: ObservableObject {
             )
             SimulatorStage.mark("deep_diagnostic_json_written")
         } catch {
-            diagnosticError = error.localizedDescription
+            let message = error.localizedDescription
+            diagnosticError = diagnosticError.map { "\($0); \(message)" } ?? message
             status = "深掘り 未PASS"
-            summary += "\n診断JSON更新失敗: \(error.localizedDescription)"
-            SimulatorStage.mark("deep_diagnostic_json_error_\(error.localizedDescription)")
+            summary += "\n診断JSON更新失敗: \(message)"
+            SimulatorStage.mark("deep_diagnostic_json_error_\(message)")
         }
 
         if status == "深掘り PASS" {
@@ -392,36 +454,39 @@ final class DeepAnalysisViewModel: ObservableObject {
         entries: [DeepAnalysisEntry],
         provisionalCount: Int,
         analyzedCount: Int,
-        deepMovetimeMs: Int,
         multiPV: Int,
         totalElapsedMs: Int,
         focus: String,
+        policy: VE1BNodeSearchPolicy,
+        productionSelectionMode: Bool,
         error: String?
     ) -> String {
-        let adaptive = entries.filter(\.adaptiveTriggered).count
-        let comparisonUnstable = entries.filter { !$0.comparisonStable }.count
-        let continuationUnstable = entries.filter { !$0.continuationStable }.count
+        let stable = entries.filter(\.comparisonStable).count
+        let continuationStable = entries.filter(\.continuationStable).count
         var lines = [
             "focus: \(focus)",
             "provisional positions: \(provisionalCount)",
             "analyzed positions: \(analyzedCount)",
             "final important positions: \(entries.count)",
-            "deep base: \(deepMovetimeMs) ms",
-            "MultiPV discovery: \(multiPV)",
-            "comparison: equal-condition searchmoves",
-            "adaptive extended: \(adaptive)",
-            "comparison unstable: \(comparisonUnstable)",
-            "continuation unstable: \(continuationUnstable)",
+            "position selection mode: \(productionSelectionMode ? "production" : "regression")",
+            "search budget mode: nodes",
+            "node policy: \(policy.authorityStatus)",
+            "candidate discovery: \(policy.candidateDiscoveryNodes) nodes / MultiPV \(multiPV)",
+            "confirmation tiers: \(policy.confirmationNodeTiers.map(String.init).joined(separator: ",")) nodes",
+            "safety ceiling: \(policy.safetyCeilingMs) ms (abort only)",
+            "comparison: cold discovery -> cold searchmoves -> warm increasing tiers",
+            "comparison stable: \(stable)/\(entries.count)",
+            "continuation stable: \(continuationStable)/\(entries.count)",
             "total elapsed: \(totalElapsedMs) ms"
         ]
         for entry in entries {
             let loss = entry.actualLossCp.map { "\($0)cp" }
-                ?? (entry.comparisonStable ? "mate/unknown" : "unstable")
+                ?? "\(entry.stabilityState)"
             lines.append(
-                "#\(entry.ply) loss \(loss) best \(entry.bestMove) / actual \(entry.actualMove) [\(entry.actualAnalysisSource)] / \(entry.finalMovetimeMs)ms x\(entry.analysisAttempts)"
+                "#\(entry.ply) loss \(loss) best \(entry.bestMove) / actual \(entry.actualMove) [\(entry.actualAnalysisSource)] / final \(entry.finalNodeBudget) nodes x\(entry.analysisAttempts)"
             )
         }
-        if let error { lines.append(error) }
+        if let error { lines.append("解析が完了しませんでした: \(error)") }
         return lines.joined(separator: "\n")
     }
 
