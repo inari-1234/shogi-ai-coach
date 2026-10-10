@@ -44,6 +44,7 @@ struct VE1BSearchAttemptRecord: Codable, Sendable {
     let attemptID: String
     let positionCommand: String
     let role: String
+    let measurementTarget: String
     let nodeBudget: Int
     let safetyCeilingMs: Int
     let issuedGoCommand: String
@@ -64,11 +65,13 @@ struct VE1BSearchAttemptRecord: Codable, Sendable {
         positionCommand: String,
         multiPV: Int,
         searchMoves: [String],
+        measurementTarget: String = "unspecified",
         sample: NodeProbeSample
     ) {
         self.attemptID = attemptID
         self.positionCommand = positionCommand
         role = sample.searchRole.rawValue
+        self.measurementTarget = measurementTarget
         nodeBudget = sample.nodeBudget
         safetyCeilingMs = sample.safetyCeilingMs
         issuedGoCommand = sample.issuedGoCommand
@@ -92,6 +95,26 @@ struct VE1BPositionEvidenceRecord: Codable, Sendable {
     let confirmedBestPVPlyCount: Int
     let confirmedActualPVPlyCount: Int
     let attempts: [VE1BSearchAttemptRecord]
+    let stabilityEvidenceTiers: [VE1BStabilityEvidenceTier]
+    let stabilityReasons: [String]
+
+    init(
+        ply: Int,
+        stabilityState: String,
+        confirmedBestPVPlyCount: Int,
+        confirmedActualPVPlyCount: Int,
+        attempts: [VE1BSearchAttemptRecord],
+        stabilityEvidenceTiers: [VE1BStabilityEvidenceTier] = [],
+        stabilityReasons: [String] = []
+    ) {
+        self.ply = ply
+        self.stabilityState = stabilityState
+        self.confirmedBestPVPlyCount = confirmedBestPVPlyCount
+        self.confirmedActualPVPlyCount = confirmedActualPVPlyCount
+        self.attempts = attempts
+        self.stabilityEvidenceTiers = stabilityEvidenceTiers
+        self.stabilityReasons = stabilityReasons
+    }
 }
 
 struct VE1BSearchEvidenceDocument: Codable, Sendable {
@@ -99,6 +122,7 @@ struct VE1BSearchEvidenceDocument: Codable, Sendable {
     let generatedAt: Date
     let status: String
     let policyAuthorityStatus: String
+    let stabilityRules: VE1BStabilityRules
     let candidateDiscoveryNodes: Int
     let candidateDiscoveryNodeTiers: [Int]
     let confirmationNodeTiers: [Int]
@@ -117,10 +141,11 @@ enum VE1BSearchEvidenceExporter {
         error: String?
     ) throws -> URL {
         let document = VE1BSearchEvidenceDocument(
-            schemaVersion: 2,
+            schemaVersion: 3,
             generatedAt: Date(),
             status: status,
             policyAuthorityStatus: policy.authorityStatus,
+            stabilityRules: .ve1bCalibration,
             candidateDiscoveryNodes: policy.candidateDiscoveryNodes,
             candidateDiscoveryNodeTiers: policy.candidateDiscoveryNodeTiers,
             confirmationNodeTiers: policy.confirmationNodeTiers,
