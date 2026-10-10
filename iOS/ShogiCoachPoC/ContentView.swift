@@ -37,6 +37,13 @@ struct ContentView: View {
             ?? shallow.diagnosticError
     }
 
+    private var unconfirmedReferenceEntries: [DeepAnalysisEntry] {
+        deep.entries.filter { entry in
+            !entry.comparisonStable
+                && (!entry.referenceBestPV.isEmpty || !entry.referenceActualPV.isEmpty)
+        }
+    }
+
     var body: some View {
         NavigationStack {
             Form {
@@ -224,6 +231,26 @@ struct ContentView: View {
                         Text("エンジンの根拠一覧は通常の振り返りには表示せず、診断JSONに保持しています。")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
+
+                        if !unconfirmedReferenceEntries.isEmpty {
+                            DisclosureGroup("未確認の参考読み筋") {
+                                Text("最深の完了済みexact探索から得た表示専用情報です。理由・推奨・展開シミュレーションの根拠には使用しません。")
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+
+                                ForEach(unconfirmedReferenceEntries, id: \.ply) { entry in
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("\(entry.ply)手目")
+                                            .font(.subheadline)
+                                            .bold()
+                                        Text("候補側（未確認）: \(entry.referenceBestPV.isEmpty ? "取得なし" : entry.referenceBestPV)")
+                                        Text("実戦手側（未確認）: \(entry.referenceActualPV.isEmpty ? "取得なし" : entry.referenceActualPV)")
+                                    }
+                                    .font(.system(.caption, design: .monospaced))
+                                    .textSelection(.enabled)
+                                }
+                            }
+                        }
 
                         if let diagnosticURL {
                             ShareLink(item: diagnosticURL) {

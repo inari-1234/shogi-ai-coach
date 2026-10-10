@@ -11,7 +11,7 @@ Repository: `inari-1234/shogi-ai-coach`
 
 Current work branch:
 
-`candidate/build19-ve1-b-implementation`
+`candidate/build19-ve1-b-pv-role-finalize`
 
 Current stage:
 
@@ -59,6 +59,20 @@ Additional fixed rules:
 11. **No silent input repair.** Engine/NNUE/profile/fixture mismatches fail rather than being substituted with convenient alternatives.
 12. **Preserve raw evidence.** Human-readable summaries never replace raw USI logs and machine-readable evidence/provenance.
 13. **The current 120cp `loss_changed` threshold is not calibrated authority.** It is stored as `UNFROZEN_VE1C_CALIBRATION` metadata solely so current labels can be reproduced and later recalculated from saved evidence without rerunning the engine.
+
+## 3A. Current PV evidence-role authority and current blocker correction
+
+The current authority is `BUILD19_VE1_B_PV_ROLE_SEPARATION_AMENDMENT_20261010.md`.
+
+- `confirmedBestPV` / `confirmedActualPV`: stability-confirmed common prefix; the **only** PV allowed to drive Reason, HDS, continuation/counterfactual simulation or verified causal explanation. Empty is valid for non-stable evidence.
+- `referenceBestPV` / `referenceActualPV`: deepest qualifying completed-exact direct-measurement PV from already-saved Evidence. It is observation/display-only, must be labeled **未確認**, and cannot backfill confirmed evidence.
+- all nine searches are cold: 3 discovery + 3 recommended + 3 actual; no warm N -> 2N -> 4N inheritance is current authority.
+
+The generic Simulator failure observed in run `38056325984` was not an engine-search failure. Completion/evidence counts and non-stable loss suppression were valid; the stale E2E assertion incorrectly required every deep result to have a non-empty confirmed PV. The sampled positions were `unconfirmed`/`unstable`, for which the stability evaluator correctly returned an empty confirmed common prefix.
+
+The earlier `PvInterval=300` / completed-iteration problem is not the current blocker. `BUILD19_VE1_B_PV_INTERVAL_COMPLETED_ITERATION_AMENDMENT_20261010.md` requires `PvInterval=0`, and commit `046ba47` implemented that correction. Also preserve the historical distinction: B3 did **not** accept a deeper bound as a final exact score; it rejected the bound, which left no qualifying exact completed result under the earlier observation path.
+
+The current remediation therefore separates confirmed and reference PV roles, keeps non-stable coaching provisional, and adds a negative E2E guard proving that reference PV cannot leak into explanation/continuation.
 
 ## 4. 41 / 49 / 69 historical diagnostic positions
 
@@ -229,11 +243,11 @@ Until that boundary is met, report **VE1-B IN PROGRESS / NOT FORMAL PASS**.
 
 When resuming from this document:
 
-1. inspect the current `candidate/build19-ve1-b-implementation` HEAD;
-2. confirm both VE1-B amendments are present, especially the independent-single-move comparison amendment;
-3. inspect all CI/regression results for that exact HEAD;
-4. verify the production path performs 3 cold discovery searches plus 6 independent cold single-move comparison searches per analyzed position;
-5. verify Evidence JSON can reproduce the stored stability label/reasons without an engine rerun;
-6. fix deterministic failures without weakening B3/B5/B6 evidence rules;
-7. only after all automated/Simulator/device-build gates pass, perform the corrected-method physical-iPhone B6 evidence / production-search-policy decision;
+1. inspect `candidate/build19-ve1-b-pv-role-finalize` and its exact HEAD;
+2. confirm `BUILD19_VE1_B_PV_ROLE_SEPARATION_AMENDMENT_20261010.md` is present and highest priority in the VE1-B Contract Index;
+3. verify the production path still performs 3 cold discovery + 3 cold recommended + 3 cold actual searches and uses `PvInterval=0`;
+4. verify non-stable samples may have non-empty **reference** PV while confirmed PV, Reason continuation evidence and continuation routes remain empty/provisional;
+5. require the generic production-path Simulator E2E, Core regression, HDS contract evidence and iOS Device Build to PASS on the same final candidate revision;
+6. only after those automated gates pass, perform physical-iPhone B6 exactly under `BUILD19_VE1_B_B6_PREMEASUREMENT_ACCEPTANCE_20261010.md` (primary 50k/100k/200k first; only the pre-authorized 25k/50k/100k fallback if required);
+7. freeze a production node/search policy only from accepted B6 evidence;
 8. do not advance to VE1-C until VE1-B receives an evidence-backed formal PASS.

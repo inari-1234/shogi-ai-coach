@@ -29,7 +29,12 @@ struct RecommendationDecisionPresentation {
     static func make(entry: ContinuationSimulationEntry) -> Self {
         let firstRecommended = entry.recommended.moves.first
         let firstActual = entry.actual.moves.first
-        let sameMove = firstRecommended?.usi == firstActual?.usi
+        let sameMove: Bool
+        if let firstRecommended, let firstActual {
+            sameMove = firstRecommended.usi == firstActual.usi
+        } else {
+            sameMove = false
+        }
 
         if !entry.comparisonStable {
             let label = firstRecommended?.label ?? "候補手"

@@ -5,6 +5,7 @@ Status: **IMPLEMENTATION IN PROGRESS / NOT FORMAL PASS**
 
 Authority order for VE1-B work, highest priority first where wording conflicts:
 
+1. `BUILD19_VE1_B_PV_ROLE_SEPARATION_AMENDMENT_20261010.md` — highest-priority PV role authority. `confirmedPV` is the only explanation/continuation authority; `referencePV` is exact completed direct-measurement observation only, must be labeled 未確認 when displayed, and is forbidden from filling or influencing confirmed semantic evidence. It also records the current all-nine-search cold-TT interpretation and the corrected historical bound/PvInterval description.
 1. `BUILD19_VE1_B_PV_INTERVAL_COMPLETED_ITERATION_AMENDMENT_20261010.md` — current evidence-observation authority. `PvInterval=0` is mandatory; the measured result is the deepest fully completed exact iterative-deepening snapshot; deeper terminal bounds remain raw provenance; no exact completed iteration is incomplete.
 2. `BUILD19_VE1_B_INDEPENDENT_SINGLE_MOVE_COMPARISON_AMENDMENT_20261010.md` — current direct-comparison method: recommended and actual are measured independently with cold TT / MultiPV1 / one `searchmoves` move, so N means N nodes per move and the three-tier path has 9 searches per position. This remains in force except where item 1 supersedes its older target-bound wording.
 3. `BUILD19_VE1_B_CANDIDATE_DISCOVERY_CONVERGENCE_AMENDMENT_20261010.md` — normative B5/B6 clarification: unrestricted candidate discovery itself must be re-checked across increasing node tiers; fixed-pair convergence alone cannot establish stability. This amendment supersedes any earlier wording that could allow the shallow Top-1 to remain frozen without deeper unrestricted verification.
@@ -28,6 +29,7 @@ B6 precedes B5/B7 because stability is defined as convergence under increasing n
 
 Additional fixed rules carried forward:
 
+- `confirmedPV` is the only PV authority for Reason/HDS/Continuation; `referencePV` is observation/display-only and may never backfill an empty confirmed PV;
 - `PvInterval=0` is part of VE1-B evidence provenance across app and harness paths;
 - a qualifying node-search measurement is the deepest coherent completed exact iteration, with its true depth/nodes retained;
 - a deeper terminal lowerbound/upperbound is preserved but cannot replace that completed exact measurement;

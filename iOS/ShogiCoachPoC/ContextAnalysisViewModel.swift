@@ -150,8 +150,8 @@ final class ContextAnalysisViewModel: ObservableObject {
                     actualMove: deep.bestMove,
                     comparisonStable: deep.comparisonStable,
                     continuationStable: deep.continuationStable,
-                    bestPV: deep.bestPV.split(whereSeparator: { $0.isWhitespace }).map(String.init),
-                    actualPV: deep.bestPV.split(whereSeparator: { $0.isWhitespace }).map(String.init),
+                    bestPV: deep.confirmedBestPV.split(whereSeparator: { $0.isWhitespace }).map(String.init),
+                    actualPV: deep.confirmedBestPV.split(whereSeparator: { $0.isWhitespace }).map(String.init),
                     actualLossCp: 0,
                     actualMate: Self.isPositiveMate(deep.bestScoreText)
                 )
@@ -291,8 +291,8 @@ final class ContextAnalysisViewModel: ObservableObject {
             actualMove: deep.actualMove,
             comparisonStable: deep.comparisonStable,
             continuationStable: deep.continuationStable,
-            bestPV: deep.bestPV.split(whereSeparator: { $0.isWhitespace }).map(String.init),
-            actualPV: deep.actualPV.split(whereSeparator: { $0.isWhitespace }).map(String.init),
+            bestPV: deep.confirmedBestPV.split(whereSeparator: { $0.isWhitespace }).map(String.init),
+            actualPV: deep.confirmedActualPV.split(whereSeparator: { $0.isWhitespace }).map(String.init),
             actualLossCp: deep.actualLossCp,
             actualMate: isPositiveMate(deep.actualScoreText)
         )
