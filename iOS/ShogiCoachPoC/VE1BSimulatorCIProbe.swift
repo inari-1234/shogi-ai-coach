@@ -68,8 +68,8 @@ enum VE1BSimulatorCIProbe {
 
             for entry in deep.entries {
                 guard entry.nodePolicyAuthorityStatus == "UNFROZEN_CALIBRATION",
-                      entry.analysisAttempts == 6,
-                      entry.searchEvidence.count == 6,
+                      entry.analysisAttempts == 9,
+                      entry.searchEvidence.count == 9,
                       entry.candidates.count == 3,
                       !entry.bestMove.isEmpty,
                       !entry.actualMove.isEmpty,
@@ -80,14 +80,40 @@ enum VE1BSimulatorCIProbe {
                 }
 
                 let discovery = Array(entry.searchEvidence.prefix(3))
-                let comparison = Array(entry.searchEvidence.suffix(3))
+                let comparison = Array(entry.searchEvidence.suffix(6))
+                let expectedComparisonBudgets = policy.confirmationNodeTiers.flatMap { [$0, $0] }
+                let expectedRoles = [
+                    "direct_comparison", "direct_comparison",
+                    "confirmation", "confirmation",
+                    "confirmation", "confirmation"
+                ]
+                let expectedTargets = [
+                    "recommended_move", "actual_move",
+                    "recommended_move", "actual_move",
+                    "recommended_move", "actual_move"
+                ]
+
                 guard discovery.map(\.role) == Array(repeating: "candidate_discovery", count: 3),
+                      discovery.map(\.measurementTarget) == Array(repeating: "candidate_discovery", count: 3),
                       discovery.map(\.nodeBudget) == policy.candidateDiscoveryNodeTiers,
-                      discovery.allSatisfy({ $0.multiPV == 3 && $0.searchMoves.isEmpty }),
+                      discovery.allSatisfy({
+                          $0.multiPV == 3
+                              && $0.searchMoves.isEmpty
+                              && !$0.observations.isEmpty
+                      }),
                       Set(discovery.map(\.ttGeneration)).count == 3,
-                      comparison.map(\.role) == ["direct_comparison", "confirmation", "confirmation"],
-                      comparison.map(\.nodeBudget) == policy.confirmationNodeTiers,
-                      Set(comparison.map(\.ttGeneration)).count == 1,
+                      comparison.map(\.role) == expectedRoles,
+                      comparison.map(\.measurementTarget) == expectedTargets,
+                      comparison.map(\.nodeBudget) == expectedComparisonBudgets,
+                      comparison.allSatisfy({
+                          $0.multiPV == 1
+                              && $0.searchMoves.count == 1
+                              && $0.selectedMove == $0.searchMoves.first
+                              && $0.selectedScoreKind != nil
+                              && $0.selectedBoundKind != nil
+                      }),
+                      Set(comparison.map(\.ttGeneration)).count == 6,
+                      Set(entry.searchEvidence.map(\.ttGeneration)).count == 9,
                       discovery.last!.ttGeneration < comparison.first!.ttGeneration,
                       entry.searchEvidence.allSatisfy({
                           $0.completion == "node_budget_reached"
@@ -95,37 +121,45 @@ enum VE1BSimulatorCIProbe {
                               && $0.maxObservedNodes >= UInt64($0.nodeBudget)
                       }) else {
                     throw EngineUSISession.ProbeError.protocolError(
-                        "VE1-B CI TT/role/node contract mismatch at ply \(entry.ply)"
+                        "VE1-B CI independent-cold TT/role/node contract mismatch at ply \(entry.ply)"
                     )
-                }
-
-                if !entry.comparisonStable {
-                    guard entry.actualLossCp == nil else {
-                        throw EngineUSISession.ProbeError.protocolError(
-                            "unstable comparison exposed cp loss at ply \(entry.ply)"
-                        )
-                    }
-                }
-                if entry.stabilityState != "stable" {
-                    guard entry.topCandidateGapCp == nil else {
-                        throw EngineUSISession.ProbeError.protocolError(
-                            "unconfirmed candidate ranking exposed top gap at ply \(entry.ply)"
-                        )
-                    }
                 }
             }
 
             guard let evidenceURL = deep.searchEvidenceURL,
                   let data = try? Data(contentsOf: evidenceURL),
                   let document = try? JSONDecoder().decode(VE1BSearchEvidenceDocument.self, from: data),
-                  document.schemaVersion == 2,
+                  document.schemaVersion == 3,
                   document.status == "深掘り PASS",
                   document.policyAuthorityStatus == "UNFROZEN_CALIBRATION",
+                  document.stabilityRules.lossSwingThresholdCp == 120,
+                  document.stabilityRules.authorityStatus == "UNFROZEN_VE1C_CALIBRATION",
                   document.candidateDiscoveryNodeTiers == policy.candidateDiscoveryNodeTiers,
                   document.confirmationNodeTiers == policy.confirmationNodeTiers,
                   document.positions.count == 3,
                   document.incompleteAttempts.isEmpty else {
                 throw EngineUSISession.ProbeError.protocolError("VE1-B CI evidence export mismatch")
+            }
+
+            var reclassifiedMatches = 0
+            for position in document.positions {
+                guard position.attempts.count == 9,
+                      position.stabilityEvidenceTiers.count == 3 else {
+                    throw EngineUSISession.ProbeError.protocolError(
+                        "VE1-B CI persisted stability evidence missing at ply \(position.ply)"
+                    )
+                }
+                let recomputed = VE1BStabilityReclassifier.assess(
+                    evidence: position.stabilityEvidenceTiers,
+                    rules: document.stabilityRules
+                )
+                guard recomputed.assessment.state.rawValue == position.stabilityState,
+                      recomputed.comparisonInstabilityReasons == position.stabilityReasons else {
+                    throw EngineUSISession.ProbeError.protocolError(
+                        "VE1-B CI evidence-only reclassification mismatch at ply \(position.ply)"
+                    )
+                }
+                reclassifiedMatches += 1
             }
 
             let stableCount = deep.entries.filter(\.comparisonStable).count
@@ -142,13 +176,17 @@ enum VE1BSimulatorCIProbe {
                 "deep_status=PASS",
                 "deep_count=\(deep.entries.count)",
                 "node_policy=\(policy.authorityStatus)",
+                "comparison_method=independent_cold_single_move_multipv1",
+                "nodes_semantics=per_move",
                 "discovery_tiers=\(policy.candidateDiscoveryNodeTiers.map(String.init).joined(separator: ","))",
                 "confirmation_tiers=\(policy.confirmationNodeTiers.map(String.init).joined(separator: ","))",
+                "attempts_per_position=9",
                 "stable_count=\(stableCount)",
                 "withheld_unstable_loss_count=\(withheldLossCount)",
                 "withheld_unconfirmed_gap_count=\(withheldGapCount)",
-                "evidence_schema=2",
+                "evidence_schema=3",
                 "evidence_positions=\(document.positions.count)",
+                "evidence_only_reclassification_matches=\(reclassifiedMatches)",
                 "incomplete_attempts=\(document.incompleteAttempts.count)"
             ])
             SimulatorStage.mark("ve1b_ci_complete")
