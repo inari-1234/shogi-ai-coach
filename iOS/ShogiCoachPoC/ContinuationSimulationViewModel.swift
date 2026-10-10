@@ -27,6 +27,11 @@ struct ContinuationMoveStep: Identifiable {
     let coachText: String
 }
 
+struct ContinuationMoveIdentity: Equatable {
+    let usi: String
+    let label: String
+}
+
 struct ContinuationDevelopmentBlock: Identifiable {
     let id: Int
     let startIndex: Int
@@ -53,6 +58,8 @@ struct ContinuationSimulationEntry: Identifiable {
     let comparisonStable: Bool
     let continuationStable: Bool
     let actualLossCp: Int?
+    let recommendedMove: ContinuationMoveIdentity
+    let actualMove: ContinuationMoveIdentity
     let recommended: ContinuationRoute
     let actual: ContinuationRoute
     let reasonSummary: String
@@ -107,6 +114,14 @@ final class ContinuationSimulationViewModel: ObservableObject {
                 let initialSnapshot = try BoardSnapshotResolver.resolve(
                     positionCommand: kifMove.positionBefore
                 )
+                let recommendedMove = try Self.makeMoveIdentity(
+                    positionCommand: kifMove.positionBefore,
+                    move: deep.bestMove
+                )
+                let actualMove = try Self.makeMoveIdentity(
+                    positionCommand: kifMove.positionBefore,
+                    move: deep.actualMove
+                )
 
                 let reasonSummary = reasonByPly[deep.ply]?.interpretation.text
                     ?? "この局面はエンジンPVを盤面で比較します。"
@@ -155,6 +170,8 @@ final class ContinuationSimulationViewModel: ObservableObject {
                     comparisonStable: deep.comparisonStable,
                     continuationStable: deep.continuationStable,
                     actualLossCp: deep.actualLossCp,
+                    recommendedMove: recommendedMove,
+                    actualMove: actualMove,
                     recommended: recommended,
                     actual: actual,
                     reasonSummary: reasonSummary
@@ -227,6 +244,20 @@ final class ContinuationSimulationViewModel: ObservableObject {
             }
             SimulatorStage.mark("continuation_simulation_error_\(message)")
         }
+    }
+
+    private static func makeMoveIdentity(
+        positionCommand: String,
+        move: String
+    ) throws -> ContinuationMoveIdentity {
+        let effect = try MoveEffectResolver.resolve(
+            positionCommand: positionCommand,
+            move: move
+        )
+        return ContinuationMoveIdentity(
+            usi: move,
+            label: japaneseMoveLabel(effect: effect)
+        )
     }
 
     private static func normalizedPVMoves(
