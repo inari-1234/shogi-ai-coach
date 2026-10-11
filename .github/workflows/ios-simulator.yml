@@ -286,7 +286,7 @@ jobs:
           grep -Fq "terminal_phase_all_three=true" simulator-result.txt
           grep -Fq "terminal_deep_status=深掘り PASS" simulator-result.txt
           grep -Fq "terminal_deep_ply=81" simulator-result.txt
-          grep -Fq "terminal_actual_source=equal-condition" simulator-result.txt
+          grep -Fq "terminal_actual_source=node-equal-condition" simulator-result.txt
           grep -Fq "terminal_board_status=盤面表示 PASS" simulator-result.txt
           grep -Fq "terminal_board_is_drop=true" simulator-result.txt
           grep -Fq "terminal_reason_status=理由解析 PASS" simulator-result.txt
