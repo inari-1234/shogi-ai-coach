@@ -15,7 +15,8 @@ final class USIProvenMateTerminationTests: XCTestCase {
             USIProvenMateTermination.qualifies(
                 measurementResult: measurement,
                 terminalResult: terminal,
-                requiredMultiPV: 3
+                requiredMultiPV: 3,
+                safetyAborted: false
             )
         )
     }
@@ -30,7 +31,8 @@ final class USIProvenMateTerminationTests: XCTestCase {
             USIProvenMateTermination.qualifies(
                 measurementResult: terminal,
                 terminalResult: terminal,
-                requiredMultiPV: 1
+                requiredMultiPV: 1,
+                safetyAborted: false
             )
         )
     }
@@ -45,7 +47,8 @@ final class USIProvenMateTerminationTests: XCTestCase {
             USIProvenMateTermination.qualifies(
                 measurementResult: terminal,
                 terminalResult: terminal,
-                requiredMultiPV: 1
+                requiredMultiPV: 1,
+                safetyAborted: false
             )
         )
     }
@@ -61,7 +64,8 @@ final class USIProvenMateTerminationTests: XCTestCase {
             USIProvenMateTermination.qualifies(
                 measurementResult: terminal,
                 terminalResult: terminal,
-                requiredMultiPV: 3
+                requiredMultiPV: 3,
+                safetyAborted: false
             )
         )
     }
@@ -76,7 +80,8 @@ final class USIProvenMateTerminationTests: XCTestCase {
             USIProvenMateTermination.qualifies(
                 measurementResult: terminal,
                 terminalResult: terminal,
-                requiredMultiPV: 1
+                requiredMultiPV: 1,
+                safetyAborted: false
             )
         )
     }
@@ -92,7 +97,24 @@ final class USIProvenMateTerminationTests: XCTestCase {
             USIProvenMateTermination.qualifies(
                 measurementResult: measurement,
                 terminalResult: terminal,
-                requiredMultiPV: 1
+                requiredMultiPV: 1,
+                safetyAborted: false
+            )
+        )
+    }
+
+    func testSafetyAbortNeverQualifiesEvenWithExactMateSnapshot() {
+        let lines = [
+            info(rank: 1, score: .mate(3, bound: nil), pv: ["S*1b"]),
+        ]
+        let terminal = result(bestMove: "S*1b", lines: lines, consistency: .consistent)
+
+        XCTAssertFalse(
+            USIProvenMateTermination.qualifies(
+                measurementResult: terminal,
+                terminalResult: terminal,
+                requiredMultiPV: 1,
+                safetyAborted: true
             )
         )
     }
@@ -107,7 +129,8 @@ final class USIProvenMateTerminationTests: XCTestCase {
             USIProvenMateTermination.qualifies(
                 measurementResult: terminal,
                 terminalResult: terminal,
-                requiredMultiPV: 1
+                requiredMultiPV: 1,
+                safetyAborted: false
             )
         )
     }
