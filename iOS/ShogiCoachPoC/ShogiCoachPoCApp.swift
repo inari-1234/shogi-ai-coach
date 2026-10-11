@@ -9,6 +9,7 @@ struct ShogiCoachPoCApp: App {
             .task {
                 await VE1ASimulatorPreflight.runIfRequested()
                 await VE1BSimulatorCIProbe.runIfRequested()
+                await B6ShallowFixedNodeSimulatorProbe.runIfRequested()
                 await B6IncompleteStateSimulatorProbe.runIfRequested()
                 await SimulatorCIProbe.runIfRequested()
             }
