@@ -987,7 +987,6 @@ final class VE1BPhysicalQualificationViewModel: ObservableObject {
             String(sample.ttGeneration),
             String(sample.multiPV),
             sample.completion,
-            String(sample.maxObservedNodes),
             sample.selectedNodes.map(String.init) ?? "nil",
             sample.selectedDepth.map(String.init) ?? "nil",
             sample.selectedSelDepth.map(String.init) ?? "nil",
