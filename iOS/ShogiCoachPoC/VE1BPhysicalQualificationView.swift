@@ -56,6 +56,22 @@ private enum VE1BB6Environment {
         return isFullSHA ? value : "unknown"
     }
 
+    static var incompleteProofRunID: String {
+        Bundle.main.object(forInfoDictionaryKey: "B6IncompleteProofRunID") as? String ?? "unknown"
+    }
+
+    static var incompleteProofResult: String {
+        Bundle.main.object(forInfoDictionaryKey: "B6IncompleteProofResult") as? String ?? "UNKNOWN"
+    }
+
+    static var incompleteProofTestName: String {
+        Bundle.main.object(forInfoDictionaryKey: "B6IncompleteProofTestName") as? String ?? "unknown"
+    }
+
+    static var incompleteProofWorkflow: String {
+        Bundle.main.object(forInfoDictionaryKey: "B6IncompleteProofWorkflow") as? String ?? "unknown"
+    }
+
     static var thermalState: String {
         switch ProcessInfo.processInfo.thermalState {
         case .nominal: return "nominal"
@@ -154,6 +170,7 @@ private struct VE1BB6RunRecord: Codable, Identifiable {
     let shallowSamples: [VE1BB6ShallowSample]
     let deepState: String
     let deepStatus: String
+    let deepDisplayStatus: String?
     let selectedDeepPlies: [Int]
     let completedPositions: [VE1BB6PositionSummary]
     let incompletePly: Int?
@@ -521,6 +538,7 @@ final class VE1BPhysicalQualificationViewModel: ObservableObject {
             shallowSamples: shallowSamples,
             deepState: deepState,
             deepStatus: deep.status,
+            deepDisplayStatus: deep.displayStatus,
             selectedDeepPlies: selectedPlies,
             completedPositions: positions,
             incompletePly: incompletePly,
@@ -682,7 +700,7 @@ final class VE1BPhysicalQualificationViewModel: ObservableObject {
             stressCriticalThermalObservationCount: stressThermals.filter { $0 == "critical" }.count,
             stressSafeIncompleteHandlingPassed: state.stressRuns.count == stressRunTarget
                 && state.stressRuns.allSatisfy { $0.safeIncompleteState },
-            incompleteStateProof: "For this gitCommit, require Core regression + production-path Simulator E2E analysis_quality_gate_status=PASS; any natural physical incomplete case must record safeIncompleteState=true.",
+            incompleteStateProof: "test=\(VE1BB6Environment.incompleteProofTestName); workflow=\(VE1BB6Environment.incompleteProofWorkflow); ciRunID=\(VE1BB6Environment.incompleteProofRunID); result=\(VE1BB6Environment.incompleteProofResult); gitCommit=\(VE1BB6Environment.gitCommit); physicalRunDisplayStatusField=deepDisplayStatus",
             shallowReproducibilityPassed: shallowPassed,
             standardEvidenceIntegrityPassed: standardEvidenceIntegrityPassed,
             standardOperationalPassed: standardOperationalPassed,
@@ -766,6 +784,16 @@ final class VE1BPhysicalQualificationViewModel: ObservableObject {
               VE1BB6Environment.appVersion != "unknown",
               VE1BB6Environment.appBuild != "unknown" else {
             throw EngineUSISession.ProbeError.protocolError("B6 app provenance is incomplete")
+        }
+        let proofRunID = VE1BB6Environment.incompleteProofRunID
+        guard VE1BB6Environment.incompleteProofResult == "PASS",
+              VE1BB6Environment.incompleteProofTestName == "B6IncompleteStateProductionAbortProbe",
+              VE1BB6Environment.incompleteProofWorkflow == "iOS Simulator E2E",
+              !proofRunID.isEmpty, proofRunID != "unknown",
+              proofRunID.allSatisfy({ $0.isNumber }) else {
+            throw EngineUSISession.ProbeError.protocolError(
+                "B6 incomplete-state Simulator proof is missing or not PASS"
+            )
         }
 
         if let prior = (state.standardRuns + state.stressRuns).first {
