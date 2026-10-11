@@ -4,7 +4,7 @@ import SwiftUI
 struct ShogiCoachPoCApp: App {
     var body: some Scene {
         WindowGroup {
-            VE1ARootView()
+            VE1BB6RootView()
             #if targetEnvironment(simulator)
             .task {
                 await VE1ASimulatorPreflight.runIfRequested()
