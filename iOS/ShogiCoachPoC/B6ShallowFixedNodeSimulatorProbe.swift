@@ -126,30 +126,30 @@ enum B6ShallowFixedNodeSimulatorProbe {
             )
         }
 
-        return [
-            String(entry.ply),
-            entry.actualMove,
-            entry.bestMove,
-            entry.scoreText,
-            entry.blackPerspectiveCp.map(String.init) ?? "nil",
-            entry.depthText,
-            entry.nodesText,
-            entry.pv,
-            String(entry.matchesBestMove),
-            evidence.positionCommand,
-            String(evidence.nodeBudget),
-            String(evidence.ttGeneration),
-            String(evidence.multiPV),
-            evidence.completion,
-            evidence.selectedNodes.map(String.init) ?? "nil",
-            evidence.selectedDepth.map(String.init) ?? "nil",
-            evidence.selectedSelDepth.map(String.init) ?? "nil",
-            evidence.selectedBoundKind ?? "nil",
-            evidence.selectedScoreKind ?? "nil",
-            evidence.selectedScoreValue.map(String.init) ?? "nil",
-            evidence.selectedPV.joined(separator: " "),
-            evidence.bestMoveConsistency ?? "nil"
-        ].joined(separator: "|")
+        var fields: [String] = []
+        fields.append(String(entry.ply))
+        fields.append(entry.actualMove)
+        fields.append(entry.bestMove)
+        fields.append(entry.scoreText)
+        fields.append(entry.blackPerspectiveCp.map { String($0) } ?? "nil")
+        fields.append(entry.depthText)
+        fields.append(entry.nodesText)
+        fields.append(entry.pv)
+        fields.append(String(entry.matchesBestMove))
+        fields.append(evidence.positionCommand)
+        fields.append(String(evidence.nodeBudget))
+        fields.append(String(evidence.ttGeneration))
+        fields.append(String(evidence.multiPV))
+        fields.append(evidence.completion)
+        fields.append(evidence.selectedNodes.map { String($0) } ?? "nil")
+        fields.append(evidence.selectedDepth.map { String($0) } ?? "nil")
+        fields.append(evidence.selectedSelDepth.map { String($0) } ?? "nil")
+        fields.append(evidence.selectedBoundKind ?? "nil")
+        fields.append(evidence.selectedScoreKind ?? "nil")
+        fields.append(evidence.selectedScoreValue.map { String($0) } ?? "nil")
+        fields.append(evidence.selectedPV.joined(separator: " "))
+        fields.append(evidence.bestMoveConsistency ?? "nil")
+        return fields.joined(separator: "|")
     }
 
     private static func hasSelectedRawUSI(_ entry: ShallowAnalysisEntry) -> Bool {
@@ -160,7 +160,7 @@ enum B6ShallowFixedNodeSimulatorProbe {
                 && observation.depth == evidence.selectedDepth
                 && observation.nodes == evidence.selectedNodes
                 && observation.pv == evidence.selectedPV
-                && !observation.rawUSI.isEmpty
+                && !(observation.rawUSI?.isEmpty ?? true)
         }
     }
 

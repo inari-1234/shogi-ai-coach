@@ -213,7 +213,8 @@ enum SimulatorCIProbe {
                     pv: bestMove,
                     elapsedMs: 1,
                     thermalBefore: "nominal",
-                    thermalAfter: "nominal"
+                    thermalAfter: "nominal",
+                    fixedNodeEvidence: nil
                 )
             )
             prefix.append(usi)
@@ -255,7 +256,8 @@ enum SimulatorCIProbe {
                 pv: entry.actualMove,
                 elapsedMs: entry.elapsedMs,
                 thermalBefore: entry.thermalBefore,
-                thermalAfter: entry.thermalAfter
+                thermalAfter: entry.thermalAfter,
+                fixedNodeEvidence: nil
             )
         }
         return (game, shallow)
