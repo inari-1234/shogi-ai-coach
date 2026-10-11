@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - candidate/build19-ve1-b6-incomplete-evidence
+      - candidate/build19-ve1-b6-shallow-fixed-node
   workflow_dispatch:
 
 concurrency:
@@ -86,7 +87,7 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             build 2>&1 | tee b6-proof-simulator-build.log
 
-      - name: Exercise real safety-abort production path
+      - name: Exercise fixed-node Shallow and real safety-abort production paths
         shell: bash
         run: |
           set -euo pipefail
@@ -113,23 +114,38 @@ jobs:
           xcrun simctl launch "$UDID" com.inari1234.shogicoachpoc --ci-b6-incomplete 2>&1 | tee b6-proof-simulator-run.log
 
           CONTAINER=$(xcrun simctl get_app_container "$UDID" com.inari1234.shogicoachpoc data)
-          RUNTIME="$CONTAINER/Documents/b6-incomplete-state-runtime.json"
+          SHALLOW_RUNTIME="$CONTAINER/Documents/b6-shallow-fixed-node-runtime.json"
+          INCOMPLETE_RUNTIME="$CONTAINER/Documents/b6-incomplete-state-runtime.json"
           FOUND=0
-          for _ in $(seq 1 60); do
-            if [ -s "$RUNTIME" ]; then
+          for _ in $(seq 1 120); do
+            if [ -s "$SHALLOW_RUNTIME" ] && [ -s "$INCOMPLETE_RUNTIME" ]; then
               FOUND=1
               break
             fi
             sleep 1
           done
           test "$FOUND" -eq 1
-          cp "$RUNTIME" b6-incomplete-state-runtime.json
+          cp "$SHALLOW_RUNTIME" b6-shallow-fixed-node-runtime.json
+          cp "$INCOMPLETE_RUNTIME" b6-incomplete-state-runtime.json
+          cat b6-shallow-fixed-node-runtime.json
           cat b6-incomplete-state-runtime.json
 
           python3 - <<'PY'
           import json
           import os
           from pathlib import Path
+
+          shallow = json.loads(Path('b6-shallow-fixed-node-runtime.json').read_text(encoding='utf-8'))
+          assert shallow['testName'] == 'B6ShallowFixedNodeProductionDeterminismProbe'
+          assert shallow['result'] == 'PASS'
+          assert shallow['nodeBudget'] == 50000
+          assert shallow['safetyCeilingMs'] == 15000
+          assert shallow['multiPV'] == 1
+          assert shallow['authorityStatus'] == 'B6_SHALLOW_FIXED_NODE_PREMEASUREMENT_20261011'
+          assert shallow['positionCount'] >= 3
+          assert shallow['semanticEquality'] is True
+          assert shallow['allCompleted'] is True
+          assert shallow['selectedRawUSIMappable'] is True
 
           runtime = json.loads(Path('b6-incomplete-state-runtime.json').read_text(encoding='utf-8'))
           assert runtime['testName'] == 'B6IncompleteStateProductionAbortProbe'
@@ -146,7 +162,7 @@ jobs:
           assert 'proven_mate_termination' not in states
 
           proof = {
-              'schemaVersion': 1,
+              'schemaVersion': 2,
               'testName': runtime['testName'],
               'workflow': 'iOS Simulator E2E',
               'workflowFile': 'build19-ve1-b6-incomplete-proof.yml',
@@ -154,13 +170,17 @@ jobs:
               'ciRunAttempt': os.environ.get('GITHUB_RUN_ATTEMPT', '1'),
               'gitCommit': os.environ['GITHUB_SHA'],
               'result': 'PASS',
+              'shallowFixedNodeProof': shallow,
               'runtimeProof': runtime,
           }
           Path('b6-incomplete-state-proof.json').write_text(
               json.dumps(proof, ensure_ascii=False, indent=2, sort_keys=True) + '\n',
               encoding='utf-8',
           )
-          print(f"b6_incomplete_state_status=PASS run_id={proof['ciRunID']}")
+          print(
+              f"b6_formal_proof_status=PASS run_id={proof['ciRunID']} "
+              f"shallow={shallow['testName']} incomplete={runtime['testName']}"
+          )
           PY
 
           xcrun simctl spawn "$UDID" log show --last 5m --style compact \
@@ -173,6 +193,7 @@ jobs:
         with:
           name: Build19-VE1-B6-Incomplete-State-Proof
           path: |
+            b6-shallow-fixed-node-runtime.json
             b6-incomplete-state-runtime.json
             b6-incomplete-state-proof.json
             b6-proof-swift-test.log
