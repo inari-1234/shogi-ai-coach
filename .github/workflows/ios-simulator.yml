@@ -437,6 +437,7 @@ jobs:
           if [ ! -f "$f" ]; then echo "::error title=probe::no simulator-result.txt"; exit 0; fi
           echo "::notice title=probe-stage::$(grep -E '^stage=|_error=|_failed|=FAIL' "$f" | head -20 | tr '\n' '|')"
           echo "::notice title=cont-diag::$(grep -E '^cont_diag_' "$f" | tr '\n' '|')"
+          echo "::notice title=unstable-diag::$(grep -E '^unstable_diag_' "$f" | tr '\n' '|')"
           grep -o 'grep -Fq "[^"$]*"' .github/workflows/ios-simulator.yml | sed 's/^grep -Fq "//;s/"$//' \
             | while IFS= read -r k; do grep -Fq -- "$k" "$f" || echo "$k"; done > missing.txt || true
           echo "::warning title=missing-keys::$(head -30 missing.txt | tr '\n' '|')"

@@ -1382,7 +1382,16 @@ enum SimulatorCIProbe {
             writeReport([
                 "stage=reason_unstable_failed",
                 "reason_unstable_status=FAIL",
-                "reason_unstable_error=provisional/HDS contract missing"
+                "reason_unstable_error=provisional/HDS contract missing",
+                // Verification-only diagnostics (not for merge).
+                "unstable_diag_status=\(unstablePresentation.status) headline=\(unstablePresentation.headline)",
+                "unstable_diag_difference=\(unstablePresentation.difference)",
+                "unstable_diag_meaning=\(unstablePresentation.meaning)",
+                "unstable_diag_horizon=\(unstablePresentation.horizon)",
+                "unstable_diag_confidence=\(unstablePresentation.confidenceTitle) / \(unstablePresentation.confidenceDetail)",
+                "unstable_diag_cue=\(unstablePresentation.learningCue)",
+                "unstable_diag_moves=rec=\(unstableContinuationEntry.recommended.moves.count) act=\(unstableContinuationEntry.actual.moves.count) cs=\(unstableContinuationEntry.comparisonStable) contStable=\(unstableContinuationEntry.continuationStable)",
+                "unstable_diag_gates=\(unstableHDSReport.positions.map { position in position.gates.map { "\($0.gate.rawValue)=\($0.passed):\($0.detail)" }.joined(separator: ",") }.joined(separator: " ; "))"
             ].joined(separator: "\n") + "\n")
             SimulatorStage.mark("reason_unstable_hds_failed")
             fflush(stdout)
