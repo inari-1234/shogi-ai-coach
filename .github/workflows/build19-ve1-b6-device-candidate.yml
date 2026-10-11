@@ -1,0 +1,162 @@
+name: Build19 VE1-B B6 Device Candidate
+
+on:
+  push:
+    branches:
+      - candidate/build19-ve1-b6-incomplete-evidence
+  workflow_dispatch:
+
+concurrency:
+  group: build19-ve1-b6-device-candidate-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  build-b6-device-candidate:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Restore engine assets
+        uses: actions/cache@v4
+        with:
+          path: |
+            native/third_party/YaneuraOu
+            iOS/ShogiCoachPoC/eval/nn.bin
+          key: shogi-engine-assets-v2
+
+      - name: Core regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          swift test 2>&1 | tee b6-device-swift-test.log
+          ./scripts/verify.sh
+
+      - name: Install build tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v gh >/dev/null 2>&1
+          command -v xcodegen >/dev/null 2>&1 || brew install xcodegen
+          command -v pod >/dev/null 2>&1 || brew install cocoapods
+          if [ ! -s iOS/ShogiCoachPoC/eval/nn.bin ]; then
+            command -v 7z >/dev/null 2>&1 || brew install p7zip
+          fi
+
+      - name: Prepare pinned engine
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x scripts/*.sh
+          ./scripts/fetch_yaneuraou.sh
+          ./scripts/fetch_eval.sh
+          ./scripts/patch_yaneuraou_ios.sh
+          test -s iOS/ShogiCoachPoC/eval/nn.bin
+
+      - name: Resolve successful same-commit incomplete-state proof
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          PROOF_RUN_ID=''
+          for _ in $(seq 1 100); do
+            PROOF_RUN_ID=$(gh api --method GET \
+              "/repos/$GITHUB_REPOSITORY/actions/workflows/build19-ve1-b6-incomplete-proof.yml/runs" \
+              -f branch="$GITHUB_REF_NAME" \
+              -f per_page=30 \
+              --jq "[.workflow_runs[] | select(.head_sha == \"$GITHUB_SHA\" and .conclusion == \"success\")][0].id // empty")
+            if [ -n "$PROOF_RUN_ID" ]; then
+              break
+            fi
+            sleep 10
+          done
+          test -n "$PROOF_RUN_ID"
+
+          PROOF_HEAD=$(gh api "/repos/$GITHUB_REPOSITORY/actions/runs/$PROOF_RUN_ID" --jq '.head_sha')
+          PROOF_CONCLUSION=$(gh api "/repos/$GITHUB_REPOSITORY/actions/runs/$PROOF_RUN_ID" --jq '.conclusion')
+          test "$PROOF_HEAD" = "$GITHUB_SHA"
+          test "$PROOF_CONCLUSION" = 'success'
+
+          echo "B6_INCOMPLETE_PROOF_RUN_ID=$PROOF_RUN_ID" >> "$GITHUB_ENV"
+          echo "B6_INCOMPLETE_PROOF_RESULT=PASS" >> "$GITHUB_ENV"
+          echo "B6_INCOMPLETE_PROOF_TEST_NAME=B6IncompleteStateProductionAbortProbe" >> "$GITHUB_ENV"
+          echo "B6_INCOMPLETE_PROOF_WORKFLOW=iOS Simulator E2E" >> "$GITHUB_ENV"
+          {
+            echo "gitCommit=$GITHUB_SHA"
+            echo "proofRunID=$PROOF_RUN_ID"
+            echo "proofWorkflow=iOS Simulator E2E"
+            echo "proofWorkflowFile=build19-ve1-b6-incomplete-proof.yml"
+            echo "proofTest=B6IncompleteStateProductionAbortProbe"
+            echo "proofResult=PASS"
+          } | tee b6-device-proof-binding.txt
+
+      - name: Generate Xcode project
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodegen generate
+          pod install
+          test -d ShogiCoachPoC.xcworkspace
+
+      - name: Build unsigned B6 iPhone candidate
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -workspace ShogiCoachPoC.xcworkspace \
+            -scheme ShogiCoachPoC \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build/B6DeviceDerivedData \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=NO \
+            GIT_COMMIT_SHA="$GITHUB_SHA" \
+            B6_INCOMPLETE_PROOF_RUN_ID="$B6_INCOMPLETE_PROOF_RUN_ID" \
+            B6_INCOMPLETE_PROOF_RESULT="$B6_INCOMPLETE_PROOF_RESULT" \
+            B6_INCOMPLETE_PROOF_TEST_NAME="$B6_INCOMPLETE_PROOF_TEST_NAME" \
+            B6_INCOMPLETE_PROOF_WORKFLOW="$B6_INCOMPLETE_PROOF_WORKFLOW" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            build 2>&1 | tee b6-device-xcodebuild.log
+
+      - name: Verify provenance and package IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP='build/B6DeviceDerivedData/Build/Products/Release-iphoneos/ShogiCoachPoC.app'
+          PLIST="$APP/Info.plist"
+          test -d "$APP"
+          test -x "$APP/ShogiCoachPoC"
+          test -s "$APP/eval/nn.bin"
+
+          test "$(/usr/libexec/PlistBuddy -c 'Print :GitCommit' "$PLIST")" = "$GITHUB_SHA"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :B6IncompleteProofRunID' "$PLIST")" = "$B6_INCOMPLETE_PROOF_RUN_ID"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :B6IncompleteProofResult' "$PLIST")" = 'PASS'
+          test "$(/usr/libexec/PlistBuddy -c 'Print :B6IncompleteProofTestName' "$PLIST")" = 'B6IncompleteStateProductionAbortProbe'
+          test "$(/usr/libexec/PlistBuddy -c 'Print :B6IncompleteProofWorkflow' "$PLIST")" = 'iOS Simulator E2E'
+
+          mkdir -p b6-ipa/Payload
+          cp -R "$APP" b6-ipa/Payload/
+          (cd b6-ipa && zip -qry ../ShogiCoachPoC-Build19-VE1-B6-unsigned.ipa Payload)
+          shasum -a 256 ShogiCoachPoC-Build19-VE1-B6-unsigned.ipa | tee b6-ipa-sha256.txt
+
+      - name: Upload B6 device candidate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build19-VE1-B6-Device-Candidate
+          path: |
+            ShogiCoachPoC-Build19-VE1-B6-unsigned.ipa
+            b6-ipa-sha256.txt
+            b6-device-proof-binding.txt
+            b6-device-swift-test.log
+            b6-device-xcodebuild.log
+          if-no-files-found: ignore
+          retention-days: 14
