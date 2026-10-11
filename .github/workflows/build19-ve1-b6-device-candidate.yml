@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - candidate/build19-ve1-b6-incomplete-evidence
+      - candidate/build19-ve1-b6-shallow-fixed-node
   workflow_dispatch:
 
 concurrency:
@@ -94,6 +95,8 @@ jobs:
             echo "proofWorkflowFile=build19-ve1-b6-incomplete-proof.yml"
             echo "proofTest=B6IncompleteStateProductionAbortProbe"
             echo "proofResult=PASS"
+            echo "shallowProofTest=B6ShallowFixedNodeProductionDeterminismProbe"
+            echo "shallowPolicy=50000nodes-coldTT-MultiPV1"
           } | tee b6-device-proof-binding.txt
 
       - name: Generate Xcode project
