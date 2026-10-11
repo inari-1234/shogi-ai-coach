@@ -261,6 +261,8 @@ private struct VE1BB6Report: Codable {
     let shallowReproducibilityPassed: Bool
     let shallowSemanticEqualityPassed: Bool
     let fullSelectionDeterminismPassed: Bool
+    let shallowDeterminismStatus: String
+    let shallowDeterminismFirstDifference: String?
     let standardEvidenceIntegrityPassed: Bool
     let standardOperationalPassed: Bool
     let stressEvidenceIntegrityPassed: Bool
@@ -613,7 +615,12 @@ final class VE1BPhysicalQualificationViewModel: ObservableObject {
             && state.standardRuns.first.map { first in
                 state.standardRuns.allSatisfy { $0.selectedDeepPlies == first.selectedDeepPlies }
             } == true
-        let shallowSemanticEqualityPassed = Self.shallowSemanticsEqual(runs: state.standardRuns)
+        let shallowDeterminismFirstDifference = Self.firstShallowSemanticDifference(
+            runs: state.standardRuns,
+            expectedRunCount: standardRunTarget
+        )
+        let shallowSemanticEqualityPassed = state.standardRuns.count == standardRunTarget
+            && shallowDeterminismFirstDifference == nil
         let shallowPassed = state.standardRuns.count == standardRunTarget
             && top3Runs.allSatisfy { $0.count == 3 }
             && pairwise.count == 10
@@ -622,6 +629,9 @@ final class VE1BPhysicalQualificationViewModel: ObservableObject {
             && identicalOrderedTop3
             && fullSelectionDeterminismPassed
             && shallowSemanticEqualityPassed
+        let shallowDeterminismStatus = shallowPassed
+            ? "SHALLOW_DETERMINISM_PASS"
+            : "SHALLOW_DETERMINISM_FAIL"
 
         let standardEvidenceIntegrityPassed = state.standardRuns.count == standardRunTarget
             && state.standardRuns.allSatisfy { run in
@@ -719,7 +729,7 @@ final class VE1BPhysicalQualificationViewModel: ObservableObject {
         }
 
         return VE1BB6Report(
-            schemaVersion: 2,
+            schemaVersion: 3,
             generatedAt: Date(),
             authority: "BUILD19_VE1_B_B6_SHALLOW_FIXED_NODE_PREMEASUREMENT_20261011 + BUILD19_VE1_B_B6_PREMEASUREMENT_ACCEPTANCE_20261010 + PROVEN_MATE_TERMINATION_AMENDMENT_20261011",
             policyDecision: decision,
@@ -754,6 +764,8 @@ final class VE1BPhysicalQualificationViewModel: ObservableObject {
             shallowReproducibilityPassed: shallowPassed,
             shallowSemanticEqualityPassed: shallowSemanticEqualityPassed,
             fullSelectionDeterminismPassed: fullSelectionDeterminismPassed,
+            shallowDeterminismStatus: shallowDeterminismStatus,
+            shallowDeterminismFirstDifference: shallowDeterminismFirstDifference,
             standardEvidenceIntegrityPassed: standardEvidenceIntegrityPassed,
             standardOperationalPassed: standardOperationalPassed,
             stressEvidenceIntegrityPassed: stressEvidenceIntegrityPassed,
@@ -770,6 +782,7 @@ final class VE1BPhysicalQualificationViewModel: ObservableObject {
             "standard=\(state.standardRuns.count)/5 stress=\(state.stressRuns.count)/3",
             "shallow_jaccard_min=\(minJaccard) modal_top1=\(report.modalTop1Ply.map(String.init) ?? "-") count=\(report.modalTop1Count)",
             "shallow_semantic_equal=\(report.shallowSemanticEqualityPassed) full_selection_equal=\(report.fullSelectionDeterminismPassed)",
+            "shallow_determinism=\(report.shallowDeterminismStatus) first_diff=\(report.shallowDeterminismFirstDifference ?? "-")",
             "deep_median_ms=\(report.deepPositionMedianMs.map { String(format: "%.1f", $0) } ?? "-") p95_ms=\(report.deepPositionP95Ms.map(String.init) ?? "-")",
             "whole_median_ms=\(report.wholeGameMedianMs.map { String(format: "%.1f", $0) } ?? "-") p95_ms=\(report.wholeGameP95Ms.map(String.init) ?? "-")",
             "standard_incomplete=\(report.standardIncompleteCount) rate=\(standardRate) proven_mate=\(report.standardProvenMateTerminationCount)",
@@ -967,40 +980,73 @@ final class VE1BPhysicalQualificationViewModel: ObservableObject {
         return expected == run.selectedDeepPlies
     }
 
-    private static func shallowSemanticsEqual(runs: [VE1BB6RunRecord]) -> Bool {
-        guard runs.count == 5, let first = runs.first else { return false }
-        let baseline = first.shallowSamples.map(shallowSemanticSignature)
-        guard !baseline.isEmpty else { return false }
-        return runs.dropFirst().allSatisfy {
-            $0.shallowSamples.map(shallowSemanticSignature) == baseline
+    private static func firstShallowSemanticDifference(
+        runs: [VE1BB6RunRecord],
+        expectedRunCount: Int
+    ) -> String? {
+        guard runs.count == expectedRunCount else {
+            return "run_count expected=\(expectedRunCount) actual=\(runs.count)"
         }
+        guard let baselineRun = runs.first, !baselineRun.shallowSamples.isEmpty else {
+            return "baseline_shallow_samples_missing"
+        }
+
+        for run in runs.dropFirst() {
+            guard run.shallowSamples.count == baselineRun.shallowSamples.count else {
+                return "run=\(run.ordinal) field=sample_count baseline=\(baselineRun.shallowSamples.count) current=\(run.shallowSamples.count)"
+            }
+            for index in baselineRun.shallowSamples.indices {
+                let baseline = baselineRun.shallowSamples[index]
+                let current = run.shallowSamples[index]
+                let baselineFields = shallowSemanticFields(baseline)
+                let currentFields = shallowSemanticFields(current)
+                for fieldIndex in baselineFields.indices {
+                    let baselineField = baselineFields[fieldIndex]
+                    let currentField = currentFields[fieldIndex]
+                    if baselineField.1 != currentField.1 {
+                        return [
+                            "run=\(run.ordinal)",
+                            "ply=\(baseline.ply)",
+                            "field=\(baselineField.0)",
+                            "baseline=\(baselineField.1)",
+                            "current=\(currentField.1)",
+                            "baselineRaw=\(baseline.selectedRawUSI ?? "-")",
+                            "currentRaw=\(current.selectedRawUSI ?? "-")"
+                        ].joined(separator: " ")
+                    }
+                }
+            }
+        }
+        return nil
     }
 
-    private static func shallowSemanticSignature(_ sample: VE1BB6ShallowSample) -> String {
+    private static func shallowSemanticFields(
+        _ sample: VE1BB6ShallowSample
+    ) -> [(String, String)] {
         [
-            String(sample.ply),
-            sample.positionCommand,
-            sample.actualMove,
-            sample.bestMove,
-            sample.blackPerspectiveCp.map(String.init) ?? "nil",
-            String(sample.nodeBudget),
-            String(sample.ttGeneration),
-            String(sample.multiPV),
-            sample.completion,
-            sample.selectedNodes.map(String.init) ?? "nil",
-            sample.selectedDepth.map(String.init) ?? "nil",
-            sample.selectedSelDepth.map(String.init) ?? "nil",
-            sample.selectedBoundKind ?? "nil",
-            sample.selectedScoreKind ?? "nil",
-            sample.selectedScoreValue.map(String.init) ?? "nil",
-            sample.selectedPV.joined(separator: " "),
-            sample.bestMoveConsistency ?? "nil",
-            String(sample.matchesBestMove),
-            String(sample.focusEligible),
-            sample.estimatedLossCp.map(String.init) ?? "nil",
-            sample.importance.map(String.init) ?? "nil",
-            sample.selectedRank.map(String.init) ?? "nil"
-        ].joined(separator: "|")
+            ("ply", String(sample.ply)),
+            ("positionCommand", sample.positionCommand),
+            ("actualMove", sample.actualMove),
+            ("bestMove", sample.bestMove),
+            ("blackPerspectiveCp", sample.blackPerspectiveCp.map(String.init) ?? "nil"),
+            ("nodeBudget", String(sample.nodeBudget)),
+            ("ttGeneration", String(sample.ttGeneration)),
+            ("multiPV", String(sample.multiPV)),
+            ("completion", sample.completion),
+            ("selectedNodes", sample.selectedNodes.map(String.init) ?? "nil"),
+            ("selectedDepth", sample.selectedDepth.map(String.init) ?? "nil"),
+            ("selectedSelDepth", sample.selectedSelDepth.map(String.init) ?? "nil"),
+            ("selectedBoundKind", sample.selectedBoundKind ?? "nil"),
+            ("selectedScoreKind", sample.selectedScoreKind ?? "nil"),
+            ("selectedScoreValue", sample.selectedScoreValue.map(String.init) ?? "nil"),
+            ("selectedPV", sample.selectedPV.joined(separator: " ")),
+            ("bestMoveConsistency", sample.bestMoveConsistency ?? "nil"),
+            ("matchesBestMove", String(sample.matchesBestMove)),
+            ("focusEligible", String(sample.focusEligible)),
+            ("estimatedLossCp", sample.estimatedLossCp.map(String.init) ?? "nil"),
+            ("importance", sample.importance.map(String.init) ?? "nil"),
+            ("selectedRank", sample.selectedRank.map(String.init) ?? "nil")
+        ]
     }
 
     private static func deepStateKey(_ state: DeepAnalysisRunState) -> String {
