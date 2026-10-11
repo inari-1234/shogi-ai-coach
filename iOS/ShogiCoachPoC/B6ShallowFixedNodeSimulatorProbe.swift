@@ -10,7 +10,9 @@ enum B6ShallowFixedNodeSimulatorProbe {
 
     static func runIfRequested() async {
         let arguments = ProcessInfo.processInfo.arguments
-        guard arguments.contains("--ci-smoke") || arguments.contains("--ci-b6-shallow-fixed") else { return }
+        guard arguments.contains("--ci-smoke")
+                || arguments.contains("--ci-b6-shallow-fixed")
+                || arguments.contains("--ci-b6-incomplete") else { return }
 
         do {
             let game = try KIFParser.parse("""
@@ -31,7 +33,9 @@ enum B6ShallowFixedNodeSimulatorProbe {
             let firstSignatures = try first.map(semanticSignature)
             let secondSignatures = try second.map(semanticSignature)
             guard firstSignatures == secondSignatures else {
-                let index = zip(firstSignatures, secondSignatures).firstIndex { $0 != $1 }
+                let index = firstSignatures.indices.first {
+                    firstSignatures[$0] != secondSignatures[$0]
+                }
                 throw NSError(
                     domain: "ShogiCoach.B6ShallowFixedNodeProbe",
                     code: 4,
