@@ -1,4 +1,4 @@
-name: TEMP B6 Incomplete Evidence Patch
+name: TEMP B6 Incomplete Evidence Source Patch
 
 on:
   push:
@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  apply-patch:
+  apply-source-patch:
     runs-on: ubuntu-24.04
     if: github.actor != 'github-actions[bot]'
     steps:
@@ -17,12 +17,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Apply audited minimal replacements
+      - name: Apply audited source-only replacements
         shell: bash
         run: |
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
+          import textwrap
 
           def replace(path, old, new):
               p = Path(path)
@@ -72,10 +73,6 @@ jobs:
                           )
                       }
 
-                      // Simulator-only fault injection. This does not change the frozen
-                      // physical B6 policy. The deliberately huge node targets plus a 1 ms
-                      // safety ceiling force the production DeepAnalysisViewModel path to
-                      // exercise the real safety-abort/incomplete handling boundary.
                       let abortPolicy = VE1BNodeSearchPolicy(
                           candidateDiscoveryNodes: 50_000_000,
                           candidateDiscoveryNodeTiers: [50_000_000, 100_000_000, 200_000_000],
@@ -173,8 +170,6 @@ jobs:
           }
           #endif
           '''
-          # Remove indentation introduced by this workflow heredoc from the Swift source.
-          import textwrap
           Path('iOS/ShogiCoachPoC/B6IncompleteStateSimulatorProbe.swift').write_text(
               textwrap.dedent(probe), encoding='utf-8'
           )
@@ -221,48 +216,14 @@ jobs:
               '''        guard VE1BB6Environment.gitCommit != "unknown",\n              VE1BB6Environment.appVersion != "unknown",\n              VE1BB6Environment.appBuild != "unknown" else {\n            throw EngineUSISession.ProbeError.protocolError("B6 app provenance is incomplete")\n        }\n\n        if let prior = (state.standardRuns + state.stressRuns).first {''',
               '''        guard VE1BB6Environment.gitCommit != "unknown",\n              VE1BB6Environment.appVersion != "unknown",\n              VE1BB6Environment.appBuild != "unknown" else {\n            throw EngineUSISession.ProbeError.protocolError("B6 app provenance is incomplete")\n        }\n        let proofRunID = VE1BB6Environment.incompleteProofRunID\n        guard VE1BB6Environment.incompleteProofResult == "PASS",\n              VE1BB6Environment.incompleteProofTestName == "B6IncompleteStateProductionAbortProbe",\n              VE1BB6Environment.incompleteProofWorkflow == "iOS Simulator E2E",\n              !proofRunID.isEmpty, proofRunID != "unknown",\n              proofRunID.allSatisfy({ $0.isNumber }) else {\n            throw EngineUSISession.ProbeError.protocolError(\n                "B6 incomplete-state Simulator proof is missing or not PASS"\n            )\n        }\n\n        if let prior = (state.standardRuns + state.stressRuns).first {'''
           )
-
-          replace(
-              '.github/workflows/ios-simulator.yml',
-              '''          HDS_JSON="$CONTAINER/Documents/ci-hds-m.json"\n          if [ -s "$HDS_JSON" ]; then\n            cp "$HDS_JSON" simulator-hds-m.json\n          else\n            echo '{}' > simulator-hds-m.json\n          fi\n          cat simulator-result.txt''',
-              '''          HDS_JSON="$CONTAINER/Documents/ci-hds-m.json"\n          if [ -s "$HDS_JSON" ]; then\n            cp "$HDS_JSON" simulator-hds-m.json\n          else\n            echo '{}' > simulator-hds-m.json\n          fi\n          B6_INCOMPLETE_RUNTIME_JSON="$CONTAINER/Documents/b6-incomplete-state-runtime.json"\n          if [ -s "$B6_INCOMPLETE_RUNTIME_JSON" ]; then\n            cp "$B6_INCOMPLETE_RUNTIME_JSON" b6-incomplete-state-runtime.json\n          else\n            echo '{}' > b6-incomplete-state-runtime.json\n          fi\n          cat simulator-result.txt'''
-          )
-          replace(
-              '.github/workflows/ios-simulator.yml',
-              '''          grep -Fq "ten_status=実機PASS候補" simulator-result.txt\n          grep -Fq "10/10 completed" simulator-result.txt\n\n          python3 - <<'PY'\n          import json\n          from pathlib import Path\n\n          path = Path("simulator-hds-m.json")''',
-              '''          grep -Fq "ten_status=実機PASS候補" simulator-result.txt\n          grep -Fq "10/10 completed" simulator-result.txt\n\n          python3 - <<'PY'\n          import json\n          import os\n          from pathlib import Path\n\n          runtime_path = Path("b6-incomplete-state-runtime.json")\n          runtime = json.loads(runtime_path.read_text(encoding="utf-8"))\n          assert runtime["testName"] == "B6IncompleteStateProductionAbortProbe"\n          assert runtime["result"] == "PASS"\n          assert runtime["runState"] == "incomplete"\n          assert runtime["displayStatus"].startswith("深掘り 未完了（")\n          assert runtime["recommendationSuppressed"] is True\n          assert runtime["lossSuppressed"] is True\n          assert runtime["evidenceSaved"] is True\n          assert runtime["incompleteAttemptCount"] >= 1\n          assert "safety_aborted" in runtime["completionStates"]\n          assert not ({"node_budget_reached", "proven_mate_termination"} & set(runtime["completionStates"]))\n\n          proof = {\n              "schemaVersion": 1,\n              "testName": runtime["testName"],\n              "workflow": "iOS Simulator E2E",\n              "ciRunID": os.environ["GITHUB_RUN_ID"],\n              "ciRunAttempt": os.environ.get("GITHUB_RUN_ATTEMPT", "1"),\n              "gitCommit": os.environ["GITHUB_SHA"],\n              "result": "PASS",\n              "runtimeProof": runtime,\n          }\n          Path("b6-incomplete-state-proof.json").write_text(\n              json.dumps(proof, ensure_ascii=False, indent=2, sort_keys=True) + "\\n",\n              encoding="utf-8",\n          )\n          print(f"b6_incomplete_state_status=PASS run_id={proof['ciRunID']}")\n          PY\n\n          python3 - <<'PY'\n          import json\n          from pathlib import Path\n\n          path = Path("simulator-hds-m.json")'''
-          )
-          replace(
-              '.github/workflows/ios-simulator.yml',
-              '''            simulator-hds-m.json\n            build/context-knowledge.json''',
-              '''            simulator-hds-m.json\n            b6-incomplete-state-runtime.json\n            b6-incomplete-state-proof.json\n            build/context-knowledge.json'''
-          )
-
-          replace(
-              '.github/workflows/ios.yml',
-              '''permissions:\n  contents: read''',
-              '''permissions:\n  contents: read\n  actions: read'''
-          )
-          gh_token_expr = '$' + '{{ github.token }}'
-          old = '''      - name: Generate Xcode project\n        shell: bash\n        run: |\n          set -euo pipefail\n          xcodegen generate\n          pod install\n          test -d ShogiCoachPoC.xcworkspace\n\n      - name: Build unsigned iPhone app'''
-          new = f'''      - name: Resolve successful Simulator incomplete-state proof\n        shell: bash\n        env:\n          GH_TOKEN: {gh_token_expr}\n        run: |\n          set -euo pipefail\n          PROOF_RUN_ID=''\n          for _ in $(seq 1 92); do\n            PROOF_RUN_ID=$(gh api \\\n              "/repos/$GITHUB_REPOSITORY/actions/workflows/ios-simulator.yml/runs?head_sha=$GITHUB_SHA&per_page=20" \\\n              --jq '[.workflow_runs[] | select(.conclusion == "success")][0].id // empty')\n            if [ -n "$PROOF_RUN_ID" ]; then\n              break\n            fi\n            sleep 15\n          done\n          test -n "$PROOF_RUN_ID"\n          echo "B6_INCOMPLETE_PROOF_RUN_ID=$PROOF_RUN_ID" >> "$GITHUB_ENV"\n          echo "B6_INCOMPLETE_PROOF_RESULT=PASS" >> "$GITHUB_ENV"\n          echo "B6_INCOMPLETE_PROOF_TEST_NAME=B6IncompleteStateProductionAbortProbe" >> "$GITHUB_ENV"\n          echo "B6_INCOMPLETE_PROOF_WORKFLOW=iOS Simulator E2E" >> "$GITHUB_ENV"\n          echo "b6_incomplete_proof_run_id=$PROOF_RUN_ID"\n\n      - name: Generate Xcode project\n        shell: bash\n        run: |\n          set -euo pipefail\n          xcodegen generate\n          pod install\n          test -d ShogiCoachPoC.xcworkspace\n\n      - name: Build unsigned iPhone app'''
-          replace('.github/workflows/ios.yml', old, new)
-          replace(
-              '.github/workflows/ios.yml',
-              '''            GIT_COMMIT_SHA="$GITHUB_SHA" \\\n            CODE_SIGNING_ALLOWED=NO''',
-              '''            GIT_COMMIT_SHA="$GITHUB_SHA" \\\n            B6_INCOMPLETE_PROOF_RUN_ID="$B6_INCOMPLETE_PROOF_RUN_ID" \\\n            B6_INCOMPLETE_PROOF_RESULT="$B6_INCOMPLETE_PROOF_RESULT" \\\n            B6_INCOMPLETE_PROOF_TEST_NAME="$B6_INCOMPLETE_PROOF_TEST_NAME" \\\n            B6_INCOMPLETE_PROOF_WORKFLOW="$B6_INCOMPLETE_PROOF_WORKFLOW" \\\n            CODE_SIGNING_ALLOWED=NO'''
-          )
           PY
 
-          git rm .github/workflows/tmp-b6-incomplete-evidence-patch.yml
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add iOS/ShogiCoachPoC/B6IncompleteStateSimulatorProbe.swift \
                   iOS/ShogiCoachPoC/ShogiCoachPoCApp.swift \
                   iOS/ShogiCoachPoC/VE1BPhysicalQualificationView.swift \
-                  Project.yml \
-                  .github/workflows/ios-simulator.yml \
-                  .github/workflows/ios.yml
+                  Project.yml
           git diff --cached --check
           git commit -m 'Build19 VE1-B: prove incomplete state before physical B6'
           git push origin "HEAD:${GITHUB_REF_NAME}"
