@@ -163,6 +163,15 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             build 2>&1 | tee simulator-build.log
 
+      - name: Verification-only annotate build errors
+        if: always()
+        shell: bash
+        run: |
+          f=simulator-build.log
+          [ -f "$f" ] || { echo "::error title=build-log::missing"; exit 0; }
+          grep -E "error:|\*\* BUILD" "$f" | sed 's#.*/iOS/#iOS/#' | sort -u | head -8 | while IFS= read -r l; do echo "::error title=build::$l"; done
+          grep -E "error:" -A3 "$f" | head -30 | tr '\n' '|' | sed 's/^/::notice title=build-context::/'; echo
+
       - name: Run simulator engine E2E
         shell: bash
         run: |
