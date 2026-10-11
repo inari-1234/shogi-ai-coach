@@ -11,9 +11,11 @@ public enum USIProvenMateTermination {
     public static func qualifies(
         measurementResult: EngineProbeResult?,
         terminalResult: EngineProbeResult?,
-        requiredMultiPV: Int
+        requiredMultiPV: Int,
+        safetyAborted: Bool
     ) -> Bool {
-        guard requiredMultiPV > 0,
+        guard !safetyAborted,
+              requiredMultiPV > 0,
               let measurementResult,
               let terminalResult,
               terminalResult.bestMoveConsistency == .consistent,
