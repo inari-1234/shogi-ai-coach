@@ -1,4 +1,4 @@
-name: TEMP B6 Shallow Fixed-Node Patch V2
+name: TEMP B6 Shallow Semantic Adjustment
 
 on:
   push:
@@ -16,9 +16,9 @@ jobs:
         with:
           ref: candidate/build19-ve1-b6-shallow-fixed-node
           fetch-depth: 0
-      - name: Apply patch script
-        run: python3 tools/tmp_apply_b6_shallow_fixed_node_harness_patch.py
-      - name: Commit patched harness
+      - name: Apply semantic-signature adjustment
+        run: python3 tools/tmp_adjust_b6_shallow_semantic_signature.py
+      - name: Commit adjusted harness
         run: |
           if git diff --quiet -- iOS/ShogiCoachPoC/VE1BPhysicalQualificationView.swift; then
             echo "No harness diff to commit"
@@ -27,5 +27,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add iOS/ShogiCoachPoC/VE1BPhysicalQualificationView.swift
-          git commit -m "Build19 VE1-B: apply shallow fixed-node harness patch"
+          git commit -m "Build19 VE1-B: align shallow semantic determinism fields"
           git push origin HEAD:candidate/build19-ve1-b6-shallow-fixed-node
