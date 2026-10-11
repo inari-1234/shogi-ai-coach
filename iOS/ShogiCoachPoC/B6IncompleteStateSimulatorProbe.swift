@@ -9,7 +9,8 @@ enum B6IncompleteStateSimulatorProbe {
     private static let proofFileName = "b6-incomplete-state-runtime.json"
 
     static func runIfRequested() async {
-        guard ProcessInfo.processInfo.arguments.contains("--ci-smoke") else { return }
+        let arguments = ProcessInfo.processInfo.arguments
+        guard arguments.contains("--ci-smoke") || arguments.contains("--ci-b6-incomplete") else { return }
         do {
             let game = try KIFParser.parse("""
             手合割：平手
@@ -38,6 +39,10 @@ enum B6IncompleteStateSimulatorProbe {
                 )
             }
 
+            // Simulator-only fault injection. The frozen physical B6 policy remains
+            // 50k/100k/200k nodes with a 15 s safety ceiling. These deliberately huge
+            // targets plus a 1 ms ceiling exist only to force the production
+            // DeepAnalysisViewModel path through the real safety-abort boundary.
             let abortPolicy = VE1BNodeSearchPolicy(
                 candidateDiscoveryNodes: 50_000_000,
                 candidateDiscoveryNodeTiers: [50_000_000, 100_000_000, 200_000_000],
