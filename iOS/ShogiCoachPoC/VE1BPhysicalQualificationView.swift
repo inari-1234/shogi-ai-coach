@@ -92,9 +92,32 @@ private struct VE1BB6FixtureRecord: Codable {
 
 private struct VE1BB6ShallowSample: Codable {
     let ply: Int
+    let positionCommand: String
+    let actualMove: String
+    let bestMove: String
+    let blackPerspectiveCp: Int?
+    let nodeBudget: Int
+    let ttGeneration: Int
+    let multiPV: Int
+    let completion: String
     let elapsedMs: Int
     let thermalBefore: String
     let thermalAfter: String
+    let maxObservedNodes: UInt64
+    let selectedNodes: UInt64?
+    let selectedDepth: Int?
+    let selectedSelDepth: Int?
+    let selectedBoundKind: String?
+    let selectedScoreKind: String?
+    let selectedScoreValue: Int?
+    let selectedPV: [String]
+    let bestMoveConsistency: String?
+    let matchesBestMove: Bool
+    let focusEligible: Bool
+    let estimatedLossCp: Int?
+    let importance: Int?
+    let selectedRank: Int?
+    let selectedRawUSI: String?
 }
 
 private struct VE1BB6AttemptSummary: Codable {
@@ -159,6 +182,9 @@ private struct VE1BB6RunRecord: Codable, Identifiable {
     let bookFile: String
     let pvIntervalMs: Int
     let shallowMovetimeMs: Int
+    let shallowNodeBudget: Int
+    let shallowSafetyCeilingMs: Int
+    let shallowAuthorityStatus: String
     let nodePolicyAuthorityStatus: String
     let candidateDiscoveryNodeTiers: [Int]
     let confirmationNodeTiers: [Int]
@@ -187,7 +213,7 @@ private struct VE1BB6RunRecord: Codable, Identifiable {
 }
 
 private struct VE1BB6PersistentState: Codable {
-    var schemaVersion: Int = 1
+    var schemaVersion: Int = 2
     var createdAt: Date = Date()
     var fixture: VE1BB6FixtureRecord?
     var standardRuns: [VE1BB6RunRecord] = []
@@ -233,6 +259,8 @@ private struct VE1BB6Report: Codable {
     let stressSafeIncompleteHandlingPassed: Bool
     let incompleteStateProof: String
     let shallowReproducibilityPassed: Bool
+    let shallowSemanticEqualityPassed: Bool
+    let fullSelectionDeterminismPassed: Bool
     let standardEvidenceIntegrityPassed: Bool
     let standardOperationalPassed: Bool
     let stressEvidenceIntegrityPassed: Bool
@@ -422,7 +450,7 @@ final class VE1BPhysicalQualificationViewModel: ObservableObject {
 
         let shallow = ShallowAnalysisViewModel()
         let deep = DeepAnalysisViewModel()
-        await shallow.analyze(game: game, fileName: fixture.fileName, movetimeMs: 150)
+        await shallow.analyze(game: game, fileName: fixture.fileName)
 
         if shallow.status == "浅解析 PASS" {
             await deep.analyze(
@@ -482,7 +510,7 @@ final class VE1BPhysicalQualificationViewModel: ObservableObject {
             runError = document.error
 
             let label = String(format: "%02d", ordinal)
-            let fileName = "ve1b-b6-primary-\(kind)-\(label)-search-evidence.json"
+            let fileName = "ve1b-b6-fixed-node-primary-\(kind)-\(label)-search-evidence.json"
             let destination = Self.documentsDirectory.appendingPathComponent(fileName)
             try? FileManager.default.removeItem(at: destination)
             try evidenceData.write(to: destination, options: .atomic)
@@ -492,14 +520,11 @@ final class VE1BPhysicalQualificationViewModel: ObservableObject {
             runError = "VE1-B search evidence JSON was not produced"
         }
 
-        let shallowSamples = shallow.entries.map {
-            VE1BB6ShallowSample(
-                ply: $0.ply,
-                elapsedMs: $0.elapsedMs,
-                thermalBefore: $0.thermalBefore,
-                thermalAfter: $0.thermalAfter
-            )
-        }
+        let shallowSamples = Self.makeShallowSamples(
+            game: game,
+            entries: shallow.entries,
+            selectedPlies: selectedPlies
+        )
         let deepState = Self.deepStateKey(deep.runState)
         let everyAttempt = positions.flatMap(\.attempts) + incompleteAttempts
         let hasIncompleteSearch = everyAttempt.contains { !Self.isCompletedSearch($0.completion) }
@@ -526,7 +551,10 @@ final class VE1BPhysicalQualificationViewModel: ObservableObject {
             hashMB: 64,
             bookFile: "no_book",
             pvIntervalMs: VE1BEngineEvidenceAuthority.pvIntervalMs,
-            shallowMovetimeMs: 150,
+            shallowMovetimeMs: 0,
+            shallowNodeBudget: ShallowAnalysisAuthority.productionNodeBudget,
+            shallowSafetyCeilingMs: ShallowAnalysisAuthority.productionSafetyCeilingMs,
+            shallowAuthorityStatus: ShallowAnalysisAuthority.authorityStatus,
             nodePolicyAuthorityStatus: policy.authorityStatus,
             candidateDiscoveryNodeTiers: policy.candidateDiscoveryNodeTiers,
             confirmationNodeTiers: policy.confirmationNodeTiers,
@@ -579,15 +607,37 @@ final class VE1BPhysicalQualificationViewModel: ObservableObject {
         let standardThermals = Self.allThermalObservations(runs: state.standardRuns)
         let stressThermals = Self.allThermalObservations(runs: state.stressRuns)
 
+        let identicalOrderedTop3 = state.standardRuns.count == standardRunTarget
+            && top3Runs.first.map { first in top3Runs.allSatisfy { $0 == first } } == true
+        let fullSelectionDeterminismPassed = state.standardRuns.count == standardRunTarget
+            && state.standardRuns.first.map { first in
+                state.standardRuns.allSatisfy { $0.selectedDeepPlies == first.selectedDeepPlies }
+            } == true
+        let shallowSemanticEqualityPassed = Self.shallowSemanticsEqual(runs: state.standardRuns)
         let shallowPassed = state.standardRuns.count == standardRunTarget
             && top3Runs.allSatisfy { $0.count == 3 }
             && pairwise.count == 10
-            && (minimumJaccard ?? 0) >= 0.50
-            && modal.count >= 4
+            && pairwise.allSatisfy { abs($0.value - 1.0) < 0.000_000_1 }
+            && modal.count == standardRunTarget
+            && identicalOrderedTop3
+            && fullSelectionDeterminismPassed
+            && shallowSemanticEqualityPassed
 
         let standardEvidenceIntegrityPassed = state.standardRuns.count == standardRunTarget
             && state.standardRuns.allSatisfy { run in
                 run.shallowStatus == "浅解析 PASS"
+                    && run.shallowMovetimeMs == 0
+                    && run.shallowNodeBudget == ShallowAnalysisAuthority.productionNodeBudget
+                    && run.shallowSafetyCeilingMs == ShallowAnalysisAuthority.productionSafetyCeilingMs
+                    && run.shallowAuthorityStatus == ShallowAnalysisAuthority.authorityStatus
+                    && run.shallowSamples.count == state.fixture?.moveCount
+                    && run.shallowSamples.allSatisfy {
+                        Self.isCompletedSearch($0.completion)
+                            && $0.nodeBudget == ShallowAnalysisAuthority.productionNodeBudget
+                            && $0.selectedBoundKind == "exact"
+                            && $0.selectedRawUSI != nil
+                    }
+                    && Self.derivedSelectionMatches(run)
                     && run.rawEvidenceFileName != nil
                     && run.rawEvidenceSHA256 != nil
                     && (run.deepState == "completed" || run.deepState == "incomplete")
@@ -652,7 +702,7 @@ final class VE1BPhysicalQualificationViewModel: ObservableObject {
             decision = "FALLBACK_REQUIRED"
             reasons.append("primary_standard_incomplete_search_gate_failed")
         } else if !shallowPassed {
-            reasons.append("shallow_reproducibility_failed_requires_fixed_node_redesign")
+            reasons.append("shallow_fixed_node_determinism_failed")
         } else if !standardOperationalPassed {
             decision = "FALLBACK_REQUIRED"
             reasons.append("primary_standard_operational_gate_failed")
@@ -669,9 +719,9 @@ final class VE1BPhysicalQualificationViewModel: ObservableObject {
         }
 
         return VE1BB6Report(
-            schemaVersion: 1,
+            schemaVersion: 2,
             generatedAt: Date(),
-            authority: "BUILD19_VE1_B_B6_PREMEASUREMENT_ACCEPTANCE_20261010 + PROVEN_MATE_TERMINATION_AMENDMENT_20261011",
+            authority: "BUILD19_VE1_B_B6_SHALLOW_FIXED_NODE_PREMEASUREMENT_20261011 + BUILD19_VE1_B_B6_PREMEASUREMENT_ACCEPTANCE_20261010 + PROVEN_MATE_TERMINATION_AMENDMENT_20261011",
             policyDecision: decision,
             decisionReasons: reasons,
             fixture: state.fixture,
@@ -702,6 +752,8 @@ final class VE1BPhysicalQualificationViewModel: ObservableObject {
                 && state.stressRuns.allSatisfy { $0.safeIncompleteState },
             incompleteStateProof: "test=\(VE1BB6Environment.incompleteProofTestName); workflow=\(VE1BB6Environment.incompleteProofWorkflow); ciRunID=\(VE1BB6Environment.incompleteProofRunID); result=\(VE1BB6Environment.incompleteProofResult); gitCommit=\(VE1BB6Environment.gitCommit); physicalRunDisplayStatusField=deepDisplayStatus",
             shallowReproducibilityPassed: shallowPassed,
+            shallowSemanticEqualityPassed: shallowSemanticEqualityPassed,
+            fullSelectionDeterminismPassed: fullSelectionDeterminismPassed,
             standardEvidenceIntegrityPassed: standardEvidenceIntegrityPassed,
             standardOperationalPassed: standardOperationalPassed,
             stressEvidenceIntegrityPassed: stressEvidenceIntegrityPassed,
@@ -717,6 +769,7 @@ final class VE1BPhysicalQualificationViewModel: ObservableObject {
             "decision=\(report.policyDecision)",
             "standard=\(state.standardRuns.count)/5 stress=\(state.stressRuns.count)/3",
             "shallow_jaccard_min=\(minJaccard) modal_top1=\(report.modalTop1Ply.map(String.init) ?? "-") count=\(report.modalTop1Count)",
+            "shallow_semantic_equal=\(report.shallowSemanticEqualityPassed) full_selection_equal=\(report.fullSelectionDeterminismPassed)",
             "deep_median_ms=\(report.deepPositionMedianMs.map { String(format: "%.1f", $0) } ?? "-") p95_ms=\(report.deepPositionP95Ms.map(String.init) ?? "-")",
             "whole_median_ms=\(report.wholeGameMedianMs.map { String(format: "%.1f", $0) } ?? "-") p95_ms=\(report.wholeGameP95Ms.map(String.init) ?? "-")",
             "standard_incomplete=\(report.standardIncompleteCount) rate=\(standardRate) proven_mate=\(report.standardProvenMateTerminationCount)",
@@ -755,13 +808,17 @@ final class VE1BPhysicalQualificationViewModel: ObservableObject {
     }
 
     private func validateFrozenPrimaryPolicy() throws {
-        guard policy.candidateDiscoveryNodeTiers == [50_000, 100_000, 200_000],
+        guard ShallowAnalysisAuthority.productionNodeBudget == 50_000,
+              ShallowAnalysisAuthority.productionSafetyCeilingMs == 15_000,
+              ShallowAnalysisAuthority.productionMultiPV == 1,
+              ShallowAnalysisAuthority.authorityStatus == "B6_SHALLOW_FIXED_NODE_PREMEASUREMENT_20261011",
+              policy.candidateDiscoveryNodeTiers == [50_000, 100_000, 200_000],
               policy.confirmationNodeTiers == [50_000, 100_000, 200_000],
               policy.candidateDiscoveryNodes == 50_000,
               policy.safetyCeilingMs == 15_000,
               policy.authorityStatus == "UNFROZEN_CALIBRATION" else {
             throw EngineUSISession.ProbeError.protocolError(
-                "B6 primary policy drift detected; expected 50k/100k/200k, safety=15000, UNFROZEN_CALIBRATION"
+                "B6 policy drift detected; expected shallow=50k cold MultiPV1 and deep=50k/100k/200k, safety=15000"
             )
         }
     }
@@ -810,6 +867,141 @@ final class VE1BPhysicalQualificationViewModel: ObservableObject {
                 )
             }
         }
+    }
+
+
+    private static func makeShallowSamples(
+        game: KIFGame,
+        entries: [ShallowAnalysisEntry],
+        selectedPlies: [Int]
+    ) -> [VE1BB6ShallowSample] {
+        let sente = game.metadata["先手"] ?? ""
+        let gote = game.metadata["後手"] ?? ""
+        let focusParity: Int?
+        if sente.contains("あなた"), !gote.contains("あなた") {
+            focusParity = 1
+        } else if gote.contains("あなた"), !sente.contains("あなた") {
+            focusParity = 0
+        } else {
+            focusParity = nil
+        }
+
+        return entries.indices.map { index in
+            let entry = entries[index]
+            let focusEligible = focusParity.map { entry.ply % 2 == $0 } ?? true
+            let isBlackMove = entry.ply % 2 == 1
+            var estimatedLossCp: Int?
+            if let beforeBlack = entry.blackPerspectiveCp,
+               index + 1 < entries.count,
+               let afterBlack = entries[index + 1].blackPerspectiveCp {
+                let beforeMover = isBlackMove ? beforeBlack : -beforeBlack
+                let afterMover = isBlackMove ? afterBlack : -afterBlack
+                estimatedLossCp = max(0, beforeMover - afterMover)
+            }
+
+            let importance: Int?
+            if focusEligible {
+                var value = estimatedLossCp ?? 0
+                if !entry.matchesBestMove { value += 120 }
+                if entry.scoreText.hasPrefix("mate ") { value += 700 }
+                if estimatedLossCp == nil && !entry.matchesBestMove { value += 180 }
+                importance = value
+            } else {
+                importance = nil
+            }
+
+            let evidence = entry.fixedNodeEvidence
+            let selectedRawUSI = evidence.flatMap { record in
+                record.observations.last(where: {
+                    $0.multipv == 1
+                        && $0.boundKind == record.selectedBoundKind
+                        && $0.depth == record.selectedDepth
+                        && $0.nodes == record.selectedNodes
+                        && $0.pv == record.selectedPV
+                })?.rawUSI
+            }
+            let selectedRank = selectedPlies.firstIndex(of: entry.ply).map { $0 + 1 }
+
+            return VE1BB6ShallowSample(
+                ply: entry.ply,
+                positionCommand: evidence?.positionCommand ?? game.moves[index].positionBefore,
+                actualMove: entry.actualMove,
+                bestMove: entry.bestMove,
+                blackPerspectiveCp: entry.blackPerspectiveCp,
+                nodeBudget: evidence?.nodeBudget ?? 0,
+                ttGeneration: evidence?.ttGeneration ?? 0,
+                multiPV: evidence?.multiPV ?? 0,
+                completion: evidence?.completion ?? "missing",
+                elapsedMs: entry.elapsedMs,
+                thermalBefore: entry.thermalBefore,
+                thermalAfter: entry.thermalAfter,
+                maxObservedNodes: evidence?.maxObservedNodes ?? 0,
+                selectedNodes: evidence?.selectedNodes,
+                selectedDepth: evidence?.selectedDepth,
+                selectedSelDepth: evidence?.selectedSelDepth,
+                selectedBoundKind: evidence?.selectedBoundKind,
+                selectedScoreKind: evidence?.selectedScoreKind,
+                selectedScoreValue: evidence?.selectedScoreValue,
+                selectedPV: evidence?.selectedPV ?? [],
+                bestMoveConsistency: evidence?.bestMoveConsistency,
+                matchesBestMove: entry.matchesBestMove,
+                focusEligible: focusEligible,
+                estimatedLossCp: estimatedLossCp,
+                importance: importance,
+                selectedRank: selectedRank,
+                selectedRawUSI: selectedRawUSI
+            )
+        }
+    }
+
+    private static func derivedSelectionMatches(_ run: VE1BB6RunRecord) -> Bool {
+        let ranked = run.shallowSamples
+            .filter { $0.focusEligible && $0.importance != nil }
+            .sorted {
+                if $0.importance != $1.importance {
+                    return ($0.importance ?? Int.min) > ($1.importance ?? Int.min)
+                }
+                return $0.ply < $1.ply
+            }
+        let expected = Array(ranked.prefix(run.selectedDeepPlies.count)).map(\.ply)
+        return expected == run.selectedDeepPlies
+    }
+
+    private static func shallowSemanticsEqual(runs: [VE1BB6RunRecord]) -> Bool {
+        guard runs.count == 5, let first = runs.first else { return false }
+        let baseline = first.shallowSamples.map(shallowSemanticSignature)
+        guard !baseline.isEmpty else { return false }
+        return runs.dropFirst().allSatisfy {
+            $0.shallowSamples.map(shallowSemanticSignature) == baseline
+        }
+    }
+
+    private static func shallowSemanticSignature(_ sample: VE1BB6ShallowSample) -> String {
+        [
+            String(sample.ply),
+            sample.positionCommand,
+            sample.actualMove,
+            sample.bestMove,
+            sample.blackPerspectiveCp.map(String.init) ?? "nil",
+            String(sample.nodeBudget),
+            String(sample.ttGeneration),
+            String(sample.multiPV),
+            sample.completion,
+            String(sample.maxObservedNodes),
+            sample.selectedNodes.map(String.init) ?? "nil",
+            sample.selectedDepth.map(String.init) ?? "nil",
+            sample.selectedSelDepth.map(String.init) ?? "nil",
+            sample.selectedBoundKind ?? "nil",
+            sample.selectedScoreKind ?? "nil",
+            sample.selectedScoreValue.map(String.init) ?? "nil",
+            sample.selectedPV.joined(separator: " "),
+            sample.bestMoveConsistency ?? "nil",
+            String(sample.matchesBestMove),
+            String(sample.focusEligible),
+            sample.estimatedLossCp.map(String.init) ?? "nil",
+            sample.importance.map(String.init) ?? "nil",
+            sample.selectedRank.map(String.init) ?? "nil"
+        ].joined(separator: "|")
     }
 
     private static func deepStateKey(_ state: DeepAnalysisRunState) -> String {
@@ -875,15 +1067,15 @@ final class VE1BPhysicalQualificationViewModel: ObservableObject {
     }
 
     private static var fixtureURL: URL {
-        documentsDirectory.appendingPathComponent("ve1b-b6-qualification.kif")
+        documentsDirectory.appendingPathComponent("ve1b-b6-fixed-node-qualification.kif")
     }
 
     private static var stateURL: URL {
-        documentsDirectory.appendingPathComponent("ve1b-b6-state.json")
+        documentsDirectory.appendingPathComponent("ve1b-b6-fixed-node-state.json")
     }
 
     private static var reportFileURL: URL {
-        documentsDirectory.appendingPathComponent("ve1b-b6-report.json")
+        documentsDirectory.appendingPathComponent("ve1b-b6-fixed-node-report.json")
     }
 }
 
