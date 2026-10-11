@@ -20,6 +20,7 @@ enum EngineSearchRole: String, Sendable {
 
 enum EngineNodeSearchCompletion: String, Sendable {
     case nodeBudgetReached = "node_budget_reached"
+    case provenMateTermination = "proven_mate_termination"
     case earlyEngineTermination = "early_engine_termination"
     case safetyAborted = "safety_aborted"
     case noCompletedExactIteration = "no_completed_exact_iteration"
@@ -50,7 +51,7 @@ struct NodeProbeSample: Sendable {
     let maxObservedNodes: UInt64
 
     var isNormalCompletedResult: Bool {
-        completion == .nodeBudgetReached
+        (completion == .nodeBudgetReached || completion == .provenMateTermination)
             && result?.principalVariations.first?.hasExactScore == true
             && result?.principalVariations.first?.pv.isEmpty == false
     }
@@ -273,7 +274,12 @@ actor EngineUSISession {
         if safetyAborted {
             completion = .safetyAborted
         } else if maxObservedNodes < UInt64(nodeBudget) {
-            completion = .earlyEngineTermination
+            completion = USIProvenMateTermination.qualifies(
+                measurementResult: measurementResult,
+                terminalResult: finalResult,
+                requiredMultiPV: requiredMultiPV,
+                safetyAborted: safetyAborted
+            ) ? .provenMateTermination : .earlyEngineTermination
         } else if measurementResult == nil {
             completion = .noCompletedExactIteration
         } else {
@@ -284,6 +290,9 @@ actor EngineUSISession {
             SimulatorStage.mark(
                 "ve1b_node_bestmove_\(finalResult.bestMove.move)_consistency_\(finalResult.bestMoveConsistency.rawValue)"
             )
+        }
+        if completion == .provenMateTermination {
+            SimulatorStage.mark("ve1b_proven_mate_termination")
         }
         if let measurementDepth = measurementResult?.principalVariations.first?.depth {
             SimulatorStage.mark("ve1b_completed_exact_depth_\(measurementDepth)")
