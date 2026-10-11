@@ -423,7 +423,7 @@ final class ContinuationSimulationViewModel: ObservableObject {
         }?.key
         let captures = moves.filter { $0.effect.capturedPiece != nil }.count
         let drops = moves.filter { $0.effect.isDrop }.count
-        let promotions = moves.filter { $0.effect.promotes }.count
+        let promotions = moves.filter(\.effect.promotes).count
         let checks = moves.filter(\.givesCheck).count
 
         var parts: [String] = []
@@ -451,11 +451,13 @@ final class ContinuationSimulationViewModel: ObservableObject {
     ) -> String {
         let marker = effect.side == .black ? "▲" : "△"
         let destination = japaneseCoordinate(effect.destination)
-        var suffix = effect.pieceAfter.kanji
+        let suffix: String
         if effect.isDrop {
-            suffix += "打"
+            suffix = effect.pieceBefore.kanji + "打"
         } else if effect.promotes {
-            suffix += "成"
+            suffix = effect.pieceBefore.kanji + "成"
+        } else {
+            suffix = effect.pieceAfter.kanji
         }
         return marker + destination + suffix
     }
