@@ -1,0 +1,158 @@
+name: TEMP VE1-B proven-mate source patch
+
+on:
+  push:
+    branches:
+      - candidate/verify-ve1b-g3-label-promotion-fix
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.event.head_commit.message == 'VE1-B: apply proven-mate source patch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply narrowly scoped source and authority patch
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          engine_path = Path('iOS/ShogiCoachPoC/EngineUSISession.swift')
+          s = engine_path.read_text()
+
+          old = '''enum EngineNodeSearchCompletion: String, Sendable {
+              case nodeBudgetReached = "node_budget_reached"
+              case earlyEngineTermination = "early_engine_termination"
+              case safetyAborted = "safety_aborted"
+              case noCompletedExactIteration = "no_completed_exact_iteration"
+          }'''
+          new = '''enum EngineNodeSearchCompletion: String, Sendable {
+              case nodeBudgetReached = "node_budget_reached"
+              case provenMateTermination = "proven_mate_termination"
+              case earlyEngineTermination = "early_engine_termination"
+              case safetyAborted = "safety_aborted"
+              case noCompletedExactIteration = "no_completed_exact_iteration"
+          }'''
+          assert s.count(old) == 1, 'completion enum anchor changed'
+          s = s.replace(old, new)
+
+          old = '''    var isNormalCompletedResult: Bool {
+                  completion == .nodeBudgetReached
+                      && result?.principalVariations.first?.hasExactScore == true
+                      && result?.principalVariations.first?.pv.isEmpty == false
+              }'''
+          new = '''    var isNormalCompletedResult: Bool {
+                  (completion == .nodeBudgetReached || completion == .provenMateTermination)
+                      && result?.principalVariations.first?.hasExactScore == true
+                      && result?.principalVariations.first?.pv.isEmpty == false
+              }'''
+          assert s.count(old) == 1, 'qualified-completion anchor changed'
+          s = s.replace(old, new)
+
+          old = '''        if safetyAborted {
+                  completion = .safetyAborted
+              } else if maxObservedNodes < UInt64(nodeBudget) {
+                  completion = .earlyEngineTermination
+              } else if measurementResult == nil {
+                  completion = .noCompletedExactIteration
+              } else {
+                  completion = .nodeBudgetReached
+              }'''
+          new = '''        if safetyAborted {
+                  completion = .safetyAborted
+              } else if maxObservedNodes < UInt64(nodeBudget) {
+                  completion = USIProvenMateTermination.qualifies(
+                      measurementResult: measurementResult,
+                      terminalResult: finalResult,
+                      requiredMultiPV: requiredMultiPV,
+                      safetyAborted: safetyAborted
+                  ) ? .provenMateTermination : .earlyEngineTermination
+              } else if measurementResult == nil {
+                  completion = .noCompletedExactIteration
+              } else {
+                  completion = .nodeBudgetReached
+              }'''
+          assert s.count(old) == 1, 'completion-classification anchor changed'
+          s = s.replace(old, new)
+
+          old = '''        if let finalResult {
+                  SimulatorStage.mark(
+                      "ve1b_node_bestmove_\\(finalResult.bestMove.move)_consistency_\\(finalResult.bestMoveConsistency.rawValue)"
+                  )
+              }
+              if let measurementDepth = measurementResult?.principalVariations.first?.depth {'''
+          new = '''        if let finalResult {
+                  SimulatorStage.mark(
+                      "ve1b_node_bestmove_\\(finalResult.bestMove.move)_consistency_\\(finalResult.bestMoveConsistency.rawValue)"
+                  )
+              }
+              if completion == .provenMateTermination {
+                  SimulatorStage.mark("ve1b_proven_mate_termination")
+              }
+              if let measurementDepth = measurementResult?.principalVariations.first?.depth {'''
+          assert s.count(old) == 1, 'stage-marker anchor changed'
+          s = s.replace(old, new)
+          engine_path.write_text(s)
+
+          index_path = Path('Build19/BUILD19_VE1_B_CONTRACT_INDEX_20261010.md')
+          t = index_path.read_text()
+          status = 'Status: **IMPLEMENTATION IN PROGRESS / NOT FORMAL PASS**\n'
+          if 'Updated: 2026-10-11' not in t:
+              assert t.count(status) == 1, 'contract-index status anchor changed'
+              t = t.replace(status, status + 'Updated: 2026-10-11\n')
+
+          marker = 'Authority order for VE1-B work, highest priority first where wording conflicts:\n\n'
+          tail_marker = '\n\nImplementation must not begin'
+          assert t.count(marker) == 1 and t.count(tail_marker) == 1, 'authority block anchors changed'
+          before, remainder = t.split(marker, 1)
+          authority, after = remainder.split(tail_marker, 1)
+          if 'BUILD19_VE1_B_PROVEN_MATE_TERMINATION_AMENDMENT_20261011.md' not in authority:
+              authority = re.sub(
+                  r'(?m)^(\d+)\. ',
+                  lambda m: f'{int(m.group(1)) + 1}. ',
+                  authority,
+              )
+              authority = (
+                  '1. `BUILD19_VE1_B_PROVEN_MATE_TERMINATION_AMENDMENT_20261011.md` — current pre-B6 completion-state authority. '
+                  '`proven_mate_termination` is a qualified completed state only for a coherent full-MultiPV exact-mate snapshot with consistent terminal bestmove; '
+                  'unmatched `early_engine_termination` remains incomplete. This amendment was frozen before any physical B6 measurement and changes no node/timing threshold.\n'
+                  + authority
+              )
+          t = before + marker + authority + tail_marker + after
+
+          rules_marker = 'Additional fixed rules carried forward:\n\n'
+          new_rule = (
+              '- `proven_mate_termination` is completed provenance only under the strict 2026-10-11 amendment predicate; '
+              'generic `early_engine_termination` remains incomplete, raw requested/observed node counts stay distinct, and mate-sign semantics remain outside this completion classification;\n'
+          )
+          if new_rule not in t:
+              assert t.count(rules_marker) == 1, 'fixed-rules anchor changed'
+              t = t.replace(rules_marker, rules_marker + new_rule)
+          index_path.write_text(t)
+
+          assert 'case provenMateTermination = "proven_mate_termination"' in s
+          assert '? .provenMateTermination : .earlyEngineTermination' in s
+          assert 'BUILD19_VE1_B_PROVEN_MATE_TERMINATION_AMENDMENT_20261011.md' in t
+          PY
+
+          git diff --check
+
+      - name: Run core regression tests
+        run: swift test
+
+      - name: Commit qualified patch
+        shell: bash
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add iOS/ShogiCoachPoC/EngineUSISession.swift Build19/BUILD19_VE1_B_CONTRACT_INDEX_20261010.md
+          git diff --cached --check
+          git commit -m '[proven-mate-patched] VE1-B classify exact mate terminal completion'
+          git push origin HEAD:candidate/verify-ve1b-g3-label-promotion-fix
