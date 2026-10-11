@@ -115,7 +115,7 @@ struct RecommendationDecisionPresentation {
             let tail = allowRecommendationClaim
                 ? "この盤面変化を、実戦手との比較と合わせて判断します。"
                 : "ただし比較が未安定なため、この意味だけで推奨とは確定しません。"
-            return first.coachText + tail
+            return "\(first.label)で" + first.coachText + tail
         }
 
         let sequence = moves.prefix(4).map(\.label).joined(separator: " → ")
