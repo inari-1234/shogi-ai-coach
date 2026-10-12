@@ -76,18 +76,6 @@ At handoff, both of these candidate refs identify the same frozen VE1-B implemen
 - `candidate/build19-ve1-b6-shallow-fixed-node`
 - `candidate/build19-ve1-b-implementation`
 
-## Verification-branch cleanup note
-
-Five temporary verification refs are safe to remove because they are not required to retain the VE1-B authority commit; `8daf78c...` remains referenced by the two frozen VE1-B candidate refs above:
-
-- `candidate/verify-pv-role-separation-diag` — head `761e079...`
-- `candidate/verify-root-move-identity-diag` — head `38c330c...`
-- `candidate/verify-shallow-fixed-node-build-diag` — head `4fd46fb...` (diagnostic commit; never merge)
-- `candidate/verify-shallow-fixed-node-compile-fix` — head `8daf78c...`
-- `candidate/verify-ve1b-badgetext-fix` — head `7a1d197...`
-
-No cleanup of the three other `candidate/verify-*` refs is implied by this note. Branch deletion was not performed by the documentation update and is not part of implementation authority.
-
 ## Frozen VE1-B semantics
 
 Preserve the following without reinterpretation:
