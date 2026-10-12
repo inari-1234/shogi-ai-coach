@@ -59,6 +59,12 @@ Formal physical result: **PRIMARY_PASS**.
 - serious thermal observations: `0`
 - critical thermal observations: `0`
 
+### Runtime attribution note
+
+The accepted fixed-node campaign's whole-game median (`46.692 s`) is higher than the first physical B6 campaign's approximately `34.9 s` median. The main structural difference relevant to this increase is the redesigned Shallow pass: all 81 positions now use a fixed `50,000`-node search with a cold logical TT boundary before each position, instead of the former `150 ms` movetime Shallow path without the same per-position cold-TT discipline.
+
+This is recorded as the leading operational explanation, not as a separately isolated causal benchmark. The Deep search itself remained comfortably inside its acceptance gates, and the accepted whole-game median/P95 remain well below the `90 s` / `120 s` Standard limits. Therefore the increase is not classified as a Deep runtime regression and does not alter `PRIMARY_PASS`.
+
 ### Stress 3 consecutive runs
 
 - executed consecutively after Standard, no cooldown campaign break
@@ -121,7 +127,7 @@ The VE1-B evidence contract is satisfied on one final implementation commit:
 
 **Build19-VE1-B is FORMAL PASS / FREEZE at `8daf78caa2bd5919cc911da21bae80fa3d12a248`.**
 
-B8 mate-sign semantics remains explicitly deferred to VE1-C under the pre-existing acceptance contract. This freeze does not promote `referencePV` to `confirmedPV` and does not alter the frozen confirmed/reference-PV semantics.
+B8 mate-sign semantics remains explicitly deferred to the VE1-C program under the pre-existing acceptance contract. VE1-C1 is not a mate-only phase: its primary role is to freeze the decision method/axes/metrics before corpus-based calibration; numerical threshold selection is reserved for VE1-C2. This freeze does not promote `referencePV` to `confirmedPV` and does not alter the frozen confirmed/reference-PV semantics.
 
 ## Mutation rule after freeze
 
