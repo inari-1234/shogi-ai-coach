@@ -299,29 +299,65 @@ Before VE1-D begins, pilot evidence may justify an explicit **operational feasib
 
 Such an amendment requires a C1 version increment, explicit evidence, no inspection of VE1-D tuning/holdout, and a complete rerun of the same excluded pilot.
 
-## 13. Pilot exit states
+## 13. Pilot PASS definition fixed before execution
+
+Pilot PASS is an **execution-integrity gate**, not a favorable-semantic-outcome gate. The natural-pilot observations may select F0 or F2 and E0 or E1; those selections are pilot results and do not by themselves make the pilot PASS or FAIL.
+
+### 13.1 PASS conditions — execution-system health
+
+The natural 16-position pilot is `PILOT_PASS` only when all of the following are satisfied:
+
+1. Exactly 16 natural positions were executed, and every required search has its raw USI evidence and complete engine/runtime provenance preserved.
+2. Parser/evidence parity between Python and the frozen Swift semantics has mismatch count **0** under Section 10.
+3. A block/coherence-selection result is recorded for every required App search at 50k / 100k / 200k and every required Reference search at 4M / 16M, including both resolved and insufficient outcomes. An insufficient block is valid recorded evidence; a missing block result is not.
+4. F is selected mechanically as F0 or F2, and E is selected mechanically as E0 or E1, using only the preregistered rules in Sections 4 and 5. No rule, threshold or exception may be introduced after observing pilot results.
+
+Choosing the conservative policies F0 and/or E0 is not a pilot failure. Choosing F2 and/or E1 is not a pilot success criterion.
+
+### 13.2 Report-only feasibility indicators — never retroactive PASS criteria
+
+The pilot report must include, at minimum, the following feasibility indicators, but none of them may retroactively change `PILOT_PASS` into FAIL or HOLD:
+
+- unresolved rate, with `DISPUTED + INSUFFICIENT` reported explicitly;
+- H1, H2 and H5 denominator occurrence rates;
+- 16M no-recoverable-exact rate;
+- comparison inversion rate;
+- `SCORE_SOURCE_CONFLICT` rate.
+
+These indicators estimate whether the preregistered C1 design is likely to achieve the later VE1-D / VE1-E gates. They do not measure whether the pilot executor itself was healthy.
+
+### 13.3 Poor feasibility after a valid PASS
+
+If a valid `PILOT_PASS` has poor feasibility indicators — for example unresolved rate materially above the later 10% target — the result remains `PILOT_PASS`.
+
+Before VE1-D, choose explicitly between only these dispositions:
+
+- make an evidence-backed C1 operational feasibility amendment within the Section 12 boundary, increment the C1 version and rerun the same permanently excluded pilot; or
+- retain the preregistered contract unchanged and accept the demonstrated risk that VE1-D / VE1-E may later HOLD.
+
+The pilot result must not be reclassified by moving thresholds, redefining PASS, inventing an F/E rule, or inspecting VE1-D tuning/holdout data after the pilot outcome is known.
+
+## 14. Pilot exit states
 
 ### PILOT_PASS
 
-- parser/evidence parity PASS;
-- F selected as F0 or F2 by the preregistered rule;
-- E selected as E0 or E1 by the preregistered rule;
-- operational configuration executable;
-- no semantic change required.
+All Section 13.1 execution-integrity conditions are satisfied. Record the mechanically selected F/E policies and all Section 13.2 feasibility indicators.
 
-Proceed to final synthetic regressions and C1 Freeze candidate.
+If no operational feasibility amendment is chosen, proceed to final synthetic regressions and the C1 Freeze candidate.
 
 ### PILOT_FEASIBILITY_AMENDMENT_REQUIRED
 
-Operational feasibility failed while semantic definitions remain intact. Amend C1 explicitly and rerun the same excluded pilot.
+This is a **post-PASS disposition**, not a pilot failure. Use it only when a valid `PILOT_PASS` has poor feasibility indicators and the evidence supports an explicit Section 12 operational feasibility amendment. Increment C1 and rerun the same excluded pilot before VE1-D.
 
 ### PILOT_HOLD
 
-Evidence parity cannot be established, conservative F/E remains unsafe, or required claims cannot be supported without changing frozen VE1-B semantics.
+Use HOLD only when the Section 13.1 execution-integrity gate cannot be established under the preregistered contract — for example missing mandatory evidence, non-zero parser/evidence parity mismatch, missing required block-selection records, or an F/E outcome that cannot be derived without an unregistered rule.
 
-Do not start VE1-D.
+Poor feasibility indicators alone are not `PILOT_HOLD`.
 
-## 14. Current disposition
+Do not start VE1-D from `PILOT_HOLD`.
+
+## 15. Current disposition
 
 **VE1-C1 = PILOT-READY / NOT FROZEN**
 
