@@ -1,0 +1,23 @@
+{
+  "schema_version": "ve1b-multipv-block-mixing-fixture-v1",
+  "required_multipv": 3,
+  "raw_usi_lines": [
+    "info depth 12 seldepth 21 multipv 1 score cp 151 nodes 77806 nps 1440851 hashfull 4 time 54 pv 2g2f 1c1d 7g7f 8c8d 2f2e 8d8e 8h7g 3c3d 7i8h 2b7g+ 8h7g",
+    "info depth 12 seldepth 22 multipv 2 score cp 138 nodes 77806 nps 1440851 hashfull 4 time 54 pv 7g7f 3c3d 6i7h 4c4d 9g9f 2b3c 5i6i 3a4b",
+    "info depth 12 seldepth 19 multipv 3 score cp 93 nodes 77806 nps 1440851 hashfull 4 time 54 pv 6i7h 3c3d 7g7f 4c4d 9g9f 8c8d 2g2f 8d8e 8h7g",
+    "info depth 13 seldepth 23 multipv 1 score cp 114 upperbound nodes 100065 nps 1429500 hashfull 8 time 70 pv 7g7f 8c8d",
+    "info depth 12 seldepth 19 multipv 2 score cp 151 nodes 100065 nps 1429500 hashfull 8 time 70 pv 2g2f",
+    "info depth 12 seldepth 19 multipv 3 score cp 93 nodes 100065 nps 1429500 hashfull 8 time 70 pv 6i7h 3c3d 7g7f 4c4d 9g9f 8c8d 2g2f 8d8e 8h7g"
+  ],
+  "expected_block": {
+    "depth": 12,
+    "nodes": 77806,
+    "time_ms": 54,
+    "moves": ["2g2f", "7g7f", "6i7h"],
+    "scores_cp": [151, 138, 93]
+  },
+  "expected_frozen_selector_bug": {
+    "moves": ["2g2f", "2g2f", "6i7h"],
+    "nodes": [77806, 100065, 100065]
+  }
+}

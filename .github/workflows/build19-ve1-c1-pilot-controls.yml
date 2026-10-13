@@ -7,10 +7,15 @@ on:
     paths:
       - "tools/engine-verify/ve1c1_pilot.py"
       - "tools/engine-verify/ve1c1_pilot_runner.py"
+      - "tools/engine-verify/ve1c1_pilot_block_runner.py"
+      - "tools/engine-verify/ve1c1_block_selector.py"
       - "tools/engine-verify/ve1c1_pilot_evaluator.py"
+      - "tools/engine-verify/ve1b_errata_scan.py"
+      - "tools/engine-verify/fixtures/ve1b_multipv_block_mixing.json"
       - "tools/engine-verify/tests/test_ve1c1_pilot.py"
       - "tools/engine-verify/tests/test_ve1c1_pilot_runner.py"
       - "tools/engine-verify/tests/test_ve1c1_pilot_evaluator.py"
+      - "tools/engine-verify/tests/test_ve1c1_pilot_block_selector.py"
       - ".github/workflows/build19-ve1-c1-pilot-controls.yml"
   workflow_dispatch:
 
@@ -32,7 +37,13 @@ jobs:
       - name: Contract and runner tests
         run: |
           set -euxo pipefail
-          python3 -m py_compile tools/engine-verify/ve1c1_pilot.py tools/engine-verify/ve1c1_pilot_runner.py tools/engine-verify/ve1c1_pilot_evaluator.py
+          python3 -m py_compile \
+            tools/engine-verify/ve1c1_pilot.py \
+            tools/engine-verify/ve1c1_pilot_runner.py \
+            tools/engine-verify/ve1c1_pilot_block_runner.py \
+            tools/engine-verify/ve1c1_block_selector.py \
+            tools/engine-verify/ve1c1_pilot_evaluator.py \
+            tools/engine-verify/ve1b_errata_scan.py
           python3 -m unittest discover -s tools/engine-verify/tests -p 'test_ve1c1_pilot*.py' -v
 
       - name: Install archive dependency
@@ -48,7 +59,7 @@ jobs:
       - name: Run non-corpus diagnostic controls
         run: |
           set -euxo pipefail
-          python3 tools/engine-verify/ve1c1_pilot_runner.py controls \
+          python3 tools/engine-verify/ve1c1_pilot_block_runner.py controls \
             --work "$ENGINE_VERIFY_WORK" \
             --out tools/engine-verify/results/ve1c1-controls
 
