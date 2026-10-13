@@ -1,0 +1,28 @@
+name: Build19 VE1-C1 Pilot Contract
+
+on:
+  push:
+    branches:
+      - candidate/build19-ve1-c1-pilot
+    paths:
+      - "Build19/BUILD19_VE1_C1_PRE_PILOT_CONTRACT_20261013.md"
+      - "tools/engine-verify/ve1c1_pilot.py"
+      - "tools/engine-verify/tests/test_ve1c1_pilot.py"
+      - ".github/workflows/build19-ve1-c1-pilot-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile harness
+        run: python -m py_compile tools/engine-verify/ve1c1_pilot.py
+      - name: Run pre-pilot unit tests
+        run: python -m unittest discover -s tools/engine-verify/tests -p 'test_ve1c1_pilot.py' -v
