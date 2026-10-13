@@ -35,6 +35,30 @@ There is no 50k early-termination path in this contract.
 
 C1 comparisons compare **same-tier evidence only**. The primary App semantic source is 200k discovery versus 200k comparison. If an operation explicitly consumes a VE1-B qualifying tier instead, it uses the deepest qualifying tier and still compares like-for-like node budgets.
 
+### 2.1 C1 candidate-snapshot coherence guard
+
+The frozen `USICompletedIterationSelector` remains unchanged. Parser/selector parity with VE1-B is checked **before** the following downstream C1 guard.
+
+A selected MultiPV snapshot is usable for C1 Candidate Structure only when all of the following hold:
+
+- exactly the required MultiPV ranks are present;
+- every selected line has a non-empty PV/root move;
+- required root moves are pairwise distinct;
+- all selected ranks have the same non-null `nodes` value, establishing one output cohort rather than a mixture of an earlier completed iteration and stale rank lines emitted during a later partial iteration.
+
+Otherwise C1 Candidate Structure evidence is insufficient. Reasons are recorded as one of:
+
+- `INSUFFICIENT_NO_COMPLETED_EXACT_SNAPSHOT`;
+- `INSUFFICIENT_MISSING_ROOT_MOVE`;
+- `INSUFFICIENT_DUPLICATE_ROOT_MOVE`;
+- `INSUFFICIENT_MIXED_ITERATION_COHORT`.
+
+For App evidence, this guard does **not** replace the frozen VE1-B recommendation identity with an alternative historical snapshot. The deepest VE1-B recommendation may still be measured for played-move diagnostics, but C1 must not issue a confirmed UNIQUE/MULTIPLE structure claim from an incoherent snapshot.
+
+For Reference evidence, structure and played resolution remain separate: an incoherent root MultiPV snapshot makes Reference structure insufficient, while independent exact rank-1/actual `searchmoves` evidence may still be retained as played evidence. Any F/H3/H4 decision requiring Reference good-set membership remains unresolved unless the Reference structure/membership evidence itself is sufficient.
+
+This is a fail-closed C1 evidence-validity guard and does not modify VE1-B stability, `confirmedPV`, `referencePV`, or the frozen completed-iteration selector.
+
 ## 3. CROSS_AXIS_CONFLICT
 
 Let recommended move be B and actual move be A, with `A != B`.
@@ -228,6 +252,8 @@ The same raw USI must produce identical:
 - comparison-inversion boolean where applicable.
 
 Required mismatch count: **0**.
+
+Parity is evaluated against the frozen Swift parser/selector output first. The Section 2.1 coherence guard is then applied as an additional downstream C1 validity check; triggering that guard is not a parser-parity mismatch.
 
 An existing 8daf B6 raw Evidence package may be used as parity data because this is parser/evidence validation, not semantic corpus calibration.
 

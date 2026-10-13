@@ -25,6 +25,30 @@ class VE1C1PilotRunnerTests(unittest.TestCase):
         self.assertNotIn("game_sha256", controls[0])
         self.assertNotIn("game_sha256", controls[1])
 
+    def test_snapshot_guard_rejects_duplicate_and_mixed_cohort(self):
+        good = [
+            {"pv": ["7g7f"], "nodes": 100},
+            {"pv": ["2g2f"], "nodes": 100},
+            {"pv": ["6i7h"], "nodes": 100},
+        ]
+        duplicate = [good[0], good[1], {"pv": ["2g2f"], "nodes": 100}]
+        mixed = [good[0], good[1], {"pv": ["6i7h"], "nodes": 101}]
+        self.assertEqual(runner.snapshot_evidence_status(good, 3), "RESOLVED")
+        self.assertEqual(runner.snapshot_evidence_status(duplicate, 3), "INSUFFICIENT_DUPLICATE_ROOT_MOVE")
+        self.assertEqual(runner.snapshot_evidence_status(mixed, 3), "INSUFFICIENT_MIXED_ITERATION_COHORT")
+
+    def test_terminal_iteration_bound_detection_uses_deepest_depth(self):
+        obs = [
+            {"depth": 10, "multipv": 1, "score": {"type": "cp", "value": 1, "bound": None}},
+            {"depth": 10, "multipv": 2, "score": {"type": "cp", "value": 0, "bound": None}},
+            {"depth": 10, "multipv": 3, "score": {"type": "cp", "value": -1, "bound": None}},
+            {"depth": 11, "multipv": 1, "score": {"type": "cp", "value": 3, "bound": "lower"}},
+        ]
+        terminal = runner.terminal_iteration_state(obs, 3)
+        self.assertEqual(terminal["depth"], 11)
+        self.assertTrue(terminal["hasBound"])
+        self.assertFalse(terminal["completeRanksObserved"])
+
     def test_runtime_contract_is_frozen(self):
         self.assertEqual(runner.APP_NODE_TIERS, (50_000, 100_000, 200_000))
         self.assertEqual(runner.REFERENCE_NODE_BUDGETS, (4_000_000, 16_000_000))

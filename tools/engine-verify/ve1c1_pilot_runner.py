@@ -83,6 +83,35 @@ def expected_loss(best_search: dict[str, Any], actual_search: dict[str, Any]) ->
     return contract.expected_score(best["value"]) - contract.expected_score(actual["value"])
 
 
+def snapshot_evidence_status(snapshot: list[dict[str, Any]], required_multipv: int) -> str:
+    if len(snapshot) != required_multipv:
+        return "INSUFFICIENT_NO_COMPLETED_EXACT_SNAPSHOT"
+    root_moves = [line.get("pv", [None])[0] if line.get("pv") else None for line in snapshot]
+    if any(move is None for move in root_moves):
+        return "INSUFFICIENT_MISSING_ROOT_MOVE"
+    if len(set(root_moves)) != required_multipv:
+        return "INSUFFICIENT_DUPLICATE_ROOT_MOVE"
+    node_cohort = {line.get("nodes") for line in snapshot}
+    if None in node_cohort or len(node_cohort) != 1:
+        return "INSUFFICIENT_MIXED_ITERATION_COHORT"
+    return "RESOLVED"
+
+
+def terminal_iteration_state(observations: list[dict[str, Any]], required_multipv: int) -> dict[str, Any]:
+    scored = [x for x in observations if x.get("depth") is not None and isinstance(x.get("score"), dict)]
+    if not scored:
+        return {"depth": None, "ranksObserved": [], "hasBound": None, "completeRanksObserved": False}
+    depth = max(int(x["depth"]) for x in scored)
+    at_depth = [x for x in scored if int(x["depth"]) == depth and 1 <= int(x.get("multipv", 1)) <= required_multipv]
+    ranks = sorted({int(x.get("multipv", 1)) for x in at_depth})
+    return {
+        "depth": depth,
+        "ranksObserved": ranks,
+        "hasBound": any(x["score"].get("bound") is not None for x in at_depth),
+        "completeRanksObserved": ranks == list(range(1, required_multipv + 1)),
+    }
+
+
 class PilotUSIEngine:
     def __init__(self, work: Path, hash_mb: int):
         self.work = work
@@ -183,6 +212,9 @@ class PilotUSIEngine:
         obs = contract.parse_raw_usi_lines(raw)
         snap = contract.deepest_exact_snapshot(obs, multipv)
         scored = [x for x in obs if isinstance(x.get("score"), dict)]
+        exported_snapshot = [] if snap is None else [export_observation(x) for x in snap]
+        terminal = terminal_iteration_state(obs, multipv)
+        evidence_status = snapshot_evidence_status(exported_snapshot, multipv)
         return {
             "role": role, "nodeBudget": nodes, "multiPV": multipv,
             "searchMoves": searchmoves, "goCommand": go, "ttGeneration": tt,
@@ -190,11 +222,11 @@ class PilotUSIEngine:
             "bestmove": next((x.split()[1] for x in reversed(raw) if x.startswith("bestmove ")), None),
             "maxObservedNodes": max((int(x.get("nodes") or 0) for x in obs), default=0),
             "terminalLastInfoBound": None if not scored else scored[-1]["score"].get("bound") is not None,
+            "terminalIteration": terminal,
             "hasCompletedExactIteration": snap is not None,
-            "completedExactRecoveredAfterTerminalBound": bool(
-                scored and scored[-1]["score"].get("bound") is not None and snap is not None
-            ),
-            "selectedSnapshot": [] if snap is None else [export_observation(x) for x in snap],
+            "selectedSnapshotEvidenceStatus": evidence_status,
+            "completedExactRecoveredAfterTerminalBound": bool(terminal["hasBound"] and snap is not None),
+            "selectedSnapshot": exported_snapshot,
             "observations": [export_observation(x) for x in obs],
             "rawLogPath": str(log),
         }
@@ -233,7 +265,11 @@ def run_app(engine: PilotUSIEngine, pos: dict[str, Any], out: Path) -> dict[str,
             "comparisonInversion": comparison_inversion(recommended, actual, best, played),
             "expectedLoss": expected_loss(best, played), "bestSearch": best, "actualSearch": played,
         })
-    return {"recommendedMove": recommended, "actualMove": actual, "discoveries": discoveries, "comparisons": comparisons}
+    return {
+        "recommendedMove": recommended, "actualMove": actual,
+        "candidateStructureEvidenceStatus": discoveries[-1]["selectedSnapshotEvidenceStatus"],
+        "discoveries": discoveries, "comparisons": comparisons,
+    }
 
 
 def run_reference(engine: PilotUSIEngine, pos: dict[str, Any], out: Path) -> dict[str, Any]:
@@ -247,9 +283,18 @@ def run_reference(engine: PilotUSIEngine, pos: dict[str, Any], out: Path) -> dic
         rank1 = primary["pv"][0]
         best = engine.search(command, n, 1, [rank1], f"reference_best_{n}", out / "raw" / pid / f"reference-best-{n}.log")
         played = engine.search(command, n, 1, [actual], f"reference_actual_{n}", out / "raw" / pid / f"reference-actual-{n}.log")
+        played_status = (
+            "RESOLVED"
+            if best["selectedSnapshotEvidenceStatus"] == "RESOLVED" and played["selectedSnapshotEvidenceStatus"] == "RESOLVED"
+            else "INSUFFICIENT"
+        )
+        structure_status = (
+            "RESOLVED" if root["selectedSnapshotEvidenceStatus"] == "RESOLVED" else root["selectedSnapshotEvidenceStatus"]
+        )
         budgets.append({
             "nodeBudget": n, "rank1Move": rank1, "actualMove": actual,
-            "status": "RESOLVED" if best["hasCompletedExactIteration"] and played["hasCompletedExactIteration"] else "INSUFFICIENT",
+            "status": "RESOLVED" if structure_status == "RESOLVED" and played_status == "RESOLVED" else "INSUFFICIENT",
+            "structureStatus": structure_status, "playedStatus": played_status,
             "root": root, "bestSearch": best, "actualSearch": played, "expectedLossActual": expected_loss(best, played),
         })
     return {"actualMove": actual, "budgets": budgets}
