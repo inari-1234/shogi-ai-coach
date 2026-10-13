@@ -19,7 +19,8 @@ def _coherent_search(self, position: str, nodes: int, multipv: int, searchmoves:
     result["ve1bFrozenSnapshot"] = frozen
     result["selectedSnapshot"] = coherent_export
     result["snapshotSelector"] = "coherent_output_block_v1"
-    result["candidateBlockStatus"] = "RESOLVED" if coherent is not None else "INSUFFICIENT"
+    result["selectedSnapshotEvidenceStatus"] = base.snapshot_evidence_status(coherent_export, multipv)
+    result["candidateBlockStatus"] = "RESOLVED" if result["selectedSnapshotEvidenceStatus"] == "RESOLVED" else "INSUFFICIENT"
     result["frozenSelectorMismatch"] = (
         blocks.snapshot_full_signature(frozen) != blocks.snapshot_full_signature(coherent_export)
     )
@@ -62,6 +63,7 @@ def _run_app(engine: base.PilotUSIEngine, pos: dict[str, Any], out: Path) -> dic
     return {
         "recommendedMove": recommended,
         "actualMove": actual,
+        "candidateStructureEvidenceStatus": discoveries[-1]["selectedSnapshotEvidenceStatus"],
         "candidateStructureStatus": structure_status,
         "discoveries": discoveries,
         "comparisons": comparisons,
