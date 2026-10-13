@@ -1,0 +1,60 @@
+name: Build19 VE1-C1 Pilot Controls
+
+on:
+  push:
+    branches:
+      - candidate/build19-ve1-c1-pilot
+    paths:
+      - "tools/engine-verify/ve1c1_pilot.py"
+      - "tools/engine-verify/ve1c1_pilot_runner.py"
+      - "tools/engine-verify/tests/test_ve1c1_pilot.py"
+      - "tools/engine-verify/tests/test_ve1c1_pilot_runner.py"
+      - ".github/workflows/build19-ve1-c1-pilot-controls.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      ENGINE_VERIFY_WORK: ${{ github.workspace }}/tools/engine-verify/.work
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Contract and runner tests
+        run: |
+          set -euxo pipefail
+          python3 -m py_compile tools/engine-verify/ve1c1_pilot.py tools/engine-verify/ve1c1_pilot_runner.py
+          python3 -m unittest discover -s tools/engine-verify/tests -p 'test_ve1c1_pilot*.py' -v
+
+      - name: Install archive dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y p7zip-full
+
+      - name: Build pinned engine and verify NNUE
+        run: |
+          set -euxo pipefail
+          bash tools/engine-verify/setup.sh AVX2
+
+      - name: Run non-corpus diagnostic controls
+        run: |
+          set -euxo pipefail
+          python3 tools/engine-verify/ve1c1_pilot_runner.py controls \
+            --work "$ENGINE_VERIFY_WORK" \
+            --out tools/engine-verify/results/ve1c1-controls
+
+      - name: Upload control evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build19-VE1-C1-pilot-controls
+          path: tools/engine-verify/results/ve1c1-controls
+          if-no-files-found: error
+          retention-days: 30
