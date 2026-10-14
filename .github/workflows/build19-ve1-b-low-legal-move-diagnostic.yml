@@ -1,0 +1,181 @@
+name: Build19 VE1-B Low Legal Move Diagnostic
+
+on:
+  push:
+    branches:
+      - candidate/build19-ve1-c1-pilot
+    paths:
+      - "Build19/BUILD19_VE1_B_ERRATA_LOW_LEGAL_MOVES_CORRECTIVE_20261015.md"
+      - "native/bridge/engine_bridge.cpp"
+      - "iOS/ShogiCoachPoC/VE1BLowLegalMoveDiagnosticProbe.swift"
+      - "iOS/ShogiCoachPoC/ShogiCoachPoCApp.swift"
+      - ".github/workflows/build19-ve1-b-low-legal-move-diagnostic.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  cause-confirmation:
+    runs-on: macos-15-intel
+    timeout-minutes: 35
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify frozen prerequisites
+        shell: bash
+        run: |
+          set -euxo pipefail
+          test "$(uname -m)" = "x86_64"
+          test -f Build19/BUILD19_VE1_B_ERRATA_LOW_LEGAL_MOVES_CORRECTIVE_20261015.md
+          test -f Build19/BUILD19_VE1_C1_CANDIDATE_GAME_CORPUS_20261014.json
+          test -f Build19/BUILD19_VE1_C1_SEEDED_GAME_ORDER_20261014.json
+          swift test
+          ./scripts/verify.sh
+
+      - name: Extract the exact failed rank-2 game
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p build/ve1b-low-legal
+          curl --fail --location --retry 3 --retry-delay 2 \
+            'https://denryu-sen.jp/denryusen/dr4_hardware2/kif_dr4_hdw2.zip' \
+            --output build/ve1b-low-legal/kif_dr4_hdw2.zip
+          python3 tools/engine-verify/ve1c1_corpus_manifest.py verify \
+            --archive build/ve1b-low-legal/kif_dr4_hdw2.zip \
+            --manifest Build19/BUILD19_VE1_C1_CANDIDATE_GAME_CORPUS_20261014.json
+          python3 - <<'PY'
+          import hashlib, json, zipfile
+          from pathlib import Path
+
+          expected_sha='a3ea21dba4d3395d569d846b8cb119452fad0cedbf690eb72a29976918a8702a'
+          order=json.loads(Path('Build19/BUILD19_VE1_C1_SEEDED_GAME_ORDER_20261014.json').read_text())
+          rank2=next(g for g in order['ordered_games'] if g['rank']==2)
+          assert rank2['game_sha256']==expected_sha, rank2
+          with zipfile.ZipFile('build/ve1b-low-legal/kif_dr4_hdw2.zip') as zf:
+              data=zf.read(rank2['archive_member'])
+          assert hashlib.sha256(data).hexdigest()==expected_sha
+          Path('build/ve1b-low-legal/rank2.kif').write_bytes(data)
+          Path('build/ve1b-low-legal/rank2-source.json').write_text(
+              json.dumps(rank2, ensure_ascii=False, indent=2, sort_keys=True)+'\n', encoding='utf-8')
+          PY
+
+      - name: Restore engine assets
+        uses: actions/cache@v4
+        with:
+          path: |
+            native/third_party/YaneuraOu
+            iOS/ShogiCoachPoC/eval/nn.bin
+          key: shogi-engine-assets-v2-intel
+
+      - name: Prepare pinned engine
+        shell: bash
+        run: |
+          set -euxo pipefail
+          command -v xcodegen >/dev/null 2>&1 || brew install xcodegen
+          command -v pod >/dev/null 2>&1 || brew install cocoapods
+          if [ ! -s iOS/ShogiCoachPoC/eval/nn.bin ]; then
+            command -v 7z >/dev/null 2>&1 || brew install p7zip
+          fi
+          chmod +x scripts/*.sh
+          ./scripts/fetch_yaneuraou.sh
+          ./scripts/fetch_eval.sh
+          ./scripts/patch_yaneuraou_ios.sh
+          test "$(shasum -a 256 iOS/ShogiCoachPoC/eval/nn.bin | awk '{print $1}')" = \
+            "768068f0d534a0603a5d38bcd143de6bbca820d5f1c95a14d40863e5b7892d76"
+
+      - name: Build x86_64 diagnostic app
+        shell: bash
+        run: |
+          set -euxo pipefail
+          xcodegen generate
+          pod install
+          xcodebuild \
+            -workspace ShogiCoachPoC.xcworkspace \
+            -scheme ShogiCoachPoC \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/VE1BLowLegalDerivedData \
+            ARCHS=x86_64 \
+            ONLY_ACTIVE_ARCH=YES \
+            GIT_COMMIT_SHA="$GITHUB_SHA" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            build
+
+      - name: Reproduce frozen failure and capture raw USI
+        shell: bash
+        run: |
+          set -euxo pipefail
+          APP='build/VE1BLowLegalDerivedData/Build/Products/Release-iphonesimulator/ShogiCoachPoC.app'
+          test -d "$APP"
+          xcrun simctl list devices available --json > build/ve1b-low-legal/devices.json
+          UDID=$(python3 - <<'PY'
+          import json
+          data=json.load(open('build/ve1b-low-legal/devices.json'))
+          for devices in data['devices'].values():
+              for device in devices:
+                  if device.get('isAvailable') and 'iPhone' in device.get('name',''):
+                      print(device['udid'])
+                      raise SystemExit(0)
+          raise SystemExit('No available iPhone simulator')
+          PY
+          )
+          xcrun simctl boot "$UDID" 2>/dev/null || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl install "$UDID" "$APP"
+          CONTAINER=$(xcrun simctl get_app_container "$UDID" com.inari1234.shogicoachpoc data)
+          mkdir -p "$CONTAINER/Documents/ve1b-low-legal-move-diagnostic"
+          cp build/ve1b-low-legal/rank2.kif \
+            "$CONTAINER/Documents/ve1b-low-legal-move-diagnostic/rank2.kif"
+          xcrun simctl launch "$UDID" com.inari1234.shogicoachpoc --ci-ve1b-low-legal-move-diagnostic \
+            2>&1 | tee build/ve1b-low-legal/launch.log
+
+          OUT="$CONTAINER/Documents/ve1b-low-legal-move-diagnostic.json"
+          ERR="$CONTAINER/Documents/ve1b-low-legal-move-diagnostic-error.txt"
+          DONE=0
+          for _ in $(seq 1 120); do
+            if [ -s "$OUT" ]; then DONE=1; break; fi
+            if [ -s "$ERR" ]; then cat "$ERR"; break; fi
+            sleep 1
+          done
+          if [ -s "$ERR" ]; then cp "$ERR" build/ve1b-low-legal/error.txt; else : > build/ve1b-low-legal/error.txt; fi
+          test "$DONE" -eq 1
+          cp "$OUT" build/ve1b-low-legal/diagnostic.json
+          xcrun simctl shutdown "$UDID" 2>/dev/null || true
+
+      - name: Gate cause confirmation
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('build/ve1b-low-legal/diagnostic.json').read_text())
+          assert p['status']=='PASS', p
+          assert p['gameSHA256']=='a3ea21dba4d3395d569d846b8cb119452fad0cedbf690eb72a29976918a8702a'
+          assert p['ply']==126
+          assert p['configuredMultiPV']==3
+          assert p['legalRootMoveCount'] < 3
+          assert p['scoredPVBearingMultiPV3Count']==0
+          assert p['frozenRequired3SnapshotExists'] is False
+          assert p['frozenCompletion']=='no_completed_exact_iteration'
+          assert p['maxObservedNodes'] >= 50000
+          assert p['rawUSI']
+          print('VE1-B low-legal-move cause confirmation: PASS')
+          print('legalRootMoveCount=', p['legalRootMoveCount'])
+          print('observedMultiPVRanks=', p['observedMultiPVRanks'])
+          print('bestmoveLine=', p['bestmoveLine'])
+          PY
+
+      - name: Upload cause evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build19-VE1-B-low-legal-move-cause
+          path: build/ve1b-low-legal
+          if-no-files-found: error
+          retention-days: 30
