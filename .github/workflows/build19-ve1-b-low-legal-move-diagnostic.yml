@@ -46,21 +46,19 @@ jobs:
           python3 tools/engine-verify/ve1c1_corpus_manifest.py verify \
             --archive build/ve1b-low-legal/kif_dr4_hdw2.zip \
             --manifest Build19/BUILD19_VE1_C1_CANDIDATE_GAME_CORPUS_20261014.json
-          python3 - <<'PY'
-          import hashlib, json, zipfile
-          from pathlib import Path
-
-          expected_sha='a3ea21dba4d3395d569d846b8cb119452fad0cedbf690eb72a29976918a8702a'
-          order=json.loads(Path('Build19/BUILD19_VE1_C1_SEEDED_GAME_ORDER_20261014.json').read_text())
-          rank2=next(g for g in order['ordered_games'] if g['rank']==2)
-          assert rank2['game_sha256']==expected_sha, rank2
-          with zipfile.ZipFile('build/ve1b-low-legal/kif_dr4_hdw2.zip') as zf:
-              data=zf.read(rank2['archive_member'])
-          assert hashlib.sha256(data).hexdigest()==expected_sha
-          Path('build/ve1b-low-legal/rank2.kif').write_bytes(data)
-          Path('build/ve1b-low-legal/rank2-source.json').write_text(
-              json.dumps(rank2, ensure_ascii=False, indent=2, sort_keys=True)+'\n', encoding='utf-8')
-          PY
+          python3 tools/engine-verify/ve1c1_pool_input.py \
+            --archive build/ve1b-low-legal/kif_dr4_hdw2.zip \
+            --manifest Build19/BUILD19_VE1_C1_CANDIDATE_GAME_CORPUS_20261014.json \
+            --output-dir build/ve1b-low-legal/pool-input
+          cmp -s \
+            Build19/BUILD19_VE1_C1_SEEDED_GAME_ORDER_20261014.json \
+            build/ve1b-low-legal/pool-input/seeded-game-order.json
+          cp build/ve1b-low-legal/pool-input/games/game-0002.kif \
+            build/ve1b-low-legal/rank2.kif
+          test "$(shasum -a 256 build/ve1b-low-legal/rank2.kif | awk '{print $1}')" = \
+            'a3ea21dba4d3395d569d846b8cb119452fad0cedbf690eb72a29976918a8702a'
+          cp build/ve1b-low-legal/pool-input/games/game-0002.json \
+            build/ve1b-low-legal/rank2-source.json
 
       - name: Restore engine assets
         uses: actions/cache@v4
