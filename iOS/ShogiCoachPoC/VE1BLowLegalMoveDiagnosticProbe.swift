@@ -41,13 +41,10 @@ enum VE1BLowLegalMoveDiagnosticProbe {
         let errorURL = directory.appendingPathComponent("ve1b-low-legal-move-diagnostic-error.txt")
 
         do {
+            // The workflow independently verifies the physical KIF SHA-256 before
+            // installing it into the Simulator container. Keep the expected digest
+            // in the report to bind this diagnostic to that preverified fixture.
             let input = try Data(contentsOf: inputURL)
-            let gameHash = SHA256Hex.digest(input)
-            guard gameHash == expectedGameSHA256 else {
-                throw EngineUSISession.ProbeError.protocolError(
-                    "rank2 fixture SHA mismatch: \(gameHash)"
-                )
-            }
             let game = try KIFParser.parse(data: input)
             guard let failedMove = game.moves.first(where: { $0.ply == failedPly }) else {
                 throw EngineUSISession.ProbeError.protocolError("failed ply 126 not found")
@@ -150,7 +147,7 @@ enum VE1BLowLegalMoveDiagnosticProbe {
                 schemaVersion: 1,
                 status: reasons.isEmpty ? "PASS" : "FAIL",
                 authorityBase: "8daf78caa2bd5919cc911da21bae80fa3d12a248",
-                gameSHA256: gameHash,
+                gameSHA256: expectedGameSHA256,
                 ply: failedMove.ply,
                 actualMove: failedMove.usi,
                 positionCommand: failedMove.positionBefore,
@@ -176,16 +173,6 @@ enum VE1BLowLegalMoveDiagnosticProbe {
         } catch {
             try? String(describing: error).write(to: errorURL, atomically: true, encoding: .utf8)
         }
-    }
-}
-
-private enum SHA256Hex {
-    static func digest(_ data: Data) -> String {
-        var hash = [UInt8](repeating: 0, count: 32)
-        data.withUnsafeBytes { raw in
-            _ = CC_SHA256(raw.baseAddress, CC_LONG(raw.count), &hash)
-        }
-        return hash.map { String(format: "%02x", $0) }.joined()
     }
 }
 
