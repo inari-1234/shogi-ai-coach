@@ -1,11 +1,14 @@
 # Build19-VE1-C1 — Pre-Pool Independence Contract
 
-Date: 2026-10-14
-Status: **FROZEN BEFORE POOL GENERATION / PILOT NOT RUN**
-Authority base: `566253d3b49a786c29e36a4ce73ebae7df511d13`
+Date: 2026-10-14  
+Amendment A: 2026-10-15  
+Status: **FROZEN BEFORE SUCCESSFUL POOL GENERATION / PILOT NOT RUN**  
+Authority base: `566253d3b49a786c29e36a4ce73ebae7df511d13`  
 Sampling key: `VE1-C1-SAMPLING-v1`
 
-This contract is fixed before inspecting or generating the natural-pilot pool. It supplements `BUILD19_VE1_C1_PRE_PILOT_CONTRACT_20261013.md`. It does not modify frozen VE1-B Authority `8daf78caa2bd5919cc911da21bae80fa3d12a248`.
+This contract is fixed before inspecting or accepting the natural-pilot pool. It supplements `BUILD19_VE1_C1_PRE_PILOT_CONTRACT_20261013.md`. It does not modify frozen VE1-B Authority `8daf78caa2bd5919cc911da21bae80fa3d12a248`.
+
+Amendment A is a contamination-shielding hardening only. It does not change any semantic threshold, selector rule, sampling key, round-robin rule, or Pilot PASS criterion. It was fixed before any production-pool run reached 16-position-manifest derivation or VE1-D exclusion generation. Prior runs `38528770989` and `38528891224` stopped before those stages.
 
 ## 1. Candidate-game universe is fixed before game selection
 
@@ -60,7 +63,9 @@ The processed-game prefix stops at the **shortest seeded prefix** for which:
 - at least four games contribute one or more eligible positions; and
 - the sum of per-game capped eligible positions is at least 16.
 
-The 16-position manifest is then derived by the preregistered round-robin rule from the Pre-Pilot Contract. A game producing zero eligible positions causes deterministic continuation to the next seeded game; it does not permit substitution or manual selection.
+The 16-position manifest is then derived by the preregistered round-robin rule from the Pre-Pilot Contract.
+
+A processed game producing zero eligible positions is a valid selector outcome. It must be recorded in the selector trace and causes deterministic continuation to the next seeded game. It does not count as a contributing game, it contributes zero toward the 16-position total, and it does not permit substitution or manual selection. A genuine shallow/deep engine failure remains fail-closed and must not be reclassified as a zero-candidate outcome.
 
 ## 3. Production selector implementation identity
 
@@ -108,33 +113,46 @@ Timing, NPS and thermal values are provenance/diagnostic fields and are not cros
 
 A mismatch blocks pool acceptance. The natural pilot must not run until the mismatch is explained and this contract is explicitly amended if necessary.
 
-## 5. Pilot-game exclusion must precede pilot execution
+## 5. VE1-D exclusion must cover every information-bearing pool game and precede pilot execution
 
-As soon as the deterministic 16-position manifest is derived, every contributing game SHA-256 must be committed to a VE1-D exclusion authority file before the natural pilot is executed.
+As soon as the deterministic processed-game prefix and 16-position manifest are derived, a VE1-D exclusion authority must be committed before the natural pilot is executed.
+
+The exclusion target is exactly:
+
+- **every game in the processed seeded prefix for which the production selector produced one or more eligible candidate positions**, whether or not round-robin ultimately selected a position from that game; plus
+- the permanent B6 fixture SHA-256.
+
+A processed-prefix game with zero eligible candidate positions is not added to the VE1-D exclusion set. Its only pool-level information is the preregistered zero-candidate outcome, so it may remain eligible for VE1-D.
 
 The exclusion file must bind at least:
 
 - sampling key;
 - corpus-manifest SHA-256;
+- seeded-plan SHA-256;
 - pool-manifest SHA-256;
 - 16-position pilot-manifest SHA-256;
-- every contributing game SHA-256;
+- processed-prefix game count;
+- every candidate-producing game SHA-256 in deterministic processed order;
+- the subset of game SHA-256 values that actually contribute to the final 16-position manifest;
 - the permanent B6 fixture SHA-256;
+- the exact complete VE1-D exclusion set;
 - exclusion scope: VE1-D tuning, holdout and reserve.
 
-The natural-pilot workflow must refuse to run unless the committed exclusion file exactly covers all contributing pilot-game hashes and its file commit is already present in the checked-out history before the pilot execution begins.
+The natural-pilot workflow must refuse to run unless the committed exclusion authority exactly covers all candidate-producing processed-prefix game hashes plus B6, contains no zero-candidate processed-prefix game, and its commit is already present in the checked-out history before pilot execution begins.
+
+This Amendment A broadens the original §5 shielding rule from only final-manifest-contributing games to all candidate-producing games in the processed prefix. It is intentionally fixed before successful pool generation so the broader exclusion cannot depend on which games or positions are ultimately selected.
 
 ## 6. Gate order
 
 The required order is:
 
-1. freeze this Pre-Pool Contract;
+1. freeze this Pre-Pool Contract and any pre-result contamination-shielding amendment;
 2. generate and commit the complete candidate-game corpus manifest;
 3. derive seeded game order;
 4. establish B6 x86-vs-physical shallow parity 81/81;
 5. generate the pool by the actual Swift production selection path;
 6. derive the deterministic 16-position manifest;
-7. commit the VE1-D exclusion authority;
+7. commit the VE1-D exclusion authority covering all candidate-producing processed-prefix games plus B6;
 8. only then execute the natural 16-position pilot;
 9. apply the already-frozen Pilot PASS definition;
 10. synthetic regression → C1 Freeze candidate → VE1-D.
@@ -143,6 +161,6 @@ No later step may be used to tune or replace an earlier selection decision.
 
 ## 7. Current disposition
 
-**Pre-Pool Contract = FROZEN**  
+**Pre-Pool Contract = FROZEN / Amendment A**  
 **Natural pilot = NOT RUN**  
 **VE1-C1 = PILOT-READY / NOT FROZEN**
