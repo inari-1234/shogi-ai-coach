@@ -59,7 +59,7 @@
     "requires": []
   },
   "rollback": {
-    "sha": null,
+    "sha": "ae1f9f38e3c29e3a0b13d90258c5a913c7776122",
     "ref": "refs/heads/main",
     "note": "Rollback authority points to the last recorded PASS baseline when available."
   },
@@ -96,5 +96,5 @@
       "missingWorkflowGraceSeconds": 180
     }
   },
-  "updatedAt": "2026-10-14T22:57:38.385Z"
+  "updatedAt": "2026-10-14T22:57:48.591Z"
 }
