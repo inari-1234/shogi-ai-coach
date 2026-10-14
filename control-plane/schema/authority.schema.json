@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/inari-1234/Excel-Tests/control-plane/schema/authority.schema.json",
+  "title": "Project Control Plane Authority v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "project",
+    "adapter",
+    "phase",
+    "status",
+    "authority",
+    "failure",
+    "retry",
+    "gates",
+    "blockers",
+    "next",
+    "rollback",
+    "handoff",
+    "extensions",
+    "updatedAt"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "1.0"},
+    "project": {"type": "string", "minLength": 1, "maxLength": 120},
+    "adapter": {"enum": ["excel", "ios", "pwa", "generic"]},
+    "phase": {
+      "type": "object", "additionalProperties": false, "required": ["id", "name"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1, "maxLength": 80},
+        "name": {"type": "string", "minLength": 1, "maxLength": 160}
+      }
+    },
+    "status": {"enum": ["READY", "BUSY", "DEGRADED", "BLOCKED", "OFFLINE", "FAIL", "HOLD", "PASS", "PENDING_VALIDATION"]},
+    "authority": {
+      "type": "object", "additionalProperties": false,
+      "required": ["baselineSha", "candidateSha", "candidateFrozen", "sourceRef", "lastRun"],
+      "properties": {
+        "baselineSha": {"anyOf": [{"type": "string", "pattern": "^[0-9a-f]{40}$"}, {"type": "null"}]},
+        "candidateSha": {"anyOf": [{"type": "string", "pattern": "^[0-9a-f]{40}$"}, {"type": "null"}]},
+        "candidateFrozen": {"type": "boolean"},
+        "sourceRef": {"anyOf": [{"type": "string", "minLength": 1, "maxLength": 240}, {"type": "null"}]},
+        "lastRun": {
+          "anyOf": [
+            {"type": "null"},
+            {
+              "type": "object", "additionalProperties": false,
+              "required": ["provider", "runId", "jobId", "commitSha", "outcome"],
+              "properties": {
+                "provider": {"enum": ["github-actions", "local", "other"]},
+                "runId": {"anyOf": [{"type": "string", "minLength": 1}, {"type": "integer", "minimum": 1}]},
+                "jobId": {"anyOf": [{"type": "string", "minLength": 1}, {"type": "integer", "minimum": 1}, {"type": "null"}]},
+                "commitSha": {"anyOf": [{"type": "string", "pattern": "^[0-9a-f]{40}$"}, {"type": "null"}]},
+                "outcome": {"enum": ["PASS", "FAIL", "BLOCKED", "CANCELLED", "IN_PROGRESS", "QUEUED"]},
+                "url": {"anyOf": [{"type": "string", "format": "uri"}, {"type": "null"}]}
+              }
+            }
+          ]
+        }
+      }
+    },
+    "failure": {
+      "anyOf": [
+        {"type": "null"},
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["class", "signature", "methodKey"],
+          "properties": {
+            "class": {"enum": ["INFRA_FAIL", "CODE_FAIL", "VALIDATION_FAIL", "CONFLICT", "BLOCKED", "UNKNOWN"]},
+            "signature": {"type": "string", "minLength": 1, "maxLength": 500},
+            "methodKey": {"type": "string", "minLength": 1, "maxLength": 160}
+          }
+        }
+      ]
+    },
+    "retry": {
+      "type": "object", "additionalProperties": false,
+      "required": ["attempt", "maxAttemptsSameMethod", "policy"],
+      "properties": {
+        "attempt": {"type": "integer", "minimum": 0, "maximum": 2},
+        "maxAttemptsSameMethod": {"type": "integer", "minimum": 1, "maximum": 2},
+        "policy": {"enum": ["NO_RETRY", "INFRA_ONCE", "MANUAL", "ADAPTER_DEFINED"]}
+      }
+    },
+    "blockers": {
+      "type": "array", "maxItems": 50,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["code", "summary", "requiresHuman"],
+        "properties": {
+          "code": {"type": "string", "minLength": 1, "maxLength": 80},
+          "summary": {"type": "string", "minLength": 1, "maxLength": 500},
+          "requiresHuman": {"type": "boolean"}
+        }
+      }
+    },
+    "next": {
+      "type": "object", "additionalProperties": false,
+      "required": ["action", "requires"],
+      "properties": {
+        "action": {"type": "string", "minLength": 1, "maxLength": 500},
+        "requires": {"type": "array", "maxItems": 20, "items": {"type": "string", "minLength": 1, "maxLength": 160}}
+      }
+    },
+    "rollback": {
+      "type": "object", "additionalProperties": false,
+      "required": ["sha", "ref", "note"],
+      "properties": {
+        "sha": {"anyOf": [{"type": "string", "pattern": "^[0-9a-f]{40}$"}, {"type": "null"}]},
+        "ref": {"anyOf": [{"type": "string", "minLength": 1, "maxLength": 240}, {"type": "null"}]},
+        "note": {"anyOf": [{"type": "string", "maxLength": 500}, {"type": "null"}]}
+      }
+    },
+    "handoff": {
+      "type": "object", "additionalProperties": false,
+      "required": ["recommendedNewChat", "prompt"],
+      "properties": {
+        "recommendedNewChat": {"type": "boolean"},
+        "prompt": {"anyOf": [{"type": "string", "maxLength": 8000}, {"type": "null"}]}
+      }
+    },
+    "extensions": {"type": "object", "additionalProperties": true},
+    "updatedAt": {"type": "string", "format": "date-time"},
+    "gates": {
+      "type": "array", "maxItems": 50,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "status", "evidence"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1, "maxLength": 100},
+          "status": {"enum": ["PENDING", "PASS", "FAIL", "BLOCKED", "SKIPPED"]},
+          "evidence": {"type": "array", "maxItems": 20, "items": {"type": "string", "minLength": 1, "maxLength": 500}}
+        }
+      }
+    }
+  }
+}
