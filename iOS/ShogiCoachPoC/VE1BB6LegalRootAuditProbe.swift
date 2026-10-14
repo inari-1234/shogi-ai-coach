@@ -14,6 +14,17 @@ enum VE1BB6LegalRootAuditProbe {
         let stressAttemptCount: Int
         let totalAttemptCount: Int
         let positions: [PositionInput]
+
+        enum CodingKeys: String, CodingKey {
+            case schemaVersion = "schema_version"
+            case authorityBase = "authority_base"
+            case inputSHA256 = "input_sha256"
+            case uniquePositionCount = "unique_position_count"
+            case standardAttemptCount = "standard_attempt_count"
+            case stressAttemptCount = "stress_attempt_count"
+            case totalAttemptCount = "total_attempt_count"
+            case positions
+        }
     }
 
     private struct PositionInput: Decodable {
@@ -22,6 +33,14 @@ enum VE1BB6LegalRootAuditProbe {
         let standardAttemptCount: Int
         let stressAttemptCount: Int
         let totalAttemptCount: Int
+
+        enum CodingKeys: String, CodingKey {
+            case ply
+            case positionCommand = "position_command"
+            case standardAttemptCount = "standard_attempt_count"
+            case stressAttemptCount = "stress_attempt_count"
+            case totalAttemptCount = "total_attempt_count"
+        }
     }
 
     private struct PositionResult: Codable {
@@ -60,9 +79,7 @@ enum VE1BB6LegalRootAuditProbe {
         let errorURL = directory.appendingPathComponent("ve1b-b6-legal-root-audit-error.txt")
 
         do {
-            let decoder = JSONDecoder()
-            decoder.keyDecodingStrategy = .convertFromSnakeCase
-            let input = try decoder.decode(Input.self, from: Data(contentsOf: inputURL))
+            let input = try JSONDecoder().decode(Input.self, from: Data(contentsOf: inputURL))
             guard input.schemaVersion == "ve1b-b6-legal-root-audit-input-v2",
                   input.authorityBase == "8daf78caa2bd5919cc911da21bae80fa3d12a248",
                   input.uniquePositionCount == 9,
