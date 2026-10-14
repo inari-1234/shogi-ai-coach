@@ -1,0 +1,85 @@
+{
+  "authority_base": "8daf78caa2bd5919cc911da21bae80fa3d12a248",
+  "derivation": "mechanically_collapsed_by_identical_position_command_from_5_standard_and_3_stress_physical_search_evidence_files",
+  "input_sha256": "854a58fd6ebdb501c12078b27aeb147000f33cb077a84c282b8114dece5e3177",
+  "positions": [
+    {
+      "ply": 7,
+      "position_command": "position startpos moves 7g7f 3c3d 2g2f 8c8d 6g6f 2b3c",
+      "standard_attempt_count": 18,
+      "stress_attempt_count": 0,
+      "total_attempt_count": 18
+    },
+    {
+      "ply": 41,
+      "position_command": "position startpos moves 7g7f 3c3d 2g2f 8c8d 6g6f 2b3c 2h6h 3a3b 5i4h 6a5b 4h3h 5a4b 3h2h 7a6b 1g1f 8d8e 8h7g 3c4d 2h2g 2a3c 3i3h 2c2d 7i7h 8b8d 6i5h 3b2c 9i9h 5c5d 6f6e 8d8b 4g4f 1c1d 5h4g 4b3a 2g2h 6b5c 4f4e 4d7g+ 7h7g 4a3b",
+      "standard_attempt_count": 27,
+      "stress_attempt_count": 0,
+      "total_attempt_count": 27
+    },
+    {
+      "ply": 49,
+      "position_command": "position startpos moves 7g7f 3c3d 2g2f 8c8d 6g6f 2b3c 2h6h 3a3b 5i4h 6a5b 4h3h 5a4b 3h2h 7a6b 1g1f 8d8e 8h7g 3c4d 2h2g 2a3c 3i3h 2c2d 7i7h 8b8d 6i5h 3b2c 9i9h 5c5d 6f6e 8d8b 4g4f 1c1d 5h4g 4b3a 2g2h 6b5c 4f4e 4d7g+ 7h7g 4a3b 1i1h B*3e 3g3f 3e2f 3h2g 2d2e 2i3g 3a2b",
+      "standard_attempt_count": 45,
+      "stress_attempt_count": 27,
+      "total_attempt_count": 72
+    },
+    {
+      "ply": 53,
+      "position_command": "position startpos moves 7g7f 3c3d 2g2f 8c8d 6g6f 2b3c 2h6h 3a3b 5i4h 6a5b 4h3h 5a4b 3h2h 7a6b 1g1f 8d8e 8h7g 3c4d 2h2g 2a3c 3i3h 2c2d 7i7h 8b8d 6i5h 3b2c 9i9h 5c5d 6f6e 8d8b 4g4f 1c1d 5h4g 4b3a 2g2h 6b5c 4f4e 4d7g+ 7h7g 4a3b 1i1h B*3e 3g3f 3e2f 3h2g 2d2e 2i3g 3a2b 4i3h 9c9d 6h6i 8a9c",
+      "standard_attempt_count": 45,
+      "stress_attempt_count": 27,
+      "total_attempt_count": 72
+    },
+    {
+      "ply": 61,
+      "position_command": "position startpos moves 7g7f 3c3d 2g2f 8c8d 6g6f 2b3c 2h6h 3a3b 5i4h 6a5b 4h3h 5a4b 3h2h 7a6b 1g1f 8d8e 8h7g 3c4d 2h2g 2a3c 3i3h 2c2d 7i7h 8b8d 6i5h 3b2c 9i9h 5c5d 6f6e 8d8b 4g4f 1c1d 5h4g 4b3a 2g2h 6b5c 4f4e 4d7g+ 7h7g 4a3b 1i1h B*3e 3g3f 3e2f 3h2g 2d2e 2i3g 3a2b 4i3h 9c9d 6h6i 8a9c 6i2i 2c2d B*4f 3d3e 3f3e 3b2c 4g3f P*3d",
+      "standard_attempt_count": 0,
+      "stress_attempt_count": 27,
+      "total_attempt_count": 27
+    },
+    {
+      "ply": 69,
+      "position_command": "position startpos moves 7g7f 3c3d 2g2f 8c8d 6g6f 2b3c 2h6h 3a3b 5i4h 6a5b 4h3h 5a4b 3h2h 7a6b 1g1f 8d8e 8h7g 3c4d 2h2g 2a3c 3i3h 2c2d 7i7h 8b8d 6i5h 3b2c 9i9h 5c5d 6f6e 8d8b 4g4f 1c1d 5h4g 4b3a 2g2h 6b5c 4f4e 4d7g+ 7h7g 4a3b 1i1h B*3e 3g3f 3e2f 3h2g 2d2e 2i3g 3a2b 4i3h 9c9d 6h6i 8a9c 6i2i 2c2d B*4f 3d3e 3f3e 3b2c 4g3f P*3d 2g2f 2e2f 3e3d S*2g 3h2g 2f2g+ 2h2g 1d1e",
+      "standard_attempt_count": 45,
+      "stress_attempt_count": 27,
+      "total_attempt_count": 72
+    },
+    {
+      "ply": 77,
+      "position_command": "position startpos moves 7g7f 3c3d 2g2f 8c8d 6g6f 2b3c 2h6h 3a3b 5i4h 6a5b 4h3h 5a4b 3h2h 7a6b 1g1f 8d8e 8h7g 3c4d 2h2g 2a3c 3i3h 2c2d 7i7h 8b8d 6i5h 3b2c 9i9h 5c5d 6f6e 8d8b 4g4f 1c1d 5h4g 4b3a 2g2h 6b5c 4f4e 4d7g+ 7h7g 4a3b 1i1h B*3e 3g3f 3e2f 3h2g 2d2e 2i3g 3a2b 4i3h 9c9d 6h6i 8a9c 6i2i 2c2d B*4f 3d3e 3f3e 3b2c 4g3f P*3d 2g2f 2e2f 3e3d S*2g 3h2g 2f2g+ 2h2g 1d1e 1f1e 1a1e P*2e 2c3d 2e2d 1e1h+ B*1d G*1c",
+      "standard_attempt_count": 45,
+      "stress_attempt_count": 27,
+      "total_attempt_count": 72
+    },
+    {
+      "ply": 79,
+      "position_command": "position startpos moves 7g7f 3c3d 2g2f 8c8d 6g6f 2b3c 2h6h 3a3b 5i4h 6a5b 4h3h 5a4b 3h2h 7a6b 1g1f 8d8e 8h7g 3c4d 2h2g 2a3c 3i3h 2c2d 7i7h 8b8d 6i5h 3b2c 9i9h 5c5d 6f6e 8d8b 4g4f 1c1d 5h4g 4b3a 2g2h 6b5c 4f4e 4d7g+ 7h7g 4a3b 1i1h B*3e 3g3f 3e2f 3h2g 2d2e 2i3g 3a2b 4i3h 9c9d 6h6i 8a9c 6i2i 2c2d B*4f 3d3e 3f3e 3b2c 4g3f P*3d 2g2f 2e2f 3e3d S*2g 3h2g 2f2g+ 2h2g 1d1e 1f1e 1a1e P*2e 2c3d 2e2d 1e1h+ B*1d G*1c S*2c 1c2c",
+      "standard_attempt_count": 45,
+      "stress_attempt_count": 27,
+      "total_attempt_count": 72
+    },
+    {
+      "ply": 81,
+      "position_command": "position startpos moves 7g7f 3c3d 2g2f 8c8d 6g6f 2b3c 2h6h 3a3b 5i4h 6a5b 4h3h 5a4b 3h2h 7a6b 1g1f 8d8e 8h7g 3c4d 2h2g 2a3c 3i3h 2c2d 7i7h 8b8d 6i5h 3b2c 9i9h 5c5d 6f6e 8d8b 4g4f 1c1d 5h4g 4b3a 2g2h 6b5c 4f4e 4d7g+ 7h7g 4a3b 1i1h B*3e 3g3f 3e2f 3h2g 2d2e 2i3g 3a2b 4i3h 9c9d 6h6i 8a9c 6i2i 2c2d B*4f 3d3e 3f3e 3b2c 4g3f P*3d 2g2f 2e2f 3e3d S*2g 3h2g 2f2g+ 2h2g 1d1e 1f1e 1a1e P*2e 2c3d 2e2d 1e1h+ B*1d G*1c S*2c 1c2c 1d2c+ 2b1a",
+      "standard_attempt_count": 45,
+      "stress_attempt_count": 27,
+      "total_attempt_count": 72
+    }
+  ],
+  "schema_version": "ve1b-b6-legal-root-audit-input-v2",
+  "source_evidence": [
+    {"attempt_count": 63, "file_name": "ve1b-b6-fixed-node-primary-stress-01-search-evidence.json", "kind": "stress", "sha256": "ec67b60697e0bd6c37d30f4a5c34f5379adc1325b9ef20b7fa5172b375215d06"},
+    {"attempt_count": 63, "file_name": "ve1b-b6-fixed-node-primary-stress-02-search-evidence.json", "kind": "stress", "sha256": "ec71781ebc8f5aa3ea9a580423914e090b6cc47b44d2a0d730c860a6fc96cb9f"},
+    {"attempt_count": 63, "file_name": "ve1b-b6-fixed-node-primary-stress-03-search-evidence.json", "kind": "stress", "sha256": "52097d06d79c4e7e022cb17c7676781b120e07c8f0f558735de311be8fb1df29"},
+    {"attempt_count": 63, "file_name": "ve1b-b6-primary-standard-01-search-evidence.json", "kind": "standard", "sha256": "8e84d3974be2ed25504cb7925fe1c38fd607751a4ae023ff438bd2d29ad2fcc7"},
+    {"attempt_count": 63, "file_name": "ve1b-b6-primary-standard-02-search-evidence.json", "kind": "standard", "sha256": "defb8e78332af44449f0cd8e75dd00ca2b3087a842bb75784436d4dbee89372f"},
+    {"attempt_count": 63, "file_name": "ve1b-b6-primary-standard-03-search-evidence.json", "kind": "standard", "sha256": "9cc579d9472dc65a412320e5c9498167580776138392b11cdc151fd8002a1d2e"},
+    {"attempt_count": 63, "file_name": "ve1b-b6-primary-standard-04-search-evidence.json", "kind": "standard", "sha256": "5a4b8ee61494f83ea6788c35735c70492b835d5e4bc38d15e23071fd3483d362"},
+    {"attempt_count": 63, "file_name": "ve1b-b6-primary-standard-05-search-evidence.json", "kind": "standard", "sha256": "0769105b818bc38809c37daa375e1e56b914a4ecda59889db728ce4cb0e5fff4"}
+  ],
+  "standard_attempt_count": 315,
+  "stress_attempt_count": 189,
+  "total_attempt_count": 504,
+  "unique_position_count": 9
+}
