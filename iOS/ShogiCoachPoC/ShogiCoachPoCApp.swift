@@ -12,6 +12,7 @@ struct ShogiCoachPoCApp: App {
                 await B6ShallowFixedNodeSimulatorProbe.runIfRequested()
                 await B6IncompleteStateSimulatorProbe.runIfRequested()
                 await VE1C1B6ShallowParityProbe.runIfRequested()
+                await VE1C1PoolSimulatorProbe.runIfRequested()
                 await SimulatorCIProbe.runIfRequested()
             }
             #endif
