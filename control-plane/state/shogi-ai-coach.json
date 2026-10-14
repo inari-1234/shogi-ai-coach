@@ -1,0 +1,100 @@
+{
+  "schemaVersion": "1.0",
+  "project": "shogi-ai-coach",
+  "adapter": "ios",
+  "phase": {
+    "id": "IOS-CI-GATE",
+    "name": "Hosted macOS/Xcode/Simulator CI gate"
+  },
+  "status": "PASS",
+  "authority": {
+    "baselineSha": "ae1f9f38e3c29e3a0b13d90258c5a913c7776122",
+    "candidateSha": "ae1f9f38e3c29e3a0b13d90258c5a913c7776122",
+    "candidateFrozen": true,
+    "sourceRef": "refs/heads/main",
+    "lastRun": {
+      "provider": "other",
+      "runId": "ios-ci-set:ae1f9f38e3c29e3a0b13d90258c5a913c7776122",
+      "jobId": null,
+      "commitSha": "ae1f9f38e3c29e3a0b13d90258c5a913c7776122",
+      "outcome": "PASS",
+      "url": "https://github.com/inari-1234/shogi-ai-coach/commit/ae1f9f38e3c29e3a0b13d90258c5a913c7776122/checks"
+    }
+  },
+  "failure": null,
+  "retry": {
+    "attempt": 0,
+    "maxAttemptsSameMethod": 2,
+    "policy": "MANUAL"
+  },
+  "gates": [
+    {
+      "id": "device-build",
+      "status": "PASS",
+      "evidence": [
+        "run 38650334314 success",
+        "https://github.com/inari-1234/shogi-ai-coach/actions/runs/38650334314"
+      ]
+    },
+    {
+      "id": "simulator-e2e",
+      "status": "PASS",
+      "evidence": [
+        "run 38650334295 success",
+        "https://github.com/inari-1234/shogi-ai-coach/actions/runs/38650334295"
+      ]
+    },
+    {
+      "id": "final-regression",
+      "status": "PASS",
+      "evidence": [
+        "run 38650334248 success",
+        "https://github.com/inari-1234/shogi-ai-coach/actions/runs/38650334248"
+      ]
+    }
+  ],
+  "blockers": [],
+  "next": {
+    "action": "Use this CI-set PASS as durable iOS authority and continue only from this main SHA or a new frozen candidate.",
+    "requires": []
+  },
+  "rollback": {
+    "sha": null,
+    "ref": "refs/heads/main",
+    "note": "Rollback authority points to the last recorded PASS baseline when available."
+  },
+  "handoff": {
+    "recommendedNewChat": false,
+    "prompt": null
+  },
+  "extensions": {
+    "ios": {
+      "mode": "observe-only",
+      "platform": "github-hosted-macos",
+      "recoveryEnabled": false,
+      "controlPlaneSource": "inari-1234/Excel-Tests@b11e775d51d7cdff179184e2d7313fce18d77444",
+      "observedWorkflows": {
+        "iOS Device Build": {
+          "runId": 38650334314,
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/inari-1234/shogi-ai-coach/actions/runs/38650334314"
+        },
+        "iOS Simulator E2E": {
+          "runId": 38650334295,
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/inari-1234/shogi-ai-coach/actions/runs/38650334295"
+        },
+        "Build18-M Final Regression": {
+          "runId": 38650334248,
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/inari-1234/shogi-ai-coach/actions/runs/38650334248"
+        }
+      },
+      "missingWorkflowGraceSeconds": 180
+    }
+  },
+  "updatedAt": "2026-10-14T22:57:38.385Z"
+}
