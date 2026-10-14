@@ -13,6 +13,7 @@
 
 #include "bitboard.h"
 #include "misc.h"
+#include "movegen.h"
 #include "position.h"
 #include "types.h"
 #include "usi.h"
@@ -105,6 +106,15 @@ void runEngine(int fd) {
 
   std::string command;
   while (readLine(fd, command)) {
+    // VE1-B corrective diagnostic/control channel. This is intentionally
+    // computed from the engine's current Position with the same LEGAL root
+    // move generator used by the default production search path. It is not
+    // inferred from bounded MultiPV output.
+    if (command == "ve1b_legal_move_count") {
+      const auto legalCount = MoveList<LEGAL>(engine.get_position()).size();
+      sync_cout << "info string ve1b_legal_move_count " << legalCount << sync_endl;
+      continue;
+    }
     if (usi.mobile_execute_command(command)) break;
   }
 
