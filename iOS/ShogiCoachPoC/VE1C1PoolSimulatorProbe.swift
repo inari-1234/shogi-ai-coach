@@ -17,6 +17,7 @@ enum VE1C1PoolSimulatorProbe {
     private static let minimumContributingGames = 4
     private static let targetPositions = 16
     private static let perGameCap = 4
+    private static let productionZeroCandidateMessage = "重要局面候補を抽出できません"
 
     private struct PoolInput: Decodable {
         let schemaVersion: String
@@ -105,49 +106,68 @@ enum VE1C1PoolSimulatorProbe {
                     maxPositions: 5,
                     nodePolicy: .calibrationUnfrozen
                 )
-                guard deep.status == "深掘り PASS",
-                      deep.runState.isCompleted,
-                      !deep.entries.isEmpty else {
+
+                let positions: [[String: Any]]
+                let selectorOutcome: String
+                switch deep.runState {
+                case .completed:
+                    guard deep.status == "深掘り PASS" else {
+                        throw poolError(5, "production deep selector completed with unexpected status at rank \(item.rank): \(deep.status)")
+                    }
+                    positions = try deep.entries.map { entry in
+                        guard let move = game.moves.first(where: { $0.ply == entry.ply }) else {
+                            throw poolError(6, "selected ply missing from parsed game: \(entry.ply)")
+                        }
+                        return [
+                            "ply": entry.ply,
+                            "position_command": move.positionBefore,
+                            "actual_move": move.usi,
+                            "selected_by_production_deep_selector": true,
+                            "selector_best_move": entry.bestMove,
+                            "selector_stability_state": entry.stabilityState,
+                            "selector_final_node_budget": entry.finalNodeBudget
+                        ]
+                    }
+                    selectorOutcome = positions.isEmpty ? "NO_ELIGIBLE_POSITIONS" : "CANDIDATES_AVAILABLE"
+
+                case .error(let message)
+                    where message == productionZeroCandidateMessage && deep.entries.isEmpty:
+                    // The frozen production view model represents a provisional-selector
+                    // empty result as this exact error state. For the preregistered pool
+                    // contract this is a valid zero-candidate game, not an engine failure.
+                    positions = []
+                    selectorOutcome = "NO_ELIGIBLE_POSITIONS"
+
+                default:
                     throw poolError(5, "production deep selector failed at rank \(item.rank): \(deep.displayStatus)")
                 }
 
-                let positions: [[String: Any]] = try deep.entries.map { entry in
-                    guard let move = game.moves.first(where: { $0.ply == entry.ply }) else {
-                        throw poolError(6, "selected ply missing from parsed game: \(entry.ply)")
-                    }
-                    return [
-                        "ply": entry.ply,
-                        "position_command": move.positionBefore,
-                        "actual_move": move.usi,
-                        "selected_by_production_deep_selector": true,
-                        "selector_best_move": entry.bestMove,
-                        "selector_stability_state": entry.stabilityState,
-                        "selector_final_node_budget": entry.finalNodeBudget
-                    ]
+                if !positions.isEmpty {
+                    poolGames.append([
+                        "game_sha256": item.gameSHA256,
+                        "source_id": item.sourceID,
+                        "archive_member": item.archiveMember,
+                        "seed_rank": item.rank,
+                        "game_sampling_sha256": item.gameSamplingSHA256,
+                        "parsed_move_count": game.moves.count,
+                        "positions": positions
+                    ])
+                    contributingGames += 1
+                    cappedPositionCount += min(perGameCap, positions.count)
                 }
 
-                poolGames.append([
-                    "game_sha256": item.gameSHA256,
-                    "source_id": item.sourceID,
-                    "archive_member": item.archiveMember,
-                    "seed_rank": item.rank,
-                    "game_sampling_sha256": item.gameSamplingSHA256,
-                    "parsed_move_count": game.moves.count,
-                    "positions": positions
-                ])
                 trace.append([
                     "seed_rank": item.rank,
                     "game_sha256": item.gameSHA256,
                     "parsed_move_count": game.moves.count,
                     "shallow_status": shallow.status,
                     "deep_status": deep.status,
+                    "selector_outcome": selectorOutcome,
                     "production_selected_count": positions.count,
                     "production_selected_plies": positions.compactMap { $0["ply"] as? Int },
                     "per_game_capped_contribution": min(perGameCap, positions.count)
                 ])
 
-                contributingGames += 1
-                cappedPositionCount += min(perGameCap, positions.count)
                 if contributingGames >= minimumContributingGames,
                    cappedPositionCount >= targetPositions {
                     break
@@ -172,14 +192,15 @@ enum VE1C1PoolSimulatorProbe {
                 "production_selection_deep_movetime_compatibility_value": 800,
                 "max_final_positions_per_game": 5,
                 "stop_policy": "shortest_seeded_prefix_with_at_least_4_contributing_games_and_16_positions_after_cap4",
-                "processed_game_count": poolGames.count,
+                "processed_game_count": trace.count,
+                "candidate_producing_game_count": poolGames.count,
                 "capped_eligible_position_count": cappedPositionCount,
                 "games": poolGames,
                 "selector_trace": trace
             ]
             let data = try JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys])
             try data.write(to: documents.appendingPathComponent(outputFileName), options: .atomic)
-            SimulatorStage.mark("ve1c1_production_pool_complete_games_\(poolGames.count)_capped_\(cappedPositionCount)")
+            SimulatorStage.mark("ve1c1_production_pool_complete_games_\(trace.count)_contributors_\(poolGames.count)_capped_\(cappedPositionCount)")
         } catch {
             let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             try? (error.localizedDescription + "\n").write(
