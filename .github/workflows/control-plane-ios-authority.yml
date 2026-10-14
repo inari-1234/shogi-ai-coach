@@ -1,0 +1,112 @@
+name: iOS Control Plane Authority
+
+on:
+  workflow_run:
+    workflows:
+      - iOS Device Build
+      - iOS Simulator E2E
+      - Build18-M Final Regression
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      target_sha:
+        description: Exact main commit SHA to observe; blank uses current main
+        required: false
+        type: string
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: ios-control-plane-authority
+  cancel-in-progress: false
+
+jobs:
+  observe:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event.workflow_run.head_branch == 'main' &&
+        github.event.workflow_run.event == 'push' &&
+        github.event.workflow_run.head_repository.full_name == github.repository
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout trusted main observer
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: source
+
+      - name: Checkout durable authority branch
+        uses: actions/checkout@v4
+        with:
+          ref: control-plane-state
+          path: state
+
+      - name: Resolve target SHA
+        id: target
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_SHA: ${{ github.event.workflow_run.head_sha }}
+          INPUT_SHA: ${{ inputs.target_sha }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            TARGET="${INPUT_SHA:-}"
+            if [ -z "$TARGET" ]; then
+              TARGET="$(git -C source rev-parse HEAD)"
+            fi
+          else
+            TARGET="$EVENT_SHA"
+          fi
+          [[ "$TARGET" =~ ^[0-9a-f]{40}$ ]]
+          echo "sha=$TARGET" >> "$GITHUB_OUTPUT"
+
+      - name: Observe exact main CI set
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          TARGET_SHA: ${{ steps.target.outputs.sha }}
+          AUTHORITY_OUT: ${{ github.workspace }}/state/control-plane/state/shogi-ai-coach.json
+          PREVIOUS_AUTHORITY: ${{ github.workspace }}/state/control-plane/state/shogi-ai-coach.json
+          POLL_SECONDS: "180"
+          POLL_INTERVAL_SECONDS: "15"
+        run: |
+          set -euo pipefail
+          node source/scripts/control-plane-ios-authority.mjs
+
+      - name: Validate authority when written
+        shell: bash
+        run: |
+          set -euo pipefail
+          AUTH='state/control-plane/state/shogi-ai-coach.json'
+          if [ ! -f "$AUTH" ]; then
+            echo 'IOS_CONTROL_PLANE_DEFER no durable update required yet'
+            exit 0
+          fi
+          node source/control-plane/validate-authority.mjs "$AUTH"
+
+      - name: Persist authority only when changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd state
+          AUTH='control-plane/state/shogi-ai-coach.json'
+          if [ ! -f "$AUTH" ]; then
+            echo 'IOS_CONTROL_PLANE_NO_STATE_FILE'
+            exit 0
+          fi
+          git add "$AUTH"
+          if git diff --cached --quiet; then
+            echo 'IOS_CONTROL_PLANE_STATE_UNCHANGED'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "control-plane: record iOS authority ${{ steps.target.outputs.sha }}"
+          git push origin HEAD:control-plane-state
