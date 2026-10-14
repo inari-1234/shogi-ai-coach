@@ -5,6 +5,14 @@
   "gate": "physical_iPhone17,1_vs_Intel_Simulator_actual_production_ShallowAnalysisViewModel",
   "authority_base": "8daf78caa2bd5919cc911da21bae80fa3d12a248",
   "tested_commit": "91aa8e8cae722159620a2df64b533c45c77df3ec",
+  "architecture": "x86_64",
+  "matched_positions": 81,
+  "mismatch_count": 0,
+  "physical_report_sha256": "fe63385d97293ae8cb7a577618ae66d7592d57b2960dcc899bcf93b51ff4a2a9",
+  "fixture_sha256": "ea8a9e4b0211c5c6fde7514987df74d17508f8b59f72b7969a1105ce1fd94102",
+  "node_budget": 50000,
+  "expected_all_positions_semantic_sha256": "fd4bcf872ee6c6612354479829ff86e0c9e36b01920c5dce7a5d0686ccc49014",
+  "actual_all_positions_semantic_sha256": "fd4bcf872ee6c6612354479829ff86e0c9e36b01920c5dce7a5d0686ccc49014",
   "workflow": {
     "name": "Build19 VE1-C1 B6 Swift Shallow Parity",
     "run_id": 38527286703,
@@ -53,6 +61,7 @@
     "app_entry_delta": "ShogiCoachPoCApp.swift adds only conditional VE1C1PoolSimulatorProbe.runIfRequested() after VE1C1B6ShallowParityProbe.runIfRequested(); no ShallowAnalysisViewModel, EngineUSISession, USI parser/selector, parity probe, engine pin, or NNUE change.",
     "disposition": "tested parity evidence remains applicable to the production shallow implementation used by the pool generator"
   },
+  "schema_alignment_note": "Top-level gate fields mirror the verified nested evidence so the production-pool preflight can validate the authority fail-closed without semantic reinterpretation.",
   "interpretation": "CI x86_64 execution of the actual production ShallowAnalysisViewModel reproduces the physical iPhone B6 50k shallow semantics exactly on all 81 plies. This establishes the preregistered cross-architecture shallow-population gate for pool generation. Timing, NPS and thermal values are not equality fields.",
   "natural_pilot_run": false,
   "ve1d_started": false
