@@ -7,12 +7,17 @@ on:
     paths:
       - "Build19/BUILD19_VE1_C1_PRE_POOL_CONTRACT_20261014.md"
       - "Build19/BUILD19_VE1_C1_CANDIDATE_GAME_CORPUS_20261014.json"
+      - "Build19/BUILD19_VE1_C1_SEEDED_GAME_ORDER_20261014.json"
       - "tools/engine-verify/ve1c1_corpus_manifest.py"
       - ".github/workflows/build19-ve1-c1-corpus-manifest.yml"
   workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency:
+  group: build19-ve1-c1-corpus-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   corpus-manifest:
@@ -46,28 +51,31 @@ jobs:
             --manifest build/ve1c1-corpus/candidate-game-corpus.json \
             --output build/ve1c1-corpus/seeded-game-order.json
 
-      - name: Verify or commit corpus authority
+      - name: Verify corpus and freeze seeded-order authority
         run: |
           set -euxo pipefail
           AUTH='Build19/BUILD19_VE1_C1_CANDIDATE_GAME_CORPUS_20261014.json'
-          if [ -f "$AUTH" ]; then
-            python3 tools/engine-verify/ve1c1_corpus_manifest.py verify \
-              --archive build/ve1c1-corpus/kif_dr4_hdw2.zip \
-              --manifest "$AUTH"
-            cmp -s "$AUTH" build/ve1c1-corpus/candidate-game-corpus.json
-            echo 'committed_corpus_authority=PASS' | tee build/ve1c1-corpus/authority-status.txt
+          PLAN='Build19/BUILD19_VE1_C1_SEEDED_GAME_ORDER_20261014.json'
+
+          test -f "$AUTH"
+          python3 tools/engine-verify/ve1c1_corpus_manifest.py verify \
+            --archive build/ve1c1-corpus/kif_dr4_hdw2.zip \
+            --manifest "$AUTH"
+          cmp -s "$AUTH" build/ve1c1-corpus/candidate-game-corpus.json
+          echo 'committed_corpus_authority=PASS' | tee build/ve1c1-corpus/authority-status.txt
+
+          if [ -f "$PLAN" ]; then
+            cmp -s "$PLAN" build/ve1c1-corpus/seeded-game-order.json
+            echo 'committed_seeded_order_authority=PASS' | tee -a build/ve1c1-corpus/authority-status.txt
           else
-            cp build/ve1c1-corpus/candidate-game-corpus.json "$AUTH"
-            python3 tools/engine-verify/ve1c1_corpus_manifest.py verify \
-              --archive build/ve1c1-corpus/kif_dr4_hdw2.zip \
-              --manifest "$AUTH"
-            cmp -s "$AUTH" build/ve1c1-corpus/candidate-game-corpus.json
+            cp build/ve1c1-corpus/seeded-game-order.json "$PLAN"
+            cmp -s "$PLAN" build/ve1c1-corpus/seeded-game-order.json
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add "$AUTH"
-            git commit -m 'VE1-C1: freeze candidate game corpus authority'
+            git add "$PLAN"
+            git commit -m 'VE1-C1: freeze seeded game order authority'
             git push origin HEAD:candidate/build19-ve1-c1-pilot
-            echo 'committed_corpus_authority=GENERATED_AND_PUSHED' | tee build/ve1c1-corpus/authority-status.txt
+            echo 'committed_seeded_order_authority=GENERATED_AND_PUSHED' | tee -a build/ve1c1-corpus/authority-status.txt
           fi
 
       - name: Upload manifest evidence
