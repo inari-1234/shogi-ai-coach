@@ -1,0 +1,2026 @@
+{
+  "archive": {
+    "file_name": "kif_dr4_hdw2.zip",
+    "sha256": "c03ff5836b7e138f75d1a0b2dca6ba82e40d7680696999918eed3823f05548be"
+  },
+  "blocked_game_sha256": [
+    {
+      "game_sha256": "ea8a9e4b0211c5c6fde7514987df74d17508f8b59f72b7969a1105ce1fd94102",
+      "reason": "B6_REPEATEDLY_INSPECTED_FIXTURE"
+    }
+  ],
+  "games": [
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_blackbid1800_dr4hd2ssf2_4_burningbridges_centokun-3600-5F+burningbridges+centokun+20240216214735.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 82779,
+      "game_sampling_sha256": "8978a1d7b67bd52887f4f0403b03c46d607dfb385b099667e5ab390257d60e87",
+      "game_sha256": "7d41e05b04cb94501c8952c2b62940e847ecdd50b1a3ca8721cbf6640af23a76"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-1-bottom_4_grampus_tanuki-1800-5F+grampus+tanuki+20240113132757.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 75799,
+      "game_sampling_sha256": "0a07281d0b338c079c7c6abf2edec93c5ecf4c0ccde610cebdb34e03e665f452",
+      "game_sha256": "e96aa1320feb5c8210b51e9d3c0b7ae57cfe4eaaae33b28bdddee51005860270"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-1-bottom_4_hisui_kyoshogi-1800-5F+hisui+kyoshogi+20240113163916.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 83865,
+      "game_sampling_sha256": "1f1c936f61365359022dae09e93649cf247dc06694eb2294a41f58e2d64bbe20",
+      "game_sha256": "ee7f734d7734c8aabdad860ba000edce9672a11abca3876bf9cddac4d1d7693b"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-1-bottom_4_honeywaffle_wanderer-1800-5F+honeywaffle+wanderer+20240113142431.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 57533,
+      "game_sampling_sha256": "a85fe8531ec78aa90fa781ff6f3ae3a63baa84f96dc4279794c6ec0d11d976d8",
+      "game_sha256": "afa1154a35ffd5faf72d129c4dc40f0b7f70788cdd1e5ff686be3e0df9c5aea7"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-1-bottom_4_iroha_ryfamate-1800-5F+iroha+ryfamate+20240113102135.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 108006,
+      "game_sampling_sha256": "4f34887d6c0d9c296084bb20736df4f7310c99dd9c7d6d8c09614177b7d3cb13",
+      "game_sha256": "5eab784243ba17eedf32fc61f8ddd457a3e2edc9d52c7afbf5734ffa16b346d6"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-1-bottom_4_kerunba_centokun-1800-5F+kerunba+centokun+20240113124109.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 89513,
+      "game_sampling_sha256": "dedcb132173782b4284407b2d7ac280eb0c951d3e0786c649b45f9e46f5dc297",
+      "game_sha256": "adab203d77492ffbba0d35cd6b8496b277df1bbfd89091711bf6857029086f27"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-1-bottom_4_nibanshibori_daigorilla-1800-5F+nibanshibori+daigorilla+20240113172307.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 49048,
+      "game_sampling_sha256": "877bae7f43eae36688c95e3c9b73ce86135bcaf0d5dd1cd8a0cc25a73267ad56",
+      "game_sha256": "d18ee1441af7727aa2d4c58e0f43afa1a2d51ddf89bb99a3f594c1def0437d1b"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-1-bottom_4_ponkotsu_burningbridges-1800-5F+ponkotsu+burningbridges+20240113151307.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 145175,
+      "game_sampling_sha256": "aabeebfa52a9ef2c49161e14f5679e69c6690cb1231f5cb71308b5a27283bae8",
+      "game_sha256": "c546b54ac6330d327dbcfa3e4a776d7c68eded3b8f6c283d26fa5df2b612f9f4"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-1-bottom_4_suishodr_yaneuraou-1800-5F+suishodr+yaneuraou+20240113114314.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 103340,
+      "game_sampling_sha256": "706e38426686561d6ca49ecec8c1ac0d480722baedf8a218023234f9cdfde08d",
+      "game_sha256": "930e9b2cdd6979940f70c7805366d2667ab99f4bc014234f401a31a5185eac15"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-1-top_4_burningbridges_ponkotsu-1800-5F+burningbridges+ponkotsu+20240112225931.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 62267,
+      "game_sampling_sha256": "b097731403e0152bc80651a66f76994beac2b11826b832a15a18aa4410543b61",
+      "game_sha256": "58da993c0a8850db9f1b7325664edb1ca3363a576118c3299c5ec7a356f1b9ae"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-1-top_4_centokun_kerunba-1800-5F+centokun+kerunba+20240113002519.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 97551,
+      "game_sampling_sha256": "c77c5fa6c5ca4deee5ff3e75971bfd84d501b4b6421809402ee666f26141db2b",
+      "game_sha256": "d7c332c6311cc10f1ab8ddc3b1f4efea25de22f5efc1048b7e015f8e43de0e0a"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-1-top_4_daigorilla_nibanshibori-1800-5F+daigorilla+nibanshibori+20240112234637.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 66161,
+      "game_sampling_sha256": "2a7b381022d24d0690ba63835e9907d8420ad3f75ce365af1b6ba002ac33b9bb",
+      "game_sha256": "a93f6a2e6e34609650e5b945ab85bbcd3fe247ec917b1e9d2a20ce1d8e6b0abd"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-1-top_4_kyoshogi_hisui-1800-5F+kyoshogi+hisui+20240113011557.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 99293,
+      "game_sampling_sha256": "93437cd615f54901709b17279f193afb063ebf6969b5255be5c9979d81609e92",
+      "game_sha256": "1cead9e46b8d1c190f112f1463efc8fde95ec19c417a631c755b1ef0348127bd"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-1-top_4_ryfamate_iroha-1800-5F+ryfamate+iroha+20240113092424.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 39992,
+      "game_sampling_sha256": "95bc97bd163a6de4e904a6e12eb9f775a314cd2e5ccd67bd6be63928f234dcfa",
+      "game_sha256": "d3e7870d5c41cd019034b5aa160c4020d607ba832ed576db6e99e181a3ffcd9e"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-1-top_4_tanuki_grampus-1800-5F+tanuki+grampus+20240113082542.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 105281,
+      "game_sampling_sha256": "4028bd190dee3261bc03e2b09e4d8bcf221bc061044c1ca7e8df4e6bb2467952",
+      "game_sha256": "ec67bd162f9c283ab973fc5819332e216591da12f170b9cd9c9cbd7061cb4f8a"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-1-top_4_wanderer_honeywaffle-1800-5F+wanderer+honeywaffle+20240112213655.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 75206,
+      "game_sampling_sha256": "3a41373097a80ccbd7f1c7abf428b1d39e2f887d07ef0e57f82b7150278663f4",
+      "game_sha256": "8f0c659acd971a8c7a937c74c62c6e16e7a99295d16073bf73c762b7e7bea93a"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-1-top_4_yaneuraou_suishodr-1800-5F+yaneuraou+suishodr+20240112211018.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 10870,
+      "game_sampling_sha256": "27301afb936f2b67b9fba34e11cb457fd5a1de30acc5b71633c5db1bd9ec1797",
+      "game_sha256": "27a5c438011c05caae0f19ea5c02b485a7a492dee0ce62d2fbb29e591ff04913"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-10-bottom_4_centokun_daigorilla-1800-5F+centokun+daigorilla+20240118053324.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 63762,
+      "game_sampling_sha256": "6486f76eea95f1866f192b0aeec2c45c3c1a9fd59519f05fa01dc03653106567",
+      "game_sha256": "40ffa27678e3fd610268c85720d077d6f28ec76f54a74be8a70c8eb031e0c362"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-10-bottom_4_grampus_kerunba-1800-5F+grampus+kerunba+20240118041927.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 115845,
+      "game_sampling_sha256": "a0a0588df7b1655d93c5f889ec4f967c9ea61c790dcfa6ded68baca6da49bc86",
+      "game_sha256": "103d181808c2b27c879113ca4ea99edb8e82d0a1c6fdaf84af0cf8f6a8293e4c"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-10-bottom_4_hisui_suishodr-1800-5F+hisui+suishodr+20240118084259.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 15751,
+      "game_sampling_sha256": "a661ac653f5bcbe04dde739a22495c11099b36284a6f62a773d5a4c72a119b26",
+      "game_sha256": "5256af1ebf3ad1056c2ef05d9f9bb13010879701a0791dad5319f3af61acaa19"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-10-bottom_4_iroha_honeywaffle-1800-5F+iroha+honeywaffle+20240118025829.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 33402,
+      "game_sampling_sha256": "c7571d609e5df4f64b1ecc3eb91103fa317e13c9b57027c83578675ed3bbfd20",
+      "game_sha256": "b20f9b5f2024be1819806339373c2c6917b7350498b676d5ac7ec849e27226ad"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-10-bottom_4_kyoshogi_yaneuraou-1800-5F+kyoshogi+yaneuraou+20240118060756.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 76973,
+      "game_sampling_sha256": "889f519d2d96b24ba11fac49445b4823ca3598f4aa481edeaf7efeee34f04208",
+      "game_sha256": "7db1e4c64e4e5b67e6ec4b61148fe2569e273d3393e99b20360fae181fafd0e3"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-10-bottom_4_ryfamate_ponkotsu-1800-5F+ryfamate+ponkotsu+20240118034912.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 35402,
+      "game_sampling_sha256": "5383cd2baaf920600730cd1a23e8bf403936e06aa33437b6e9a0f976ad3c6ff3",
+      "game_sha256": "3cce602dd8666edeadb133adeb7115ef23e36ce5d4582fe5c89c623cd0d5361c"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-10-bottom_4_tanuki_nibanshibori-1800-5F+tanuki+nibanshibori+20240118074209.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 78445,
+      "game_sampling_sha256": "93b2a3fb8e99baacbd5acc96e165bfb78d2e1759a3b84584c747373adac92dfb",
+      "game_sha256": "2850c398ebb8f482765a677469b9d234f12ce3648ccba37004e5d5c20762b3f9"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-10-bottom_4_wanderer_burningbridges-1800-5F+wanderer+burningbridges+20240118064657.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 67931,
+      "game_sampling_sha256": "86ba8ac4d38d675c409cd9ad485a6719f3157cfbf65d8d17b4d1236e31d449de",
+      "game_sha256": "e1e97cc8d1d4f93e020eb84b2aa8628428b61cefea4aeb53e76a8adbbae8f4a9"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-10-top_4_burningbridges_wanderer-1800-5F+burningbridges+wanderer+20240118000326.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 68526,
+      "game_sampling_sha256": "a35b87c0abc0d525179bd0608e6e12b08bc79b39f6f2f484d65ed08b0e41146f",
+      "game_sha256": "1c5e41600a84425906f9608b50f669c7f2b221f4357e993e74dab3a9f08a9046"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-10-top_4_daigorilla_centokun-1800-5F+daigorilla+centokun+20240117225605.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 57288,
+      "game_sampling_sha256": "e5f29d786d36331f79fbc4251b50e7fe244519c0cbc55a6841290d45deae51e4",
+      "game_sha256": "c8ae076fe6364530a5399c93ba36844eee85e8577889330d77b7479ef0d8a79e"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-10-top_4_honeywaffle_iroha-1800-5F+honeywaffle+iroha+20240117203739.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 27502,
+      "game_sampling_sha256": "6a0c0ce79dd44a19768e9a5a018d4d404d5d65dacf91ace146b0d93d8f1ef7b2",
+      "game_sha256": "cba155e8e659bc3a7937e4d747f781f7d6aefb54d7624a9670fb23e338e9483e"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-10-top_4_kerunba_grampus-1800-5F+kerunba+grampus+20240117220836.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 78860,
+      "game_sampling_sha256": "4f205d5abc9197ce47ba9bad94bc0c83e10fdd19b4493b3928ac8f04553340e8",
+      "game_sha256": "479bcd0846527cfa517b828714ff61c8036921d68dac9e5039fb25a9baa7bf60"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-10-top_4_nibanshibori_tanuki-1800-5F+nibanshibori+tanuki+20240118005717.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 124051,
+      "game_sampling_sha256": "eaf45d58f743a31a4ebf97204f1688437a2bba544834ef62de9740ae2b25b4aa",
+      "game_sha256": "42242bdfb799793ce9445fc917ce67c53039d5ff168a043da5e53b0399e30287"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-10-top_4_ponkotsu_ryfamate-1800-5F+ponkotsu+ryfamate+20240117211732.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 88240,
+      "game_sampling_sha256": "d68cc0bc6da01d8639a5050a0adba5ecf3bee7f099f5a5d7f2a9a899915ae32b",
+      "game_sha256": "72f5c2d0c35a7f76d9fff0ac99bb25deb98172e885cc08efd90298f678901bc0"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-10-top_4_suishodr_hisui-1800-5F+suishodr+hisui+20240118020936.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 44581,
+      "game_sampling_sha256": "064b0bd58c9afef3c8e79213f87bfc247fcaf653b5f86e0176cc1106bf16e05d",
+      "game_sha256": "5d77396f5721a68eaad84405bb8358caedcdb11e64f109b865202d2675cf1789"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-10-top_4_yaneuraou_kyoshogi-1800-5F+yaneuraou+kyoshogi+20240117232252.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 67364,
+      "game_sampling_sha256": "eba90ca0be6e801403ad551d32f1e322a2fc998fdf0db9c52e1342db3f93c8ee",
+      "game_sha256": "147d4ddb47c75ce300b139a4ee356d3b41be1939943401a4d4816250a84f8b82"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-11-bottom_4_burningbridges_hisui-1800-5F+burningbridges+hisui+20240118175522.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 77207,
+      "game_sampling_sha256": "d02d92d4cc9e1a2523d5310989ffbf403e3c3e1acaefea44b195cb7c5352ed98",
+      "game_sha256": "75d40a7805d64b37ca17d6153276ea632b70301e089ac4ba8bc240d2154629fb"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-11-bottom_4_centokun_iroha-1800-5F+centokun+iroha+20240118191225.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 42717,
+      "game_sampling_sha256": "2c92813f87cd1121484e28f822c22a41dc96ce54fb47e8f90cbd7a99a6b94ad0",
+      "game_sha256": "b4a62bc3a84e8f07ddb8d94b605edf94ac45a178811873baa2fe9c7fdedff0f1"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-11-bottom_4_daigorilla_kerunba-1800-5F+daigorilla+kerunba+20240118173409.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 39186,
+      "game_sampling_sha256": "3248a981d7a27d240a003be2ad63675d053fd274e32d2db8ba28c45a86174703",
+      "game_sha256": "03df264636bc445a219593e6d2a0020dfcf404a310623ed5aff6a05291d88065"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-11-bottom_4_kyoshogi_ryfamate-1800-5F+kyoshogi+ryfamate+20240118160010.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 89023,
+      "game_sampling_sha256": "5875fa22a9bf6c8881661ab9658b9c95dbcec4893ef8f8035f51795782f65573",
+      "game_sha256": "70500c832e09a01a84c72e3fc8d829a1f5f5fe0beca5d155d68c00b813a8e20f"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-11-bottom_4_nibanshibori_ponkotsu-1800-5F+nibanshibori+ponkotsu+20240118152330.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 55222,
+      "game_sampling_sha256": "5165f5dde67f8b92be9ee5935e125c6bd9cd2b86020c8bb6cb5b0d8bc5f9a56d",
+      "game_sha256": "149817403781c8d3d16cc6c23513e7a91d0b781616e5424f845787eda9eadde0"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-11-bottom_4_suishodr_tanuki-1800-5F+suishodr+tanuki+20240118194959.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 124830,
+      "game_sampling_sha256": "4fb890077f9f1a5e290b2fb0fbb5de94d2eba1015b64558bdcc1b1fd450cdc5f",
+      "game_sha256": "c0a6e395d0feba29861a0b8902cf112a588e27b85628f5db94f18331410cf0ad"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-11-bottom_4_wanderer_grampus-1800-5F+wanderer+grampus+20240118164907.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 67022,
+      "game_sampling_sha256": "e80b23453e6994625f9a2d0978186a360c3c06cd217fa402a37cc4c29e028bf5",
+      "game_sha256": "1bc1c4155bcde76a6b33d687c31c96307d1fdcdfb084eff3f29549bb3daed24c"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-11-bottom_4_yaneuraou_honeywaffle-1800-5F+yaneuraou+honeywaffle+20240118183520.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 62099,
+      "game_sampling_sha256": "b0270489d8529cf09b3c3a0a1725eccb0865df854b73b835a13de3e7ada83647",
+      "game_sha256": "3223b33a1ae0141821036b8e19a10596dea9becea9d26ec8abae9788be04a919"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-11-top_4_grampus_wanderer-1800-5F+grampus+wanderer+20240118114543.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 64936,
+      "game_sampling_sha256": "da82769fc38e6b1efb8753f97f089af4c18bc361649aabba011dd645bc38d3bb",
+      "game_sha256": "06037bb519b9d0acfec7498456d500a36a62f35e3cd13ac9635f2be2712603c3"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-11-top_4_hisui_burningbridges-1800-5F+hisui+burningbridges+20240118123451.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 63130,
+      "game_sampling_sha256": "52d753ca615d003b9484b1d7dd2d08b78c5bd6345211cbee50efdf7e38140afb",
+      "game_sha256": "929d04d4de8eb983480478e164c7fdb478393e788d888b728cfdca842be6edf9"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-11-top_4_honeywaffle_yaneuraou-1800-5F+honeywaffle+yaneuraou+20240118135823.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 8916,
+      "game_sampling_sha256": "e81f04f30d5f621e7c3ac83c3c2479544157f28b633f195a98663306ce688f8f",
+      "game_sha256": "2edfcb76c9a574d5636e43d6d8dabd9e9b9c51f089ae4cb44b26e9d31f42e491"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-11-top_4_iroha_centokun-1800-5F+iroha+centokun+20240118132016.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 41408,
+      "game_sampling_sha256": "9ab6ee9fc76c2c5d083f10b101e0af2dac87e8f687c40f817026be29d0e3558d",
+      "game_sha256": "11719010d962e77ef37eb841daf9cca97ea9332aa08e5eadc5b52306f1d923bc"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-11-top_4_kerunba_daigorilla-1800-5F+kerunba+daigorilla+20240118112557.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 29978,
+      "game_sampling_sha256": "3392eb5faf74ca8306e8c8fc3d11c495c2d301716795a2621488abe2625b6c6a",
+      "game_sha256": "3cfc73e1e7e42f896e75d69dd19bb41a1f27dfb92e0a56dd12e295707ea2e0d1"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-11-top_4_ponkotsu_nibanshibori-1800-5F+ponkotsu+nibanshibori+20240118085927.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 171401,
+      "game_sampling_sha256": "ccb6f90cbcfb7086907fd7524ad852cdb8b0b2a6fbb3d1bc5e8e33181427612c",
+      "game_sha256": "de416362a0ef2cee56874378c582d6eb646b47db682a201cf14fa2fd66e3d782"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-11-top_4_ryfamate_kyoshogi-1800-5F+ryfamate+kyoshogi+20240118102318.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 118835,
+      "game_sampling_sha256": "d92c031706cd40cc231bb891a9ddeee304d0371e3359d267c8be388fa170199b",
+      "game_sha256": "1f50a3578053f0b0ee0421fb529414767c33023eb7b1f995597d4d8bf70f79ae"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-11-top_4_tanuki_suishodr-1800-5F+tanuki+suishodr+20240118141045.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 114625,
+      "game_sampling_sha256": "fe3efa9000d7d3d86dca683ad8af40b812bc0f437408ac0be986f9af69a468b3",
+      "game_sha256": "1979b6ca8814253d88ae76027fa07a0b19da1d843b202148c257bf446305b469"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-12-bottom_4_burningbridges_iroha-1800-5F+burningbridges+iroha+20240119080333.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 2934,
+      "game_sampling_sha256": "79c3e0117c45d0b6bf7671c356d705c37188b2f1c5d08a6a19977576f3fde02b",
+      "game_sha256": "4d7ab379a65a598de01d36d7fa753be3d1f926cce7cef462c2022890087541bf"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-12-bottom_4_centokun_tanuki-1800-5F+centokun+tanuki+20240119081119.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 54191,
+      "game_sampling_sha256": "b2f0418cbad68c6661a964426a549d2a243dd8088cb6f639bf2fceda5ed8bb62",
+      "game_sha256": "47d1bd16787c60d7ebc9fa22109abda7b4ab26b5c15ee4a100de6573c15fafa6"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-12-bottom_4_daigorilla_grampus-1800-5F+daigorilla+grampus+20240119041404.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 70811,
+      "game_sampling_sha256": "a563fbf5ce73d39e29b6035b53977d4faa1a6a20198ac367406b14b6151eecf8",
+      "game_sha256": "c5836490693972e200f05e7b1bca5e768c1d1810d4ca79e5ca455ea75533f452"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-12-bottom_4_nibanshibori_kerunba-1800-5F+nibanshibori+kerunba+20240119064358.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 172771,
+      "game_sampling_sha256": "b9e65c36b5c26085461c001ce3d4a72579ad41e3528a8ea63d379d4fddb76e4c",
+      "game_sha256": "68a49606b23c6acf8c5cc975cd4c325a8c92e98a6c90e3e378e23f5ad027dd2b"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-12-bottom_4_ponkotsu_honeywaffle-1800-5F+ponkotsu+honeywaffle+20240119045539.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 76293,
+      "game_sampling_sha256": "d66ab5bc8968c0a2d8c8161ad28d233a9c46d464e07749dbf8e1e1cab5e03925",
+      "game_sha256": "7555955c1b33d2a6e73454e87ff5fbdcaab6fd125a664e6628d22016fb56e06c"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-12-bottom_4_suishodr_kyoshogi-1800-5F+suishodr+kyoshogi+20240119095452.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 76626,
+      "game_sampling_sha256": "14a84197be0d237169e76a2e41602dc12c10a130e0ac25a99437ff3cb4dd8e21",
+      "game_sha256": "91906a98e5dd9307881e44c998be01b9f0084666234f101fdc235851edb32a96"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-12-bottom_4_wanderer_ryfamate-1800-5F+wanderer+ryfamate+20240119055458.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 64734,
+      "game_sampling_sha256": "38fe7163fc3a133f43a9470b14075fd6dabd23fbfad74f2c458412dedba8ade2",
+      "game_sha256": "7bf3ade20a27f5e35c680c92ed5473dd8377ba16a2e1c1164eac6255ad038328"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-12-bottom_4_yaneuraou_hisui-1800-5F+yaneuraou+hisui+20240119085329.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 139495,
+      "game_sampling_sha256": "6055b8549ac54109c36c952e22882c8d0fd20bac740ff359be24b88e29e7373e",
+      "game_sha256": "d22772ebf28055cb41be9e4f270394eba26911695d81f70ae78e0b98945cb76a"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-12-top_4_grampus_daigorilla-1800-5F+grampus+daigorilla+20240118210634.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 52972,
+      "game_sampling_sha256": "77138a3f734ac3cc550433aacffae6a52600514b9074ee8960daad4380e252a8",
+      "game_sha256": "b84867812ffb786ee65e0d6e68128c8b6333f72dfab12a454355970e45dd02c3"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-12-top_4_hisui_yaneuraou-1800-5F+hisui+yaneuraou+20240119020034.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 96353,
+      "game_sampling_sha256": "4fba333b79ac71ec2b3da7b1cfde7048107df05d229abdeb96a52a146208e738",
+      "game_sha256": "71420fb4a347c984a39c3d99119ce437a1457675d30529a3aab9864e524fc85a"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-12-top_4_honeywaffle_ponkotsu-1800-5F+honeywaffle+ponkotsu+20240118214040.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 36370,
+      "game_sampling_sha256": "ed6e99a8a7e4c6075815785712bfec0e735086d6cf1b148fe7d6495c232b8f2f",
+      "game_sha256": "f36c7df620523b81e8084cb66d0022ff450d91d9b01bdf209ee87b0d33aa5c04"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-12-top_4_iroha_burningbridges-1800-5F+iroha+burningbridges+20240118232444.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 23707,
+      "game_sampling_sha256": "e5d30042a81986354bb251c6bbdea6e4d1919727424beec65e744b396d719782",
+      "game_sha256": "86f75157bc3c5c56c72b3e46df74a12731c0ab16b2787c4c76b021839591b2f5"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-12-top_4_kerunba_nibanshibori-1800-5F+kerunba+nibanshibori+20240119000739.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 106246,
+      "game_sampling_sha256": "b7d7c236c2b23aa088dabfa5dae900b321c6390c2e0c00db9901f35834cda2de",
+      "game_sha256": "6c93ffb4c8805d8468901171c61e7c1a5998ab81ac24d7b19df6d144d102cbe2"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-12-top_4_kyoshogi_suishodr-1800-5F+kyoshogi+suishodr+20240119024541.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 145877,
+      "game_sampling_sha256": "78e33ca92d5dd2813e1cd20ecb17fd3a67bac072fcdbe0fa39392bac8edea929",
+      "game_sha256": "9792df9ba633d2c6959806d0179518a5f09c3cfbd2436500567634ec812fd5fc"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-12-top_4_ryfamate_wanderer-1800-5F+ryfamate+wanderer+20240118221607.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 99051,
+      "game_sampling_sha256": "26450ca016b2f71319c5f28c2212d7f30c1e5c2a6cffe37b7215b33ecfa25ac9",
+      "game_sha256": "b986fe3ba06295118539ab903e2de6546735b9550501608a4e0099f9e2e04f14"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-12-top_4_tanuki_centokun-1800-5F+tanuki+centokun+20240119010434.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 116576,
+      "game_sampling_sha256": "14757af004d535aa557c59904fcb956167ac7193c31ef6a7dcaff2c56b534ffb",
+      "game_sha256": "a90df72a71f816c67b40e98ea3536093cf0bb39886b28e67f9124194cec4263c"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-13-bottom_4_grampus_iroha-1800-5F+grampus+iroha+20240119194325.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 2889,
+      "game_sampling_sha256": "e7c0b20ff1f6bc58f79afef852c48be638d50082acad84a61948d52caaead296",
+      "game_sha256": "adaa6afb016e8502da526a850138e980d41a890764025db70cf3f5a8cbbe6ff3"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-13-bottom_4_hisui_ryfamate-1800-5F+hisui+ryfamate+20240119205909.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 62629,
+      "game_sampling_sha256": "a031f4c85ea857090addf708dfae12bbf63838394aad5caa6fd10843356d9687",
+      "game_sha256": "9bad64d00358715b40eafb54c9bc68fae18075f05022ca700c54c2c16d92913a"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-13-bottom_4_honeywaffle_kyoshogi-1800-5F+honeywaffle+kyoshogi+20240119174426.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 81380,
+      "game_sampling_sha256": "08a153e7c8fc25197b017d751160a79eec26072a44abaa02e060ef21131633fa",
+      "game_sha256": "2f944c42e6471e2352e0238283a75715f26f8d7734a3cff57b8146a586db09b2"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-13-bottom_4_kerunba_tanuki-1800-5F+kerunba+tanuki+20240119195114.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 132452,
+      "game_sampling_sha256": "e2e8dc8bd403d2d0b968430fd6969dccba61b08cb7e0eb9207a4b8041d9f9523",
+      "game_sha256": "3956ee62a8195085dfeee74bb9f0a43bf24652d07b42ad73506e918d7c22c82e"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-13-bottom_4_nibanshibori_wanderer-1800-5F+nibanshibori+wanderer+20240119183711.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 99682,
+      "game_sampling_sha256": "425215ad046d69be02605ec2ac4a06715e4bae3e9bc39ff81aa4aeae794d48e2",
+      "game_sha256": "e96f64b923d9fce2f711fc57827291e8b3e464e61a1e37f20b170fb1d73837f7"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-13-bottom_4_ponkotsu_centokun-1800-5F+ponkotsu+centokun+20240119221846.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 57887,
+      "game_sampling_sha256": "08ccfa1bc2ea09ccafc9ee1feba16d04e8f24a589dfe4fbfa73cb67743ffcdea",
+      "game_sha256": "fce7083723a93bd7ddb93ac920eed1382f125ce26c8d2b23c21536765ef9b463"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-13-bottom_4_suishodr_daigorilla-1800-5F+suishodr+daigorilla+20240119225106.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 91523,
+      "game_sampling_sha256": "d5d4af79167da524635a510ecc6ff43d749f51c266ab67fb6aacf2725d63bb85",
+      "game_sha256": "6215e93a031cc6cf38ce7b6f9832b41a3d909f0c4ce032efc311f187c8e6e3f5"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-13-bottom_4_yaneuraou_burningbridges-1800-5F+yaneuraou+burningbridges+20240119212651.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 65100,
+      "game_sampling_sha256": "0e1a60f48747f9ee1f0a13f1f08f90a8b36daa96c61767df2831c7bdc1fb6880",
+      "game_sha256": "2ed121acbe0dc34f2b13af93b26cc22455c6e6c1cb5b345cb28765a557c8f1c1"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-13-top_4_burningbridges_yaneuraou-1800-5F+burningbridges+yaneuraou+20240119165532.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 64887,
+      "game_sampling_sha256": "85279e3032bf297eac82b333ea8e83df1d41941abbdab9fdf066f3deb81b4515",
+      "game_sha256": "c0fb1723d91409020aefd6b7a6c0283afc159822a224cabc17bc4432f75d2dd2"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-13-top_4_centokun_ponkotsu-1800-5F+centokun+ponkotsu+20240119153045.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 73334,
+      "game_sampling_sha256": "cc904dd9aac22306351c3f48839c5b0e2633afd01c306e0f67c790e84e79ce20",
+      "game_sha256": "634bdc486c3387380797bbcb5fb204cd4c1ef68575491243b95771358922be2c"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-13-top_4_daigorilla_suishodr-1800-5F+daigorilla+suishodr+20240119160830.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 77381,
+      "game_sampling_sha256": "c8cb507c4beefd3544603c9f2cd124865bbac931a42e3e4efc55c406353d43ee",
+      "game_sha256": "fd9f7ef9e2b76e4a727a80bc39babede2dfbb42b83b43cf43c0e780c7dac7404"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-13-top_4_iroha_grampus-1800-5F+iroha+grampus+20240119131422.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 46689,
+      "game_sampling_sha256": "7304d632556181a99182e6a36de2aee94666468402721c8ca5230d0e537ad947",
+      "game_sha256": "4e930f80825782da7945a7d673aa222020cb76a6c4cdaffe7dede238ebae0e0e"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-13-top_4_kyoshogi_honeywaffle-1800-5F+kyoshogi+honeywaffle+20240119105344.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 115206,
+      "game_sampling_sha256": "ca6c538912a5a0b3825f791de1b6901382038c5a8b9b81cb48ccdf53d07b6f8e",
+      "game_sha256": "17dcd6fc912ccb6f3c07f8aefeed0714190e9549739c9cb1e047a2ef73ecd7c1"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-13-top_4_ryfamate_hisui-1800-5F+ryfamate+hisui+20240119151011.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 45112,
+      "game_sampling_sha256": "1bab8effdc4eadb0235d7e8588d2761e274b6e85cacade337ee45a0db13b8c0e",
+      "game_sha256": "d2b7bae8b663e708e4308c40cdcc1fec9f8356f7b9a71c0f41e3cb921781e65a"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-13-top_4_tanuki_kerunba-1800-5F+tanuki+kerunba+20240119141046.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 128212,
+      "game_sampling_sha256": "94344b7dcb180e9c8225a279c646404c1a5c5b4770b3310ac05fc0cc75d38adf",
+      "game_sha256": "f05c15d7357f9f40dd7833b447a1be2e8c7b490d8e61ed2fae2f90f46cbf6e6f"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-13-top_4_wanderer_nibanshibori-1800-5F+wanderer+nibanshibori+20240119120906.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 99671,
+      "game_sampling_sha256": "647fc888a5716398d700abce710546b6dcca616019408b982beaa2a45b319131",
+      "game_sha256": "31bc928408c8b1de1e4e4258fa9193725038fc086d239cfa84458ee936f6e3a7"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-14-bottom_4_grampus_centokun-1800-5F+grampus+centokun+20240120132129.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 65665,
+      "game_sampling_sha256": "5b36a9d2c172ab309f6e80c03dd07cc9f6776e1c583c1aad1271ae8ccf269368",
+      "game_sha256": "cea6d3d972751cf388ebde11e6dc53e0c8306f45bd46556ce17e8180cfe47394"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-14-bottom_4_hisui_wanderer-1800-5F+hisui+wanderer+20240120110650.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 67649,
+      "game_sampling_sha256": "0324cc53fb9a3630d19822ff11b9210c48b3b0ee887c5e11ebd0801f4da6ef56",
+      "game_sha256": "06cdafc39c980de40233e16d23a60a987117df741eff7af8edb7321f968a1fce"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-14-bottom_4_honeywaffle_daigorilla-1800-5F+honeywaffle+daigorilla+20240120053838.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 49121,
+      "game_sampling_sha256": "5ec4fd1b3f66d56f3038d800cdc340aaa2c1c486810cf145db0bd4511dab8748",
+      "game_sha256": "03338c3f8f7475b92b185b582ff87ee013fae81edbcde707d83c3909e8cccee4"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-14-bottom_4_iroha_kyoshogi-1800-5F+iroha+kyoshogi+20240120223908.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 33022,
+      "game_sampling_sha256": "96a42bcd935f688bab83ce23142324b59e3407a44991ce1d4ff601074579be60",
+      "game_sha256": "e0556d5e084d7f3cf5f972bb91e2791ef32cc8da69dd14b274ffe18b6d4a0117"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-14-bottom_4_kerunba_burningbridges-1800-5F+kerunba+burningbridges+20240120114805.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 45732,
+      "game_sampling_sha256": "09d7b7ebcad071b604eb5ad39c37e2550871c079ee17c63fed1442923c560a93",
+      "game_sha256": "0903ecffc627496aeb60253bb595211a2026ea44f774b3559be4b541b31361ac"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-14-bottom_4_nibanshibori_suishodr-1800-5F+nibanshibori+suishodr+20240120140145.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 127443,
+      "game_sampling_sha256": "7d5524714c9512695ab2f30ae732409588089dcaf0364768b4e06d02efe3d72c",
+      "game_sha256": "568da35b437b5e3086222018e1815a13e98876466a140784804d77e269c16e26"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-14-bottom_4_ponkotsu_yaneuraou-1800-5F+ponkotsu+yaneuraou+20240120122630.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 134620,
+      "game_sampling_sha256": "07153b2efc5853f37c40f6f05725f50cd2dac000d24140f3698a6e438cbabfed",
+      "game_sha256": "11b0aeacfeec8b4fc1072ce8ce56da54adc0b9e05d3e483dc704cd6beaa1dba7"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-14-bottom_4_ryfamate_tanuki-1800-5F+ryfamate+tanuki+20240120103737.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 39526,
+      "game_sampling_sha256": "c7c5a87d76818dcc5e7dcfa0611f32f9fdfbd722a0c6c031172029d1b37ade12",
+      "game_sha256": "3485cb43a51c702b1c470e54ceed7dca53531c5a64d768f4851dcdff9092f615"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-14-top_4_burningbridges_kerunba-1800-5F+burningbridges+kerunba+20240120021006.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 88862,
+      "game_sampling_sha256": "4bc9a874a606125a1b83b2743ba14311aa9daf23b286cab48db3be728a77d450",
+      "game_sha256": "d7a07f89bc5402c1b6156dcc89f7ce1732b1f82eba1fbd3aad4d218f18483315"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-14-top_4_centokun_grampus-1800-5F+centokun+grampus+20240120033022.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 154644,
+      "game_sampling_sha256": "cd5ed7ce1d9b02cf0b2cfc168c2e69b9a96c284d031a53ec0d6386ffc7133368",
+      "game_sha256": "01caa0c9d29bf719c2f3f6b97a09b431ff5586a94f536a3c09c87fb7db3f22b4"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-14-top_4_daigorilla_honeywaffle-1800-5F+daigorilla+honeywaffle+20240119234511.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 45432,
+      "game_sampling_sha256": "4a137bd900f4ab245af2be8d723813b362c2ef27c663b11b23aa014b4304dc05",
+      "game_sha256": "00d5170665b365928157d4d738b8ab3628f0cd9ad3283d6d65e24d90ae4d78eb"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-14-top_4_kyoshogi_iroha-1800-5F+kyoshogi+iroha+20240120001814.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 3815,
+      "game_sampling_sha256": "04f6b687ad56fd0aba54f1fb273b0b06efc2fa158484e11b4f015286336fb0ac",
+      "game_sha256": "028409aa434a7b015428892f3ac0a54c81a841849a56d4ea390a4ee7372c6ca8"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-14-top_4_suishodr_nibanshibori-1800-5F+suishodr+nibanshibori+20240120044934.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 47735,
+      "game_sampling_sha256": "b26d7382ffc1f703e9de45b8595ca4c6791c875da72d55e4b50db8e67ac1f11a",
+      "game_sha256": "ebc872bcc26368b6d7713b77f810676f02d6982f1540ee149a3e0494a797ab24"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-14-top_4_tanuki_ryfamate-1800-5F+tanuki+ryfamate+20240120002603.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 71259,
+      "game_sampling_sha256": "4c769bec2612fef52fe7bacdbe36556fcd210b741fa5979714d6e9be50e282fa",
+      "game_sha256": "edb458d6c897a6e0b9f59eec62bd579e03c54a280301afe011f500be6b7bbb42"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-14-top_4_wanderer_hisui-1800-5F+wanderer+hisui+20240120011646.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 111411,
+      "game_sampling_sha256": "d3cbd4abf2264a8c49c6d79d993f7a3eee5dc354c49526af937c185400b03361",
+      "game_sha256": "725f0cf7e12dedf9ab071206f2b919ffe11ce0cda2faf8a71d408628ec27eeac"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-14-top_4_yaneuraou_ponkotsu-1800-5F+yaneuraou+ponkotsu+20240120030042.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 39557,
+      "game_sampling_sha256": "d9dfc9d6bd116e5eab6707d911d6e1bebc04f92b6fe04ab91292a173750df396",
+      "game_sha256": "457ef56a0b9d2dbf180aa81ba5a7aee4404be2e2c789294dbe8465efc46f8cbd"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-15-bottom_4_burningbridges_centokun-1800-5F+burningbridges+centokun+20240121202856.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 118369,
+      "game_sampling_sha256": "bc7c507a668b9a34a1f1d33d095330913688c9dc8642f21856618bc2ff26e2d2",
+      "game_sha256": "7649b9f208266d27fbfc4ad1d6ad22808a2155639d456b277c7d02e18ecbe5f6"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-15-bottom_4_daigorilla_kyoshogi-1800-5F+daigorilla+kyoshogi+20240121145658.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 97440,
+      "game_sampling_sha256": "3230008fbaf97401dad5a8139e627e154e82e0a880ecb759c90f81c130b98f8f",
+      "game_sha256": "323e906851e050a32c0c0e8f7dc5e9103a8faa996b32ba6319addc82dbd321a3"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-15-bottom_4_honeywaffle_grampus-1800-5F+honeywaffle+grampus+20240121172537.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 70605,
+      "game_sampling_sha256": "8334296b870a63de46ea19a58c6c74a0a4cdf4bcdeb70f8243f16f8169cc36d3",
+      "game_sha256": "bc989a6427ab073ebcff6b7d804e9e59bad9dfc7dc7c7e18afd2332caffcc0a1"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-15-bottom_4_kerunba_hisui-1800-5F+kerunba+hisui+20240121181040.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 30527,
+      "game_sampling_sha256": "7b437315c7f7c73f3788965bb3444deda4bc0779abbbc5a4f9a6cb51c338f6bd",
+      "game_sha256": "953f16517a58d1e572b9c0d2a392b29975fe8fadaa982a12026854bacb5776cd"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-15-bottom_4_nibanshibori_ryfamate-1800-5F+nibanshibori+ryfamate+20240121164200.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 85194,
+      "game_sampling_sha256": "2ca7801841efff825133f504b3f844d5f4401db522846e2da9ceb65b00efcd9e",
+      "game_sha256": "e3bf3c430f200a361028f0f4774f8ed1fff64db65e4897834caf37b5b7353577"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-15-bottom_4_ponkotsu_iroha-1800-5F+ponkotsu+iroha+20240121155616.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 51027,
+      "game_sampling_sha256": "63d36ca3f515c65e5001fc2822b124cc4fdea4b81220a7d8aa03549a8aeb11fc",
+      "game_sha256": "8d2766cff9ab717019f2a3a277987e2ec55bdec9f46f3eb03bd66f6526996903"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-15-bottom_4_suishodr_wanderer-1800-5F+suishodr+wanderer+20240121193437.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 76154,
+      "game_sampling_sha256": "8638229ccbbbba09b3d9ff8d7e8d98a4837defd72e8238e8e59be821c1af0a81",
+      "game_sha256": "52e658b7c7f90f83ab2ac502e79d8503d4791314a18d388f3a5862d06af47ef8"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-15-bottom_4_yaneuraou_tanuki-1800-5F+yaneuraou+tanuki+20240121183744.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 107670,
+      "game_sampling_sha256": "971d8bcf2bc30657f3f82605cc05ab4cb09500ef26a887c5a7089b57baab640c",
+      "game_sha256": "6b6fd5684a74cacf87aaf86bb43bf39ddf9ddbc6f7f050c9a53ea93f1ee9eedf"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-15-top_4_centokun_burningbridges-1800-5F+centokun+burningbridges+20240120234925.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 124922,
+      "game_sampling_sha256": "0ed27d7b839daaffc4d66f927211704e65efb172f921411fde6cc5a2ce80b906",
+      "game_sha256": "e2f50c4852518a696afabe4d40e927133faf8dd5eaaec6a5733adcad3a464c36"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-15-top_4_grampus_honeywaffle-1800-5F+grampus+honeywaffle+20240120173514.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 41718,
+      "game_sampling_sha256": "1871016246e50fd854efb7ccd3818683bcf57c9a468566b33e6553fb8cb639c3",
+      "game_sha256": "a80dce0e042af23c84c2ed99e5c051e1a3a7a131d104b44450609a72f927edc7"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-15-top_4_hisui_kerunba-1800-5F+hisui+kerunba+20240120181106.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 22646,
+      "game_sampling_sha256": "3bf7aa87544446a46a390d84fab583f57994d9e115adc1faf3251cac19743ce4",
+      "game_sha256": "cd4652a7c16039297947173dd12af7fad8d528a25b01b521b5a6abfd6a373efe"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-15-top_4_iroha_ponkotsu-1800-5F+iroha+ponkotsu+20240120155621.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 49426,
+      "game_sampling_sha256": "ce9d65f5ed34f16b3b8fea4f7d900c38b0d6cfa252f964a68b6ae52c09062c6c",
+      "game_sha256": "c1f50f6b2f4cf1094abb5672f2d0705f81a056c2e6c185ca80687ea25471be27"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-15-top_4_kyoshogi_daigorilla-1800-5F+kyoshogi+daigorilla+20240120151648.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 83549,
+      "game_sampling_sha256": "efa5c9c1bfb30d0a2f80f3c7afa26477b60ba001ca67e8f96e55ffdd7df11ce4",
+      "game_sha256": "a880ecceaef2f73c1ad008c5a6f9453c6b5f649c5c986045a7dd305f10cd4608"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-15-top_4_ryfamate_nibanshibori-1800-5F+ryfamate+nibanshibori+20240120165444.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 63321,
+      "game_sampling_sha256": "6ff7ce0ad471a849334307b4fd43411d7c5d7427d58b8991c6fe8657dae0ea33",
+      "game_sha256": "8f466c7d3436efa41b292365b47ed39bcc8e3990952ae5af6fafb320e43d59a5"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-15-top_4_tanuki_yaneuraou-1800-5F+tanuki+yaneuraou+20240120183156.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 59620,
+      "game_sampling_sha256": "af327f0f64e2ae29f19b7670baaa9f5f24491e0986a8790940406271fd6479cf",
+      "game_sha256": "95b93f5bd08405ac6b9c4829ca59962f60a4e2883c3cc1492a926e4009614951"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-15-top_4_wanderer_suishodr-1800-5F+wanderer+suishodr+20240120190647.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 74276,
+      "game_sampling_sha256": "931375d69d9491cf5d8b895bac8a642ca38882e7084e940bf82b07cdd15d2b02",
+      "game_sha256": "b8d61c6e58e9f6cb406faa443245676cc9e5cb55d1eec7eecd921702b334768e"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-2-bottom_4_daigorilla_wanderer-1800-5F+daigorilla+wanderer+20240114002743.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 59374,
+      "game_sampling_sha256": "a18f643c422b59cf9c9d99d0342753a5499a8522a078b050e4d4f731164a0257",
+      "game_sha256": "09323b370fcf503c1bb259ef5de084dc727761bd239799b5249f3ff9daa20498"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-2-bottom_4_hisui_grampus-1800-5F+hisui+grampus+20240114061621.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 11676,
+      "game_sampling_sha256": "4f1abc46ba553a54807db4bf4675b817ed266259ea15b3de00b67244db027026",
+      "game_sha256": "03b25537870777c2300e077852e7fe3b6f1b71acab5ccf9a8eb4c5c9f97698ea"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-2-bottom_4_honeywaffle_ryfamate-1800-5F+honeywaffle+ryfamate+20240114045847.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 57514,
+      "game_sampling_sha256": "07b01e7e77a45cbbed3d2fa097a4511d4667bcaf4242093fbf867d284ab28948",
+      "game_sha256": "48d0fc39ef18f182591659f12b8715553fa03c4bce4383de74a299457b5b4f46"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-2-bottom_4_kerunba_iroha-1800-5F+kerunba+iroha+20240114014634.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 138427,
+      "game_sampling_sha256": "1ad27c79507b23f47cffc998ecd3602abe8d49bd508aab5a39ef7bf739bac1cd",
+      "game_sha256": "f42a40bcf7ba4fc44e69436600ea2a046e0959c6a81547452efc5e1bf407a940"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-2-bottom_4_nibanshibori_kyoshogi-1800-5F+nibanshibori+kyoshogi+20240114035350.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 110403,
+      "game_sampling_sha256": "3ffe356252c9b200892130823792c8f91b800c59293b26e83e4ffd2372c84d1c",
+      "game_sha256": "da57c021343ad8116c8f3d106a06024d4fd6ad850bf93d41b44b75bf6074126c"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-2-bottom_4_ponkotsu_tanuki-1800-5F+ponkotsu+tanuki+20240114030728.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 51059,
+      "game_sampling_sha256": "dab448ee308adf056e0f9dfe97d5953fade5e4c5013cf7685aea3352559a96d5",
+      "game_sha256": "ffa73d3c89c63242ae2031cf5fdfa4ea7134489fb621420abf6b21d1650ef51b"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-2-bottom_4_suishodr_burningbridges-1800-5F+suishodr+burningbridges+20240114053620.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 19825,
+      "game_sampling_sha256": "94c0e792683056b06a341393829e272e44b79cc3c394fd39d51c004e7f1c2318",
+      "game_sha256": "d78a210231389eca3fd27b6a769fd77351cf719005d3520e76c3fba01c624965"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-2-bottom_4_yaneuraou_centokun-1800-5F+yaneuraou+centokun+20240114010546.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 83700,
+      "game_sampling_sha256": "7112cc23038e4451ddf5147258ace7dd41edd2d2f8dccc95d7b98d2b43adc286",
+      "game_sha256": "554c597e9c954bcdddb3f24b760a5bf8efd1869a090e30d0648047feb4c9f51f"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-2-top_4_burningbridges_suishodr-1800-5F+burningbridges+suishodr+20240113214935.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 78662,
+      "game_sampling_sha256": "e0a5b0bc84e498e6c2e4fa86dc66bffb691175197c7d11dc3f5d6d34986a988b",
+      "game_sha256": "0b5f82cc25265957cc6aa94074d4278a06ccfd898a8e596ba09ac8db27a3effd"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-2-top_4_centokun_yaneuraou-1800-5F+centokun+yaneuraou+20240113183318.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 97479,
+      "game_sampling_sha256": "4cd3a938168392fc090607810f4dad35b9573bf4e01443c77d4afcde406bb8bd",
+      "game_sha256": "413f83f908b9c64b0e9b4eb766752d77237b66de2dbe563d72df74c1799e7190"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-2-top_4_grampus_hisui-1800-5F+grampus+hisui+20240113234641.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 71954,
+      "game_sampling_sha256": "7f613e69f058b58d9e4521abbab94d51bdf3a27ea16f16d757188d351f03e341",
+      "game_sha256": "d67b75c3b34d85089e1adddaee56d892fd05042490587546448c11a7938ab66d"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-2-top_4_iroha_kerunba-1800-5F+iroha+kerunba+20240113191704.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 43123,
+      "game_sampling_sha256": "18bdb1974801793b19920c3df2c2d7836b47fd08e008dfc942e966f541249ce5",
+      "game_sha256": "e6765e5392df8ead1aa48b95601dff500ec22c9040fb54fd436159a913b7d836"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-2-top_4_kyoshogi_nibanshibori-1800-5F+kyoshogi+nibanshibori+20240113225648.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 91363,
+      "game_sampling_sha256": "fd5268e5ce6b9f4adb2b9a0fc4958127dd55cff9a727afa52bd1fb7c7f4c0fa5",
+      "game_sha256": "68125f621b2f8d54e5676ff1c6abf00566237da92bb82d1d0f1e80debb8baf1a"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-2-top_4_ryfamate_honeywaffle-1800-5F+ryfamate+honeywaffle+20240113203017.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 85546,
+      "game_sampling_sha256": "ef87b958e995b83312f83fafaca590cfab762aaed348a1e6c0ec829c1ba7aaf0",
+      "game_sha256": "c9fba8467244dda52b8d3fd8e405ac4b633aaf514dc7538950dd7b75ce130a43"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-2-top_4_tanuki_ponkotsu-1800-5F+tanuki+ponkotsu+20240113195902.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 39129,
+      "game_sampling_sha256": "bfa717855f635213c8840f49727f10c02f962e65eb1fa415361bed3db6e0e3b4",
+      "game_sha256": "57ba1e3ba12be1175e625493fc2594d96cebe3cf9984b259f434a459228dc335"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-2-top_4_wanderer_daigorilla-1800-5F+wanderer+daigorilla+20240113180009.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 65194,
+      "game_sampling_sha256": "e18e957d624089d22c1faf728944abb748e0af0fee9392718bf75a731babed7b",
+      "game_sha256": "4b51ffe4ebfe4f7debbaf87a9c204d8600a0e899eb4e9bc4447f990ee53d0cfd"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-3-bottom_4_grampus_burningbridges-1800-5F+grampus+burningbridges+20240114122802.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 65616,
+      "game_sampling_sha256": "5a7882de4afb4cf6b52694df4a10b06f0005fefbc6811b1e5584941530d92d0e",
+      "game_sha256": "ba3bde60183d9be4c49374ba57bb199c8e1239411f721249093eb5e80e148df3"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-3-bottom_4_hisui_daigorilla-1800-5F+hisui+daigorilla+20240114173428.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 77425,
+      "game_sampling_sha256": "a9c5e7ab62d36223fe24330b5f3b296b806ad291e478a282f093bdc66319997a",
+      "game_sha256": "6ae0612e9eafdbaa3538d37fd7bc6c983a4a9d1ffe6eb9507a176d5a307a5bf4"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-3-bottom_4_honeywaffle_nibanshibori-1800-5F+honeywaffle+nibanshibori+20240114132008.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 121844,
+      "game_sampling_sha256": "891400f52fcaa9b30c500422b9d622cd7bb055bbe7a4dba5361b445b5247023b",
+      "game_sha256": "e03461fb1f49c7c3624858b9ab10fad29eef4126e530da6d3a2c9063b5ca2438"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-3-bottom_4_iroha_wanderer-1800-5F+iroha+wanderer+20240114150853.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 68837,
+      "game_sampling_sha256": "f059a6db97a7c76eb7337b0c44119b884a67f20b689ed6d800d2800098b5eca3",
+      "game_sha256": "2566e0f3466408cdee249b0c097f4b321d005212e08700857a2fac319188bdb2"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-3-bottom_4_kerunba_yaneuraou-1800-5F+kerunba+yaneuraou+20240114143650.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 70597,
+      "game_sampling_sha256": "56e886ae67f0124e517d66ca42740742c3b55ded6349d8cf2cde7d232af372ec",
+      "game_sha256": "411ff70299caa1c43474d9800655c3b29f17473a4331ab5e3b8f6f9f379d684b"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-3-bottom_4_ponkotsu_suishodr-1800-5F+ponkotsu+suishodr+20240114160404.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 40595,
+      "game_sampling_sha256": "0d9d879beed48872d953b970d9afbd5b049c34b16601079d33e2dd435b672b60",
+      "game_sha256": "fa90c8246559abb1e1e79958e56253b73fc6f07f3025a4843e65be13851f933f"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-3-bottom_4_ryfamate_centokun-1800-5F+ryfamate+centokun+20240114180840.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 71469,
+      "game_sampling_sha256": "5ef06cb53a0c4348bdef90f2324ccc6afed272d97dd070e61943391fab01083c",
+      "game_sha256": "a54ca1e8994a6bfe381c03ba5d95c89dfab384e343d3e435702fc1ad6c5aff46"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-3-bottom_4_tanuki_kyoshogi-1800-5F+tanuki+kyoshogi+20240114163615.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 74412,
+      "game_sampling_sha256": "4306feb1b0a2bf78d06e99f5da15870199e957e5a8add49f6c93765dc8db0f15",
+      "game_sha256": "744875c619fa8bd93e4f065780d8689fc9e52d2dbc5b1722390865fd9bf00c4b"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-3-top_4_burningbridges_grampus-1800-5F+burningbridges+grampus+20240114062655.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 56125,
+      "game_sampling_sha256": "d54bec84bf2021efcb71e3193d7901f06bea7f49f81a9246e00395269cddb548",
+      "game_sha256": "136c2806f7d05a2edc76b76eefb5f2992f76365b601f1ff9b3569e7cd4e475a0"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-3-top_4_centokun_ryfamate-1800-5F+centokun+ryfamate+20240114110501.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 121976,
+      "game_sampling_sha256": "edf7b2b99ae05dd50dd75b31de5fea7a66daf1f9ed3aafeb8e20842eab3931bc",
+      "game_sha256": "a6d780abd135299239f8c34e7f0e14558c9c4444cc7b41751117e4b49352c092"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-3-top_4_daigorilla_hisui-1800-5F+daigorilla+hisui+20240114104105.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 52047,
+      "game_sampling_sha256": "5a3f387d13e5d591061efa95d2e2c3911bb646d28e691b2d700a22d4db1b43fe",
+      "game_sha256": "07cc628a8eb7cdfbc7584ebb1e92175f7ac638e31d86e732c98ba09bb4eb889a"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-3-top_4_kyoshogi_tanuki-1800-5F+kyoshogi+tanuki+20240114074643.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 85302,
+      "game_sampling_sha256": "f36a26784f2720354c7c6078c1d679da1bfd8ef8957e301dc983691a6248ad9e",
+      "game_sha256": "e4a69d86c9aeb5c34e9a88cd407ab7b91e6615302a20c553eb002455a3369b19"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-3-top_4_nibanshibori_honeywaffle-1800-5F+nibanshibori+honeywaffle+20240114084048.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 59848,
+      "game_sampling_sha256": "3d2aeff6218fadccbdba4dfbec093dd8b815f314924ef50585a7ced6052c78f9",
+      "game_sha256": "632152d00d0c661a22c077662bf87111e4b8a52bad6474ef05b8a7faf1da4fd0"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-3-top_4_suishodr_ponkotsu-1800-5F+suishodr+ponkotsu+20240114092215.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 26806,
+      "game_sampling_sha256": "d78ca4ed5e28a737753f812ba62d4f98a464489adaf80f5dca757a49a481b19d",
+      "game_sha256": "cd838e0a4cb2796c8864262be3ef2e93275c6a247824ed1521d00b06fdc152f6"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-3-top_4_wanderer_iroha-1800-5F+wanderer+iroha+20240114070904.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 34038,
+      "game_sampling_sha256": "acf77c48dd22c2a82df40e018230c57ca18f4f50a54e319c79f920e1a9bd8780",
+      "game_sha256": "9cfbe4deaaab214d87bd725a5e11a106e2946fad13488cec38b942f032940253"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-3-top_4_yaneuraou_kerunba-1800-5F+yaneuraou+kerunba+20240114094245.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 123939,
+      "game_sampling_sha256": "49d02948f2d82cdd46dfb826bc0861a8020ae218eff10e06ff474890405b0780",
+      "game_sha256": "9d529cb3dba7a1d87cabc61bfd99ce32e969968dd5bed2dffe6f2ee6f46f39b3"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-4-bottom_4_burningbridges_tanuki-1800-5F+burningbridges+tanuki+20240115023602.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 78243,
+      "game_sampling_sha256": "7668435efeb14403fced49eb495c741b069fe6daf6ff5bf61046d67e0008f4d3",
+      "game_sha256": "3bb34c17dfc101330357fd676a38cbf355ce24bb3afde77e4d1188cbcf3c766e"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-4-bottom_4_daigorilla_ryfamate-1800-5F+daigorilla+ryfamate+20240115033929.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 57411,
+      "game_sampling_sha256": "491083b048f7c1fcfec9ab87dbb8df4fc133b137213f4e31ed3f0cccc46faa6f",
+      "game_sha256": "6b821ba40420c7e78d812c88d06e1e64a319dc05aceebba78d00b3e91afe73ab"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-4-bottom_4_honeywaffle_kerunba-1800-5F+honeywaffle+kerunba+20240115002039.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 108430,
+      "game_sampling_sha256": "e41a44c87e3361eda38ae5547657b0de714fc92212c346e2e479b292e24aa5e8",
+      "game_sha256": "446f0ec7995d9dc3deace331b4db0f239be36fcc387b6469e89cd4dea6544ca8"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-4-bottom_4_nibanshibori_grampus-1800-5F+nibanshibori+grampus+20240115021043.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 39076,
+      "game_sampling_sha256": "475b592c179c8d2f77072d517c485f39288777dd4f9b6f14cc7369ff448bd101",
+      "game_sha256": "fba6ff0bbc8005637b768b76a2d1e64a3adfc234ceec33fb7602e8bbe85fa319"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-4-bottom_4_ponkotsu_hisui-1800-5F+ponkotsu+hisui+20240115054003.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 72399,
+      "game_sampling_sha256": "97f87c4ed0b8c09ab1451ed5b63be9bf23a86171579009af1311b8a9d0fa8882",
+      "game_sha256": "a12d6af6928746a5af23cf814b629abc23e8b1a0cce661003c698618ab354107"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-4-bottom_4_suishodr_centokun-1800-5F+suishodr+centokun+20240115041113.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 41896,
+      "game_sampling_sha256": "858240ef6c6a71514c8960d06a6748bef5496ee43de8c52c6b16598087528722",
+      "game_sha256": "0a76b75aba2c9c4e764f1dd4433d209b4ac58cebdfe38ec7b501b818d533318d"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-4-bottom_4_wanderer_kyoshogi-1800-5F+wanderer+kyoshogi+20240115043514.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 98268,
+      "game_sampling_sha256": "400df32f4c18bf5c01bd5bdf5114be24939f186c988ed3be9b8c5bab5c2ddbec",
+      "game_sha256": "d528f4e8cbf09a1a6599fb746ee16a538801edc5d1c5409b022f0a295e0e6d2a"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-4-bottom_4_yaneuraou_iroha-1800-5F+yaneuraou+iroha+20240115011402.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 62384,
+      "game_sampling_sha256": "f4387cedb4d6dfb562f091296cfdffcc2f4b3de3531003a312d4b9adbc8c29aa",
+      "game_sha256": "b09d78718b2fd34ab1ca61093b67371c1158215483d4def44462327054fd2967"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-4-top_4_centokun_suishodr-1800-5F+centokun+suishodr+20240114224831.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 83232,
+      "game_sampling_sha256": "c2df55c2baec0663244ca5ec848ac08e917345451eea45eecf769b14df22f205",
+      "game_sha256": "91b1875e8f3d9ecdc6256509686d8a2538ef6442fcac89fcb3cb13c847aa5d1e"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-4-top_4_grampus_nibanshibori-1800-5F+grampus+nibanshibori+20240114200321.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 40008,
+      "game_sampling_sha256": "118705be91cad046caf31c754cf267ab9811345b2c8c1ce4f061bf20f97a74d6",
+      "game_sha256": "3959104dae4e3133aacc51c5db6122e923e082e7004870884dc1e2301e5cae64"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-4-top_4_hisui_ponkotsu-1800-5F+hisui+ponkotsu+20240114234001.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 63930,
+      "game_sampling_sha256": "317ed6eb424873c21faf4a18536fce094efdf1f7c55ea00167f893215ed92e17",
+      "game_sha256": "9436afab044a1ecc5ead24e7285edb51195e0d414486e1fde216bd92ccec8a1f"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-4-top_4_iroha_yaneuraou-1800-5F+iroha+yaneuraou+20240114193034.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 36138,
+      "game_sampling_sha256": "ab5ce6410b30d39f4b5444dbee8f0deebde4b41b2b199d3057097c2f4bfa6ef7",
+      "game_sha256": "176caa4a4cb1727b025962df6c5d0e91a2e1f2e69859276ad1cccb35e5e92382"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-4-top_4_kerunba_honeywaffle-1800-5F+kerunba+honeywaffle+20240114184934.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 56101,
+      "game_sampling_sha256": "e62e97f052b325232fac163c5051cf6d249232deb60698518fff2655b71637c9",
+      "game_sha256": "0ae86e2f82c04c6fd77dc4443c1322bca0fa9965b67087de5071220ffc425179"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-4-top_4_kyoshogi_wanderer-1800-5F+kyoshogi+wanderer+20240114210951.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 74210,
+      "game_sampling_sha256": "5ef124db2c68e3b47cf260d2d7a6ee92c99d1d0658ca9ae7105a1823e3a8a474",
+      "game_sha256": "9180b05d31e6f6e5f80d75328ab3ff8ec7d3a06ab1d9c35034fa8a9c1c899f67"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-4-top_4_ryfamate_daigorilla-1800-5F+ryfamate+daigorilla+20240114203834.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 70668,
+      "game_sampling_sha256": "b135c03baa8ac5db916c7275f0861bd5cb93edd42cd5bc8534e31ce77e05f738",
+      "game_sha256": "d3f1de8def985057e4d16dff69167350987052935e9eb39d30d86526e4f57679"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-4-top_4_tanuki_burningbridges-1800-5F+tanuki+burningbridges+20240114215110.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 71793,
+      "game_sampling_sha256": "9140d8ade3cb8c798395cf65d642ee330c2ab0ea9ad48b1a734e86af9855ec6e",
+      "game_sha256": "5e9c38a2f20f6d7470c5795a249202da29f01ca400967a895522e0d68849e1fd"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-5-bottom_4_centokun_wanderer-1800-5F+centokun+wanderer+20240115172935.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 65944,
+      "game_sampling_sha256": "f19333b8fb410e9dff7798733af5556f9127d7cd023c58ad388f7c6682512b68",
+      "game_sha256": "759c105bd0061f1bcb05f60bebf53f55beed9bbf6fc663681c8cb04e81f99cc0"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-5-bottom_4_grampus_ponkotsu-1800-5F+grampus+ponkotsu+20240115154622.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 30657,
+      "game_sampling_sha256": "a793c98a6caefe392270e9a7cd99b921b2118df72bc6ce05e6f3977e9fa23d5a",
+      "game_sha256": "44b23dab44510921b84acbac570bdf6b162f41a77890c25a5e12bd5541734398"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-5-bottom_4_hisui_honeywaffle-1800-5F+hisui+honeywaffle+20240115180909.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 58837,
+      "game_sampling_sha256": "1343f12596660830bb5ec80059c3a173712cddabcc1e8b3e2d328dce8a498769",
+      "game_sha256": "ea6bf74b64f82cf42324b239679125ad69ae317a4f8d7e15d7df7221dbc86af6"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-5-bottom_4_iroha_nibanshibori-1800-5F+iroha+nibanshibori+20240115144829.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 52898,
+      "game_sampling_sha256": "2b9b2e42897e7ae70522a9855d87cacd7e31bc015b55c730dfbc1b56daf32202",
+      "game_sha256": "31b97a3abaca41202445c4312cc57df4e7a8265ccd2bb2ef237343dabe361025"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-5-bottom_4_kerunba_suishodr-1800-5F+kerunba+suishodr+20240115164644.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 19346,
+      "game_sampling_sha256": "450ccbece86085776b6edcd7479f29a5f1e265e5ffd46127ba604ef3d97e9f61",
+      "game_sha256": "0d84c342c830a04e27e95e58d3f1d3c27642be74d1868307f97ec39933989b5a"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-5-bottom_4_kyoshogi_burningbridges-1800-5F+kyoshogi+burningbridges+20240115133115.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 117770,
+      "game_sampling_sha256": "8b7f6131d0406588f6157c9cf1443dd704a3b38f760111a72ec452802de112f0",
+      "game_sha256": "198bded3c44f2ee38ed5ac0f3a955d9441312f93d6a32d978679329d65f5d878"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-5-bottom_4_ryfamate_yaneuraou-1800-5F+ryfamate+yaneuraou+20240115171148.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 37537,
+      "game_sampling_sha256": "3217ef3b1270671622afb3410120ad786c35229e7e2a62f9adfb7ea88d728f3a",
+      "game_sha256": "c30a96d69403d5f67390858889a00c909e94dcb92ba3f2670bd24a9c6ea8656a"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-5-bottom_4_tanuki_daigorilla-1800-5F+tanuki+daigorilla+20240115161336.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 50871,
+      "game_sampling_sha256": "168fef15a1f612587e43b751ccb05d2427d0b68b2888d696b95a71888132c484",
+      "game_sha256": "d710ced8b162011cc1a8b9cafd8598950ac7fd5e4234bed95277d3b4f30eba58"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-5-top_4_burningbridges_kyoshogi-1800-5F+burningbridges+kyoshogi+20240115061437.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 45266,
+      "game_sampling_sha256": "22b02d52bb2c29e61bd2687a82818df95ffdb1dee0e1a05313b864e077d0c870",
+      "game_sha256": "74373748a3e2af852df6b20dba7d1ce50683f8b5438b197f3e70c67d37e8970f"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-5-top_4_daigorilla_tanuki-1800-5F+daigorilla+tanuki+20240115074216.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 68586,
+      "game_sampling_sha256": "95b847ca1e42ffb10569b15b7c52d894a4eebe7e892b7e9785b94ad8b6512cd9",
+      "game_sha256": "3dd6476007771c7813593372a1071aa2e00ddf5461dca57c7f4d6166d8da42ed"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-5-top_4_honeywaffle_hisui-1800-5F+honeywaffle+hisui+20240115124621.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 62877,
+      "game_sampling_sha256": "10b31bf8329d62fda366f64e44258f2a37adf86f1a4cba94b3e35a3fec33fb40",
+      "game_sha256": "0695407941de277b8e41473b40c747aa4f517592db5ec22918013da1b36d18c6"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-5-top_4_nibanshibori_iroha-1800-5F+nibanshibori+iroha+20240115070052.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 43726,
+      "game_sampling_sha256": "2659f51bcc9c2d6e9d2d6c337c0d0fc67a75c94dafb17330dc3fa01f4cc244a2",
+      "game_sha256": "d4a4ad8bf6d912c5a058d27b9d7cd4ddbfb05c25e2f136f291442beefa863c3c"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-5-top_4_ponkotsu_grampus-1800-5F+ponkotsu+grampus+20240115083521.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 100999,
+      "game_sampling_sha256": "16d43dcf68c0f5581da365ee76521a4f2ca525612672c96b154d5a28dc4ff4ac",
+      "game_sha256": "9fb6dfa44ca43944ed9484cfbeec664eb32234c03d6dd165257af42866a30758"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-5-top_4_suishodr_kerunba-1800-5F+suishodr+kerunba+20240115094955.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 136686,
+      "game_sampling_sha256": "f3472186f3d6307322e0f46b8bf76b3e0391a6a5af22cc2811291bb71b3e357c",
+      "game_sha256": "96bdd7a184d22862542e1500f60540a0114e611e5f990a498dec982ef917be0e"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-5-top_4_wanderer_centokun-1800-5F+wanderer+centokun+20240115110627.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 116429,
+      "game_sampling_sha256": "aa7749c06b57d74c523bab529d93840f44f1fdf56101975f1b0ed16840e2cdb9",
+      "game_sha256": "385edd93cf24689ca2ce44a01b96ea022ed2ed2c46caea2e8d5080ee407d63ea"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-5-top_4_yaneuraou_ryfamate-1800-5F+yaneuraou+ryfamate+20240115120257.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 84987,
+      "game_sampling_sha256": "41e0be84cc55c2db94b9d010c11cd37bbaa4496f0b2a2979ec9fa0ad31763399",
+      "game_sha256": "a3b48a42fb79a49d9ea8cee39e72259f9829a0ec29f6cbd11ddefc5af8fafe9e"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-6-bottom_4_burningbridges_nibanshibori-1800-5F+burningbridges+nibanshibori+20240116024336.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 52723,
+      "game_sampling_sha256": "3d5ec6fafc70b9b2f5cd4eaae20ae684a0a42987173b03d0d28e8f5d3ce1bf3d",
+      "game_sha256": "b39d06c07706f0d1fdc97669695a75d462c98e9727a7b3f8b8696a33ce7217d6"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-6-bottom_4_centokun_honeywaffle-1800-5F+centokun+honeywaffle+20240116013536.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 58722,
+      "game_sampling_sha256": "339d18a101c34be0ee00d660548b14eb17ad7ecf04680ab4165cbb98dab3deaa",
+      "game_sha256": "2e99d4d08294ed033157b4b538b7e174e493584f09db221eab1092837a00b703"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-6-bottom_4_daigorilla_yaneuraou-1800-5F+daigorilla+yaneuraou+20240116021612.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 53227,
+      "game_sampling_sha256": "2356a51d72e03b643ef67736cec15d117343d2e88783566806a8203d89bfbed9",
+      "game_sha256": "a4f32c69106b81cdde2f6c242ad362452014e8dce34e2c6352869ebf24a67de6"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-6-bottom_4_iroha_suishodr-1800-5F+iroha+suishodr+20240116050904.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 35566,
+      "game_sampling_sha256": "21c4dae193c88b3c4bb4b99fa1b1762c4bee0c0a9510d3240b610498dca1a6cf",
+      "game_sha256": "df71540ff48b0393e635d0fd901e76d9526c292877bc5f471421a84eb9ee4de6"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-6-bottom_4_kyoshogi_kerunba-1800-5F+kyoshogi+kerunba+20240116001517.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 133546,
+      "game_sampling_sha256": "34f68851eced000d806efb1e6e86d8cc3998240b7fb3e22b4ff9c2c2b396d3f6",
+      "game_sha256": "dd4fd0b4a87ec538e4f92438b20e46aa1a31e08fcddb44770f8fb62144557337"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-6-bottom_4_ryfamate_grampus-1800-5F+ryfamate+grampus+20240116042517.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 54346,
+      "game_sampling_sha256": "13ae925663fd0f23438eb39b76d8d4280949ec23394bb2ed79c7a11d84ab3f6c",
+      "game_sha256": "a79f24bbfaeb21171f52cfbcfc2ddab86c58213d198429583089b62ffbc73625"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-6-bottom_4_tanuki_hisui-1800-5F+tanuki+hisui+20240116060554.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 37378,
+      "game_sampling_sha256": "59cdd8ff563ed4d73f1773957a0e7e8fc35c00c1a7f781339a5961fe0aae0b4b",
+      "game_sha256": "4ef6e7cf9cc39dbd4df3de5a0df2c633ae43417cb7328fa3a208ec5210417e6b"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-6-bottom_4_wanderer_ponkotsu-1800-5F+wanderer+ponkotsu+20240116033124.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 87377,
+      "game_sampling_sha256": "4778c89a3630cc7c7fbb70cd8f6ee6d75ea218f0f0524120ae21b665d5e96af0",
+      "game_sha256": "c46b5ea4c14ff1ce3ff80e8150d37b7c8788fbd7f0db741a8bcff7fd81d56a78"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-6-top_4_grampus_ryfamate-1800-5F+grampus+ryfamate+20240115214257.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 11134,
+      "game_sampling_sha256": "5abdf04a90d2fedf4cdfa03a6023c6e22f52a89aa38a712ee2fa2834820dd1c6",
+      "game_sha256": "e20a3f80e3e1b579c5fe0d341b8e48b64823b748f241802c0749b0ae790365c0"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-6-top_4_hisui_tanuki-1800-5F+hisui+tanuki+20240115231113.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 105430,
+      "game_sampling_sha256": "dced815939136b2c0d002489d843edfeca34d535479a32db348bfd3c435545b8",
+      "game_sha256": "0e2cb4ceff5126f48d1ee458a34b1ef2526449eea38b32d9a319ac827801b31c"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-6-top_4_honeywaffle_centokun-1800-5F+honeywaffle+centokun+20240115193550.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 76664,
+      "game_sampling_sha256": "831fd91eafb1d92a05564e116252498aa60886f6c95cf5a1aa55fc291ab3e0dd",
+      "game_sha256": "68a02954dfc748e2ecce79af747c69072be3681dac9a47602ce9fbec537dc326"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-6-top_4_kerunba_kyoshogi-1800-5F+kerunba+kyoshogi+20240115185244.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 58319,
+      "game_sampling_sha256": "37fb067141b7bcc550e1112130e996556a5f5b36093ac6ec5fa55360c766bb58",
+      "game_sha256": "2870272f027d32f2761d815facc6883c062b261d01d317523d96497162088679"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-6-top_4_nibanshibori_burningbridges-1800-5F+nibanshibori+burningbridges+20240115204918.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 69146,
+      "game_sampling_sha256": "a2f335150e6d256a457cf1c6d72bbaf3ccc0e6e200adc6b097a54d4fb3123eee",
+      "game_sha256": "61d228c39e3f1d9fdbc5b5d056e5e22fa049da55f169e4e3fee60ddd33b69185"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-6-top_4_ponkotsu_wanderer-1800-5F+ponkotsu+wanderer+20240115215435.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 112226,
+      "game_sampling_sha256": "3838d2e9df14a0c2d0ead41717e34bf9ab62e8bc0c1466716ae3ea7b112c9554",
+      "game_sha256": "af7974bad099e5828c93ea46d0ed4fc41a08752710a129f6cc93815be799068c"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-6-top_4_suishodr_iroha-1800-5F+suishodr+iroha+20240115230358.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 2907,
+      "game_sampling_sha256": "3e95b3bae0237204374c52243508bcaba8b1341ecc43d620ae7a7dfaffcb74a8",
+      "game_sha256": "f80da567c83ab507e9b78eac17c8ef6152b1ae707d9b22941274ca928e49ce3f"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-6-top_4_yaneuraou_daigorilla-1800-5F+yaneuraou+daigorilla+20240115201555.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 57451,
+      "game_sampling_sha256": "20930716f7ff8b1f53a7d455c6810e11820a7ac76ae0a0bd3f8d2e47446d7cd0",
+      "game_sha256": "5d5990b5db2e4f78a7a27701b58a9a7643ec335cab70217b6d5ae9c28ff1326c"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-7-bottom_4_burningbridges_daigorilla-1800-5F+burningbridges+daigorilla+20240116141527.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 37907,
+      "game_sampling_sha256": "730c96d0252d38636dadc5d0703741865f6847538ed153c1c497e977c00a2c54",
+      "game_sha256": "a3665061f5a644ac3295a11fd079b7a5bfc4b3ff288f4122ee6e18e94fc94eed"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-7-bottom_4_centokun_nibanshibori-1800-5F+centokun+nibanshibori+20240116151940.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 72911,
+      "game_sampling_sha256": "e2f5305cef1a474079d3649d8c1e5ea3c2d022d93ec1916373ba3b25a09fec9c",
+      "game_sha256": "7e928dab62fc78fa62fc9572376f9254d5759cdc5b8d96ec163243aeddc477d9"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-7-bottom_4_grampus_suishodr-1800-5F+grampus+suishodr+20240116183330.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 60306,
+      "game_sampling_sha256": "16afb49cb2db0fe59eeb0a80d30f245179aecd29d6f2466dca8852d45844ac48",
+      "game_sha256": "05879c6acafeca9b9a902f0e00997a430add1367a01f344a90740c114a17dbff"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-7-bottom_4_iroha_hisui-1800-5F+iroha+hisui+20240116160405.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 53747,
+      "game_sampling_sha256": "60618539c21a6a376a7ce3f4916547ba502bfee9bd612e3074f5d1d4f47cee76",
+      "game_sha256": "231ce742794265375322f8e0f2168559f4ba40171822e8b073e517361d7c78ef"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-7-bottom_4_kyoshogi_ponkotsu-1800-5F+kyoshogi+ponkotsu+20240116131508.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 137506,
+      "game_sampling_sha256": "4f246f4ff459ef518fe57996a9b179ca33c1383d41611a523961c25462f85ad0",
+      "game_sha256": "b2d6ed0b1aa63b23e98717a8fda51b537f764915d7d9b7b934086cf0d62d36a4"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-7-bottom_4_ryfamate_kerunba-1800-5F+ryfamate+kerunba+20240116143952.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 67953,
+      "game_sampling_sha256": "468c62e49357ac6530bbba53cf57a55ad8dd83ea43b7fd9f97deb0597c221f6b",
+      "game_sha256": "a83d3b06e8f2d6c3acb6c650f3d25668adc12fe01c52e65ac1c76c543d161e7b"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-7-bottom_4_tanuki_honeywaffle-1800-5F+tanuki+honeywaffle+20240116173311.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 80486,
+      "game_sampling_sha256": "086a93aec999414e1a56929ec0b8c8ca50ac9691999e1002d8100c1fb3140338",
+      "game_sha256": "6aeac40472e2a7cd4daff127d78c524affe4f96d0ab6747a2b576f39357f08f8"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-7-bottom_4_wanderer_yaneuraou-1800-5F+wanderer+yaneuraou+20240116165042.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 99798,
+      "game_sampling_sha256": "c260dac5ee813b87275e8ed3d24d5a038234fdaced7a7579fc05658ec82c197c",
+      "game_sha256": "14c3b36dcfda6e711a34fce9e86a03d24aa3d2fca7c91f3afde38acb1fe9fbb0"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-7-top_4_daigorilla_burningbridges-1800-5F+daigorilla+burningbridges+20240116073101.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 44824,
+      "game_sampling_sha256": "6143ae022193fd4219b624dffef042ffbb49a9841f1dc98c90673db9e856c1f3",
+      "game_sha256": "6c3a4497410eeab09231e5bb016ca07b30ca1a2a0c50e2d4c5806a864b4d2d17"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-7-top_4_hisui_iroha-1800-5F+hisui+iroha+20240116095454.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 7803,
+      "game_sampling_sha256": "596fdd2ad8c21380bd4e14c04be1e30446e13c9844a33a5b293546866af1b9dc",
+      "game_sha256": "40ec7306715e8862a41f8285b8a633942b348acdd87e99d407e15234e076f3c7"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-7-top_4_honeywaffle_tanuki-1800-5F+honeywaffle+tanuki+20240116110922.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 100311,
+      "game_sampling_sha256": "f1f5829b5a012f1d7f0cf9b7a73d28a5be2f7ba7430ff2fdd52af0d72ea52292",
+      "game_sha256": "e3d2993e3237d8340253143053595aa33dbdbec680cb59f8f19c1af9c4b67dd3"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-7-top_4_kerunba_ryfamate-1800-5F+kerunba+ryfamate+20240116083406.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 166364,
+      "game_sampling_sha256": "8b10ae41642bdf0f3ff896c77a6e56ae58bf63cd77c1715eb1b7b7a1e1f77a80",
+      "game_sha256": "9d5d531bcdffe7ce7df5c035adb69640ff196ddec8078df0ada453cd552c3a18"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-7-top_4_nibanshibori_centokun-1800-5F+nibanshibori+centokun+20240116080951.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 46145,
+      "game_sampling_sha256": "255502187a676817085d625fc43d0e74a2ecca07abcfbda18612b861f96c636f",
+      "game_sha256": "c1f63944e92e942f4c8014e3ff6c860178ddecfac7f1fb17721abdf123edb5e3"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-7-top_4_ponkotsu_kyoshogi-1800-5F+ponkotsu+kyoshogi+20240116063657.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 89155,
+      "game_sampling_sha256": "014c9bd0218bfc2e078f07fcaf96f4be4553f238899678e6ac9df1c9b9b1a6eb",
+      "game_sha256": "a3ea21dba4d3395d569d846b8cb119452fad0cedbf690eb72a29976918a8702a"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-7-top_4_suishodr_grampus-1800-5F+suishodr+grampus+20240116121712.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 74198,
+      "game_sampling_sha256": "863adbd340ba3b86ce83ee6a19faf0c4bb91640d2e174b1b7f7e4d3fab174586",
+      "game_sha256": "f04ae370781619b0d30805e69d92957a35cb41b65217d1633caf834a6f22b161"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-7-top_4_yaneuraou_wanderer-1800-5F+yaneuraou+wanderer+20240116100424.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 147823,
+      "game_sampling_sha256": "81e8c09f9bdb28c9998813f58d77d40bda0c537ca5b6b4bb9cecc74717cdb8d9",
+      "game_sha256": "d308f6a456458a0176ceea3713fc3bcb7565f067cb3ec090a9f1c1e3b1dc8ba8"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-8-bottom_4_grampus_yaneuraou-1800-5F+grampus+yaneuraou+20240117060507.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 55247,
+      "game_sampling_sha256": "44d499895ceceec826be388480d1294e5b590447019d1ca985ee41abe2c503d1",
+      "game_sha256": "4e1ee35a30c9befa583f61887f08df4b66660ffc75379dc7c2226121db6b10e2"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-8-bottom_4_hisui_nibanshibori-1800-5F+hisui+nibanshibori+20240117052331.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 78888,
+      "game_sampling_sha256": "89ca236af6423ab7d9041643fa984d559c0db46e11d865dae097d915a500b0eb",
+      "game_sha256": "11832c11c17689a4aa07a02345758f78406999d939ad08c5dccaaab0f5d0101f"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-8-bottom_4_honeywaffle_suishodr-1800-5F+honeywaffle+suishodr+20240117064527.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 56016,
+      "game_sampling_sha256": "27e2efa0d40b012086856e84dabff7a60e16201bdad4874c8dbafdd9c7c43319",
+      "game_sha256": "767443767de10e48033e178bd85e0a6f685083ec3bf2eba5d1d344b42627d5a6"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-8-bottom_4_iroha_daigorilla-1800-5F+iroha+daigorilla+20240117021308.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 34644,
+      "game_sampling_sha256": "407d86fcfab5910e78582b16832c43b8e96d5ee66f952e3a05aefa6ab164bea7",
+      "game_sha256": "1dda35dfce70384beb4f91a51f0ad139d1641901c993756293458ed91581ee9d"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-8-bottom_4_kerunba_ponkotsu-1800-5F+kerunba+ponkotsu+20240117025317.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 136773,
+      "game_sampling_sha256": "7eb59aa05e6961cb85a2f8270134fbba8950fec27ba4e97876cb5578f965d6e8",
+      "game_sha256": "966e404c32993ddd4757c3810df3b3d199f24d0e52aaddc96b8514244c01f39f"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-8-bottom_4_kyoshogi_centokun-1800-5F+kyoshogi+centokun+20240117045253.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 71834,
+      "game_sampling_sha256": "dd41184f5b41b9054168aa008278ee13bff4bf82d01f83b16c693d0437d8a766",
+      "game_sha256": "a16774699ce259d2a7b499cfd70dc15cc24d7e757cb8868c8c38ed01fe67db10"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-8-bottom_4_ryfamate_burningbridges-1800-5F+ryfamate+burningbridges+20240117041435.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 51400,
+      "game_sampling_sha256": "58ef09703693eebca902c023f97944235a5dc14936d88243ee6870f4813ba8e8",
+      "game_sha256": "fcc4c8eee5958e096429963d1a4cb01c66406238c5c9885235e10cbe7f41023d"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-8-bottom_4_tanuki_wanderer-1800-5F+tanuki+wanderer+20240117074119.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 91866,
+      "game_sampling_sha256": "0f89c2d46c34125a8f72e74e891fc07417cf5d4b0e32b9012211bede14dd04e4",
+      "game_sha256": "33b9cd8034ba1d4934653204e8b17dee01a7c97c14db627b502629de7ca1a7cd"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-8-top_4_burningbridges_ryfamate-1800-5F+burningbridges+ryfamate+20240116215104.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 51539,
+      "game_sampling_sha256": "b71bfa85278d00604b64b3bfa9994e1104fdbce5b41e2aa365df4f6473e4b7b6",
+      "game_sha256": "0b3a3769a468e5ae471674396dc3670b0ce2daedea2adbbb5880e472354faca3"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-8-top_4_centokun_kyoshogi-1800-5F+centokun+kyoshogi+20240116210819.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 67820,
+      "game_sampling_sha256": "73c6e0fef3bc188ecad24fc61b732c5ee860f37761c9e9b99a394f689a0600b5",
+      "game_sha256": "a2548b6e192f91ab632f292d63b497970a6c40cdd662bf0ae0b7a337b3ed649b"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-8-top_4_daigorilla_iroha-1800-5F+daigorilla+iroha+20240116191929.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 63954,
+      "game_sampling_sha256": "33ba20dd5f77bf13364e8a9efbd46ce0690d1439e82bb777aea46a8c926696ed",
+      "game_sha256": "8081eaf92dc1c8c52c8513e7ee523684d86e5ecb0dc7388b80dba438cd92a02f"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-8-top_4_nibanshibori_hisui-1800-5F+nibanshibori+hisui+20240116232445.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 26772,
+      "game_sampling_sha256": "36870b9e93ba3dc57ad8e75717b0dbfbdbb12d6d9dfcc540be708dd32c7d6f08",
+      "game_sha256": "b389fe41c0c39fc10b345a13b60719345100d9f8cd2d19ff6700997e5de47b29"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-8-top_4_ponkotsu_kerunba-1800-5F+ponkotsu+kerunba+20240116200750.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 100165,
+      "game_sampling_sha256": "9528125b686613438ce396a517c5290bf63ffb654bf93e796746bbe2dc92eb8a",
+      "game_sha256": "d28b86a1513965457be23350a319a2599924875b255fca2fc78ad9c4af554182"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-8-top_4_suishodr_honeywaffle-1800-5F+suishodr+honeywaffle+20240116234738.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 83719,
+      "game_sampling_sha256": "9088cd64eccee1077abefdcd84d509cc193cf6ba4e7341320ac4399548270f3a",
+      "game_sha256": "7d5af879714032620623a97573246da36bf6256a0d8e18f89395ebfafae0f0d5"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-8-top_4_wanderer_tanuki-1800-5F+wanderer+tanuki+20240117010441.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 89502,
+      "game_sampling_sha256": "f2100a6dd766474c9f17adf5dba0d1725e8601d9066450e425426201eb9d6967",
+      "game_sha256": "e4607e5f0ada1c11f5c8a831f8ce127185542839c9ff913817b33fa8a2159276"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-8-top_4_yaneuraou_grampus-1800-5F+yaneuraou+grampus+20240116224612.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 53989,
+      "game_sampling_sha256": "71f011399ed925fb53d2913d7170c70c6b872f879f4c5a4d55670f7313c1ee6e",
+      "game_sha256": "286c32858cf9ba191b2b710626b6f2244b337de93be05acdb34eeb432487ef41"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-9-bottom_4_burningbridges_honeywaffle-1800-5F+burningbridges+honeywaffle+20240117173415.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 31313,
+      "game_sampling_sha256": "0c74c62f30895428735a38da4fc7bcc44505c11a13c84cf04a1f8c3491962995",
+      "game_sha256": "9cb3e876e66e6f32963568d448d6e81547b82a450165232ab11a242e6195e185"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-9-bottom_4_centokun_hisui-1800-5F+centokun+hisui+20240117185805.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 87255,
+      "game_sampling_sha256": "42be836031fc84a00a8a9d0a602de036533c5d4f5a2320a8ae3d67a3c1c9c66d",
+      "game_sha256": "fbb9b8ed7caae7f513f0c55b1d6b984f20d4d4c1053ba238f843ef9a4d33558b"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-9-bottom_4_daigorilla_ponkotsu-1800-5F+daigorilla+ponkotsu+20240117144231.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 65885,
+      "game_sampling_sha256": "ca9dd73a3e4baab84893a0efb57fc570b22a7ff395f9d01f5c96d4396fb9a58c",
+      "game_sha256": "67066dde190a46bc5acb926888f2cf1650b9644298367337236b79f604c4f349"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-9-bottom_4_kyoshogi_grampus-1800-5F+kyoshogi+grampus+20240117152910.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 101334,
+      "game_sampling_sha256": "22e76b2430f265206975dde409505e674bad9625577594a9c9e410953a183a7d",
+      "game_sha256": "8ac0fcd9b184e22e70d54a3c7d3c44986ab35042803b7d99a7cacd34426810d3"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-9-bottom_4_suishodr_ryfamate-1800-5F+suishodr+ryfamate+20240117194034.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 60300,
+      "game_sampling_sha256": "db143bcab9a79bea4277d4b4efa8f826c4bb011250b9daa5a9e3eb6ab065a4bc",
+      "game_sha256": "2617b356554a873c04e819964e289f5b094f132326878666454f079a4ccdb89e"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-9-bottom_4_tanuki_iroha-1800-5F+tanuki+iroha+20240117185014.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 2858,
+      "game_sampling_sha256": "8e2e4ebebc2b44c5652b6753695289f3af3cd6e7691ff9a8d6863234ed3970fe",
+      "game_sha256": "3922e7ba1b39a50ebc51e3199c3bff51c1fee0b516f34269e5ad1d2f9941daa8"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-9-bottom_4_wanderer_kerunba-1800-5F+wanderer+kerunba+20240117164409.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 79004,
+      "game_sampling_sha256": "dbcf77afdb44af368760393b364f22f17dc56bf943b3e59cf0e7e5f2453395c4",
+      "game_sha256": "1de2bb4772c1ea0c946159e17139f8ffc024f5a4d1c5bc22f3f7822eb720a3a6"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-9-bottom_4_yaneuraou_nibanshibori-1800-5F+yaneuraou+nibanshibori+20240117180712.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 64567,
+      "game_sampling_sha256": "ebb60466df84833b2c7b78cd6cdd9a3854fd551e1e5e9a426327962f2286fcc5",
+      "game_sha256": "1b8bdbbbb13c8c85e2c8a9294e2cc048679fa2cd48a94fb926f13dce53908919"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-9-top_4_grampus_kyoshogi-1800-5F+grampus+kyoshogi+20240117092006.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 56675,
+      "game_sampling_sha256": "d360d1282a030182d6bbf37a708e4b32ea29c0205c76aaebba582b3775eb93b5",
+      "game_sha256": "e5d0d17510f6462fffcd0fcd2282a6ca3f236d376c086c958d0bdfb7839b0e12"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-9-top_4_hisui_centokun-1800-5F+hisui+centokun+20240117131506.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 81982,
+      "game_sampling_sha256": "17bbc4e9fe369914d830d9b472cce8592ca6b48d7b9ce2f42552706e8590e806",
+      "game_sha256": "50f36a8a8a1b2155d2b76def7adb9c7410ed7f29ec3115d838f412f88a82e1a5"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-9-top_4_honeywaffle_burningbridges-1800-5F+honeywaffle+burningbridges+20240117104958.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 66821,
+      "game_sampling_sha256": "1f823063dc3680c48c0916f1c3c20545d54b678496dd7c1a4396238503647ee3",
+      "game_sha256": "c53f72df504a11b8ad3fd91995f391464e473dea22fa948841c90d736bbfaaab"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-9-top_4_iroha_tanuki-1800-5F+iroha+tanuki+20240117121738.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 39354,
+      "game_sampling_sha256": "b95f27c4f998bf7517b12e3c6d47553031e91b30b25d27912eff36325611226f",
+      "game_sha256": "92a38898e571a2e7f213ea18c32614d332abd42e45f5ab69f7070a3a21690ce4"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-9-top_4_kerunba_wanderer-1800-5F+kerunba+wanderer+20240117100328.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 70526,
+      "game_sampling_sha256": "6a3828d66ecc5c9ab98d707d00923cdb06656235660abe01242140fbd0e40026",
+      "game_sha256": "19ccc7052fc5d78ca25b2b54307b6de78c7ee72007056ca000ba92e11766f78d"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-9-top_4_nibanshibori_yaneuraou-1800-5F+nibanshibori+yaneuraou+20240117114813.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 49149,
+      "game_sampling_sha256": "6474ef54ae895f87f359d3262c50d0c6a8911dfcd01d21264a16f807f36ce287",
+      "game_sha256": "c2d4b9009cd9ede0c4d78a9f34851d46bb20ffac3b437163228504265c1d67c7"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-9-top_4_ponkotsu_daigorilla-1800-5F+ponkotsu+daigorilla+20240117083451.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 72899,
+      "game_sampling_sha256": "1125b19d1064e1583711019756fb902beed364000f06c344742cf448fdf59e32",
+      "game_sha256": "457df2b68c87bfa27c2347bdf04a20804fa91be9c26544a1eca5f7644c81df4f"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手15分減_dr4hd2y1-9-top_4_ryfamate_suishodr-1800-5F+ryfamate+suishodr+20240117135423.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 62599,
+      "game_sampling_sha256": "7bdd518a62dc312d58194dd8341c3f77c6b7dbf7ace3549b7f58e7bab969bcaa",
+      "game_sha256": "b903311af51cbbeb0dd3c180e1e412acbc690507d9a52de43e77550fa7ec5c23"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手30分減_dr4hd2f1-1-bottom_4_burningbridges_suishodr-3600-5F+burningbridges+suishodr+20240317160007.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 91827,
+      "game_sampling_sha256": "8c122d238e4f3fba260574c17d945a4dfb1ddeb9b2735765b85613233381c26a",
+      "game_sha256": "826ef909e5c6fad7a2f4983ad4f1ae35afe5b82eb9cf275f68c873450b9e5712"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手30分減_dr4hd2f1-1-top_4_suishodr_burningbridges-3600-5F+suishodr+burningbridges+20240317125906.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 124408,
+      "game_sampling_sha256": "25fc756416e29b4b972176c29c4996495af1ccd2d876fb5665850459a8e382fa",
+      "game_sha256": "2ba5c27bcf2542ac5d4f029b765d003e019fa4899d0def0cbb65232ba4b7b6eb"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手30分減_dr4hd2sf1-1_4_burningbridges_grampus-3600-5F+burningbridges+grampus+20240301210158.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 79944,
+      "game_sampling_sha256": "738b39a85c37c5edecc6f415959bcb0c153af7ffdea366290ae4db2aa7f2e438",
+      "game_sha256": "d3eff4b8227d70a075ec626df77262a63029afb1d7746e875556a160b3d922c4"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手30分減_dr4hd2sf1-1_4_suishodr_hisui-3600-5F+suishodr+hisui+20240310210219.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 73987,
+      "game_sampling_sha256": "255526806be4e5fd9377f84980aa71a746efed14836a2c3c35fa730038890c27",
+      "game_sha256": "36f823af1fa30d5707cbcb21eab070df0e2b264fc68cde560874fb7154372b7a"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手30分減_dr4hd2ssf1-1_4_centokun_burningbridges-3600-5F+centokun+burningbridges+20240216210243.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 17516,
+      "game_sampling_sha256": "114fc380384854a9c9ba1710d391668dd55387485bd63101c8ac05da357c17e1",
+      "game_sha256": "a59aa54bae6828ec269d9a154d7b1a8968568212a15b0dc2c204e72afd927b5f"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手30分減_dr4hd2ssf1-1_4_kerunba_hisui-3600-5F+kerunba+hisui+20240204210659.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 125414,
+      "game_sampling_sha256": "00f6691d27a6a200842465cb7b3585d6946cfba861847c448275c11f00d4e5eb",
+      "game_sha256": "38a01eb52ef27664f010b558114bd85f922eccdaeae8c281be461ea321cc65a0"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手30分減_dr4hd2ssf1-1_4_suishodr_tanuki-3600-5F+suishodr+tanuki+20240223210148.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 130489,
+      "game_sampling_sha256": "7d32c06a7efe2b101a7e171ee55d920c23ef6c13be69dac378ecc064faa54bc5",
+      "game_sha256": "66b2e9d5f5d861aeb2c77aed3fe945c3f058487dd35ff01813a4ea5d6ea283c3"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手30分減_dr4hd2ssf1-1_4_yaneuraou_grampus-3600-5F+yaneuraou+grampus+20240209210423.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 139246,
+      "game_sampling_sha256": "7b4e26f77bcb4bc02d7177652d34978096a7f78ab40c68d514155b7ff1781480",
+      "game_sha256": "4390fb2a458c1ae8208c8c3cbb4770db00af5ac85239c541148d14d79ee6ce85"
+    },
+    {
+      "archive_member": "kif_dr4_hdw2/全棋譜/dr4hd2+buoy_先手35分減_dr4hd2f2-1_4_suishodr_burningbridges-3600-5F+suishodr+burningbridges+20240317182954.kif",
+      "blocked": false,
+      "blocked_reason": null,
+      "byte_size": 164714,
+      "game_sampling_sha256": "faf6a547f68619b084f7501d86657a3e567fae82e4702da8ce2004a552eb1368",
+      "game_sha256": "5d5ed2284021c6d71aca587f6590c63ae4fbc2dd815ef13b4ab5bdf8bf632230"
+    }
+  ],
+  "kif_count": 250,
+  "manifest_sha256": "68c64a944b6121036505a8e32c30e7aac0c81be4f43f1919fd202b8f000af809",
+  "sampling_key": "VE1-C1-SAMPLING-v1",
+  "schema_version": "ve1c1-candidate-game-corpus-v1",
+  "source": {
+    "archive_url": "https://denryu-sen.jp/denryusen/dr4_hardware2/kif_dr4_hdw2.zip",
+    "retrieved_date_authority": "2026-10-02",
+    "rights_note": "公式ページ: 棋譜利用は制限等ありませんので、ご自由にお使いください。",
+    "source_id": "denryusen:dr4-hardware2:2024",
+    "source_page": "https://denryu-sen.jp/denryusen/dr4_hardware2/dr1_live.php",
+    "title": "第2回マイナビニュース杯電竜戦統一ハードウェア戦"
+  }
+}
