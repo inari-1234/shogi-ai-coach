@@ -60,7 +60,9 @@ enum VE1BB6LegalRootAuditProbe {
         let errorURL = directory.appendingPathComponent("ve1b-b6-legal-root-audit-error.txt")
 
         do {
-            let input = try JSONDecoder().decode(Input.self, from: Data(contentsOf: inputURL))
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            let input = try decoder.decode(Input.self, from: Data(contentsOf: inputURL))
             guard input.schemaVersion == "ve1b-b6-legal-root-audit-input-v2",
                   input.authorityBase == "8daf78caa2bd5919cc911da21bae80fa3d12a248",
                   input.uniquePositionCount == 9,
@@ -77,9 +79,10 @@ enum VE1BB6LegalRootAuditProbe {
             try await link.send("usi")
             _ = try await link.readUntil({ $0 == "usiok" }, timeoutSeconds: 5, label: "b6-legal-audit-usiok")
 
+            let sortedInputs = input.positions.sorted(by: { $0.ply < $1.ply })
             var positionResults: [PositionResult] = []
             var failureReasons: [String] = []
-            for position in input.positions.sorted(by: { $0.ply < $1.ply }) {
+            for position in sortedInputs {
                 try await link.send(position.positionCommand)
                 try await link.send("ve1b_legal_move_count")
                 let line = try await link.readUntil(
@@ -106,9 +109,9 @@ enum VE1BB6LegalRootAuditProbe {
                 )
             }
 
-            let affectedStandard = zip(input.positions.sorted(by: { $0.ply < $1.ply }), positionResults)
+            let affectedStandard = zip(sortedInputs, positionResults)
                 .reduce(0) { $0 + ($1.1.legalRootMoveCount < 3 ? $1.0.standardAttemptCount : 0) }
-            let affectedStress = zip(input.positions.sorted(by: { $0.ply < $1.ply }), positionResults)
+            let affectedStress = zip(sortedInputs, positionResults)
                 .reduce(0) { $0 + ($1.1.legalRootMoveCount < 3 ? $1.0.stressAttemptCount : 0) }
             let minimum = positionResults.map(\.legalRootMoveCount).min() ?? 0
             let report = Report(
