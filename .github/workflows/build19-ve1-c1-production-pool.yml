@@ -6,6 +6,11 @@ on:
       - candidate/build19-ve1-c1-pilot
     paths:
       - "Build19/BUILD19_VE1_C1_B6_X86_SHALLOW_PARITY_20261014.json"
+      - "Build19/BUILD19_VE1_C1_PRE_POOL_CONTRACT_20261014.md"
+      - "iOS/ShogiCoachPoC/VE1C1PoolSimulatorProbe.swift"
+      - "tools/engine-verify/ve1c1_pool_freeze.py"
+      - "tools/engine-verify/tests/test_ve1c1_pool_freeze.py"
+      - ".github/workflows/build19-ve1-c1-production-pool.yml"
 
 permissions:
   contents: write
@@ -30,7 +35,8 @@ jobs:
           parity=Path('Build19/BUILD19_VE1_C1_B6_X86_SHALLOW_PARITY_20261014.json')
           corpus=Path('Build19/BUILD19_VE1_C1_CANDIDATE_GAME_CORPUS_20261014.json')
           order=Path('Build19/BUILD19_VE1_C1_SEEDED_GAME_ORDER_20261014.json')
-          for p in (parity, corpus, order):
+          contract=Path('Build19/BUILD19_VE1_C1_PRE_POOL_CONTRACT_20261014.md')
+          for p in (parity, corpus, order, contract):
               assert p.is_file(), p
           p=json.loads(parity.read_text(encoding='utf-8'))
           assert p['status']=='PASS'
@@ -39,16 +45,22 @@ jobs:
           assert p['mismatch_count']==0
           assert p['physical_report_sha256']=='fe63385d97293ae8cb7a577618ae66d7592d57b2960dcc899bcf93b51ff4a2a9'
           assert p['fixture_sha256']=='ea8a9e4b0211c5c6fde7514987df74d17508f8b59f72b7969a1105ce1fd94102'
+          text=contract.read_text(encoding='utf-8')
+          assert 'Amendment A: 2026-10-15' in text
+          assert 'every game in the processed seeded prefix for which the production selector produced one or more eligible candidate positions' in text
+          assert 'A processed-prefix game with zero eligible candidate positions is not added to the VE1-D exclusion set.' in text
           print('pre_pool_authorities=PASS')
           PY
           test "$(uname -m)" = "x86_64"
           swift test
           ./scripts/verify.sh
+          python3 tools/engine-verify/tests/test_ve1c1_pool_freeze.py
           python3 -m py_compile \
             tools/engine-verify/ve1c1_corpus_manifest.py \
             tools/engine-verify/ve1c1_pool_input.py \
             tools/engine-verify/ve1c1_pilot.py \
-            tools/engine-verify/ve1c1_pool_freeze.py
+            tools/engine-verify/ve1c1_pool_freeze.py \
+            tools/engine-verify/tests/test_ve1c1_pool_freeze.py
 
       - name: Fetch and verify frozen candidate corpus
         shell: bash
@@ -166,6 +178,25 @@ jobs:
             --pilot-manifest build/ve1c1-pool/natural-pilot-manifest.json \
             --pool-output build/ve1c1-pool/production-pool.json \
             --exclusion-output build/ve1c1-pool/ve1d-exclusion-authority.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          pool=json.loads(Path('build/ve1c1-pool/production-pool.json').read_text(encoding='utf-8'))
+          manifest=json.loads(Path('build/ve1c1-pool/natural-pilot-manifest.json').read_text(encoding='utf-8'))
+          exclusion=json.loads(Path('build/ve1c1-pool/ve1d-exclusion-authority.json').read_text(encoding='utf-8'))
+          producers=[g['game_sha256'] for g in pool['games']]
+          zeros=[r['game_sha256'] for r in pool['selector_trace'] if r['production_selected_count']==0]
+          selected=sorted({p['game_sha256'] for p in manifest['selected_positions']})
+          b6='ea8a9e4b0211c5c6fde7514987df74d17508f8b59f72b7969a1105ce1fd94102'
+          assert exclusion['schema_version']=='ve1c1-ve1d-exclusion-authority-v2'
+          assert exclusion['candidate_producing_game_sha256']==producers
+          assert exclusion['pilot_game_sha256']==selected
+          assert exclusion['ve1d_excluded_game_sha256']==producers+[b6]
+          assert not (set(zeros) & set(exclusion['ve1d_excluded_game_sha256']))
+          assert set(selected).issubset(set(producers))
+          assert len(manifest['selected_positions'])==16
+          print('ve1d_exclusion_coverage=PASS')
+          PY
 
       - name: Commit pool, manifest and exclusion before any natural pilot
         shell: bash
