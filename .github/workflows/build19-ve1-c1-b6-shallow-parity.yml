@@ -1,0 +1,74 @@
+name: Build19 VE1-C1 B6 Shallow Parity
+
+on:
+  push:
+    branches:
+      - candidate/build19-ve1-c1-pilot
+    paths:
+      - "tools/engine-verify/fixtures/ve1c1_b6_shallow_physical_digest.json"
+      - "tools/engine-verify/ve1c1_b6_shallow_parity.py"
+      - "tools/engine-verify/ve1c1_pilot.py"
+      - "tools/engine-verify/ve1c1_pilot_runner.py"
+      - "tools/engine-verify/setup.sh"
+      - ".github/workflows/build19-ve1-c1-b6-shallow-parity.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  b6-shallow-parity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      ENGINE_VERIFY_WORK: ${{ github.workspace }}/tools/engine-verify/.work
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+
+      - name: Static validation
+        run: |
+          set -euxo pipefail
+          python3 -m py_compile \
+            tools/engine-verify/ve1c1_pilot.py \
+            tools/engine-verify/ve1c1_pilot_runner.py \
+            tools/engine-verify/ve1c1_b6_shallow_parity.py
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('tools/engine-verify/fixtures/ve1c1_b6_shallow_physical_digest.json')
+          d=json.loads(p.read_text(encoding='utf-8'))
+          assert d['source']['sha256']=='fe63385d97293ae8cb7a577618ae66d7592d57b2960dcc899bcf93b51ff4a2a9'
+          assert d['source']['fixture_sha256']=='ea8a9e4b0211c5c6fde7514987df74d17508f8b59f72b7969a1105ce1fd94102'
+          assert len(d['actual_moves'])==81
+          assert len(d['per_ply_semantic_sha256'])==81
+          PY
+
+      - name: Install archive dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y p7zip-full
+
+      - name: Build pinned engine and verify NNUE
+        run: |
+          set -euxo pipefail
+          bash tools/engine-verify/setup.sh AVX2
+
+      - name: Run x86-vs-physical B6 shallow parity
+        run: |
+          set -euxo pipefail
+          mkdir -p tools/engine-verify/results/ve1c1-b6-shallow-parity/raw
+          python3 tools/engine-verify/ve1c1_b6_shallow_parity.py \
+            --work "$ENGINE_VERIFY_WORK" \
+            --fixture tools/engine-verify/fixtures/ve1c1_b6_shallow_physical_digest.json \
+            --output tools/engine-verify/results/ve1c1-b6-shallow-parity/parity-result.json \
+            --raw-dir tools/engine-verify/results/ve1c1-b6-shallow-parity/raw
+
+      - name: Upload parity evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build19-VE1-C1-b6-shallow-parity
+          path: tools/engine-verify/results/ve1c1-b6-shallow-parity
+          if-no-files-found: error
+          retention-days: 30
