@@ -1,0 +1,59 @@
+{
+  "schema_version": "ve1c1-b6-x86-shallow-parity-authority-v1",
+  "date": "2026-10-14",
+  "status": "PASS",
+  "gate": "physical_iPhone17,1_vs_Intel_Simulator_actual_production_ShallowAnalysisViewModel",
+  "authority_base": "8daf78caa2bd5919cc911da21bae80fa3d12a248",
+  "tested_commit": "91aa8e8cae722159620a2df64b533c45c77df3ec",
+  "workflow": {
+    "name": "Build19 VE1-C1 B6 Swift Shallow Parity",
+    "run_id": 38527286703,
+    "run_number": 1,
+    "conclusion": "success",
+    "runner": "macos-15-intel",
+    "architecture": "x86_64"
+  },
+  "artifact": {
+    "id": 11877000882,
+    "name": "Build19-VE1-C1-b6-swift-shallow-parity",
+    "digest": "sha256:ec4e95c008a21246f97ffe77c9a505d9a532b5223f047800d8e55e4cd28eb1e7"
+  },
+  "physical_authority": {
+    "file_name": "ve1b-b6-fixed-node-report.json",
+    "sha256": "fe63385d97293ae8cb7a577618ae66d7592d57b2960dcc899bcf93b51ff4a2a9",
+    "device": "iPhone17,1",
+    "os": "iOS 26.7.1",
+    "fixture_file_name": "CPU対局 81手.kif",
+    "fixture_sha256": "ea8a9e4b0211c5c6fde7514987df74d17508f8b59f72b7969a1105ce1fd94102",
+    "node_budget": 50000,
+    "run_count": 8,
+    "samples_per_run": 81
+  },
+  "result": {
+    "matched_positions": 81,
+    "mismatch_count": 0,
+    "expected_all_positions_semantic_sha256": "fd4bcf872ee6c6612354479829ff86e0c9e36b01920c5dce7a5d0686ccc49014",
+    "actual_all_positions_semantic_sha256": "fd4bcf872ee6c6612354479829ff86e0c9e36b01920c5dce7a5d0686ccc49014"
+  },
+  "blocking_fields": [
+    "positionCommand",
+    "actualMove",
+    "bestMove",
+    "scoreKind",
+    "scoreValue",
+    "blackPerspectiveCp",
+    "completion",
+    "nodeBudget"
+  ],
+  "post_test_delta_audit": {
+    "audited_head_before_authority_commit": "e4a170ac4933e3c4e98427f7006cfd956494e3dc",
+    "compare_base": "91aa8e8cae722159620a2df64b533c45c77df3ec",
+    "compare_head": "e4a170ac4933e3c4e98427f7006cfd956494e3dc",
+    "parity_relevant_files_changed": [],
+    "app_entry_delta": "ShogiCoachPoCApp.swift adds only conditional VE1C1PoolSimulatorProbe.runIfRequested() after VE1C1B6ShallowParityProbe.runIfRequested(); no ShallowAnalysisViewModel, EngineUSISession, USI parser/selector, parity probe, engine pin, or NNUE change.",
+    "disposition": "tested parity evidence remains applicable to the production shallow implementation used by the pool generator"
+  },
+  "interpretation": "CI x86_64 execution of the actual production ShallowAnalysisViewModel reproduces the physical iPhone B6 50k shallow semantics exactly on all 81 plies. This establishes the preregistered cross-architecture shallow-population gate for pool generation. Timing, NPS and thermal values are not equality fields.",
+  "natural_pilot_run": false,
+  "ve1d_started": false
+}
