@@ -1,64 +1,17 @@
 #include <deque>
 #include <fstream>
+#include <limits>
 #include <sstream>
 #include <string>
 #include <vector>
 
 #include "movegen.h"
+#include "usi.h"
 
 namespace {
 
 std::string ve1b_move_to_usi(YaneuraOu::Move move) {
-    std::ostringstream out;
-    if (move.is_drop()) {
-        out << move.move_dropped_piece() << '*' << move.to_sq();
-    } else {
-        out << move.from_sq() << move.to_sq();
-        if (move.is_promote())
-            out << '+';
-    }
-    return out.str();
-}
-
-bool ve1b_parse_usi_candidate(
-    const YaneuraOu::Position& pos,
-    const std::string& token,
-    YaneuraOu::Move& result
-) {
-    using namespace YaneuraOu;
-
-    if (token.size() == 4 && token[1] == '*') {
-        PieceType pt;
-        switch (token[0]) {
-        case 'P': pt = PAWN; break;
-        case 'L': pt = LANCE; break;
-        case 'N': pt = KNIGHT; break;
-        case 'S': pt = SILVER; break;
-        case 'G': pt = GOLD; break;
-        case 'B': pt = BISHOP; break;
-        case 'R': pt = ROOK; break;
-        default: return false;
-        }
-        const Square to = make_square(toFile(token[2]), toRank(token[3]));
-        result = make_move_drop(pt, to, pos.side_to_move());
-        return true;
-    }
-
-    if (token.size() != 4 && token.size() != 5)
-        return false;
-    if (token.size() == 5 && token[4] != '+')
-        return false;
-
-    const Square from = make_square(toFile(token[0]), toRank(token[1]));
-    const Square to = make_square(toFile(token[2]), toRank(token[3]));
-    const Piece pc = pos.piece_on(from);
-    if (pc == NO_PIECE)
-        return false;
-
-    result = token.size() == 5
-        ? make_move_promote(from, to, pc)
-        : make_move(from, to, pc);
-    return true;
+    return YaneuraOu::USIEngine::move(move);
 }
 
 bool ve1b_find_legal_all_move(
@@ -67,17 +20,33 @@ bool ve1b_find_legal_all_move(
     YaneuraOu::Move& result
 ) {
     using namespace YaneuraOu;
-    Move candidate;
-    if (!ve1b_parse_usi_candidate(pos, token, candidate))
-        return false;
 
+    // Replay strictly against the engine's LEGAL_ALL universe so historical
+    // game moves that search-root LEGAL may omit remain reconstructible.
     for (Move move : MoveList<LEGAL_ALL>(pos)) {
-        if (move == candidate) {
+        if (USIEngine::move(move) == token) {
             result = move;
             return true;
         }
     }
     return false;
+}
+
+bool ve1b_parse_nonnegative_int(const std::string& text, int& result) {
+    if (text.empty())
+        return false;
+
+    int value = 0;
+    for (char c : text) {
+        if (c < '0' || c > '9')
+            return false;
+        const int digit = c - '0';
+        if (value > (std::numeric_limits<int>::max() - digit) / 10)
+            return false;
+        value = value * 10 + digit;
+    }
+    result = value;
+    return true;
 }
 
 bool ve1b_build_position(
@@ -174,9 +143,7 @@ int ve1b_run_legal_audit(const std::string& inputPath) {
         }
 
         int ply;
-        try {
-            ply = std::stoi(line.substr(0, tab));
-        } catch (...) {
+        if (!ve1b_parse_nonnegative_int(line.substr(0, tab), ply)) {
             std::cerr << "VE1B_ERROR\tbad_ply\t" << row << std::endl;
             return 72;
         }
