@@ -63,7 +63,9 @@ private struct CrosscheckReport: Codable {
 private enum Main {
     static func main() throws {
         guard CommandLine.arguments.count == 3 else {
-            fputs("usage: VE1BLegalRootCrosscheck <native-report.json> <output.json>\n", stderr)
+            FileHandle.standardError.write(
+                Data("usage: VE1BLegalRootCrosscheck <native-report.json> <output.json>\n".utf8)
+            )
             exit(64)
         }
 
