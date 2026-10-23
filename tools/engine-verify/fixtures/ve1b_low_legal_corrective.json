@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "authority_parent": "8daf78caa2bd5919cc911da21bae80fa3d12a248",
+  "configured_multi_pv": 3,
+  "root_move_generator": "YaneuraOu MoveList<LEGAL>",
+  "fixtures": [
+    {
+      "id": "legal-1",
+      "position_command": "position sfen k7r/9/9/9/9/9/7g1/9/8K b - 1",
+      "expected_legal_root_move_count": 1,
+      "expected_legal_all_move_count": 1,
+      "expected_effective_required_multi_pv": 1
+    },
+    {
+      "id": "legal-2",
+      "position_command": "position sfen k7r/9/9/9/9/9/9/9/8K b - 1",
+      "expected_legal_root_move_count": 2,
+      "expected_legal_all_move_count": 2,
+      "expected_effective_required_multi_pv": 2
+    },
+    {
+      "id": "legal-3",
+      "position_command": "position sfen k8/9/9/9/9/9/9/9/8K b - 1",
+      "expected_legal_root_move_count": 3,
+      "expected_legal_all_move_count": 3,
+      "expected_effective_required_multi_pv": 3
+    },
+    {
+      "id": "legal-2-legal-all-3-rook-nonpromotion-boundary",
+      "position_command": "position sfen k7r/9/6R2/9/9/9/7g1/9/8K b - 1",
+      "expected_legal_root_move_count": 2,
+      "expected_legal_all_move_count": 3,
+      "expected_effective_required_multi_pv": 2,
+      "required_omitted_nonpromotion_move": "3c1c",
+      "required_retained_promotion_move": "3c1c+"
+    }
+  ]
+}
