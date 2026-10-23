@@ -1,0 +1,92 @@
+name: Build19 VE1-B Low Legal Corrective Fixture
+
+on:
+  push:
+    branches:
+      - candidate/build19-ve1-c1-pilot
+    paths:
+      - "tools/engine-verify/fixtures/ve1b_low_legal_corrective.json"
+      - "tools/engine-verify/ve1b_low_legal_corrective_fixture.py"
+      - "tools/engine-verify/yaneuraou_ve1b_legal_audit.inc"
+      - "scripts/fetch_yaneuraou.sh"
+      - "scripts/patch_yaneuraou_legal_audit.sh"
+      - ".github/workflows/build19-ve1-b-low-legal-corrective-fixture.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  root-fixture:
+    runs-on: macos-15-intel
+    timeout-minutes: 25
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+
+      - name: Verify static prerequisites
+        shell: bash
+        run: |
+          set -euxo pipefail
+          test "$(uname -m)" = "x86_64"
+          python3 -m py_compile tools/engine-verify/ve1b_low_legal_corrective_fixture.py
+          swift test
+          ./scripts/verify.sh
+
+      - name: Prepare pinned root-count engine
+        shell: bash
+        run: |
+          set -euxo pipefail
+          bash scripts/fetch_yaneuraou.sh
+          test "$(git -C native/third_party/YaneuraOu rev-parse HEAD)" = \
+            "a5ee2786c0030edc7d4a1cdfe94b04dffec55493"
+          bash scripts/patch_yaneuraou_legal_audit.sh
+          make -C native/third_party/YaneuraOu/source clean \
+            TARGET_CPU=APPLEAVX2 \
+            YANEURAOU_EDITION=YANEURAOU_ENGINE_MATERIAL \
+            MATERIAL_LEVEL=1
+          make -C native/third_party/YaneuraOu/source -j2 normal \
+            TARGET_CPU=APPLEAVX2 \
+            COMPILER=clang++ \
+            YANEURAOU_EDITION=YANEURAOU_ENGINE_MATERIAL \
+            MATERIAL_LEVEL=1
+          test -x native/third_party/YaneuraOu/source/YaneuraOu-by-gcc
+
+      - name: Validate 1 2 3 and LEGAL ALL boundary
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p build/ve1b-low-legal-corrective
+          python3 tools/engine-verify/ve1b_low_legal_corrective_fixture.py \
+            --engine native/third_party/YaneuraOu/source/YaneuraOu-by-gcc \
+            --fixture tools/engine-verify/fixtures/ve1b_low_legal_corrective.json \
+            --output build/ve1b-low-legal-corrective/root-report.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('build/ve1b-low-legal-corrective/root-report.json').read_text())
+          assert p['status']=='PASS', p
+          assert p['fixtureCount']==4
+          by_id={x['id']:x for x in p['fixtures']}
+          assert by_id['legal-1']['legalRootMoveCount']==1
+          assert by_id['legal-1']['effectiveRequiredMultiPV']==1
+          assert by_id['legal-2']['legalRootMoveCount']==2
+          assert by_id['legal-2']['effectiveRequiredMultiPV']==2
+          assert by_id['legal-3']['legalRootMoveCount']==3
+          assert by_id['legal-3']['effectiveRequiredMultiPV']==3
+          edge=by_id['legal-2-legal-all-3-rook-nonpromotion-boundary']
+          assert edge['legalRootMoveCount']==2
+          assert edge['legalAllMoveCount']==3
+          assert edge['effectiveRequiredMultiPV']==2
+          assert '3c1c' in edge['legalAllMoves']
+          assert '3c1c+' in edge['legalAllMoves']
+          print('VE1-B corrective root fixtures: PASS')
+          PY
+
+      - name: Upload fixture evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build19-VE1-B-low-legal-corrective-root-fixture
+          path: build/ve1b-low-legal-corrective
+          if-no-files-found: error
+          retention-days: 30
