@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - candidate/build19-ve1-b-implementation
+      - candidate/build19-ve1-c1-pilot
+    paths:
+      - "tools/engine-verify/**"
+      - "Sources/**"
+      - "Tests/**"
+      - "Package.swift"
+      - ".github/workflows/build19-ve1-b-node-contract.yml"
   workflow_dispatch:
 
 permissions:
