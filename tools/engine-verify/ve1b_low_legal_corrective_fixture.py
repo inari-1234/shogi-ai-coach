@@ -17,7 +17,7 @@ def run(engine: Path, fixture_path: Path, output: Path) -> None:
 
     try:
         completed = subprocess.run(
-            [str(engine), "ve1b_legal_audit", str(tmp)],
+            [str(engine), "--ve1b-legal-audit", str(tmp)],
             text=True,
             capture_output=True,
             check=False,
