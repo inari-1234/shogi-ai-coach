@@ -51,6 +51,11 @@ struct VE1BSearchAttemptRecord: Codable, Sendable {
     let issuedGoCommand: String
     let ttGeneration: Int
     let multiPV: Int
+    /// Additive VE1-B Errata #2 provenance. Optional keeps older schema-v4
+    /// evidence decodable while new runs distinguish configured vs effective.
+    let configuredMultiPV: Int?
+    let effectiveRequiredMultiPV: Int?
+    let legalRootMoveCount: Int?
     let searchMoves: [String]
     let completion: String
     let elapsedMs: Int
@@ -105,6 +110,9 @@ struct VE1BSearchAttemptRecord: Codable, Sendable {
         issuedGoCommand = sample.issuedGoCommand
         ttGeneration = sample.ttGeneration
         self.multiPV = multiPV
+        configuredMultiPV = sample.configuredMultiPV
+        effectiveRequiredMultiPV = sample.effectiveRequiredMultiPV
+        legalRootMoveCount = sample.legalRootMoveCount
         self.searchMoves = searchMoves
         completion = sample.completion.rawValue
         elapsedMs = sample.elapsedMs
