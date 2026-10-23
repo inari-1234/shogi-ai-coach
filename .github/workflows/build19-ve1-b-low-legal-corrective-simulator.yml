@@ -40,7 +40,7 @@ jobs:
           p=json.loads(Path('tools/engine-verify/fixtures/ve1b_low_legal_corrective.json').read_text())
           assert p['authority_parent']=='8daf78caa2bd5919cc911da21bae80fa3d12a248'
           assert p['configured_multi_pv']==3
-          assert p['node_budget']==1000
+          assert p['node_budget']==50000
           assert p['safety_ceiling_ms']==10000
           assert len(p['fixtures'])==4
           assert [x['expected_legal_root_move_count'] for x in p['fixtures']] == [1,2,3,2]
@@ -128,7 +128,7 @@ jobs:
           OUT="$CONTAINER/Documents/ve1b-low-legal-corrective-fixture.json"
           ERR="$CONTAINER/Documents/ve1b-low-legal-corrective-fixture-error.txt"
           DONE=0
-          for _ in $(seq 1 120); do
+          for _ in $(seq 1 240); do
             if [ -s "$OUT" ]; then DONE=1; break; fi
             if [ -s "$ERR" ]; then cat "$ERR"; break; fi
             sleep 1
@@ -154,7 +154,8 @@ jobs:
           assert p['authorityParent']=='8daf78caa2bd5919cc911da21bae80fa3d12a248'
           assert p['rootMoveGenerator']=='YaneuraOu MoveList<LEGAL>'
           assert p['configuredMultiPV']==3
-          assert p['nodeBudget']==1000
+          assert p['nodeBudget']==50000
+          assert p['safetyCeilingMs']==10000
           assert p['fixtureCount']==4
           expected={
             'legal-1': (1,1),
@@ -170,8 +171,11 @@ jobs:
               assert row['effectiveRequiredMultiPV']==effective
               assert row['completion']=='node_budget_reached'
               assert row['adoptedSnapshotRankCount']==effective
-              assert row['maxObservedNodes']>=1000
-              assert row['issuedGoCommand']=='go nodes 1000'
+              assert row['adoptedSnapshotRanks']==list(range(1,effective+1))
+              assert row['maxObservedNodes']>=50000
+              assert row['issuedGoCommand']=='go nodes 50000'
+              assert row['rawUSIInfoLines']
+              assert row['terminalBestMove']
               assert row['passed'] is True
           print('VE1-B low-LEGAL corrective simulator fixtures: PASS')
           PY
