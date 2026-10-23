@@ -12,6 +12,7 @@ on:
       - "Package.swift"
       - "scripts/fetch_yaneuraou.sh"
       - "scripts/patch_yaneuraou_legal_audit.sh"
+      - "tools/engine-verify/yaneuraou_ve1b_legal_audit.inc"
       - "tools/engine-verify/ve1b_b6_legal_root_audit.py"
       - ".github/workflows/build19-ve1-b-b6-legal-root-audit.yml"
 
