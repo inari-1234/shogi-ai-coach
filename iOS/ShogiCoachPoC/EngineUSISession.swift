@@ -49,6 +49,9 @@ struct NodeProbeSample: Sendable {
     let safetyCeilingMs: Int
     let ttGeneration: Int
     let maxObservedNodes: UInt64
+    let configuredMultiPV: Int
+    let effectiveRequiredMultiPV: Int
+    let legalRootMoveCount: Int?
 
     var isNormalCompletedResult: Bool {
         (completion == .nodeBudgetReached || completion == .provenMateTermination)
@@ -176,9 +179,38 @@ actor EngineUSISession {
                 currentMultiPV = requested
             }
         }
-        let requiredMultiPV = currentMultiPV
+        let configuredMultiPV = currentMultiPV
 
         try await link.send(command)
+
+        // VE1-B Errata #2 corrective: unrestricted MultiPV completion is
+        // defined against YaneuraOu's default search-root universe,
+        // MoveList<LEGAL>, not the broader rule-legal LEGAL_ALL universe.
+        // Restricted searchmoves measurements are deliberately unchanged and
+        // remain a separate C1 policy question for omitted non-promotion moves.
+        let legalRootMoveCount: Int?
+        let effectiveRequiredMultiPV: Int
+        if searchMoves.isEmpty {
+            try await link.send("ve1b_legal_move_count")
+            let legalLine = try await link.readUntil(
+                { $0.hasPrefix("info string ve1b_legal_move_count ") },
+                timeoutSeconds: 2,
+                label: "ve1b-legal-root-count"
+            )
+            guard let count = Int(legalLine.split(separator: " ").last ?? "") else {
+                throw ProbeError.protocolError("invalid LEGAL root count response: \(legalLine)")
+            }
+            guard count > 0 else {
+                throw ProbeError.protocolError("VE1-B unrestricted search has zero MoveList<LEGAL> roots")
+            }
+            legalRootMoveCount = count
+            effectiveRequiredMultiPV = min(configuredMultiPV, count)
+            SimulatorStage.mark("ve1b_legal_root_count_\(count)")
+            SimulatorStage.mark("ve1b_effective_required_multipv_\(effectiveRequiredMultiPV)")
+        } else {
+            legalRootMoveCount = nil
+            effectiveRequiredMultiPV = configuredMultiPV
+        }
 
         let thermalBefore = RuntimeMetrics.thermalState
         let started = ContinuousClock.now
@@ -247,7 +279,7 @@ actor EngineUSISession {
 
         let completedExactSnapshot = USICompletedIterationSelector.deepestExactSnapshot(
             observations: observations,
-            requiredMultiPV: requiredMultiPV
+            requiredMultiPV: effectiveRequiredMultiPV
         )
         let measurementResult: EngineProbeResult?
         if let terminal = finalResult,
@@ -277,7 +309,7 @@ actor EngineUSISession {
             completion = USIProvenMateTermination.qualifies(
                 measurementResult: measurementResult,
                 terminalResult: finalResult,
-                requiredMultiPV: requiredMultiPV,
+                requiredMultiPV: effectiveRequiredMultiPV,
                 safetyAborted: safetyAborted
             ) ? .provenMateTermination : .earlyEngineTermination
         } else if measurementResult == nil {
@@ -314,7 +346,10 @@ actor EngineUSISession {
             nodeBudget: nodeBudget,
             safetyCeilingMs: safetyCeilingMs,
             ttGeneration: ttGeneration,
-            maxObservedNodes: maxObservedNodes
+            maxObservedNodes: maxObservedNodes,
+            configuredMultiPV: configuredMultiPV,
+            effectiveRequiredMultiPV: effectiveRequiredMultiPV,
+            legalRootMoveCount: legalRootMoveCount
         )
     }
 
