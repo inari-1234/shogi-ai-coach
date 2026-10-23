@@ -63,7 +63,13 @@ class EngineProcess:
             except queue.Empty as exc:
                 raise RuntimeError(f"timeout waiting for {label}") from exc
             if item is _EOF:
-                raise RuntimeError(f"engine EOF while waiting for {label}")
+                try:
+                    return_code = self.proc.wait(timeout=1)
+                except subprocess.TimeoutExpired:
+                    return_code = self.proc.poll()
+                raise RuntimeError(
+                    f"engine EOF while waiting for {label}; returncode={return_code}"
+                )
             line = item
             self.transcript.append(line)
             if predicate(line):
@@ -104,11 +110,33 @@ def validate_input(data):
         raise ValueError("position attempt mapping does not sum to 504")
 
 
+def initialize_engine(engine: EngineProcess):
+    engine.send("usi")
+    engine.read_until(lambda line: line == "usiok", 10, "usiok")
+
+    # Match the production VE1-B runtime contract before touching positions.
+    # In pinned YaneuraOu, isready performs thread/TT/search-manager/book
+    # initialization, so bypassing it is not a valid audit lifecycle.
+    for command in (
+        "setoption name Threads value 1",
+        "setoption name USI_Hash value 64",
+        "setoption name MultiPV value 3",
+        "setoption name GenerateAllLegalMoves value false",
+        "setoption name FV_SCALE value 24",
+        "setoption name PvInterval value 0",
+        "setoption name BookFile value no_book",
+    ):
+        engine.send(command)
+
+    engine.send("isready")
+    engine.read_until(lambda line: line == "readyok", 30, "readyok")
+    engine.send("usinewgame")
+
+
 def audit(engine_path: Path, input_data, transcript_path: Path):
     engine = EngineProcess(engine_path)
     try:
-        engine.send("usi")
-        engine.read_until(lambda line: line == "usiok", 10, "usiok")
+        initialize_engine(engine)
 
         results = []
         for item in sorted(input_data["positions"], key=lambda value: value["ply"]):
@@ -165,6 +193,15 @@ def audit(engine_path: Path, input_data, transcript_path: Path):
             "inputSHA256": input_data["input_sha256"],
             "rootMoveGenerator": "YaneuraOu MoveList<LEGAL>",
             "crosscheckUniverse": "YaneuraOu MoveList<LEGAL_ALL>",
+            "generateAllLegalMoves": False,
+            "runtimeContract": {
+                "threads": 1,
+                "hashMB": 64,
+                "configuredMultiPV": 3,
+                "fvScale": 24,
+                "pvIntervalMs": 0,
+                "bookFile": "no_book",
+            },
             "uniquePositionCount": len(results),
             "standardAttemptCount": input_data["standard_attempt_count"],
             "stressAttemptCount": input_data["stress_attempt_count"],
