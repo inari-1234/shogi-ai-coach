@@ -2,52 +2,41 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-USI_CPP="$ROOT/native/third_party/YaneuraOu/source/usi.cpp"
+SOURCE="$ROOT/native/third_party/YaneuraOu/source"
+MAIN_CPP="$SOURCE/main.cpp"
+AUDIT_INC_SRC="$ROOT/tools/engine-verify/yaneuraou_ve1b_legal_audit.inc"
+AUDIT_INC_DST="$SOURCE/ve1b_legal_audit.inc"
 
-python3 - "$USI_CPP" <<'PY'
+cp "$AUDIT_INC_SRC" "$AUDIT_INC_DST"
+
+python3 - "$MAIN_CPP" <<'PY'
 from pathlib import Path
 import sys
 
 path = Path(sys.argv[1])
 text = path.read_text(encoding="utf-8-sig")
 
-signature = 'token == "ve1b_legal_move_count"'
-if signature not in text:
-    marker = '    else if (token == "flip")'
+include_signature = '#include "ve1b_legal_audit.inc"'
+if include_signature not in text:
+    marker = 'using namespace YaneuraOu;'
     if marker not in text:
-        marker = '\telse if (token == "flip")'
+        raise SystemExit("main.cpp namespace marker not found")
+    text = text.replace(marker, marker + '\n\n#include "ve1b_legal_audit.inc"', 1)
+
+branch_signature = '--ve1b-legal-audit'
+if branch_signature not in text:
+    marker = '\tPosition::init();'
     if marker not in text:
-        raise SystemExit("USI flip command marker not found")
+        marker = '    Position::init();'
+    if marker not in text:
+        raise SystemExit("main.cpp Position::init marker not found")
+    block = '''\n\n\tif (argc == 3 && std::string(argv[1]) == "--ve1b-legal-audit")\n\t\treturn ve1b_run_legal_audit(argv[2]);'''
+    text = text.replace(marker, marker + block, 1)
 
-    indent = marker[: len(marker) - len(marker.lstrip())]
-    block = f'''{indent}else if (token == "ve1b_legal_move_count")
-    {{
-        auto& pos = engine.get_position();
-        sync_cout << "info string ve1b_legal_move_count "
-                  << MoveList<LEGAL>(pos).size() << sync_endl;
-    }}
-
-{indent}else if (token == "ve1b_legal_all_moves")
-    {{
-        auto& pos = engine.get_position();
-        std::ostringstream oss;
-        oss << "info string ve1b_legal_all_moves";
-        for (auto m : MoveList<LEGAL_ALL>(pos))
-            oss << ' ' << m;
-        sync_cout << oss.str() << sync_endl;
-    }}
-
-'''
-    text = text.replace(marker, block + marker, 1)
-    path.write_text(text, encoding="utf-8")
-
-patched = path.read_text(encoding="utf-8-sig")
-for required in [
-    'token == "ve1b_legal_move_count"',
-    'MoveList<LEGAL>(pos).size()',
-    'token == "ve1b_legal_all_moves"',
-    'MoveList<LEGAL_ALL>(pos)',
-]:
-    if required not in patched:
-        raise SystemExit(f"audit patch incomplete: {required}")
+path.write_text(text, encoding="utf-8")
 PY
+
+grep -F '#include "ve1b_legal_audit.inc"' "$MAIN_CPP"
+grep -F -- '--ve1b-legal-audit' "$MAIN_CPP"
+grep -F 'MoveList<LEGAL>(pos).size()' "$AUDIT_INC_DST"
+grep -F 'MoveList<LEGAL_ALL>(pos)' "$AUDIT_INC_DST"
