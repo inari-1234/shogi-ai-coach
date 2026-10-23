@@ -2,17 +2,12 @@
 import argparse
 import hashlib
 import json
-import queue
 import subprocess
 import sys
-import threading
 from pathlib import Path
 
 AUTHORITY_BASE = "8daf78caa2bd5919cc911da21bae80fa3d12a248"
 ENGINE_COMMIT = "a5ee2786c0030edc7d4a1cdfe94b04dffec55493"
-COUNT_PREFIX = "info string ve1b_legal_move_count "
-ALL_PREFIX = "info string ve1b_legal_all_moves"
-_EOF = object()
 
 
 def canonical_sha256(value):
@@ -23,70 +18,6 @@ def canonical_sha256(value):
         separators=(",", ":"),
     ).encode("utf-8")
     return hashlib.sha256(payload).hexdigest()
-
-
-class EngineProcess:
-    def __init__(self, executable: Path):
-        self.proc = subprocess.Popen(
-            [str(executable)],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            bufsize=1,
-        )
-        assert self.proc.stdin is not None
-        assert self.proc.stdout is not None
-        self.lines = queue.Queue()
-        self.transcript = []
-        self.reader = threading.Thread(target=self._drain_stdout, daemon=True)
-        self.reader.start()
-
-    def _drain_stdout(self):
-        try:
-            for raw in self.proc.stdout:
-                self.lines.put(raw.rstrip("\r\n"))
-        finally:
-            self.lines.put(_EOF)
-
-    def send(self, command: str):
-        self.transcript.append(f"> {command}")
-        self.proc.stdin.write(command + "\n")
-        self.proc.stdin.flush()
-
-    def read_until(self, predicate, timeout: float, label: str):
-        while True:
-            try:
-                item = self.lines.get(timeout=timeout)
-            except queue.Empty as exc:
-                raise RuntimeError(f"timeout waiting for {label}") from exc
-            if item is _EOF:
-                try:
-                    return_code = self.proc.wait(timeout=1)
-                except subprocess.TimeoutExpired:
-                    return_code = self.proc.poll()
-                raise RuntimeError(
-                    f"engine EOF while waiting for {label}; returncode={return_code}"
-                )
-            line = item
-            self.transcript.append(line)
-            if predicate(line):
-                return line
-
-    def close(self):
-        if self.proc.poll() is None:
-            try:
-                self.send("quit")
-            except Exception:
-                pass
-            try:
-                self.proc.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                self.proc.kill()
-                self.proc.wait(timeout=5)
-        self.reader.join(timeout=1)
 
 
 def validate_input(data):
@@ -110,112 +41,115 @@ def validate_input(data):
         raise ValueError("position attempt mapping does not sum to 504")
 
 
-def initialize_engine(engine: EngineProcess):
-    engine.send("usi")
-    engine.read_until(lambda line: line == "usiok", 10, "usiok")
+def run_direct_audit(engine_path: Path, input_data, workdir: Path):
+    audit_input = workdir / "native-audit-input.tsv"
+    audit_input.write_text(
+        "".join(
+            f"{item['ply']}\t{item['position_command']}\n"
+            for item in sorted(input_data["positions"], key=lambda value: value["ply"])
+        ),
+        encoding="utf-8",
+    )
 
-    # Match the production VE1-B runtime contract before touching positions.
-    # In pinned YaneuraOu, isready performs thread/TT/search-manager/book
-    # initialization, so bypassing it is not a valid audit lifecycle.
-    for command in (
-        "setoption name Threads value 1",
-        "setoption name USI_Hash value 64",
-        "setoption name MultiPV value 3",
-        "setoption name GenerateAllLegalMoves value false",
-        "setoption name FV_SCALE value 24",
-        "setoption name PvInterval value 0",
-        "setoption name BookFile value no_book",
-    ):
-        engine.send(command)
-
-    engine.send("isready")
-    engine.read_until(lambda line: line == "readyok", 30, "readyok")
-    engine.send("usinewgame")
-
-
-def audit(engine_path: Path, input_data, transcript_path: Path):
-    engine = EngineProcess(engine_path)
-    try:
-        initialize_engine(engine)
-
-        results = []
-        for item in sorted(input_data["positions"], key=lambda value: value["ply"]):
-            engine.send(item["position_command"])
-
-            engine.send("ve1b_legal_move_count")
-            count_line = engine.read_until(
-                lambda line: line.startswith(COUNT_PREFIX),
-                5,
-                f"LEGAL count ply {item['ply']}",
-            )
-            legal_count = int(count_line[len(COUNT_PREFIX):].strip())
-
-            engine.send("ve1b_legal_all_moves")
-            all_line = engine.read_until(
-                lambda line: line.startswith(ALL_PREFIX),
-                5,
-                f"LEGAL_ALL moves ply {item['ply']}",
-            )
-            suffix = all_line[len(ALL_PREFIX):].strip()
-            legal_all_moves = suffix.split() if suffix else []
-
-            results.append(
-                {
-                    "ply": item["ply"],
-                    "positionCommand": item["position_command"],
-                    "legalRootMoveCount": legal_count,
-                    "legalAllRootMoveCount": len(legal_all_moves),
-                    "legalAllMoves": legal_all_moves,
-                    "standardAttemptCount": item["standard_attempt_count"],
-                    "stressAttemptCount": item["stress_attempt_count"],
-                    "totalAttemptCount": item["total_attempt_count"],
-                    "affectedAttemptCount": item["total_attempt_count"] if legal_count < 3 else 0,
-                }
-            )
-
-        affected_standard = sum(
-            p["standardAttemptCount"] for p in results if p["legalRootMoveCount"] < 3
+    proc = subprocess.run(
+        [str(engine_path), "--ve1b-legal-audit", str(audit_input)],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        check=False,
+    )
+    transcript = proc.stdout
+    (workdir / "native-transcript.txt").write_text(transcript, encoding="utf-8")
+    if proc.returncode != 0:
+        raise RuntimeError(
+            f"direct engine audit failed: returncode={proc.returncode}"
         )
-        affected_stress = sum(
-            p["stressAttemptCount"] for p in results if p["legalRootMoveCount"] < 3
-        )
-        minimum = min(p["legalRootMoveCount"] for p in results)
-        reasons = [
-            f"PLY_{p['ply']}_LEGAL_ROOT_COUNT_{p['legalRootMoveCount']}_AFFECTS_{p['totalAttemptCount']}_ATTEMPTS"
-            for p in results
-            if p["legalRootMoveCount"] < 3
-        ]
-        return {
-            "schemaVersion": 2,
-            "status": "PASS" if not reasons else "FAIL",
-            "authorityBase": AUTHORITY_BASE,
-            "engineCommit": ENGINE_COMMIT,
-            "inputSHA256": input_data["input_sha256"],
-            "rootMoveGenerator": "YaneuraOu MoveList<LEGAL>",
-            "crosscheckUniverse": "YaneuraOu MoveList<LEGAL_ALL>",
-            "generateAllLegalMoves": False,
-            "runtimeContract": {
-                "threads": 1,
-                "hashMB": 64,
-                "configuredMultiPV": 3,
-                "fvScale": 24,
-                "pvIntervalMs": 0,
-                "bookFile": "no_book",
-            },
-            "uniquePositionCount": len(results),
-            "standardAttemptCount": input_data["standard_attempt_count"],
-            "stressAttemptCount": input_data["stress_attempt_count"],
-            "totalAttemptCount": input_data["total_attempt_count"],
-            "affectedStandardAttemptCount": affected_standard,
-            "affectedStressAttemptCount": affected_stress,
-            "affectedTotalAttemptCount": affected_standard + affected_stress,
-            "minimumLegalRootMoveCount": minimum,
-            "positions": results,
-            "failureReasons": reasons,
+
+    parsed = {}
+    for line in transcript.splitlines():
+        if not line.startswith("VE1B\t"):
+            continue
+        fields = line.split("\t", 4)
+        if len(fields) != 5:
+            raise RuntimeError(f"malformed audit row: {line}")
+        _, ply_text, legal_text, legal_all_text, moves_text = fields
+        ply = int(ply_text)
+        if ply in parsed:
+            raise RuntimeError(f"duplicate audit ply: {ply}")
+        moves = moves_text.split() if moves_text else []
+        legal_all_count = int(legal_all_text)
+        if legal_all_count != len(moves):
+            raise RuntimeError(
+                f"LEGAL_ALL payload mismatch at ply {ply}: {legal_all_count} != {len(moves)}"
+            )
+        parsed[ply] = {
+            "legalRootMoveCount": int(legal_text),
+            "legalAllRootMoveCount": legal_all_count,
+            "legalAllMoves": moves,
         }
-    finally:
-        engine.close()
-        transcript_path.write_text("\n".join(engine.transcript) + "\n", encoding="utf-8")
+
+    if len(parsed) != 9:
+        raise RuntimeError(f"expected 9 audit rows, got {len(parsed)}")
+    return parsed
+
+
+def build_report(input_data, parsed):
+    results = []
+    for item in sorted(input_data["positions"], key=lambda value: value["ply"]):
+        measured = parsed.get(item["ply"])
+        if measured is None:
+            raise RuntimeError(f"missing audit ply: {item['ply']}")
+        legal_count = measured["legalRootMoveCount"]
+        results.append(
+            {
+                "ply": item["ply"],
+                "positionCommand": item["position_command"],
+                "legalRootMoveCount": legal_count,
+                "legalAllRootMoveCount": measured["legalAllRootMoveCount"],
+                "legalAllMoves": measured["legalAllMoves"],
+                "standardAttemptCount": item["standard_attempt_count"],
+                "stressAttemptCount": item["stress_attempt_count"],
+                "totalAttemptCount": item["total_attempt_count"],
+                "affectedAttemptCount": item["total_attempt_count"] if legal_count < 3 else 0,
+            }
+        )
+
+    affected_standard = sum(
+        p["standardAttemptCount"] for p in results if p["legalRootMoveCount"] < 3
+    )
+    affected_stress = sum(
+        p["stressAttemptCount"] for p in results if p["legalRootMoveCount"] < 3
+    )
+    minimum = min(p["legalRootMoveCount"] for p in results)
+    reasons = [
+        f"PLY_{p['ply']}_LEGAL_ROOT_COUNT_{p['legalRootMoveCount']}_AFFECTS_{p['totalAttemptCount']}_ATTEMPTS"
+        for p in results
+        if p["legalRootMoveCount"] < 3
+    ]
+
+    return {
+        "schemaVersion": 3,
+        "status": "PASS" if not reasons else "FAIL",
+        "authorityBase": AUTHORITY_BASE,
+        "engineCommit": ENGINE_COMMIT,
+        "inputSHA256": input_data["input_sha256"],
+        "measurementPath": "direct C++ Position + MoveList; no USI loop; no NNUE/eval load",
+        "rootMoveGenerator": "YaneuraOu MoveList<LEGAL>",
+        "crosscheckUniverse": "YaneuraOu MoveList<LEGAL_ALL>",
+        "generateAllLegalMoves": False,
+        "uniquePositionCount": len(results),
+        "standardAttemptCount": input_data["standard_attempt_count"],
+        "stressAttemptCount": input_data["stress_attempt_count"],
+        "totalAttemptCount": input_data["total_attempt_count"],
+        "affectedStandardAttemptCount": affected_standard,
+        "affectedStressAttemptCount": affected_stress,
+        "affectedTotalAttemptCount": affected_standard + affected_stress,
+        "minimumLegalRootMoveCount": minimum,
+        "positions": results,
+        "failureReasons": reasons,
+    }
 
 
 def main():
@@ -235,7 +169,11 @@ def main():
     validate_input(data)
 
     try:
-        report = audit(args.engine, data, args.transcript)
+        parsed = run_direct_audit(args.engine, data, args.output.parent)
+        default_transcript = args.output.parent / "native-transcript.txt"
+        if default_transcript != args.transcript:
+            args.transcript.write_text(default_transcript.read_text(encoding="utf-8"), encoding="utf-8")
+        report = build_report(data, parsed)
     except Exception as exc:
         (args.output.parent / "error.txt").write_text(
             f"{type(exc).__name__}: {exc}\n",
