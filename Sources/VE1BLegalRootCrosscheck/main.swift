@@ -1,5 +1,10 @@
 import Foundation
 import ShogiCoachCore
+#if canImport(Darwin)
+import Darwin
+#elseif canImport(Glibc)
+import Glibc
+#endif
 
 private struct NativeReport: Decodable {
     let status: String
@@ -59,7 +64,7 @@ private enum Main {
     static func main() throws {
         guard CommandLine.arguments.count == 3 else {
             fputs("usage: VE1BLegalRootCrosscheck <native-report.json> <output.json>\n", stderr)
-            Foundation.exit(64)
+            exit(64)
         }
 
         let inputURL = URL(fileURLWithPath: CommandLine.arguments[1])
@@ -150,7 +155,7 @@ private enum Main {
         print("minimumLegalRootMoveCount=\(report.minimumLegalRootMoveCount)")
         print("parityMismatchCount=\(report.parityMismatchCount)")
         if report.status != "PASS" {
-            Foundation.exit(2)
+            exit(2)
         }
     }
 }
