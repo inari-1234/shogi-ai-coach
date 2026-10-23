@@ -60,8 +60,18 @@ jobs:
           test "$(git -C native/third_party/YaneuraOu rev-parse HEAD)" = \
             "a5ee2786c0030edc7d4a1cdfe94b04dffec55493"
           bash scripts/patch_yaneuraou_legal_audit.sh
-          make -C native/third_party/YaneuraOu/source clean TARGET_CPU=APPLEAVX2
-          make -C native/third_party/YaneuraOu/source -j2 normal TARGET_CPU=APPLEAVX2 COMPILER=clang++
+          # Root LEGAL/LEGAL_ALL generation is evaluation-independent. Build the
+          # same pinned source with MATERIAL_LEVEL=1 so Position::set() can be
+          # used directly without loading the production NNUE network.
+          make -C native/third_party/YaneuraOu/source clean \
+            TARGET_CPU=APPLEAVX2 \
+            YANEURAOU_EDITION=YANEURAOU_ENGINE_MATERIAL \
+            MATERIAL_LEVEL=1
+          make -C native/third_party/YaneuraOu/source -j2 normal \
+            TARGET_CPU=APPLEAVX2 \
+            COMPILER=clang++ \
+            YANEURAOU_EDITION=YANEURAOU_ENGINE_MATERIAL \
+            MATERIAL_LEVEL=1
           test -x native/third_party/YaneuraOu/source/YaneuraOu-by-gcc
 
       - name: Count B6 roots with engine MoveList LEGAL
