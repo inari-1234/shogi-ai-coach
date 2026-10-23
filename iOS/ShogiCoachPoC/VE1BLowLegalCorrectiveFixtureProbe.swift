@@ -51,10 +51,14 @@ enum VE1BLowLegalCorrectiveFixtureProbe {
         let effectiveRequiredMultiPV: Int
         let completion: String
         let adoptedSnapshotRankCount: Int
+        let adoptedSnapshotRanks: [Int]
         let selectedDepth: Int?
         let maxObservedNodes: UInt64
         let nodeBudget: Int
         let issuedGoCommand: String
+        let rawUSIInfoLines: [String]
+        let terminalBestMove: String?
+        let terminalPonderMove: String?
         let passed: Bool
         let failureReasons: [String]
     }
@@ -85,7 +89,7 @@ enum VE1BLowLegalCorrectiveFixtureProbe {
             guard input.schemaVersion == 1,
                   input.authorityParent == "8daf78caa2bd5919cc911da21bae80fa3d12a248",
                   input.configuredMultiPV == 3,
-                  input.nodeBudget == 1000,
+                  input.nodeBudget == 50000,
                   input.safetyCeilingMs == 10000,
                   input.rootMoveGenerator == "YaneuraOu MoveList<LEGAL>",
                   input.fixtures.count == 4 else {
@@ -122,12 +126,25 @@ enum VE1BLowLegalCorrectiveFixtureProbe {
                     if sample.completion != .nodeBudgetReached {
                         reasons.append("COMPLETION_\(sample.completion.rawValue)")
                     }
-                    let snapshotRankCount = sample.result?.principalVariations.count ?? 0
-                    if snapshotRankCount != sample.effectiveRequiredMultiPV {
-                        reasons.append("SNAPSHOT_RANK_COUNT_\(snapshotRankCount)")
+                    let snapshot = sample.result?.principalVariations ?? []
+                    let snapshotRanks = snapshot.map(\.multipv).sorted()
+                    let expectedRanks = Array(1...sample.effectiveRequiredMultiPV)
+                    if snapshot.count != sample.effectiveRequiredMultiPV {
+                        reasons.append("SNAPSHOT_RANK_COUNT_\(snapshot.count)")
+                    }
+                    if snapshotRanks != expectedRanks {
+                        reasons.append("SNAPSHOT_RANKS_\(snapshotRanks.map(String.init).joined(separator: "_"))")
                     }
                     if sample.maxObservedNodes < UInt64(input.nodeBudget) {
                         reasons.append("MAX_NODES_\(sample.maxObservedNodes)")
+                    }
+
+                    let rawInfoLines = sample.observations.compactMap(\.rawLine)
+                    if rawInfoLines.isEmpty {
+                        reasons.append("RAW_USI_INFO_EMPTY")
+                    }
+                    if sample.terminalResult == nil {
+                        reasons.append("TERMINAL_BESTMOVE_MISSING")
                     }
 
                     let prefixed = reasons.map { "\(fixture.id):\($0)" }
@@ -142,11 +159,15 @@ enum VE1BLowLegalCorrectiveFixtureProbe {
                             expectedEffectiveRequiredMultiPV: fixture.expectedEffectiveRequiredMultiPV,
                             effectiveRequiredMultiPV: sample.effectiveRequiredMultiPV,
                             completion: sample.completion.rawValue,
-                            adoptedSnapshotRankCount: snapshotRankCount,
-                            selectedDepth: sample.result?.principalVariations.first?.depth,
+                            adoptedSnapshotRankCount: snapshot.count,
+                            adoptedSnapshotRanks: snapshotRanks,
+                            selectedDepth: snapshot.first?.depth,
                             maxObservedNodes: sample.maxObservedNodes,
                             nodeBudget: sample.nodeBudget,
                             issuedGoCommand: sample.issuedGoCommand,
+                            rawUSIInfoLines: rawInfoLines,
+                            terminalBestMove: sample.terminalResult?.bestMove.move,
+                            terminalPonderMove: sample.terminalResult?.bestMove.ponder,
                             passed: reasons.isEmpty,
                             failureReasons: reasons
                         )
