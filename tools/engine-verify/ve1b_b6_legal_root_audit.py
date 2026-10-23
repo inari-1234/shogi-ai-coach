@@ -2,16 +2,17 @@
 import argparse
 import hashlib
 import json
-import selectors
+import queue
 import subprocess
 import sys
-import time
+import threading
 from pathlib import Path
 
 AUTHORITY_BASE = "8daf78caa2bd5919cc911da21bae80fa3d12a248"
 ENGINE_COMMIT = "a5ee2786c0030edc7d4a1cdfe94b04dffec55493"
 COUNT_PREFIX = "info string ve1b_legal_move_count "
 ALL_PREFIX = "info string ve1b_legal_all_moves"
+_EOF = object()
 
 
 def canonical_sha256(value):
@@ -38,9 +39,17 @@ class EngineProcess:
         )
         assert self.proc.stdin is not None
         assert self.proc.stdout is not None
-        self.selector = selectors.DefaultSelector()
-        self.selector.register(self.proc.stdout, selectors.EVENT_READ)
+        self.lines = queue.Queue()
         self.transcript = []
+        self.reader = threading.Thread(target=self._drain_stdout, daemon=True)
+        self.reader.start()
+
+    def _drain_stdout(self):
+        try:
+            for raw in self.proc.stdout:
+                self.lines.put(raw.rstrip("\r\n"))
+        finally:
+            self.lines.put(_EOF)
 
     def send(self, command: str):
         self.transcript.append(f"> {command}")
@@ -48,19 +57,17 @@ class EngineProcess:
         self.proc.stdin.flush()
 
     def read_until(self, predicate, timeout: float, label: str):
-        deadline = time.monotonic() + timeout
-        while time.monotonic() < deadline:
-            remaining = max(0.0, deadline - time.monotonic())
-            if not self.selector.select(remaining):
-                break
-            line = self.proc.stdout.readline()
-            if line == "":
+        while True:
+            try:
+                item = self.lines.get(timeout=timeout)
+            except queue.Empty as exc:
+                raise RuntimeError(f"timeout waiting for {label}") from exc
+            if item is _EOF:
                 raise RuntimeError(f"engine EOF while waiting for {label}")
-            line = line.rstrip("\r\n")
+            line = item
             self.transcript.append(line)
             if predicate(line):
                 return line
-        raise RuntimeError(f"timeout waiting for {label}")
 
     def close(self):
         if self.proc.poll() is None:
@@ -73,6 +80,7 @@ class EngineProcess:
             except subprocess.TimeoutExpired:
                 self.proc.kill()
                 self.proc.wait(timeout=5)
+        self.reader.join(timeout=1)
 
 
 def validate_input(data):
@@ -96,7 +104,7 @@ def validate_input(data):
         raise ValueError("position attempt mapping does not sum to 504")
 
 
-def audit(engine_path: Path, input_data):
+def audit(engine_path: Path, input_data, transcript_path: Path):
     engine = EngineProcess(engine_path)
     try:
         engine.send("usi")
@@ -167,9 +175,10 @@ def audit(engine_path: Path, input_data):
             "minimumLegalRootMoveCount": minimum,
             "positions": results,
             "failureReasons": reasons,
-        }, engine.transcript
+        }
     finally:
         engine.close()
+        transcript_path.write_text("\n".join(engine.transcript) + "\n", encoding="utf-8")
 
 
 def main():
@@ -180,18 +189,27 @@ def main():
     parser.add_argument("--transcript", required=True, type=Path)
     args = parser.parse_args()
 
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.transcript.parent.mkdir(parents=True, exist_ok=True)
+
     if not args.engine.is_file():
         raise SystemExit(f"engine not found: {args.engine}")
     data = json.loads(args.input.read_text(encoding="utf-8"))
     validate_input(data)
-    report, transcript = audit(args.engine, data)
 
-    args.output.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        report = audit(args.engine, data, args.transcript)
+    except Exception as exc:
+        (args.output.parent / "error.txt").write_text(
+            f"{type(exc).__name__}: {exc}\n",
+            encoding="utf-8",
+        )
+        raise
+
     args.output.write_text(
         json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    args.transcript.write_text("\n".join(transcript) + "\n", encoding="utf-8")
 
     print(json.dumps({
         "status": report["status"],
