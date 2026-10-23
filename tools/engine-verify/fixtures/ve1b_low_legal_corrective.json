@@ -2,8 +2,8 @@
   "schema_version": 1,
   "authority_parent": "8daf78caa2bd5919cc911da21bae80fa3d12a248",
   "configured_multi_pv": 3,
-  "node_budget": 1000,
-  "safety_ceiling_ms": 10000,
+  "node_budget": 50000,
+  "safety_ceiling_ms": 30000,
   "root_move_generator": "YaneuraOu MoveList<LEGAL>",
   "fixtures": [
     {
