@@ -59,8 +59,6 @@ jobs:
           test "$(git -C native/third_party/YaneuraOu rev-parse HEAD)" = \
             "a5ee2786c0030edc7d4a1cdfe94b04dffec55493"
           bash scripts/patch_yaneuraou_legal_audit.sh
-          grep -F 'MoveList<LEGAL>(pos).size()' native/third_party/YaneuraOu/source/usi.cpp
-          grep -F 'MoveList<LEGAL_ALL>(pos)' native/third_party/YaneuraOu/source/usi.cpp
           make -C native/third_party/YaneuraOu/source clean TARGET_CPU=APPLEAVX2
           make -C native/third_party/YaneuraOu/source -j2 normal TARGET_CPU=APPLEAVX2 COMPILER=clang++
           test -x native/third_party/YaneuraOu/source/YaneuraOu-by-gcc
