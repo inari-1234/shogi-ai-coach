@@ -1,0 +1,209 @@
+{
+  "app_contract": {
+    "book_file": "no_book",
+    "candidate_discovery_node_tiers": [
+      50000,
+      100000,
+      200000
+    ],
+    "candidate_identity_source": "deepest_unrestricted_discovery_200k",
+    "cold_tt_boundary": "isready_readyok_then_usinewgame_before_each_independent_search",
+    "confirmation_node_tiers": [
+      50000,
+      100000,
+      200000
+    ],
+    "fv_scale": 24,
+    "hash_mb": 64,
+    "pv_interval_ms": 0,
+    "threads": 1
+  },
+  "authority_commit": "8daf78caa2bd5919cc911da21bae80fa3d12a248",
+  "excluded_from_ve1d_game_sha256": [
+    "028409aa434a7b015428892f3ac0a54c81a841849a56d4ea390a4ee7372c6ca8",
+    "06cdafc39c980de40233e16d23a60a987117df741eff7af8edb7321f968a1fce",
+    "38a01eb52ef27664f010b558114bd85f922eccdaeae8c281be461ea321cc65a0",
+    "5d77396f5721a68eaad84405bb8358caedcdb11e64f109b865202d2675cf1789",
+    "a3ea21dba4d3395d569d846b8cb119452fad0cedbf690eb72a29976918a8702a"
+  ],
+  "manifest_sha256": "c24347c6e491b3fe27874ac8088e63852a42fbb0a58ab76b36ccf96a6c3b4d12",
+  "max_positions_per_game": 4,
+  "min_source_games": 4,
+  "reference_contract": {
+    "book_file": "no_book",
+    "cold_tt_boundary": "isready_readyok_then_usinewgame_before_each_independent_search",
+    "fv_scale": 24,
+    "hash_mb": 512,
+    "measurement": "deepest_fully_completed_exact_iteration",
+    "multipv": 3,
+    "node_budgets": [
+      4000000,
+      16000000
+    ],
+    "pv_interval_ms": 0,
+    "threads": 1
+  },
+  "sampling_key": "VE1-C1-SAMPLING-v1",
+  "schema_version": "ve1c1-pilot-manifest-v1",
+  "selected_positions": [
+    {
+      "actual_move": "G*7c",
+      "game_sha256": "38a01eb52ef27664f010b558114bd85f922eccdaeae8c281be461ea321cc65a0",
+      "ply": 282,
+      "position_command": "position startpos moves 2g2f 8c8d 2f2e 8d8e 7g7f 4a3b 8h7g 3c3d 7i6h 2b7g+ 6h7g 3a2b 1g1f 1c1d 6i7h 9c9d 9g9f 2b3c 3i4h 7a7b 4g4f 6c6d 4h4g 7c7d 3g3f 5a4b 2i3g 8a7c 5i6h 7b6c 4i4h 6a6b 4g5f 8b8a 6g6f 6c5d 2h2i 4b5b 6h6i 5b4a 6i5h 4a5b 5h6h 5b4b 6h7i 5d6c 7i8h 6c5d 3g4e 3c2b 3f3e 4c4d 3e3d 4d4e 4f4e 6d6e 6f6e 7d7e 6e6d 8e8f 8g8f 7e7f 7g7f 8a8f 7h8g 8f8a P*8b 8a8b B*7a 8b7b 7a6b+ 7b6b P*7d B*6f G*7g 6f7g+ 8i7g 6b6d P*6e 6d7d P*7e 7d8d P*8e 8d8a B*7b 8a7a 7b8c+ G*7b 8c7d P*4g 4h4g P*6g 7f6g 5d6c 4e4d P*4c 6g7f N*5b 4g4h 5b4d 5f6g 4d3f 4h5h P*6b 7d8d P*8c 8d7d B*3g 6g5f 3f4h+ 5h6g 5c5d 6e6d 6c6d 6g6f P*3h 2i7i 3h3i+ 7i7h 9d9e P*4f 6d5c 9f9e 3g4f+ 9e9d P*9g 9i9g 3i3h 5f6g 7b6c 7d8c 4f1i 9d9c+ L*8a 8c9d 4c4d P*9b 4b4c 9b9a+ 4c3d 9a8a 7a8a 7e7d 6c7d 9c8b 8a3a 9d8c 7d6d 8c7c 3d2e 7g6e 5c4b N*5f 6b6c 8h7g 3b4c 5f6d 6c6d G*2g P*3f P*2h 1i1h 7h7i 6d6e 7f6e P*7h 6g7h P*6d 7c6d 3f3g+ L*1i 3g2g 1i1h 3h2h 7g8f 2h1h 7h6g 4b5c 6d7d P*6d 6e5f P*8a 8b7b N*4e 9g9c+ 4e5g+ 7d9b L*6e 7i7c+ 6e6f 6g7f 5g5f 8f9e 6f6g+ 9e9d 6g6f L*8d P*7a 7b6b 6d6e 6b6c S*7b 6c7b 7a7b 7c7b G*6b 7b7e N*8b 9c8b 8a8b 8d8b+ L*7b 7e8f 6f7f 8g7f 7b7f L*7e P*9a 8b9a 5c6d S*8d 5f6f N*7d 6b6c 7d8b+ 7f7g+ 8f9e 7g7f 7e7d S*8f 9e9i 8f8g P*7e 3a3g+ 9b8a P*9h 9i8i 6c5c 7d7c+ G*7h 8i7h 8g7h+ 7c7d R*8i 7d6d 5c6d B*6a 4c3d G*7d 3g8g 9d9c 8g8e 6a9d+ 6d7d 7e7d 8e7d S*6c 7d8e 9d8e 8i8e+ 8a7b 5d5e 7b6a 2b3c G*3b B*6g R*5a 2e1f P*2b 1f1g 2b2a+ 6g4e+ 6c5d 4e3e 2a1a 4d4e P*9d 4e4f 5d4c G*6b 6a8c",
+      "position_sampling_sha256": "8ebc2dbe6952c4871da150166ae89f44639d81dfefa32ed789fca4400166a6f0",
+      "source_id": "denryusen:dr4-hardware2:2024"
+    },
+    {
+      "actual_move": "N*4g",
+      "game_sha256": "a3ea21dba4d3395d569d846b8cb119452fad0cedbf690eb72a29976918a8702a",
+      "ply": 156,
+      "position_command": "position startpos moves 2g2f 8c8d 2f2e 4a3b 7g7f 6a5b 6i7h 8d8e 8h7g 3c3d 7i6h 2b3c 7g3c+ 3b3c 6h7g 7a7b 3i3h 6c6d 9g9f 9c9d 4g4f 1c1d 3g3f 7c7d 2i3g 4c4d 5i6h 5a6b 3h4g 7b6c 4i4h 8a7c 1g1f 8b8a 6g6f 6b7b 2h2i 5c5d 6h7i 5d5e 4g5h 6c5d 5h6g 3a4b B*2b 1a1c 2b1a+ 5b6c 7i8h 6c6b 2i2f 6d6e 6f6e 5d6e P*6f 6e5d 4h5h B*6d 2f2i 4b5c 2e2d 2c2d 1a3c 2a3c 2i2d P*6e 2d2b+ 6e6f 7g6f 8e8f 8g8f P*6e 6f7g P*8e 7f7e 6d7e 8f8e 7c8e P*8g 5e5f 5g5f B*4i P*7c 7b7c P*7f 7e6d G*4h 4i5h+ 4h5h 9d9e 7g8f 9e9f P*9h 3c4e 4f4e 6d3g+ N*7g 8e7g+ 8i7g P*5b 2b1c 3g4f B*2d 3d3e 2d3e 4f3f 3e4d N*6d N*8e 7c8c 4d5c+ 5b5c S*7c 6b7c 8e7c+ 8c7c 1c5c G*6c 7g8e 8a8e 8f8e 6c5c R*3b N*6b G*8c 7c6c 3b3f+ N*8f 8g8f P*8g 8h7g P*3e 3f3e 8g8h+ 7g8h 9f9g+ 9h9g P*8g 7h8g N*9e B*7b 6c5b 3e3b R*4b 7b6a+ 5b6a 3b4b B*7i 8h7i B*2d N*3e 2d3e 7i6i 3e7i+ 6i5i",
+      "position_sampling_sha256": "004920d8b6470d9b895e9954ad75b651cd080ae13c6a12496cc03e34ded5f4aa",
+      "source_id": "denryusen:dr4-hardware2:2024"
+    },
+    {
+      "actual_move": "7d7c",
+      "game_sha256": "06cdafc39c980de40233e16d23a60a987117df741eff7af8edb7321f968a1fce",
+      "ply": 115,
+      "position_command": "position startpos moves 2g2f 4a3b 2f2e 8c8d 7g7f 8d8e 8h7g 9c9d 2e2d 2c2d 2h2d P*2c 2d2h 7a6b 3i3h 6c6d 7i6h 6b6c 3h2g 3c3d 2g2f 3a4b 2f2e 4b3c 6i7h 1c1d 9g9f 7c7d 3g3f 8a7c 2i3g 6a7b 4i4h 4c4d 6g6f 5c5d 6h6g 8b8a 5g5f 5a5b 5i5h 7b6b 1g1f 6d6e 6f6e 7c6e 7g6h 2b1c 4g4f 2c2d 2h2g 3d3e P*6d 6c7b 1f1e 2d2e 3g2e 3e3f 2e1c 2a1c P*3h 3c3d 8i7g 6e7g+ 6h7g 1c2e 7g4d P*4g 4h4g 3f3g+ 4g3g 3b4c 4d6b+ 5b6b N*6e B*8d 7f7e N*3e 2g2i P*2d G*6c 7b6c 6d6c+ 6b6c P*6d 6c6d 2i2e 7d7e 2e2d P*6h P*6f S*6i 5h5g P*2c S*5c 6d7d 2d3d 4c3d B*5b 7d8c S*7d 8c9b 5b3d+ R*5i N*5h G*8b G*7c 5i3i+ 7c8b 8a8b 3d6a 9b8a 6e7c 8d7c",
+      "position_sampling_sha256": "08de64b22e9d467757c0836387d08aad68e5cb6c396158505e57247298a899a9",
+      "source_id": "denryusen:dr4-hardware2:2024"
+    },
+    {
+      "actual_move": "4a3b",
+      "game_sha256": "028409aa434a7b015428892f3ac0a54c81a841849a56d4ea390a4ee7372c6ca8",
+      "ply": 10,
+      "position_command": "position startpos moves 2g2f 3c3d 7g7f 8c8d 2f2e 8d8e 2e2d 2c2d 2h2d",
+      "position_sampling_sha256": "a7154a03761a51cfcbe81d4e85d30b4dd5a3386522a0096951b3662f9a500662",
+      "source_id": "denryusen:dr4-hardware2:2024"
+    },
+    {
+      "actual_move": "7f3f",
+      "game_sha256": "5d77396f5721a68eaad84405bb8358caedcdb11e64f109b865202d2675cf1789",
+      "ply": 156,
+      "position_command": "position startpos moves 2g2f 8c8d 2f2e 4a3b 7g7f 8d8e 8h7g 3c3d 7i8h 2b7g+ 8h7g 3a2b 1g1f 1c1d 6i7h 2b3c 3i4h 7a7b 4g4f 7c7d 4h4g 5a4b 3g3f 6c6d 2i3g 9c9d 9g9f 7b6c 5i6h 8a7c 4i4h 8b8a 2h2i 6a7b 4g5f 7b6b 6g6f 6c5d 6h7i 4b5b 7i8h 5b4b 3g4e 3c4d 2e2d 2c2d 2i2d P*2c 2d2i 6d6e 6f6e 7d7e P*2b 3b2b 6e6d 8e8f 8g8f P*8e 2i6i 8e8f P*8b 8a7a 7f7e 4d4e 4f4e B*3c 6d6c+ 6b6c S*5e P*7f 7g8f 5d5e 6i6c+ 5e5f G*4d S*5b 6c6b 7a6a 4d3c 2b3c P*6c P*8e B*8c S*8g 8h9g 6a6b 6c6b+ 5b4a 8c7d+ 4b3b 7h8g G*3a 7d7c 8e8f 9g8f 5f5g+ 4h5g R*5i S*6f P*6e 6f6e 5i5g+ 6e7f S*6g 7f6g 5g6g S*7f 6g6i R*6a G*6f 8f8e S*6d 7c6d 6f7f 8e7d N*5b 6d7c 6i7h 8g7f 7h7f S*8d S*6d 7c6c G*8e 6a9a+ 7f8f 7d8c 8e8d 8c9b S*8c 9b8a 8f7e B*9g 7e6e 6b5b 4a5b 6c5b 3b2b N*2e 3c3b L*3c 2a3c 2e3c+ 3b3c N*2e N*2a N*2f 6e7f S*6c P*7a 2e3c+ 2b3c 2f3d 8c7b 8a9b",
+      "position_sampling_sha256": "1e72fa3b7944388e2f1f6bc33c0811060bfbf84ae07cf268df14af39f5454c5d",
+      "source_id": "denryusen:dr4-hardware2:2024"
+    },
+    {
+      "actual_move": "P*2h",
+      "game_sha256": "38a01eb52ef27664f010b558114bd85f922eccdaeae8c281be461ea321cc65a0",
+      "ply": 161,
+      "position_command": "position startpos moves 2g2f 8c8d 2f2e 8d8e 7g7f 4a3b 8h7g 3c3d 7i6h 2b7g+ 6h7g 3a2b 1g1f 1c1d 6i7h 9c9d 9g9f 2b3c 3i4h 7a7b 4g4f 6c6d 4h4g 7c7d 3g3f 5a4b 2i3g 8a7c 5i6h 7b6c 4i4h 6a6b 4g5f 8b8a 6g6f 6c5d 2h2i 4b5b 6h6i 5b4a 6i5h 4a5b 5h6h 5b4b 6h7i 5d6c 7i8h 6c5d 3g4e 3c2b 3f3e 4c4d 3e3d 4d4e 4f4e 6d6e 6f6e 7d7e 6e6d 8e8f 8g8f 7e7f 7g7f 8a8f 7h8g 8f8a P*8b 8a8b B*7a 8b7b 7a6b+ 7b6b P*7d B*6f G*7g 6f7g+ 8i7g 6b6d P*6e 6d7d P*7e 7d8d P*8e 8d8a B*7b 8a7a 7b8c+ G*7b 8c7d P*4g 4h4g P*6g 7f6g 5d6c 4e4d P*4c 6g7f N*5b 4g4h 5b4d 5f6g 4d3f 4h5h P*6b 7d8d P*8c 8d7d B*3g 6g5f 3f4h+ 5h6g 5c5d 6e6d 6c6d 6g6f P*3h 2i7i 3h3i+ 7i7h 9d9e P*4f 6d5c 9f9e 3g4f+ 9e9d P*9g 9i9g 3i3h 5f6g 7b6c 7d8c 4f1i 9d9c+ L*8a 8c9d 4c4d P*9b 4b4c 9b9a+ 4c3d 9a8a 7a8a 7e7d 6c7d 9c8b 8a3a 9d8c 7d6d 8c7c 3d2e 7g6e 5c4b N*5f 6b6c 8h7g 3b4c 5f6d 6c6d G*2g P*3f",
+      "position_sampling_sha256": "a5a94725d91e236927ba2079412b86f12a2b2432cc28bef886cd2a6eae328092",
+      "source_id": "denryusen:dr4-hardware2:2024"
+    },
+    {
+      "actual_move": "N*9e",
+      "game_sha256": "a3ea21dba4d3395d569d846b8cb119452fad0cedbf690eb72a29976918a8702a",
+      "ply": 140,
+      "position_command": "position startpos moves 2g2f 8c8d 2f2e 4a3b 7g7f 6a5b 6i7h 8d8e 8h7g 3c3d 7i6h 2b3c 7g3c+ 3b3c 6h7g 7a7b 3i3h 6c6d 9g9f 9c9d 4g4f 1c1d 3g3f 7c7d 2i3g 4c4d 5i6h 5a6b 3h4g 7b6c 4i4h 8a7c 1g1f 8b8a 6g6f 6b7b 2h2i 5c5d 6h7i 5d5e 4g5h 6c5d 5h6g 3a4b B*2b 1a1c 2b1a+ 5b6c 7i8h 6c6b 2i2f 6d6e 6f6e 5d6e P*6f 6e5d 4h5h B*6d 2f2i 4b5c 2e2d 2c2d 1a3c 2a3c 2i2d P*6e 2d2b+ 6e6f 7g6f 8e8f 8g8f P*6e 6f7g P*8e 7f7e 6d7e 8f8e 7c8e P*8g 5e5f 5g5f B*4i P*7c 7b7c P*7f 7e6d G*4h 4i5h+ 4h5h 9d9e 7g8f 9e9f P*9h 3c4e 4f4e 6d3g+ N*7g 8e7g+ 8i7g P*5b 2b1c 3g4f B*2d 3d3e 2d3e 4f3f 3e4d N*6d N*8e 7c8c 4d5c+ 5b5c S*7c 6b7c 8e7c+ 8c7c 1c5c G*6c 7g8e 8a8e 8f8e 6c5c R*3b N*6b G*8c 7c6c 3b3f+ N*8f 8g8f P*8g 8h7g P*3e 3f3e 8g8h+ 7g8h 9f9g+ 9h9g P*8g 7h8g",
+      "position_sampling_sha256": "14200011cc27e7c116ec14cd457f6a13dfe9e54a0df010a5c4c1213fa1eb41b7",
+      "source_id": "denryusen:dr4-hardware2:2024"
+    },
+    {
+      "actual_move": "G*6c",
+      "game_sha256": "06cdafc39c980de40233e16d23a60a987117df741eff7af8edb7321f968a1fce",
+      "ply": 81,
+      "position_command": "position startpos moves 2g2f 4a3b 2f2e 8c8d 7g7f 8d8e 8h7g 9c9d 2e2d 2c2d 2h2d P*2c 2d2h 7a6b 3i3h 6c6d 7i6h 6b6c 3h2g 3c3d 2g2f 3a4b 2f2e 4b3c 6i7h 1c1d 9g9f 7c7d 3g3f 8a7c 2i3g 6a7b 4i4h 4c4d 6g6f 5c5d 6h6g 8b8a 5g5f 5a5b 5i5h 7b6b 1g1f 6d6e 6f6e 7c6e 7g6h 2b1c 4g4f 2c2d 2h2g 3d3e P*6d 6c7b 1f1e 2d2e 3g2e 3e3f 2e1c 2a1c P*3h 3c3d 8i7g 6e7g+ 6h7g 1c2e 7g4d P*4g 4h4g 3f3g+ 4g3g 3b4c 4d6b+ 5b6b N*6e B*8d 7f7e N*3e 2g2i P*2d",
+      "position_sampling_sha256": "0931412ee3757b4e0809d6d1c7d8fbb5e21cb35c22ec97bd8186164428c2a39d",
+      "source_id": "denryusen:dr4-hardware2:2024"
+    },
+    {
+      "actual_move": "2e2d",
+      "game_sha256": "028409aa434a7b015428892f3ac0a54c81a841849a56d4ea390a4ee7372c6ca8",
+      "ply": 7,
+      "position_command": "position startpos moves 2g2f 3c3d 7g7f 8c8d 2f2e 8d8e",
+      "position_sampling_sha256": "ab3bf121a88a3a5f32acfc15ffeb43ab49bc50831f9b936625223d16b2603103",
+      "source_id": "denryusen:dr4-hardware2:2024"
+    },
+    {
+      "actual_move": "3b2b",
+      "game_sha256": "5d77396f5721a68eaad84405bb8358caedcdb11e64f109b865202d2675cf1789",
+      "ply": 138,
+      "position_command": "position startpos moves 2g2f 8c8d 2f2e 4a3b 7g7f 8d8e 8h7g 3c3d 7i8h 2b7g+ 8h7g 3a2b 1g1f 1c1d 6i7h 2b3c 3i4h 7a7b 4g4f 7c7d 4h4g 5a4b 3g3f 6c6d 2i3g 9c9d 9g9f 7b6c 5i6h 8a7c 4i4h 8b8a 2h2i 6a7b 4g5f 7b6b 6g6f 6c5d 6h7i 4b5b 7i8h 5b4b 3g4e 3c4d 2e2d 2c2d 2i2d P*2c 2d2i 6d6e 6f6e 7d7e P*2b 3b2b 6e6d 8e8f 8g8f P*8e 2i6i 8e8f P*8b 8a7a 7f7e 4d4e 4f4e B*3c 6d6c+ 6b6c S*5e P*7f 7g8f 5d5e 6i6c+ 5e5f G*4d S*5b 6c6b 7a6a 4d3c 2b3c P*6c P*8e B*8c S*8g 8h9g 6a6b 6c6b+ 5b4a 8c7d+ 4b3b 7h8g G*3a 7d7c 8e8f 9g8f 5f5g+ 4h5g R*5i S*6f P*6e 6f6e 5i5g+ 6e7f S*6g 7f6g 5g6g S*7f 6g6i R*6a G*6f 8f8e S*6d 7c6d 6f7f 8e7d N*5b 6d7c 6i7h 8g7f 7h7f S*8d S*6d 7c6c G*8e 6a9a+ 7f8f 7d8c 8e8d 8c9b S*8c 9b8a 8f7e B*9g 7e6e 6b5b 4a5b 6c5b",
+      "position_sampling_sha256": "4f9e5293c30e5f722e68c45c2a737d1ab86bd0667ef19521717656c797f0324e",
+      "source_id": "denryusen:dr4-hardware2:2024"
+    },
+    {
+      "actual_move": "N*8b",
+      "game_sha256": "38a01eb52ef27664f010b558114bd85f922eccdaeae8c281be461ea321cc65a0",
+      "ply": 208,
+      "position_command": "position startpos moves 2g2f 8c8d 2f2e 8d8e 7g7f 4a3b 8h7g 3c3d 7i6h 2b7g+ 6h7g 3a2b 1g1f 1c1d 6i7h 9c9d 9g9f 2b3c 3i4h 7a7b 4g4f 6c6d 4h4g 7c7d 3g3f 5a4b 2i3g 8a7c 5i6h 7b6c 4i4h 6a6b 4g5f 8b8a 6g6f 6c5d 2h2i 4b5b 6h6i 5b4a 6i5h 4a5b 5h6h 5b4b 6h7i 5d6c 7i8h 6c5d 3g4e 3c2b 3f3e 4c4d 3e3d 4d4e 4f4e 6d6e 6f6e 7d7e 6e6d 8e8f 8g8f 7e7f 7g7f 8a8f 7h8g 8f8a P*8b 8a8b B*7a 8b7b 7a6b+ 7b6b P*7d B*6f G*7g 6f7g+ 8i7g 6b6d P*6e 6d7d P*7e 7d8d P*8e 8d8a B*7b 8a7a 7b8c+ G*7b 8c7d P*4g 4h4g P*6g 7f6g 5d6c 4e4d P*4c 6g7f N*5b 4g4h 5b4d 5f6g 4d3f 4h5h P*6b 7d8d P*8c 8d7d B*3g 6g5f 3f4h+ 5h6g 5c5d 6e6d 6c6d 6g6f P*3h 2i7i 3h3i+ 7i7h 9d9e P*4f 6d5c 9f9e 3g4f+ 9e9d P*9g 9i9g 3i3h 5f6g 7b6c 7d8c 4f1i 9d9c+ L*8a 8c9d 4c4d P*9b 4b4c 9b9a+ 4c3d 9a8a 7a8a 7e7d 6c7d 9c8b 8a3a 9d8c 7d6d 8c7c 3d2e 7g6e 5c4b N*5f 6b6c 8h7g 3b4c 5f6d 6c6d G*2g P*3f P*2h 1i1h 7h7i 6d6e 7f6e P*7h 6g7h P*6d 7c6d 3f3g+ L*1i 3g2g 1i1h 3h2h 7g8f 2h1h 7h6g 4b5c 6d7d P*6d 6e5f P*8a 8b7b N*4e 9g9c+ 4e5g+ 7d9b L*6e 7i7c+ 6e6f 6g7f 5g5f 8f9e 6f6g+ 9e9d 6g6f L*8d P*7a 7b6b 6d6e 6b6c S*7b 6c7b 7a7b 7c7b G*6b 7b7e",
+      "position_sampling_sha256": "bd2b4412e6729090e38df0382c743b339b014e44a6f0dea3dbc88ecb8e6b0ebd",
+      "source_id": "denryusen:dr4-hardware2:2024"
+    },
+    {
+      "actual_move": "7c6c",
+      "game_sha256": "a3ea21dba4d3395d569d846b8cb119452fad0cedbf690eb72a29976918a8702a",
+      "ply": 126,
+      "position_command": "position startpos moves 2g2f 8c8d 2f2e 4a3b 7g7f 6a5b 6i7h 8d8e 8h7g 3c3d 7i6h 2b3c 7g3c+ 3b3c 6h7g 7a7b 3i3h 6c6d 9g9f 9c9d 4g4f 1c1d 3g3f 7c7d 2i3g 4c4d 5i6h 5a6b 3h4g 7b6c 4i4h 8a7c 1g1f 8b8a 6g6f 6b7b 2h2i 5c5d 6h7i 5d5e 4g5h 6c5d 5h6g 3a4b B*2b 1a1c 2b1a+ 5b6c 7i8h 6c6b 2i2f 6d6e 6f6e 5d6e P*6f 6e5d 4h5h B*6d 2f2i 4b5c 2e2d 2c2d 1a3c 2a3c 2i2d P*6e 2d2b+ 6e6f 7g6f 8e8f 8g8f P*6e 6f7g P*8e 7f7e 6d7e 8f8e 7c8e P*8g 5e5f 5g5f B*4i P*7c 7b7c P*7f 7e6d G*4h 4i5h+ 4h5h 9d9e 7g8f 9e9f P*9h 3c4e 4f4e 6d3g+ N*7g 8e7g+ 8i7g P*5b 2b1c 3g4f B*2d 3d3e 2d3e 4f3f 3e4d N*6d N*8e 7c8c 4d5c+ 5b5c S*7c 6b7c 8e7c+ 8c7c 1c5c G*6c 7g8e 8a8e 8f8e 6c5c R*3b N*6b G*8c",
+      "position_sampling_sha256": "43ba34375c2c2ac18e6701ea4d21dba9e791b3fc76f0853164e10df0130731bf",
+      "source_id": "denryusen:dr4-hardware2:2024"
+    },
+    {
+      "actual_move": "5i3i+",
+      "game_sha256": "06cdafc39c980de40233e16d23a60a987117df741eff7af8edb7321f968a1fce",
+      "ply": 108,
+      "position_command": "position startpos moves 2g2f 4a3b 2f2e 8c8d 7g7f 8d8e 8h7g 9c9d 2e2d 2c2d 2h2d P*2c 2d2h 7a6b 3i3h 6c6d 7i6h 6b6c 3h2g 3c3d 2g2f 3a4b 2f2e 4b3c 6i7h 1c1d 9g9f 7c7d 3g3f 8a7c 2i3g 6a7b 4i4h 4c4d 6g6f 5c5d 6h6g 8b8a 5g5f 5a5b 5i5h 7b6b 1g1f 6d6e 6f6e 7c6e 7g6h 2b1c 4g4f 2c2d 2h2g 3d3e P*6d 6c7b 1f1e 2d2e 3g2e 3e3f 2e1c 2a1c P*3h 3c3d 8i7g 6e7g+ 6h7g 1c2e 7g4d P*4g 4h4g 3f3g+ 4g3g 3b4c 4d6b+ 5b6b N*6e B*8d 7f7e N*3e 2g2i P*2d G*6c 7b6c 6d6c+ 6b6c P*6d 6c6d 2i2e 7d7e 2e2d P*6h P*6f S*6i 5h5g P*2c S*5c 6d7d 2d3d 4c3d B*5b 7d8c S*7d 8c9b 5b3d+ R*5i N*5h G*8b G*7c",
+      "position_sampling_sha256": "274046e3e481ccef30fda07e0d8e540fbf528fb60cf39dc2b7da41caa3177422",
+      "source_id": "denryusen:dr4-hardware2:2024"
+    },
+    {
+      "actual_move": "S*4g",
+      "game_sha256": "5d77396f5721a68eaad84405bb8358caedcdb11e64f109b865202d2675cf1789",
+      "ply": 161,
+      "position_command": "position startpos moves 2g2f 8c8d 2f2e 4a3b 7g7f 8d8e 8h7g 3c3d 7i8h 2b7g+ 8h7g 3a2b 1g1f 1c1d 6i7h 2b3c 3i4h 7a7b 4g4f 7c7d 4h4g 5a4b 3g3f 6c6d 2i3g 9c9d 9g9f 7b6c 5i6h 8a7c 4i4h 8b8a 2h2i 6a7b 4g5f 7b6b 6g6f 6c5d 6h7i 4b5b 7i8h 5b4b 3g4e 3c4d 2e2d 2c2d 2i2d P*2c 2d2i 6d6e 6f6e 7d7e P*2b 3b2b 6e6d 8e8f 8g8f P*8e 2i6i 8e8f P*8b 8a7a 7f7e 4d4e 4f4e B*3c 6d6c+ 6b6c S*5e P*7f 7g8f 5d5e 6i6c+ 5e5f G*4d S*5b 6c6b 7a6a 4d3c 2b3c P*6c P*8e B*8c S*8g 8h9g 6a6b 6c6b+ 5b4a 8c7d+ 4b3b 7h8g G*3a 7d7c 8e8f 9g8f 5f5g+ 4h5g R*5i S*6f P*6e 6f6e 5i5g+ 6e7f S*6g 7f6g 5g6g S*7f 6g6i R*6a G*6f 8f8e S*6d 7c6d 6f7f 8e7d N*5b 6d7c 6i7h 8g7f 7h7f S*8d S*6d 7c6c G*8e 6a9a+ 7f8f 7d8c 8e8d 8c9b S*8c 9b8a 8f7e B*9g 7e6e 6b5b 4a5b 6c5b 3b2b N*2e 3c3b L*3c 2a3c 2e3c+ 3b3c N*2e N*2a N*2f 6e7f S*6c P*7a 2e3c+ 2b3c 2f3d 8c7b 8a9b 7f3f 9a7a 7b6c 7a3a 3c2d",
+      "position_sampling_sha256": "99633b08c7873499a1e41a4ee17967030574ba882db51a535d34ec10f78869c5",
+      "source_id": "denryusen:dr4-hardware2:2024"
+    },
+    {
+      "actual_move": "1i1h",
+      "game_sha256": "38a01eb52ef27664f010b558114bd85f922eccdaeae8c281be461ea321cc65a0",
+      "ply": 162,
+      "position_command": "position startpos moves 2g2f 8c8d 2f2e 8d8e 7g7f 4a3b 8h7g 3c3d 7i6h 2b7g+ 6h7g 3a2b 1g1f 1c1d 6i7h 9c9d 9g9f 2b3c 3i4h 7a7b 4g4f 6c6d 4h4g 7c7d 3g3f 5a4b 2i3g 8a7c 5i6h 7b6c 4i4h 6a6b 4g5f 8b8a 6g6f 6c5d 2h2i 4b5b 6h6i 5b4a 6i5h 4a5b 5h6h 5b4b 6h7i 5d6c 7i8h 6c5d 3g4e 3c2b 3f3e 4c4d 3e3d 4d4e 4f4e 6d6e 6f6e 7d7e 6e6d 8e8f 8g8f 7e7f 7g7f 8a8f 7h8g 8f8a P*8b 8a8b B*7a 8b7b 7a6b+ 7b6b P*7d B*6f G*7g 6f7g+ 8i7g 6b6d P*6e 6d7d P*7e 7d8d P*8e 8d8a B*7b 8a7a 7b8c+ G*7b 8c7d P*4g 4h4g P*6g 7f6g 5d6c 4e4d P*4c 6g7f N*5b 4g4h 5b4d 5f6g 4d3f 4h5h P*6b 7d8d P*8c 8d7d B*3g 6g5f 3f4h+ 5h6g 5c5d 6e6d 6c6d 6g6f P*3h 2i7i 3h3i+ 7i7h 9d9e P*4f 6d5c 9f9e 3g4f+ 9e9d P*9g 9i9g 3i3h 5f6g 7b6c 7d8c 4f1i 9d9c+ L*8a 8c9d 4c4d P*9b 4b4c 9b9a+ 4c3d 9a8a 7a8a 7e7d 6c7d 9c8b 8a3a 9d8c 7d6d 8c7c 3d2e 7g6e 5c4b N*5f 6b6c 8h7g 3b4c 5f6d 6c6d G*2g P*3f P*2h",
+      "position_sampling_sha256": "e9f26749ab39df767e2895a02b15847bf3c5539bff73734173938accd69af810",
+      "source_id": "denryusen:dr4-hardware2:2024"
+    },
+    {
+      "actual_move": "3e3b",
+      "game_sha256": "a3ea21dba4d3395d569d846b8cb119452fad0cedbf690eb72a29976918a8702a",
+      "ply": 143,
+      "position_command": "position startpos moves 2g2f 8c8d 2f2e 4a3b 7g7f 6a5b 6i7h 8d8e 8h7g 3c3d 7i6h 2b3c 7g3c+ 3b3c 6h7g 7a7b 3i3h 6c6d 9g9f 9c9d 4g4f 1c1d 3g3f 7c7d 2i3g 4c4d 5i6h 5a6b 3h4g 7b6c 4i4h 8a7c 1g1f 8b8a 6g6f 6b7b 2h2i 5c5d 6h7i 5d5e 4g5h 6c5d 5h6g 3a4b B*2b 1a1c 2b1a+ 5b6c 7i8h 6c6b 2i2f 6d6e 6f6e 5d6e P*6f 6e5d 4h5h B*6d 2f2i 4b5c 2e2d 2c2d 1a3c 2a3c 2i2d P*6e 2d2b+ 6e6f 7g6f 8e8f 8g8f P*6e 6f7g P*8e 7f7e 6d7e 8f8e 7c8e P*8g 5e5f 5g5f B*4i P*7c 7b7c P*7f 7e6d G*4h 4i5h+ 4h5h 9d9e 7g8f 9e9f P*9h 3c4e 4f4e 6d3g+ N*7g 8e7g+ 8i7g P*5b 2b1c 3g4f B*2d 3d3e 2d3e 4f3f 3e4d N*6d N*8e 7c8c 4d5c+ 5b5c S*7c 6b7c 8e7c+ 8c7c 1c5c G*6c 7g8e 8a8e 8f8e 6c5c R*3b N*6b G*8c 7c6c 3b3f+ N*8f 8g8f P*8g 8h7g P*3e 3f3e 8g8h+ 7g8h 9f9g+ 9h9g P*8g 7h8g N*9e B*7b 6c5b",
+      "position_sampling_sha256": "65eebbe1c6adc1e08be37ddba83a5625aea31712ac7294b73651b63711a849d5",
+      "source_id": "denryusen:dr4-hardware2:2024"
+    }
+  ],
+  "semantic_contract": {
+    "delta_grid": [
+      0.0,
+      0.005,
+      0.01,
+      0.015,
+      0.02,
+      0.025,
+      0.03,
+      0.035,
+      0.04,
+      0.045,
+      0.05
+    ],
+    "e_candidates": [
+      "E0",
+      "E1"
+    ],
+    "expected_score_k": 285,
+    "f_candidates": [
+      "F0",
+      "F2"
+    ],
+    "tau_blunder_ref": 0.2,
+    "tau_good_ref": 0.05,
+    "zero_case_fallback": {
+      "E": "E0",
+      "F": "F0"
+    }
+  },
+  "target_positions": 16
+}

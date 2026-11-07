@@ -1,0 +1,50 @@
+{
+  "authority_commit": "8daf78caa2bd5919cc911da21bae80fa3d12a248",
+  "candidate_producing_game_count": 5,
+  "candidate_producing_game_sha256": [
+    "38a01eb52ef27664f010b558114bd85f922eccdaeae8c281be461ea321cc65a0",
+    "a3ea21dba4d3395d569d846b8cb119452fad0cedbf690eb72a29976918a8702a",
+    "06cdafc39c980de40233e16d23a60a987117df741eff7af8edb7321f968a1fce",
+    "028409aa434a7b015428892f3ac0a54c81a841849a56d4ea390a4ee7372c6ca8",
+    "5d77396f5721a68eaad84405bb8358caedcdb11e64f109b865202d2675cf1789"
+  ],
+  "corpus_manifest_sha256": "68c64a944b6121036505a8e32c30e7aac0c81be4f43f1919fd202b8f000af809",
+  "exclusion_authority_sha256": "88835b58241d1942946bce7b7a963d3c4b346a4d1945e419ae7f5733b64bb2f0",
+  "natural_pilot_execution_permitted": false,
+  "permanent_excluded_game_sha256": [
+    "ea8a9e4b0211c5c6fde7514987df74d17508f8b59f72b7969a1105ce1fd94102"
+  ],
+  "pilot_game_sha256": [
+    "028409aa434a7b015428892f3ac0a54c81a841849a56d4ea390a4ee7372c6ca8",
+    "06cdafc39c980de40233e16d23a60a987117df741eff7af8edb7321f968a1fce",
+    "38a01eb52ef27664f010b558114bd85f922eccdaeae8c281be461ea321cc65a0",
+    "5d77396f5721a68eaad84405bb8358caedcdb11e64f109b865202d2675cf1789",
+    "a3ea21dba4d3395d569d846b8cb119452fad0cedbf690eb72a29976918a8702a"
+  ],
+  "pilot_manifest_sha256": "c24347c6e491b3fe27874ac8088e63852a42fbb0a58ab76b36ccf96a6c3b4d12",
+  "pool_sha256": "e2cf57fcb99b33c64667c9e04a10129625434eb726dc691a89019945415ae5a4",
+  "previously_exposed_seeded_game_sha256": [
+    "38a01eb52ef27664f010b558114bd85f922eccdaeae8c281be461ea321cc65a0",
+    "a3ea21dba4d3395d569d846b8cb119452fad0cedbf690eb72a29976918a8702a"
+  ],
+  "processed_game_count": 5,
+  "rule": "Before natural pilot execution, exclude from every VE1-D partition all games in the processed seeded prefix that produced one or more production-selector candidates, plus the two previously exposed seed-ranked games and the permanent B6 fixture. Zero-candidate processed games other than those two exposed games remain eligible for VE1-D and must not appear in ve1d_excluded_game_sha256.",
+  "sampling_key": "VE1-C1-SAMPLING-v1",
+  "schema_version": "ve1c1-ve1d-exclusion-authority-v3",
+  "seeded_plan_sha256": "d2c2d9b85d8d1026000f98f2a6f1180d595dcab65cc09c4202d62a4a8709a616",
+  "selected_pilot_game_count": 5,
+  "ve1d_excluded_game_sha256": [
+    "38a01eb52ef27664f010b558114bd85f922eccdaeae8c281be461ea321cc65a0",
+    "a3ea21dba4d3395d569d846b8cb119452fad0cedbf690eb72a29976918a8702a",
+    "06cdafc39c980de40233e16d23a60a987117df741eff7af8edb7321f968a1fce",
+    "028409aa434a7b015428892f3ac0a54c81a841849a56d4ea390a4ee7372c6ca8",
+    "5d77396f5721a68eaad84405bb8358caedcdb11e64f109b865202d2675cf1789",
+    "ea8a9e4b0211c5c6fde7514987df74d17508f8b59f72b7969a1105ce1fd94102"
+  ],
+  "ve1d_exclusion_scope": [
+    "tuning",
+    "holdout",
+    "reserve"
+  ],
+  "zero_candidate_processed_game_sha256": []
+}
