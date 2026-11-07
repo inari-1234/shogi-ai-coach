@@ -37,7 +37,32 @@ def _selected(search: dict[str, Any] | None) -> list[dict[str, Any]]:
     return list(search.get("selectedSnapshot") or [])
 
 
+def searchmoves_target_binding(search: dict[str, Any] | None) -> str:
+    """C1-only fail-closed binding of a restricted search to its requested move.
+
+    An engine can silently ignore an omitted non-promotion and return an
+    unrelated bestmove/PV despite yielding a fully exact search snapshot.
+    """
+    if not search:
+        return "MISSING_SEARCH"
+    targets = search.get("searchMoves")
+    if not targets:
+        return "UNRESTRICTED"
+    if not isinstance(targets, list) or len(targets) != 1 or not isinstance(targets[0], str):
+        return "UNSUPPORTED_SEARCHMOVES_TARGET_COUNT"
+    selected = _selected(search)
+    if not selected:
+        return "MISSING_EXACT_TARGET_SNAPSHOT"
+    target = targets[0]
+    observed_root = _root_move(selected[0])
+    if search.get("bestmove") != target or observed_root != target:
+        return "SEARCHMOVES_TARGET_MISMATCH"
+    return "MATCH"
+
+
 def _primary(search: dict[str, Any] | None) -> dict[str, Any] | None:
+    if searchmoves_target_binding(search) not in ("MATCH", "UNRESTRICTED"):
+        return None
     snapshot = _selected(search)
     return snapshot[0] if snapshot else None
 
@@ -119,6 +144,16 @@ def reference_played_budget(budget: dict[str, Any]) -> dict[str, Any]:
     actual_search = budget.get("actualSearch")
     if budget.get("playedStatus") != "RESOLVED" or not best_search or not actual_search:
         return {"status": "INSUFFICIENT", "class": "UNRESOLVED", "reason": "PLAYED_EVIDENCE_INSUFFICIENT"}
+    bind_best = searchmoves_target_binding(best_search)
+    bind_actual = searchmoves_target_binding(actual_search)
+    if bind_best not in ("MATCH", "UNRESTRICTED") or bind_actual not in ("MATCH", "UNRESTRICTED"):
+        return {
+            "status": "INSUFFICIENT",
+            "class": "NOT_CLASSIFIABLE",
+            "reason": "SEARCHMOVES_TARGET_MISMATCH",
+            "bestBindingStatus": bind_best,
+            "actualBindingStatus": bind_actual,
+        }
     best_line = _primary(best_search)
     actual_line = _primary(actual_search)
     severity = _severity_class_from_scores(_score(best_line), _score(actual_line))
@@ -233,12 +268,22 @@ def evaluate_position(position: dict[str, Any]) -> dict[str, Any]:
         if not discovery or not comparison:
             result["tiers"].append({"nodeBudget": nodes, "status": "INSUFFICIENT"})
             continue
+        best_binding = searchmoves_target_binding(comparison.get("bestSearch"))
+        actual_binding = searchmoves_target_binding(comparison.get("actualSearch"))
+        target_binding_valid = (
+            best_binding in ("MATCH", "UNRESTRICTED")
+            and actual_binding in ("MATCH", "UNRESTRICTED")
+        )
         best_line = _primary(comparison.get("bestSearch"))
         actual_line = _primary(comparison.get("actualSearch"))
         best_score = _score(best_line)
         actual_score = _score(actual_line)
-        severity = _severity_class_from_scores(best_score, actual_score)
-        inversion = comparison.get("comparisonInversion") is True
+        severity = (
+            _severity_class_from_scores(best_score, actual_score)
+            if target_binding_valid
+            else {"class": "NOT_CLASSIFIABLE", "loss": None, "reason": "SEARCHMOVES_TARGET_MISMATCH"}
+        )
+        inversion = comparison.get("comparisonInversion") is True and target_binding_valid
         inversion_magnitude = None
         if inversion and best_score and actual_score and best_score[0] == "cp" and actual_score[0] == "cp":
             inversion_magnitude = max(0.0, contract.expected_score(actual_score[1]) - contract.expected_score(best_score[1]))
@@ -262,6 +307,9 @@ def evaluate_position(position: dict[str, Any]) -> dict[str, Any]:
             "comparisonInversion": comparison.get("comparisonInversion"),
             "inversionMagnitude": inversion_magnitude,
             "comparisonClass": severity.get("class"),
+            "comparisonReason": severity.get("reason"),
+            "bestSearchTargetBinding": best_binding,
+            "actualSearchTargetBinding": actual_binding,
             "comparisonLoss": severity.get("loss"),
             "rootActualClass": None if root_severity is None else root_severity.get("class"),
             "rootActualLoss": None if root_severity is None else root_severity.get("loss"),
@@ -348,7 +396,11 @@ def summarize(raw: dict[str, Any], evaluated_positions: list[dict[str, Any]]) ->
                         divergences.append(abs(rs[1] - ss[1]))
         for c in app.get("comparisons", []):
             n = c.get("nodeBudget")
-            if isinstance(c.get("comparisonInversion"), bool):
+            if (
+                isinstance(c.get("comparisonInversion"), bool)
+                and searchmoves_target_binding(c.get("bestSearch")) in ("MATCH", "UNRESTRICTED")
+                and searchmoves_target_binding(c.get("actualSearch")) in ("MATCH", "UNRESTRICTED")
+            ):
                 inversion[n]["observed"] += 1
                 if c["comparisonInversion"]: inversion[n]["inversions"] += 1
         ref = p.get("reference") or {}
