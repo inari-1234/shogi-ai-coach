@@ -1,7 +1,7 @@
 # Build19 VE1-C1 — Current Handoff
 
 Last updated: 2026-11-08
-State: VE1_B_CORRECTIVE_SUCCESSOR_PROMOTED / VE1_C1_NATURAL_PILOT_PASS_F2_E0 / SEARCHMOVES_FAIL_CLOSED_REGRESSION_PASS / FINAL_SYNTHETIC_PENDING; NOT_FROZEN
+State: VE1_B_CORRECTIVE_SUCCESSOR_PROMOTED / VE1_C1_NATURAL_PILOT_PASS_F2_E0 / POST_PILOT_FEASIBILITY_AMENDMENT_REQUIRED / FINAL_SYNTHETIC_BLOCKED; NOT_FROZEN
 
 ## Validated implementation and fixed authorities
 
@@ -53,12 +53,19 @@ The initially selected one-LEGAL position ended in `proven_mate_termination` at 
 - Once the production pool and 16-position manifest are derived, commit VE1-D exclusion Authority for **every processed-prefix game producing >=1 candidate plus the permanent B6 fixture**, before any natural pilot invocation. Zero-candidate processed games do not enter the exclusion.
 - No VE1-D tuning, holdout or reserve inspection before the preregistered C1 pilot and exclusion boundary.
 
+## Post-pilot feasibility / product errata, 2026-11-08
+
+- **§13.3 formally invoked: `PILOT_FEASIBILITY_AMENDMENT_REQUIRED` (assessment open, not yet an amendment or C1 Freeze).** Detail: `BUILD19_VE1_C1_POST_PILOT_FEASIBILITY_REVIEW_20261108.md`. Reference structure DISPUTED 3/16 are all `UNIQUE_GOOD` at 4M → `MULTIPLE_GOOD` at 16M from rank-2 expected-score losses just over 0.050 at 4M (0.054198, 0.053227, 0.050086), below 0.050 at 16M (0.009749, 0.040582, 0.014350); all exact, no disjoint good set. This supports a diagnostic 16M/64M convergence check **but not automatic budget amendment**. Holdout50 ≤5 when true p=3/16 has a simple independent-binomial probability 7.31%, **not a guarantee**.
+- **Report-only 16-position/200k δ-grid:** App structure definite counts for δ=0.000..0.050: `[16,15,15,14,14,13,10,10,9,8,1]`; strict two-source E0 played definitive: `[3,3,3,3,3,3,3,3,3,3,1]`. The root+comparison score pair is available on only 5/16; 70% played coverage is not supported by this *conservative proxy*, and improving Reference budget alone cannot add App root candidates. These are not final VE1-D holdout coverage outcomes and **no δ has been selected**.
+- **Product Errata #3:** `BUILD19_VE1_B_ERRATA_3_NONPROMOTION_SEARCHMOVES_20261108.md`: native `searchmoves 3c1c` silently searched `1i2i`. Existing product `VE1BNodeComparisonAnalyzer.swift` already filters by requested **selected PV root**, so this exact path would reject the observed substitution rather than silently display its score. However an explicit **terminal bestmove + PV root** joint guard and user-facing fail-closed handling are still a Build20+ product corrective item. C1 already rejects the mismatch; its 160 saved pilot target bindings remain valid.
+- **STOP boundary before final synthetic/Freeze/VE1-D:** evaluate same exposed three positions at 16M/64M and clarify the final coverage metric; then record an explicit §12 versioned amendment plus same-pilot rerun, or documented acceptance of unchanged-contract HOLD risk. Keep every frozen evidence SHA and all 10%/70%/4M/16M parameters unchanged until that decision. **`PILOT_PASS` remains valid.**
+
 ## Next bounded action
 
-1. Natural pilot execution integrity remains **PILOT_PASS** (run `42413155051`, original code SHA `637213c`, artifact `13590953109`); F2/E0 are frozen outcome evidence, not semantic approval. The C1-only omitted-nonpromotion `searchmoves` fail-closed policy and 160-target replay have passed their owning regressions (`42426046533`); retain the added policy record as pre-Freeze evidence, not a second Authority.
-2. Complete remaining **synthetic/final C1 regressions**, using existing test harnesses and explicitly checking C1 H1-H5, SCORE_SOURCE_CONFLICT, cohort guard, fail-closed searchmoves binding and frozen VE1-B non-promotion of upstream PV/stability. Consolidate results and determine whether there is adequate evidence for a final C1 Freeze candidate. Do not create redundant generic Gates.
-3. Explicitly record the `§13.3` feasibility disposition before VE1-D: 3/16 Reference DISPUTED (18.75%) exceeds the later 10% target. Either accept the preregistered design's future HOLD risk **without amendment**, or substantiate a permitted §12 operational feasibility amendment with C1 version increment and complete same-pilot rerun. Never change the prior PILOT_PASS status because of the feasibility rate.
-4. At actual C1 Freeze integration, create **one** formal C1 Freeze Authority containing the protected `deepMovetimeMs >= 800` upstream-selection coupling and the verified `searchmoves` fail-closed clause; then replace corresponding handoff explanations with section links. VE1-B Errata #1 remains Build20+ production-level. Do not start VE1-D or declare C1 Freeze prematurely.
+1. Do **not** start final synthetic regression, C1 Freeze or VE1-D yet. The preregistered §13.3 feasibility review is open; the original pilot remains `PILOT_PASS` / F2,E0.
+2. With the original frozen engine/NNUE and only previously exposed pilot positions `p06-ply-161`, `p09-ply-7`, `p15-ply-162`, perform a bounded Reference 16M/64M diagnostic and preserve exact blocks, rank-2 expected-score distance to 0.050, raw USI and provenance. This diagnostic is not a new pilot, not a holdout and not a budget amendment.
+3. Audit the 70% played-coverage denominator against the adopted E0 and pilot source data; distinguish App root unavailability from Reference insufficiency. Do not select δ on the pilot, relax semantics or thresholds retroactively.
+4. Decide under frozen §12/§13.3: justified versioned operational amendment with a full same-16 pilot rerun, **or** retain the unchanged contract and explicitly accept future HOLD risk. Only then resume final synthetic regression and prepare a single C1 Freeze Authority incorporating the `deepMovetimeMs >= 800` protected parameter and the C1 `searchmoves` fail-closed rule. Product Errata #3 repair belongs to Build20+; Errata #1 remains separate.
 
 ## Loop-minimization note
 
