@@ -9,7 +9,8 @@ let package = Package(
         .executable(name: "ContextKnowledgeBuilder", targets: ["ContextKnowledgeBuilder"]),
         .executable(name: "Build17RealGameRegression", targets: ["Build17RealGameRegression"]),
         .executable(name: "Build19VSemanticAudit", targets: ["Build19VSemanticAudit"]),
-        .executable(name: "VE1BLegalRootCrosscheck", targets: ["VE1BLegalRootCrosscheck"])
+        .executable(name: "VE1BLegalRootCrosscheck", targets: ["VE1BLegalRootCrosscheck"]),
+        .executable(name: "VE1C1PilotSwiftParity", targets: ["VE1C1PilotSwiftParity"])
     ],
     targets: [
         .target(name: "ShogiCoachCore"),
@@ -17,6 +18,7 @@ let package = Package(
         .executableTarget(name: "Build17RealGameRegression", dependencies: ["ShogiCoachCore"]),
         .executableTarget(name: "Build19VSemanticAudit", dependencies: ["ShogiCoachCore"]),
         .executableTarget(name: "VE1BLegalRootCrosscheck", dependencies: ["ShogiCoachCore"]),
+        .executableTarget(name: "VE1C1PilotSwiftParity", dependencies: ["ShogiCoachCore"]),
         .testTarget(name: "ShogiCoachCoreTests", dependencies: ["ShogiCoachCore"])
     ]
 )
