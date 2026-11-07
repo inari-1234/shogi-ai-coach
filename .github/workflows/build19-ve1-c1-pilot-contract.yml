@@ -15,6 +15,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   contract-tests:
@@ -28,3 +29,54 @@ jobs:
         run: python -m py_compile tools/engine-verify/ve1c1_pilot.py tools/engine-verify/ve1c1_pilot_evaluator.py
       - name: Run pre-pilot unit tests
         run: python -m unittest discover -s tools/engine-verify/tests -p 'test_ve1c1_pilot*.py' -v
+
+      - name: Download immutable natural pilot evidence for C1-only policy replay
+        uses: actions/download-artifact@v4
+        with:
+          name: Build19-VE1-C1-natural-16-pilot
+          repository: inari-1234/shogi-ai-coach
+          run-id: 42413155051
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/ve1c1-searchmoves-replay
+
+      - name: Replay fail-closed target binding without altering frozen pilot
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 tools/engine-verify/ve1c1_pilot_evaluator.py \
+            --result build/ve1c1-searchmoves-replay/pilot-result.json \
+            --output build/ve1c1-searchmoves-replay/c1-only-guard-evaluation.json
+          python3 - <<'PY'
+          import json,sys
+          from pathlib import Path
+          sys.path.insert(0,"tools/engine-verify")
+          import ve1c1_pilot_evaluator as ev
+          p=Path("build/ve1c1-searchmoves-replay")
+          raw=json.loads((p/"pilot-result.json").read_text())
+          baseline=json.loads((p/"pilot-evaluation.json").read_text())
+          new=json.loads((p/"c1-only-guard-evaluation.json").read_text())
+          assert raw["result_sha256"]=="860cb704e8df15e301b037b9994ff2bb15c3cbcb8a14440cdfa15e46797214ea"
+          assert baseline["evaluation_sha256"]=="10e9d86beca6763bd01bb4aa21bc8b2b105949fbd305a30b4cbe6bc6f3d42d0a"
+          count=0
+          for pos in raw["positions"]:
+            searches=[]
+            for comparison in pos["app"]["comparisons"]:
+              searches.extend((comparison["bestSearch"],comparison["actualSearch"]))
+            for budget in pos["reference"]["budgets"]:
+              searches.extend(x for k in ("bestSearch","actualSearch") if (x:=budget.get(k)))
+            for search in searches:
+              if search.get("searchMoves"):
+                count+=1
+                assert ev.searchmoves_target_binding(search)=="MATCH", (pos["position_id"],search.get("role"))
+          assert count==160,count
+          assert baseline["F"]["policy"]==new["F"]["policy"]=="F2"
+          assert baseline["E"]["policy"]==new["E"]["policy"]=="E0"
+          assert baseline["F"]["n"]==new["F"]["n"]==7
+          assert baseline["E"]["n"]==new["E"]["n"]==42
+          assert baseline["summary"]["inversionByTier"]==new["summary"]["inversionByTier"]
+          assert baseline["summary"]["referenceCrossBudgetStructureStatus"]==new["summary"]["referenceCrossBudgetStructureStatus"]
+          assert new["summary"]["referenceCrossBudgetStructureStatus"]=={"RESOLVED":13,"DISPUTED":3}
+          print("frozen_pilot_160_searchmoves_bindings=PASS")
+          print("frozen_pilot_F2_E0_unchanged=PASS")
+          print("preregistered_pilot_pass_unmodified=PASS")
+          PY
