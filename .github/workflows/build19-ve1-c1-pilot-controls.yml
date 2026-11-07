@@ -70,6 +70,86 @@ jobs:
             --result tools/engine-verify/results/ve1c1-controls/pilot-result.json \
             --output tools/engine-verify/results/ve1c1-controls/pilot-evaluation.json
 
+      - name: Diagnose omitted nonpromotion searchmoves with pinned NNUE
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 - <<'PY'
+          import json
+          import shutil
+          import sys
+          from pathlib import Path
+          import os
+          sys.path.insert(0,"tools/engine-verify")
+          import ve1c1_pilot_runner as runner
+          import ve1c1_pilot as pilot
+          work=Path(os.environ["ENGINE_VERIFY_WORK"])
+          out=Path("tools/engine-verify/results/ve1c1-controls/nonpromotion-searchmoves")
+          out.mkdir(parents=True,exist_ok=True)
+          shutil.copy2(work/"provenance.json",out/"provenance.json")
+          source=json.loads(Path("tools/engine-verify/fixtures/ve1b_low_legal_corrective.json").read_text(encoding="utf-8"))
+          fixture=next(x for x in source["fixtures"] if x["id"]=="legal-2-legal-all-3-rook-nonpromotion-boundary")
+          assert fixture["expected_legal_root_move_count"]==2
+          assert fixture["expected_legal_all_move_count"]==3
+          expected_omitted=fixture["required_omitted_nonpromotion_move"]
+          expected_retained=fixture["required_retained_promotion_move"]
+          assert (expected_omitted,expected_retained)==("3c1c","3c1c+")
+          runner.SEARCH_TIMEOUT_SECONDS=30.0
+          results=[]
+          for label, moves in [("omitted-nonpromotion",[expected_omitted]),
+                               ("retained-promotion",[expected_retained]),
+                               ("unrestricted-control",[])]:
+              engine=runner.PilotUSIEngine(work,64)
+              captured=[]
+              read=engine.readline
+              def recording_read(timeout):
+                  line=read(timeout)
+                  captured.append(line)
+                  return line
+              engine.readline=recording_read
+              row={"label":label,"requestedSearchmoves":moves,
+                   "fixtureID":fixture["id"],"positionCommand":fixture["position_command"],
+                   "nodeBudget":50000,"configuredMultiPV":1}
+              try:
+                  item=engine.search(fixture["position_command"],50000,1,moves,
+                                     label,out/(label+".usi.log"))
+                  row.update({
+                      "status":"SEARCH_COMPLETED",
+                      "bestmove":item.get("bestmove"),
+                      "maxObservedNodes":item.get("maxObservedNodes"),
+                      "selectedSnapshotEvidenceStatus":item.get("selectedSnapshotEvidenceStatus"),
+                      "selectedPrimaryRootMove":(
+                          (item.get("selectedSnapshot") or [{}])[0].get("pv",[None])[0]
+                          if item.get("selectedSnapshot") else None
+                      ),
+                      "goCommand":item.get("goCommand"),
+                  })
+              except (pilot.PilotError,OSError) as error:
+                  row.update({"status":"SEARCH_ERROR","error":str(error)})
+              finally:
+                  engine.close()
+                  (out/(label+".raw-usi.txt")).write_text(
+                      "\\n".join(captured)+"\\n",encoding="utf-8")
+                  row["transcriptLineCount"]=len(captured)
+                  results.append(row)
+          probe={
+              "schema_version":"ve1c1-nonpromotion-searchmoves-observation-v1",
+              "status":"OBSERVATION_ONLY",
+              "fixtureID":fixture["id"],
+              "expectedLegalRootCount":2,
+              "expectedLegalAllCount":3,
+              "observed":results,
+              "decision":"NOT_YET_ADOPTED",
+          }
+          (out/"report.json").write_text(json.dumps(probe,indent=2,ensure_ascii=False)+"\\n",encoding="utf-8")
+          print(json.dumps(probe,ensure_ascii=False))
+          # Do not invent a C1 policy from an instrument failure.
+          control=next(x for x in results if x["label"]=="retained-promotion")
+          assert control["status"]=="SEARCH_COMPLETED", "promoted-control-not-completed"
+          assert control["bestmove"]==expected_retained, "promoted-control-target-mismatch"
+          print("nonpromotion_searchmoves_observation=COMPLETE")
+          PY
+
       - name: Upload control evidence
         if: always()
         uses: actions/upload-artifact@v4
