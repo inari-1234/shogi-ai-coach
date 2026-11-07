@@ -7,6 +7,7 @@ on:
     paths:
       - "tools/engine-verify/fixtures/ve1b_low_legal_corrective.json"
       - "tools/engine-verify/ve1b_low_legal_corrective_fixture.py"
+      - "tools/engine-verify/ve1b_low_legal_candidate_preflight.py"
       - "tools/engine-verify/yaneuraou_ve1b_legal_audit.inc"
       - "scripts/fetch_yaneuraou.sh"
       - "scripts/patch_yaneuraou_legal_audit.sh"
@@ -29,6 +30,7 @@ jobs:
           set -euxo pipefail
           test "$(uname -m)" = "x86_64"
           python3 -m py_compile tools/engine-verify/ve1b_low_legal_corrective_fixture.py
+          python3 -m py_compile tools/engine-verify/ve1b_low_legal_candidate_preflight.py
           swift test
           ./scripts/verify.sh
 
@@ -81,6 +83,14 @@ jobs:
           assert '3c1c+' in edge['legalAllMoves']
           print('VE1-B corrective root fixtures: PASS')
           PY
+
+      - name: Preflight candidate search with pinned native engine
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 tools/engine-verify/ve1b_low_legal_candidate_preflight.py \
+            --engine native/third_party/YaneuraOu/source/YaneuraOu-by-gcc \
+            --output build/ve1b-low-legal-corrective/candidate-preflight.json
 
       - name: Upload fixture evidence
         if: always()
