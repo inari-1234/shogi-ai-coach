@@ -1,0 +1,153 @@
+name: Build19 VE1-C1 Natural 16-Position Pilot
+
+on:
+  push:
+    branches:
+      - candidate/build19-ve1-c1-pilot
+    paths:
+      - ".github/workflows/build19-ve1-c1-natural-pilot.yml"
+      - "tools/engine-verify/ve1c1_natural_pilot_integrity.py"
+      - "tools/engine-verify/ve1c1_pilot_legal_roots.py"
+      - "tools/engine-verify/ve1c1_pilot_runner.py"
+      - "tools/engine-verify/ve1c1_pilot_block_runner.py"
+      - "Sources/VE1C1PilotSwiftParity/main.swift"
+      - "Package.swift"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: ve1c1-natural-pilot-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  natural-pilot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    env:
+      ENGINE_VERIFY_WORK: ${{ github.workspace }}/tools/engine-verify/.work
+      OUT: build/ve1c1-natural-pilot
+    steps:
+      - name: Checkout candidate including frozen pool commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify preregistered contracts and independently derived pilot admission
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p "$OUT"
+          echo 'STAGE_ADMISSION' > "$OUT/stage.txt"
+          python3 -m py_compile \
+            tools/engine-verify/ve1c1_natural_pilot_admission.py \
+            tools/engine-verify/ve1c1_pilot_legal_roots.py \
+            tools/engine-verify/ve1c1_pilot_runner.py \
+            tools/engine-verify/ve1c1_pilot_block_runner.py \
+            tools/engine-verify/ve1c1_pilot_evaluator.py \
+            tools/engine-verify/ve1c1_natural_pilot_integrity.py
+          python3 -m unittest discover -s tools/engine-verify/tests -p 'test_ve1c1_pilot*.py' -v
+          python3 -m unittest tools/engine-verify/tests/test_ve1c1_natural_pilot_admission.py -v
+          python3 tools/engine-verify/ve1c1_natural_pilot_admission.py \
+            --repo-root . --output "$OUT/admission.json"
+          swift test
+          swift build -c release --product VE1C1PilotSwiftParity
+
+      - name: Download pinned 16-position LEGAL root audit
+        uses: actions/download-artifact@v4
+        with:
+          name: Build19-VE1-C1-natural-pilot-roots
+          repository: inari-1234/shogi-ai-coach
+          run-id: 42412684383
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/ve1c1-pilot-roots
+
+      - name: Verify inherited pinned root evidence applies to exact frozen pilot
+        shell: bash
+        run: |
+          set -euxo pipefail
+          echo 'STAGE_NATIVE_ROOT_VALIDATION' > "$OUT/stage.txt"
+          python3 - <<'PY'
+          import json, sys
+          from pathlib import Path
+          sys.path.insert(0,"tools/engine-verify")
+          import ve1c1_pilot_legal_roots as roots
+          manifest=json.loads(Path("Build19/BUILD19_VE1_C1_NATURAL_PILOT_MANIFEST_20261014.json").read_text())
+          audit=json.loads(Path("build/ve1c1-pilot-roots/native-legal-roots.json").read_text())
+          rows=roots.validated_rows(manifest,audit)
+          assert len(rows)==16
+          assert rows[11]["actualMove"]=="7c6c"
+          assert rows[11]["legalRootMoveCount"]==2
+          assert rows[11]["effectiveRequiredMultiPV"]==2
+          assert all(r["effectiveRequiredMultiPV"]==min(3,r["legalRootMoveCount"]) for r in rows)
+          print("natural_pilot_root_counts=PASS")
+          PY
+          cp build/ve1c1-pilot-roots/native-legal-roots.json "$OUT/native-legal-roots.json"
+
+      - name: Prepare fixed engine and Suisho5 NNUE
+        shell: bash
+        run: |
+          set -euxo pipefail
+          echo 'STAGE_ENGINE_SETUP' > "$OUT/stage.txt"
+          sudo apt-get update
+          sudo apt-get install -y p7zip-full
+          bash tools/engine-verify/setup.sh AVX2
+          cp "$ENGINE_VERIFY_WORK/provenance.json" "$OUT/engine-provenance.json"
+
+      - name: Run all 16 natural positions with coherent App and Reference blocks
+        shell: bash
+        run: |
+          set -euxo pipefail
+          echo 'STAGE_SEARCHING_16' > "$OUT/stage.txt"
+          python3 tools/engine-verify/ve1c1_pilot_block_runner.py manifest \
+            --manifest Build19/BUILD19_VE1_C1_NATURAL_PILOT_MANIFEST_20261014.json \
+            --root-audit build/ve1c1-pilot-roots/native-legal-roots.json \
+            --work "$ENGINE_VERIFY_WORK" \
+            --out "$OUT" \
+            2>&1 | tee "$OUT/runner.log"
+          echo 'STAGE_SEARCH_COMPLETE' > "$OUT/stage.txt"
+
+      - name: Verify same raw USI with frozen Swift parser and snapshot selector
+        shell: bash
+        run: |
+          set -euxo pipefail
+          echo 'STAGE_SWIFT_PARITY' > "$OUT/stage.txt"
+          swift run -c release VE1C1PilotSwiftParity \
+            "$OUT/pilot-result.json" "$OUT/swift-parity.json"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("build/ve1c1-natural-pilot/swift-parity.json").read_text())
+          assert p["status"]=="PASS" and p["mismatch_count"]==0
+          assert p["position_count"]==16
+          print("pilot_swift_parser_parity=PASS")
+          PY
+
+      - name: Select F and E mechanically and enforce C1 pilot integrity
+        shell: bash
+        run: |
+          set -euxo pipefail
+          echo 'STAGE_EVALUATION' > "$OUT/stage.txt"
+          python3 tools/engine-verify/ve1c1_pilot_evaluator.py \
+            --result "$OUT/pilot-result.json" \
+            --output "$OUT/pilot-evaluation.json"
+          python3 tools/engine-verify/ve1c1_natural_pilot_integrity.py \
+            --result "$OUT/pilot-result.json" \
+            --evaluation "$OUT/pilot-evaluation.json" \
+            --swift-parity "$OUT/swift-parity.json" \
+            --manifest Build19/BUILD19_VE1_C1_NATURAL_PILOT_MANIFEST_20261014.json \
+            --root-audit build/ve1c1-pilot-roots/native-legal-roots.json \
+            --admission "$OUT/admission.json" \
+            --output "$OUT/pilot-integrity.json"
+          echo 'PILOT_PASS' > "$OUT/stage.txt"
+
+      - name: Retain raw USI, provenance and every stage outcome
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build19-VE1-C1-natural-16-pilot
+          path: build/ve1c1-natural-pilot
+          if-no-files-found: warn
+          retention-days: 30
