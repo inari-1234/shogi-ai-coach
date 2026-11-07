@@ -8,7 +8,7 @@
   "fixtures": [
     {
       "id": "legal-1",
-      "position_command": "position sfen k7r/9/9/9/9/9/7g1/9/1R6K b - 1",
+      "position_command": "position sfen k7r/9/9/9/9/9/9/7P1/8K b - 1",
       "expected_legal_root_move_count": 1,
       "expected_legal_all_move_count": 1,
       "expected_effective_required_multi_pv": 1
