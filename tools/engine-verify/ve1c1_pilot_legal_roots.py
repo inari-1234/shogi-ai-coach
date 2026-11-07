@@ -113,6 +113,7 @@ def validated_rows(manifest: dict[str, Any], audit: dict[str, Any]) -> list[dict
             or row.get("effectiveRequiredMultiPV") != min(3, legal)
             or not isinstance(row.get("legalAllMoves"), list)
             or len(row.get("legalAllMoves")) != row.get("legalAllMoveCount")
+            or not isinstance(row.get("legalAllMoveCount"), int)
             or row.get("legalAllMoveCount") < legal
             or position.get("actual_move") not in row["legalAllMoves"]
         ):

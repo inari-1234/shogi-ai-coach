@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 import ve1c1_pilot as contract
+import ve1c1_pilot_legal_roots as legal_roots
 
 APP_NODE_TIERS = (50_000, 100_000, 200_000)
 REFERENCE_NODE_BUDGETS = (4_000_000, 16_000_000)
@@ -251,7 +252,8 @@ def comparison_inversion(recommended: str, actual: str, best: dict[str, Any], pl
 
 def run_app(engine: PilotUSIEngine, pos: dict[str, Any], out: Path) -> dict[str, Any]:
     pid, command, actual = pos["position_id"], pos["position_command"], pos["actual_move"]
-    discoveries = [engine.search(command, n, 3, [], f"app_discovery_{n}", out / "raw" / pid / f"app-discovery-{n}.log") for n in APP_NODE_TIERS]
+    required_multipv = pos.get("effectiveRootMultiPV", 3)
+    discoveries = [engine.search(command, n, required_multipv, [], f"app_discovery_{n}", out / "raw" / pid / f"app-discovery-{n}.log") for n in APP_NODE_TIERS]
     primary = selected_primary(discoveries[-1])
     if not primary or not primary.get("pv"):
         raise contract.PilotError(f"app_no_exact_deepest_discovery:{pid}")
@@ -275,8 +277,9 @@ def run_app(engine: PilotUSIEngine, pos: dict[str, Any], out: Path) -> dict[str,
 def run_reference(engine: PilotUSIEngine, pos: dict[str, Any], out: Path) -> dict[str, Any]:
     pid, command, actual = pos["position_id"], pos["position_command"], pos["actual_move"]
     budgets = []
+    required_multipv = pos.get("effectiveRootMultiPV", 3)
     for n in REFERENCE_NODE_BUDGETS:
-        root = engine.search(command, n, 3, [], f"reference_root_{n}", out / "raw" / pid / f"reference-root-{n}.log")
+        root = engine.search(command, n, required_multipv, [], f"reference_root_{n}", out / "raw" / pid / f"reference-root-{n}.log")
         primary = selected_primary(root)
         if not primary or not primary.get("pv"):
             budgets.append({"nodeBudget": n, "status": "INSUFFICIENT", "root": root}); continue
@@ -329,6 +332,8 @@ def run_positions(positions: list[dict[str, Any]], work: Path, out: Path, run_ki
             result["positions"].append({
                 "position_id": pos["position_id"], "game_sha256": pos.get("game_sha256"), "ply": pos.get("ply"),
                 "position_command": pos["position_command"], "actual_move": pos["actual_move"],
+                "legalRootMoveCount": pos.get("legalRootMoveCount"),
+                "effectiveRootMultiPV": pos.get("effectiveRootMultiPV", 3),
                 "app": run_app(app, pos, out), "reference": run_reference(ref, pos, out),
             })
     finally:
@@ -350,6 +355,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="VE1-C1 frozen App/Reference pilot executor")
     parser.add_argument("mode", choices=("controls", "manifest"))
     parser.add_argument("--work", required=True); parser.add_argument("--out", required=True); parser.add_argument("--manifest")
+    parser.add_argument("--root-audit", help="mandatory pinned MoveList<LEGAL> audit for natural pilot")
     args = parser.parse_args()
     try:
         if args.mode == "controls":
@@ -362,6 +368,16 @@ def main() -> int:
             positions = manifest.get("selected_positions")
             if not isinstance(positions, list) or len(positions) != contract.PILOT_TARGET:
                 raise contract.PilotError("manifest_must_contain_16_positions")
+            if not args.root_audit:
+                raise contract.PilotError("natural_pilot_requires_pinned_legal_root_audit")
+            audit = contract.load_json(Path(args.root_audit))
+            rows = legal_roots.validated_rows(manifest, audit)
+            positions = [
+                dict(position,
+                     legalRootMoveCount=row["legalRootMoveCount"],
+                     effectiveRootMultiPV=row["effectiveRequiredMultiPV"])
+                for position, row in zip(positions, rows)
+            ]
             kind = "excluded_natural_pilot"
         result = run_positions(positions, Path(args.work), Path(args.out), kind)
         print(json.dumps({"status": "PASS", "positions": len(result["positions"]), "result_sha256": result["result_sha256"]}, sort_keys=True))

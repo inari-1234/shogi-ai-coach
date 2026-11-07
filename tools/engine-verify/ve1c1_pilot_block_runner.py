@@ -37,8 +37,9 @@ def _frozen_primary(search: dict[str, Any]) -> dict[str, Any] | None:
 
 def _run_app(engine: base.PilotUSIEngine, pos: dict[str, Any], out: Path) -> dict[str, Any]:
     pid, command, actual = pos["position_id"], pos["position_command"], pos["actual_move"]
+    required_multipv = pos.get("effectiveRootMultiPV", 3)
     discoveries = [
-        engine.search(command, n, 3, [], f"app_discovery_{n}", out / "raw" / pid / f"app-discovery-{n}.log")
+        engine.search(command, n, required_multipv, [], f"app_discovery_{n}", out / "raw" / pid / f"app-discovery-{n}.log")
         for n in base.APP_NODE_TIERS
     ]
     product_primary = _frozen_primary(discoveries[-1])

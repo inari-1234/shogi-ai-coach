@@ -49,6 +49,59 @@ class VE1C1PilotRunnerTests(unittest.TestCase):
         self.assertTrue(terminal["hasBound"])
         self.assertFalse(terminal["completeRanksObserved"])
 
+
+
+    def test_natural_pilot_root_cardinality_is_bound_to_pinned_audit(self):
+        import ve1c1_pilot_legal_roots as roots
+        from unittest.mock import patch
+        manifest = {
+            "manifest_sha256": "a" * 64,
+            "selected_positions": [
+                {"position_command": f"position startpos moves 7g7f {i}",
+                 "actual_move": "3c3d"} for i in range(contract.PILOT_TARGET)
+            ],
+        }
+        rows = [
+            {"ordinal": i + 1,
+             "positionCommand": p["position_command"],
+             "actualMove": p["actual_move"],
+             "legalRootMoveCount": 2 if i == 0 else 3,
+             "legalAllMoveCount": 3,
+             "legalAllMoves": ["3c3d", "7g7f", "2g2f"],
+             "effectiveRequiredMultiPV": 2 if i == 0 else 3}
+            for i, p in enumerate(manifest["selected_positions"])
+        ]
+        audit = {
+            "schema_version": roots.SCHEMA,
+            "engine_commit": roots.PINNED_ENGINE,
+            "authority_generator": "pinned_YaneuraOu_MoveList_LEGAL",
+            "manifest_sha256": manifest["manifest_sha256"],
+            "position_count": len(rows),
+            "rows": rows,
+        }
+        self.assertEqual(roots.validated_rows(manifest, audit)[0]["effectiveRequiredMultiPV"], 2)
+        rows[0]["effectiveRequiredMultiPV"] = 3
+        with self.assertRaisesRegex(roots.RootAuditError, "native_audit_row_mismatch"):
+            roots.validated_rows(manifest, audit)
+
+    def test_deep_reference_uses_precounted_legal_root_cardinality(self):
+        import tempfile
+        class FakeEngine:
+            def __init__(self):
+                self.calls = []
+            def search(self, command, nodes, multipv, searchmoves, role, path):
+                self.calls.append((nodes, multipv, role))
+                return {"selectedSnapshot": [], "selectedSnapshotEvidenceStatus": "INSUFFICIENT_NO_COMPLETED_EXACT_SNAPSHOT"}
+        fake = FakeEngine()
+        position = {
+            "position_id": "p01", "position_command": "position startpos",
+            "actual_move": "7g7f", "effectiveRootMultiPV": 2,
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            result = runner.run_reference(fake, position, Path(tmp))
+        self.assertEqual([b["nodeBudget"] for b in result["budgets"]], list(runner.REFERENCE_NODE_BUDGETS))
+        self.assertEqual([multipv for _, multipv, _ in fake.calls], [2, 2])
+
     def test_runtime_contract_is_frozen(self):
         self.assertEqual(runner.APP_NODE_TIERS, (50_000, 100_000, 200_000))
         self.assertEqual(runner.REFERENCE_NODE_BUDGETS, (4_000_000, 16_000_000))
