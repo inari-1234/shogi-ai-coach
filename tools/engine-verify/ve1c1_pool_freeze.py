@@ -10,8 +10,14 @@ from typing import Any
 import ve1c1_pilot as pilot
 
 POOL_SCHEMA = "ve1c1-pilot-pool-v1"
-EXCLUSION_SCHEMA = "ve1c1-ve1d-exclusion-authority-v2"
+EXCLUSION_SCHEMA = "ve1c1-ve1d-exclusion-authority-v3"
 B6_SHA256 = "ea8a9e4b0211c5c6fde7514987df74d17508f8b59f72b7969a1105ce1fd94102"
+# Frozen Errata #2 §8: both games were exposed before the failed C1 pool run,
+# independent of whether the corrected selector now yields zero candidates.
+PREVIOUSLY_EXPOSED_SEEDED_GAME_SHA256 = (
+    "38a01eb52ef27664f010b558114bd85f922eccdaeae8c281be461ea321cc65a0",
+    "a3ea21dba4d3395d569d846b8cb119452fad0cedbf690eb72a29976918a8702a",
+)
 
 
 def canonical_json(obj: Any) -> str:
@@ -99,6 +105,39 @@ def classify_processed_games(pool: dict[str, Any]) -> tuple[list[str], list[str]
     return producer_games, zero_candidate_games
 
 
+
+def derive_ve1d_exclusions(
+    pool: dict[str, Any],
+    candidate_producing_games: list[str],
+    zero_candidate_games: list[str],
+) -> list[str]:
+    """Include both previously exposed seed games regardless of fresh candidate count.
+
+    The pool's game selection, shortest prefix, and round-robin are untouched.
+    Ordinary zero-candidate games are still NOT excluded from VE1-D.
+    """
+    trace = pool["selector_trace"]
+    if (
+        len(trace) < 2
+        or [row["seed_rank"] for row in trace[:2]] != [1, 2]
+        or tuple(row["game_sha256"] for row in trace[:2])
+        != PREVIOUSLY_EXPOSED_SEEDED_GAME_SHA256
+    ):
+        raise RuntimeError("pre_exposed_seed_prefix_mismatch")
+    allowed = set(candidate_producing_games) | set(PREVIOUSLY_EXPOSED_SEEDED_GAME_SHA256)
+    result = _ordered_unique(
+        [row["game_sha256"] for row in trace if row["game_sha256"] in allowed]
+        + [B6_SHA256]
+    )
+    if not set(PREVIOUSLY_EXPOSED_SEEDED_GAME_SHA256).issubset(result):
+        raise RuntimeError("missing_pre_exposed_seed_exclusion")
+    ordinary_zeros = set(zero_candidate_games) - set(PREVIOUSLY_EXPOSED_SEEDED_GAME_SHA256)
+    if ordinary_zeros & set(result):
+        raise RuntimeError("ordinary_zero_candidate_game_in_ve1d_exclusion")
+    if set(result) != allowed | {B6_SHA256}:
+        raise RuntimeError("ve1d_exclusion_coverage_mismatch")
+    return result
+
 def main() -> int:
     p = argparse.ArgumentParser(description="Freeze VE1-C1 production pool and pre-register VE1-D exclusions")
     p.add_argument("--pool", required=True)
@@ -138,9 +177,12 @@ def main() -> int:
     if B6_SHA256 in candidate_producing_games or B6_SHA256 in selected_games:
         raise SystemExit("b6_fixture_selected_into_pool_or_pilot")
 
-    full_ve1d_exclusion = _ordered_unique(candidate_producing_games + [B6_SHA256])
-    if set(zero_candidate_games) & set(full_ve1d_exclusion):
-        raise SystemExit("zero_candidate_game_in_ve1d_exclusion")
+    try:
+        full_ve1d_exclusion = derive_ve1d_exclusions(
+            pool, candidate_producing_games, zero_candidate_games
+        )
+    except RuntimeError as exc:
+        raise SystemExit(str(exc)) from exc
 
     exclusion: dict[str, Any] = {
         "schema_version": EXCLUSION_SCHEMA,
@@ -153,6 +195,7 @@ def main() -> int:
         "processed_game_count": pool.get("processed_game_count"),
         "candidate_producing_game_count": len(candidate_producing_games),
         "candidate_producing_game_sha256": candidate_producing_games,
+        "previously_exposed_seeded_game_sha256": list(PREVIOUSLY_EXPOSED_SEEDED_GAME_SHA256),
         "zero_candidate_processed_game_sha256": zero_candidate_games,
         "selected_pilot_game_count": len(pilot_games),
         "pilot_game_sha256": pilot_games,
@@ -163,7 +206,8 @@ def main() -> int:
         "rule": (
             "Before natural pilot execution, exclude from every VE1-D partition all games in the "
             "processed seeded prefix that produced one or more production-selector candidates, plus "
-            "the permanent B6 fixture. Processed games with zero eligible candidates remain eligible "
+            "the two previously exposed seed-ranked games and the permanent B6 fixture. "
+            "Zero-candidate processed games other than those two exposed games remain eligible "
             "for VE1-D and must not appear in ve1d_excluded_game_sha256."
         ),
     }
@@ -177,6 +221,7 @@ def main() -> int:
         "pilot_manifest_sha256": manifest.get("manifest_sha256"),
         "processed_games": pool.get("processed_game_count"),
         "candidate_producing_games": len(candidate_producing_games),
+        "previously_exposed_seeded_games": len(PREVIOUSLY_EXPOSED_SEEDED_GAME_SHA256),
         "zero_candidate_processed_games": len(zero_candidate_games),
         "selected_pilot_games": len(pilot_games),
         "ve1d_excluded_games": len(full_ve1d_exclusion),

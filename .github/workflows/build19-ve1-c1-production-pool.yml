@@ -188,11 +188,21 @@ jobs:
           zeros=[r['game_sha256'] for r in pool['selector_trace'] if r['production_selected_count']==0]
           selected=sorted({p['game_sha256'] for p in manifest['selected_positions']})
           b6='ea8a9e4b0211c5c6fde7514987df74d17508f8b59f72b7969a1105ce1fd94102'
-          assert exclusion['schema_version']=='ve1c1-ve1d-exclusion-authority-v2'
+          exposed=[
+            '38a01eb52ef27664f010b558114bd85f922eccdaeae8c281be461ea321cc65a0',
+            'a3ea21dba4d3395d569d846b8cb119452fad0cedbf690eb72a29976918a8702a',
+          ]
+          trace=pool['selector_trace']
+          assert [x['game_sha256'] for x in trace[:2]]==exposed
+          expected_exclusion=list(dict.fromkeys(
+            [x['game_sha256'] for x in trace if x['production_selected_count']>0 or x['game_sha256'] in exposed]+[b6]
+          ))
+          assert exclusion['schema_version']=='ve1c1-ve1d-exclusion-authority-v3'
           assert exclusion['candidate_producing_game_sha256']==producers
+          assert exclusion['previously_exposed_seeded_game_sha256']==exposed
           assert exclusion['pilot_game_sha256']==selected
-          assert exclusion['ve1d_excluded_game_sha256']==producers+[b6]
-          assert not (set(zeros) & set(exclusion['ve1d_excluded_game_sha256']))
+          assert exclusion['ve1d_excluded_game_sha256']==expected_exclusion
+          assert not ((set(zeros)-set(exposed)) & set(exclusion['ve1d_excluded_game_sha256']))
           assert set(selected).issubset(set(producers))
           assert len(manifest['selected_positions'])==16
           print('ve1d_exclusion_coverage=PASS')
