@@ -1,0 +1,86 @@
+name: Build19 VE1-C1 Natural Pilot Root Audit
+
+on:
+  push:
+    branches:
+      - candidate/build19-ve1-c1-pilot
+    paths:
+      - "tools/engine-verify/ve1c1_pilot_legal_roots.py"
+      - "tools/engine-verify/ve1c1_pilot_runner.py"
+      - "tools/engine-verify/ve1c1_pilot_block_runner.py"
+      - "tools/engine-verify/tests/test_ve1c1_pilot_runner.py"
+      - "Build19/BUILD19_VE1_C1_NATURAL_PILOT_MANIFEST_20261014.json"
+      - ".github/workflows/build19-ve1-c1-natural-pilot-root-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pilot-root-audit:
+    runs-on: macos-15-intel
+    timeout-minutes: 35
+    steps:
+      - name: Checkout post-freeze candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify admission and Python pilot contracts
+        shell: bash
+        run: |
+          set -euxo pipefail
+          test "$(uname -m)" = "x86_64"
+          python3 -m py_compile \
+            tools/engine-verify/ve1c1_pilot_legal_roots.py \
+            tools/engine-verify/ve1c1_pilot_runner.py \
+            tools/engine-verify/ve1c1_pilot_block_runner.py
+          python3 -m unittest discover -s tools/engine-verify/tests -p 'test_ve1c1_pilot*.py' -v
+          python3 tools/engine-verify/ve1c1_natural_pilot_admission.py \
+            --repo-root . --output build/ve1c1-pilot-roots/admission.json
+
+      - name: Prepare pinned native MoveList LEGAL audit
+        shell: bash
+        run: |
+          set -euxo pipefail
+          bash scripts/fetch_yaneuraou.sh
+          test "$(git -C native/third_party/YaneuraOu rev-parse HEAD)" = \
+            "a5ee2786c0030edc7d4a1cdfe94b04dffec55493"
+          bash scripts/patch_yaneuraou_legal_audit.sh
+          make -C native/third_party/YaneuraOu/source clean \
+            TARGET_CPU=APPLEAVX2 YANEURAOU_EDITION=YANEURAOU_ENGINE_MATERIAL MATERIAL_LEVEL=1
+          make -C native/third_party/YaneuraOu/source -j2 normal \
+            TARGET_CPU=APPLEAVX2 COMPILER=clang++ \
+            YANEURAOU_EDITION=YANEURAOU_ENGINE_MATERIAL MATERIAL_LEVEL=1
+          test -x native/third_party/YaneuraOu/source/YaneuraOu-by-gcc
+
+      - name: Count all 16 roots with engine authority
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 tools/engine-verify/ve1c1_pilot_legal_roots.py \
+            --manifest Build19/BUILD19_VE1_C1_NATURAL_PILOT_MANIFEST_20261014.json \
+            --engine native/third_party/YaneuraOu/source/YaneuraOu-by-gcc \
+            --output build/ve1c1-pilot-roots/native-legal-roots.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root=json.loads(Path("build/ve1c1-pilot-roots/native-legal-roots.json").read_text())
+          assert root["position_count"]==16
+          assert all(row["legalRootMoveCount"]>=1 for row in root["rows"])
+          assert all(row["effectiveRequiredMultiPV"]==min(3,row["legalRootMoveCount"]) for row in root["rows"])
+          assert any(
+            row["actualMove"]=="7c6c" and row["effectiveRequiredMultiPV"]==2
+            for row in root["rows"]
+          ), "seed2-ply126 LEGAL=2 boundary not demonstrated"
+          print("pilot_root_count_preflight=PASS")
+          PY
+
+      - name: Upload pinned root counts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build19-VE1-C1-natural-pilot-roots
+          path: build/ve1c1-pilot-roots
+          if-no-files-found: warn
+          retention-days: 30
