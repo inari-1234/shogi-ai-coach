@@ -129,7 +129,7 @@ jobs:
               finally:
                   engine.close()
                   (out/(label+".raw-usi.txt")).write_text(
-                      "\\n".join(captured)+"\\n",encoding="utf-8")
+                      chr(10).join(captured)+chr(10),encoding="utf-8")
                   row["transcriptLineCount"]=len(captured)
                   results.append(row)
           probe={
@@ -141,7 +141,7 @@ jobs:
               "observed":results,
               "decision":"NOT_YET_ADOPTED",
           }
-          (out/"report.json").write_text(json.dumps(probe,indent=2,ensure_ascii=False)+"\\n",encoding="utf-8")
+          (out/"report.json").write_text(json.dumps(probe,indent=2,ensure_ascii=False)+chr(10),encoding="utf-8")
           print(json.dumps(probe,ensure_ascii=False))
           # Do not invent a C1 policy from an instrument failure.
           control=next(x for x in results if x["label"]=="retained-promotion")
