@@ -304,7 +304,7 @@ def evaluate_position(position: dict[str, Any]) -> dict[str, Any]:
         tier_entry = {
             "nodeBudget": nodes,
             "status": "RESOLVED" if discovery.get("selectedSnapshotEvidenceStatus") == "RESOLVED" else discovery.get("selectedSnapshotEvidenceStatus"),
-            "comparisonInversion": comparison.get("comparisonInversion"),
+            "comparisonInversion": inversion,
             "inversionMagnitude": inversion_magnitude,
             "comparisonClass": severity.get("class"),
             "comparisonReason": severity.get("reason"),
