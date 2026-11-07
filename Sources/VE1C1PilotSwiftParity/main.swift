@@ -135,9 +135,7 @@ enum PilotSwiftParity {
     }
 }
 
-@main
-struct Main {
-    static func main() {
+func main() {
         guard CommandLine.arguments.count == 3 else {
             fputs("usage: VE1C1PilotSwiftParity pilot-result.json parity.json\n", stderr)
             exit(2)
@@ -162,5 +160,6 @@ struct Main {
             fputs("swift_parity_error: \(error)\n", stderr)
             exit(2)
         }
-    }
 }
+
+main()
