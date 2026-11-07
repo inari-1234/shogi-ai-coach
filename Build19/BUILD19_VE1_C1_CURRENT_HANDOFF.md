@@ -1,7 +1,7 @@
 # Build19 VE1-C1 — Current Handoff
 
 Last updated: 2026-11-08
-State: VE1_B_CORRECTIVE_SUCCESSOR_PROMOTED / VE1_C1_POOL_RERUN_PREPARATION; VE1_C1_PILOT_READY / NOT_FROZEN
+State: VE1_B_CORRECTIVE_SUCCESSOR_PROMOTED / VE1_C1_POOL_MANIFEST_EXCLUSION_FROZEN / NATURAL_PILOT_EXECUTING; NOT_FROZEN
 
 ## Validated implementation and fixed authorities
 
@@ -42,7 +42,11 @@ The initially selected one-LEGAL position ended in `proven_mate_termination` at 
 
 - VE1-B Errata #1 (mixed MultiPV output iteration/cohort) remains unresolved at production selector level; downstream C1 coherent-block guard is separate. A production-level repair is deferred to Build20+.
 - C1 omitted non-promotion `searchmoves`: resolve as preregistered `NOT_CLASSIFIABLE` fail-closed or an independently specified comparison-only `LEGAL_ALL` path, with pinned regression, **before C1 Freeze**. This does not block a pool rerun after Corrective Authority promotion.
-- Natural production pool **not yet rerun successfully**; no frozen 16-position manifest; natural pilot **not run**.
+- Natural production pool **PASS / FROZEN** at bot commit `4eb3bce7264f3f56f05b93c03a8bebc7f990d4eb`, workflow `42393557082`. Five seeded games processed, all five candidate-producing, capped total 18. Frozen 16-position manifest SHA `c24347c6e491b3fe27874ac8088e63852a42fbb0a58ab76b36ccf96a6c3b4d12`; pool SHA `e2cf57fcb99b33c64667c9e04a10129625434eb726dc691a89019945415ae5a4`; VE1-D exclusion Authority SHA `88835b58241d1942946bce7b7a963d3c4b346a4d1945e419ae7f5733b64bb2f0`. Six games excluded (five contributing games plus B6); no zero-candidate game. These three files must remain immutable.
+- Pilot admission `42412350136` PASS: `natural_pilot_execution_permitted:false` in frozen exclusion is the pre-commit snapshot; separately derived `computed_natural_pilot_execution_permitted:true` is admitted only when freeze commit ancestor, identities/digests/selection/exclusion binding pass. Do not hand-toggle the frozen field.
+- Frozen `deepMovetimeMs:800` is a boolean legacy production selection mode switch (`>=800`), **not** an elapsed-time engine budget; real deep searches use fixed nodes. Do not rerun or alter the frozen pool solely because of the 800 metadata.
+- Pinned native LEGAL root preflight `42412684383` PASS over 16 natural positions: effective MultiPV 3 for 15 positions, 2 for the known seed2 ply126 position. App and Reference pilot harnesses now use these native counts rather than fixed 3.
+- Natural 16-position pilot workflow `42413155051` **RUNNING / NOT YET ACCEPTED**. Its integrity gate requires raw search evidence, frozen Swift parser parity zero mismatch, coherent output blocks, and preregistered F/E derivation. No pilot PASS/Freeze has been declared.
 - Do not alter the committed corpus, seeded game order, `VE1-C1-SAMPLING-v1` key, at-most-four-per-game, shortest-prefix stop rule, or round-robin 16-position derivation. No ad hoc substitutions.
 - Seed-ranked games 1 (`38a01eb52ef27664f010b558114bd85f922eccdaeae8c281be461ea321cc65a0`) and 2 (`a3ea21dba4d3395d569d846b8cb119452fad0cedbf690eb72a29976918a8702a`) were previously exposed: **permanently exclude both from all VE1-D tuning/holdout/reserve partitions, even if candidate-zero in the new pool**. Production pool selection must still process them in frozen seed order.
 - Once the production pool and 16-position manifest are derived, commit VE1-D exclusion Authority for **every processed-prefix game producing >=1 candidate plus the permanent B6 fixture**, before any natural pilot invocation. Zero-candidate processed games do not enter the exclusion.
@@ -50,10 +54,10 @@ The initially selected one-LEGAL position ended in `proven_mate_termination` at 
 
 ## Next bounded action
 
-1. **Authority promotion is complete**, exact successor `05ec68ba0b40bdd2980431d9d1931c08a4052b02`. Before pool execution, ensure the actual VE1-D exclusion generator/validator includes previously exposed seed 1 and 2 even if the current selector finds zero candidates, while retaining the ordinary zero-candidate rule for unrelated games.
-2. Rerun the **unchanged** production pool from rank 1 using the pinned engine/NNUE, frozen corpus, seeded order, shortest-prefix stop rule, per-game cap and round-robin selection.
-3. Commit complete pool, exactly 16-position manifest and complete VE1-D exclusion Authority (both exposed seeds + all candidate-producing prefix games + B6) **before any natural pilot**.
-4. Before C1 Freeze, independently resolve omitted nonpromotion played-move `searchmoves` classification. C1 remains NOT FROZEN.
+1. Review natural pilot CI run `42413155051` at initiating code commit `637213c21697401882dc930a6aa63f135df441b5`; collect stage, raw USI, Swift parity, coherence evidence, F/E evaluation and execution-integrity result.
+2. On a specific FAIL, inspect the preserved stage/logs and fix only the established owning fault domain. Do not loosen frozen 4M/16M budgets, scoring semantics, manifest or admission conditions; no blind reruns.
+3. Only if `PILOT_PASS` is independently evidenced, record the derived F/E and feasibility indicators, settle the separate omitted-nonpromotion `searchmoves` policy with pinned regression before C1 Freeze, then perform remaining synthetic/final regression.
+4. Errata #1 remains a separate production-level Build20+ repair. C1 Freeze and VE1-D are **not yet authorized**.
 
 ## Loop-minimization note
 
