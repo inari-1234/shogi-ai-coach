@@ -1,0 +1,60 @@
+name: Build19 VE1-C1 Natural Pilot Admission
+
+on:
+  push:
+    branches:
+      - candidate/build19-ve1-c1-pilot
+    paths:
+      - "tools/engine-verify/ve1c1_natural_pilot_admission.py"
+      - "tools/engine-verify/tests/test_ve1c1_natural_pilot_admission.py"
+      - ".github/workflows/build19-ve1-c1-natural-pilot-admission.yml"
+      - "Build19/BUILD19_VE1_C1_PRODUCTION_POOL_20261014.json"
+      - "Build19/BUILD19_VE1_C1_NATURAL_PILOT_MANIFEST_20261014.json"
+      - "Build19/BUILD19_VE1_D_EXCLUSION_AUTHORITY_20261014.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  admission:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout complete candidate history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run immutable freeze and contamination admission tests
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 -m py_compile tools/engine-verify/ve1c1_natural_pilot_admission.py
+          python3 -m unittest tools/engine-verify/tests/test_ve1c1_natural_pilot_admission.py -v
+
+      - name: Compute natural-pilot admission without editing exclusion
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 tools/engine-verify/ve1c1_natural_pilot_admission.py \
+            --repo-root . \
+            --output build/ve1c1-pilot-admission/admission.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path("build/ve1c1-pilot-admission/admission.json").read_text())
+          assert a["computed_natural_pilot_execution_permitted"] is True
+          assert a["frozen_exclusion_snapshot_flag"] is False
+          assert a["freeze_commit"]=="4eb3bce7264f3f56f05b93c03a8bebc7f990d4eb"
+          print("natural_pilot_admission=PASS")
+          PY
+
+      - name: Upload admission evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build19-VE1-C1-natural-pilot-admission
+          path: build/ve1c1-pilot-admission
+          if-no-files-found: warn
+          retention-days: 30
