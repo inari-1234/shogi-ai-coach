@@ -137,7 +137,7 @@ enum PilotSwiftParity {
 
 func main() {
         guard CommandLine.arguments.count == 3 else {
-            fputs("usage: VE1C1PilotSwiftParity pilot-result.json parity.json\n", stderr)
+            print("usage: VE1C1PilotSwiftParity pilot-result.json parity.json")
             exit(2)
         }
         do {
@@ -145,7 +145,7 @@ func main() {
             let output = URL(fileURLWithPath: CommandLine.arguments[2])
             let data = try Data(contentsOf: input)
             guard let root = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-                fputs("pilot-result not an object\n", stderr)
+                print("pilot-result not an object")
                 exit(2)
             }
             let result = PilotSwiftParity.run(root)
@@ -157,7 +157,7 @@ func main() {
             print(String(data: bytes, encoding: .utf8) ?? "")
             if result["status"] as? String != "PASS" { exit(2) }
         } catch {
-            fputs("swift_parity_error: \(error)\n", stderr)
+            print("swift_parity_error: \(error)")
             exit(2)
         }
 }
