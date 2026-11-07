@@ -1,7 +1,7 @@
 # Build19 VE1-C1 — omitted non-promotion searchmoves fail-closed policy
 
 Date: 2026-11-08
-State: **C1 PRE-FREEZE POLICY DECISION / REGRESSION PENDING**
+State: **C1 PRE-FREEZE FAIL-CLOSED DECISION / REGRESSION PASS / AWAIT FREEZE AUTHORITY**
 Scope owner: C1 semantic comparator/evaluator; **not** VE1-B unrestricted search or frozen pilot thresholds.
 
 ## Prior authority and incident
@@ -31,6 +31,8 @@ For unrestricted root search, VE1-B Errata #2's `min(configuredMultiPV, |MoveLis
 - A synthetic C1 evaluator regression with requested `3c1c` but returned `1i2i` must be `NOT_CLASSIFIABLE`, with no false inversion/F2 candidate or false Reference membership.
 - A correctly bound `3c1c+` control retains an evaluable exact result.
 - Replay the immutable 16-position natural pilot result artifact under the new **C1-only** target-binding guard; require 160/160 target bindings valid and F2/E0 unchanged. This replay does not change the original pilot result/evaluation SHA or redefine `PILOT_PASS`.
-- Commit the passing CI run identity, then include this single policy in the eventual C1 Freeze Authority. This handoff/decision note is a **candidate pre-Freeze decision, not yet a Freeze Authority**.
+- **PASS**: C1 Pilot Contract workflow `42426046533` at code SHA `274e7fe5415b32bbc3f8e19a0fdc50b74ed447f8`. All 26 unit tests passed, including omitted `3c1c` -> `1i2i` fail-closed classification, retained `3c1c+` control, no false F2 case and no spurious inversion display.
+- **PASS**: the same workflow downloaded the immutable natural-pilot artifact `13590953109`, verified all **160/160** targeted search bindings, then re-evaluated the saved pilot result at `860cb704e8df15e301b037b9994ff2bb15c3cbcb8a14440cdfa15e46797214ea`; policy outcomes were unchanged: **F2 (7 small inversions), E0 (42 E1-only cases)**. Original frozen result SHA and evaluation SHA `10e9d86beca6763bd01bb4aa21bc8b2b105949fbd305a30b4cbe6bc6f3d42d0a` remain immutable. The supplemental replay has a new *derived* evaluation SHA `ce508d28bbee3f6bb3e99ed32a479222b42e6947e8af50584a51e7607cbd6751` because it includes additional validity fields; it is not a replacement for the frozen pilot evaluation.
+- The confirmed policy and evidence **must be incorporated in the single C1 Freeze Authority** at final integration. This pre-Freeze policy document is a verification record, not the C1 Freeze Authority. No new pilot threshold, node budget, F/E rule, unlimited `LEGAL_ALL` root universe, or VE1-D inspection was introduced.
 
 No natural resampling, VE1-D partition inspection, or Build20 engine fix is authorized by this document.
