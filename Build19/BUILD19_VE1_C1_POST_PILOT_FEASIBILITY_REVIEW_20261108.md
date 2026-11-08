@@ -26,37 +26,59 @@ Thus all 4M cases lie close to the hard 0.050 boundary, and all 16M cases fall c
 
 At the pilot point estimate `p=3/16=18.75%`, a simple independent-binomial approximation gives `P(X<=5 | n=50,p)=7.31%`; at 15%, 21.94%; at 10%, 61.61%. These are **illustrations, not predictive guarantees**: the pilot has 16 positions from five games and clustering/selection may violate independent identical draws.
 
-## Delta grid: report-only coverage prognosis
+## Delta grid: report-only coverage prognosis (CORRECTED §E source availability)
 
-Frozen candidate structure logic at the primary App 200k tier:
-- `MULTIPLE_GOOD` iff rank-2 loss `<= 0.050 - delta`; `UNKNOWN` iff inside the ambiguity band through `0.050 + delta`; otherwise `UNIQUE_GOOD` (respecting mate and missing-snapshot cases). A `CROSS_AXIS_CONFLICT` invalidates a purported definitive UNIQUE claim.
-- **Structure coverage proxy**: count of 16 with definitive App 200k Candidate Structure after the C1 cross-axis guard, including definite `NO_SAVING_MOVE` if observed.
-- **Played coverage proxy (adopted E0, strict)**: count of 16 where the actual move has both (a) a finite **root MultiPV** loss and (b) a same-tier independently measured comparison loss, and both frozen `app_allowed_classes(loss, delta)` are the **same singleton class**; the existing fail-closed target binding must pass. `F2` is still the adopted small-inversion policy, and no inversion-induced MATCH promotion is allowed. Do **not** treat a single-source class as E0 confirmation.
-- These are deliberately conservative **one-position/200k proxies**, **not** a final preregistered 50-position holdout gate or a new threshold. `delta` has not been selected. The total three-tier `CROSS_AXIS_CONFLICT=5` and `E1-only=42` recompute to exactly the archived evaluator totals, giving an independent arithmetic crosscheck.
+**Correction of the earlier 3/16 result:** The previous proxy *wrongly required the actual played move to appear in the App top-three MultiPV*. Frozen v4 §E's two-score-source compatibility check applies **only if both sources exist**. When the played move is not among the MultiPV roots, the independently measured same-tier comparison supplies the single available source; there is no absent root score to conflict with it. E0 still rejects any pair of *present* conflicting or ambiguous sources. This corrects analysis of the original immutable result, **not** the stored pilot, F2/E0 decision, δ selection, or the frozen contract.
 
-| delta | App structure definitive /16 | E0 played definitive /16 | Independent comparison singleton /16 | Both root+comparison available /16 |
+At the primary App 200k node tier:
+- **Structure coverage proxy:** definite UNIQUE/MULTIPLE/NO_SAVING_MOVE after C1's `CROSS_AXIS_CONFLICT` guard.
+- **Played score-source E0 coverage upper bound:** If the played move is absent from the App root MultiPV, require a single definite class from a valid independent same-tier comparison; if present in MultiPV, require root and independent comparison losses to yield **the same singleton class** under frozen `app_allowed_classes(loss, δ)`. Invalid `searchmoves` target binding or missing/mate/unclassifiable loss fails closed. This is an **upper bound**, because F2 exceptions, stability and final played certainty have not been applied.
+- Both finite root + independent comparison losses exist for **5/16**; of these at δ=0, **3 agree and 2 conflict**. The independent comparison alone gives a definite class in **15/16**. The source-availability-adjusted E0 bound at δ=0 is **10 independent-only + 3 agreeing dual-source = 13/16**, not 3/16.
+- At δ=0, the two definite source contradictions are `p08-ply-81` and `p12-ply-126`; `p02-ply-156` has `NO_SAVING_MOVE` / no finite independent played loss and does not count. These cases are not silently turned into MATCH.
+
+| δ | App structure definitive /16 | Corrected E0 played source-compatibility UPPER BOUND /16 | Independent comparison singleton /16 | Finite dual-source available /16 |
 |---:|---:|---:|---:|---:|
-| 0.000 | 16 | 3 | 15 | 5 |
-| 0.005 | 15 | 3 | 15 | 5 |
-| 0.010 | 15 | 3 | 15 | 5 |
-| 0.015 | 14 | 3 | 15 | 5 |
-| 0.020 | 14 | 3 | 15 | 5 |
-| 0.025 | 13 | 3 | 15 | 5 |
-| 0.030 | 10 | 3 | 15 | 5 |
-| 0.035 | 10 | 3 | 15 | 5 |
-| 0.040 | 9 | 3 | 15 | 5 |
-| 0.045 | 8 | 3 | 15 | 5 |
-| 0.050 | 1 | 1 | 9 | 5 |
+| 0.000 | 16 | 13 | 15 | 5 |
+| 0.005 | 15 | 13 | 15 | 5 |
+| 0.010 | 15 | 13 | 15 | 5 |
+| 0.015 | 14 | 13 | 15 | 5 |
+| 0.020 | 14 | 13 | 15 | 5 |
+| 0.025 | 13 | 13 | 15 | 5 |
+| 0.030 | 10 | 13 | 15 | 5 |
+| 0.035 | 10 | 13 | 15 | 5 |
+| 0.040 | 9 | 13 | 15 | 5 |
+| 0.045 | 8 | 13 | 15 | 5 |
+| 0.050 | 1 | 6 | 9 | 5 |
 
-At delta 0, strictly reconciled E0 played claims were `p03-ply-115`, `p04-ply-10` and `p16-ply-143`. In 10 other positions the actual move did not occur among the App 200k MultiPV root candidates, and one additional position lacked a finite comparison loss; **increasing Reference budget alone cannot supply the missing App root score source**. The 70% played-coverage floor is not supported by this conservative E0 proxy at **any** delta. Conversely, App structure coverage is >= 12/16 (75%) only for delta 0.000–0.025. Neither observation licenses choosing a favorable delta from pilot outcomes.
+**No chosen δ:** With `δ_final=δ_min+0.010`, App structure >=70% (at least 12/16) requires **δ_final <=0.025**, i.e. **δ_min <=0.015** in this pilot. But that is a feasibility observation, not a license to choose δ from the pilot. Corrected E0 score-source coverage no longer by itself proves 70% played coverage unattainable; the missing ingredients are full F2 / stability / played-certainty application.
+
+### H1/H3-oriented false-UNIQUE proxy by δ (report only)
+
+The frozen 4M/16M Reference cross-budget structure is RESOLVED for 13/16; **12 are MULTIPLE_GOOD**, one `NO_SAVING_MOVE`. Count each reference-resolved MULTIPLE_GOOD position where an App tier asserts `UNIQUE_GOOD` without C1's downstream cross-axis guard. These are *exposure counts* for H1/H3 analysis, **not** formal complete H1/H3 truth labels or a selected δ. The primary App 200k tier is the preregistered C1 semantic source, not the earlier exploration tiers.
+
+| δ | False UNIQUE at App 50k / 12 | App 100k / 12 | Primary App 200k / 12 |
+|---:|---:|---:|---:|
+| 0.000 | 1 | 3 | 0 |
+| 0.005 | 1 | 3 | 0 |
+| 0.010 | 1 | 3 | 0 |
+| 0.015 | 1 | 3 | 0 |
+| 0.020 | 1 | 2 | 0 |
+| 0.025 | 1 | 1 | 0 |
+| 0.030 | 1 | 1 | 0 |
+| 0.035 | 1 | 1 | 0 |
+| 0.040 | 1 | 1 | 0 |
+| 0.045 | 1 | 1 | 0 |
+| 0.050 | 1 | 1 | 0 |
+
+At 50k the repeatedly affected position is `p12-ply-126`; at 100k, `p04-ply-10`, `p08-ply-81`, `p12-ply-126` are exposed at δ<=0.015. At the **primary 200k tier** the false-UNIQUE proxy is **0/12 at every δ**. This is evidence of shallower-tier instability, but the pilot does **not** demonstrate a persisting primary-tier H1 failure. If H1/H3 formally require a different denominator/played membership evaluation, it must be evaluated independently, not silently equated to this proxy.
 
 ## Explicit §13.3 disposition before VE1-D
 
 **Invoke `PILOT_FEASIBILITY_AMENDMENT_REQUIRED` as post-PASS feasibility assessment**. This is **not** `PILOT_HOLD`; all four execution-integrity PASS conditions remain satisfied. However **do not** proceed silently to synthetic/final Freeze candidate or VE1-D while these feasibility risks are undecided.
 
-- Track **(b), possible shallow 4M Reference**: first measure the **same three exposed pilot positions** with pinned conditions at 16M/64M as a bounded diagnostic (not a holdout, not a selected operational budget). If 16M/64M are structurally consistent, an *explicit* §12 Reference budget amendment can be proposed; it would require a C1 version increment and a full rerun of the same excluded 16-position pilot **before** Freeze. Merely reaching exact at 16M does not prove budget convergence.
-- Track **E0 played coverage limitation** separately: the very low two-source availability (5/16 at 200k) cannot be addressed by a 4M→16M Reference budget change. The §12 operational allowance does **not** permit changing adopted E0, candidate/root evidence meaning, score semantics or the sampling rule. Do not lower the 70% floor merely to force PASS. Establish the precise final holdout coverage denominator and assess whether a permissible operational amendment exists; otherwise explicitly retain the risk, or HOLD the Freeze candidate for a properly versioned semantic redesign (not an improvised post-pilot rule).
+- Track **(b), possible shallow 4M Reference**: compare **ALL 16 permanently excluded pilot positions**, not just the three originally DISPUTED cases, at freshly measured pinned 16M/64M with identical engine/NNUE/TT/MultiPV conditions. The 4M values come from the immutable pilot artifact; preserve the full 4M→16M→64M rank-2 loss trajectory and compare cross-budget DISPUTED/INSUFFICIENT rates over all 16. Code commit `f9897a6c06895f67ca6a5d9c3e455ff7135febe3`, independent action `42440362235` was started; **do not record a result until this run completes and the artifact is checked**. A justified §12 reference budget amendment would require C1 version increment and complete same-16 pilot rerun.
+- Track **played coverage with correct source availability**: 13/16 (81.25%) is the 200k E0 **upper bound** for δ 0..0.045 after excluding genuine conflicts; this corrects the former 3/16 claim. Confirm final played certainty, F2 and VE1-B stability and the holdout 70% denominator before Freeze. The §12 allowance does **not** authorize changing adopted E0, scoring semantics or sampling. No coverage-floor relaxation is approved.
 - The original hard 10% unresolved ceiling, 70% coverage floor, 4M/16M budgets and all thresholds **remain unchanged pending decision**. No amendments are approved in this record.
-- Next bounded actions: targeted pinned Reference convergence diagnostic on three pilot positions; clarify final coverage metric without VE1-D inspection; decide **amendment with version+same-pilot rerun** or **unchanged contract with explicit HOLD risk**, then only remaining synthetic/final regression if authorized.
+- Next bounded actions: retrieve **ALL-16** pinned 16M/64M convergence diagnostic evidence; compute final certainty-aware played coverage separately from its 13/16 E0 upper bound; then decide **amendment with version+same-pilot rerun** or **unchanged contract with explicit HOLD risk** before final synthetic/Freeze. No VE1-D inspection.
 
 This document is report-only analysis and a **pre-Freeze review decision**, not a replacement for the single future C1 Freeze Authority.
