@@ -1,7 +1,7 @@
 # Build19 VE1-C1 — Post-Pilot Feasibility Review
 
 Date: 2026-11-08
-Status: **PILOT_PASS / PILOT_FEASIBILITY_AMENDMENT_REQUIRED — ASSESSMENT OPEN / NO AMENDMENT APPROVED**
+Status: **PILOT_PASS / PILOT_FEASIBILITY_AMENDMENT_REQUIRED — 16M/64M REFERENCE CANDIDATE SUPPORTED; PLAYED CERTAINTY REVIEW OPEN / NO AMENDMENT APPROVED**
 This is a post-pilot evidence/decision record under frozen pre-pilot §§12–14, **not** a new C1 Freeze Authority, a new pilot PASS rule, a selected delta, or an authorization to inspect VE1-D data.
 
 ## Evidence identity and immutability
@@ -76,13 +76,63 @@ The frozen 4M/16M Reference cross-budget structure is RESOLVED for 13/16; **12 a
 
 At 50k the repeatedly affected position is `p12-ply-126`; at 100k, `p04-ply-10`, `p08-ply-81`, `p12-ply-126` are exposed at δ<=0.015. At the **primary 200k tier** the false-UNIQUE proxy is **0/12 at every δ**. This is evidence of shallower-tier instability, but the pilot does **not** demonstrate a persisting primary-tier H1 failure. If H1/H3 formally require a different denominator/played membership evaluation, it must be evaluated independently, not silently equated to this proxy.
 
+## All-16 independent 16M/64M Reference convergence evidence — verified
+
+**GitHub Actions `42440362235` success** at source SHA `f9897a6c06895f67ca6a5d9c3e455ff7135febe3`, report `DIAGNOSTIC_COMPLETE`; retained artifact ID `13601594763`, ZIP SHA-256 `5c09435f850db4f4ed3a134638cfa6204396cb6ee99707684746d220f24eb33d`. The actual ZIP was independently downloaded and SHA-checked. All **32 new raw USI files** (one 16M and one 64M per position) exist; each contains the requested `go nodes N` and terminal `bestmove`. Its `report.json` has the 16 rows and labels, original pilot result/evaluation identities and the original pinned provenance. Pinned YaneuraOu SHA `a5ee2786c0030edc7d4a1cdfe94b04dffec55493`, Suisho5 NNUE SHA `768068f0d534a0603a5d38bcd143de6bbca820d5f1c95a14d40863e5b7892d76`, AVX2, clang 18.1.3, and the original USI searchmoves case-preservation patch.
+
+| Criterion | Frozen 4M/16M | New 16M/64M |
+|---|---:|---:|
+| Reference Structure RESOLVED | 13/16 | **16/16** |
+| DISPUTED | 3/16 | **0/16** |
+| INSUFFICIENT | 0/16 | **0/16** |
+| unresolved rate | 18.75% | **0%** |
+
+Fresh 16M roots reproduce frozen 16M **structure and good sets on all 16**. No previously RESOLVED position became DISPUTED at 64M, and the original three DISPUTED positions (`p06`, `p09`, `p15`) all became RESOLVED.
+
+**Full rank-2 expected-score loss trajectory**, rounded to 6 decimals, with the same `τ_good_ref = 0.050`:
+
+| Pilot position | Original 4M | Repeated 16M | New 64M | 16M/64M verdict |
+|---|---:|---:|---:|---|
+| p01 | 0.000000 | 0.000763 | 0.000540 | RESOLVED |
+| p02 | — | — | — | RESOLVED; negative-mate NO_SAVING_MOVE |
+| p03 | 0.000013 | 0.000000 | 0.000000 | RESOLVED |
+| p04 | 0.004346 | 0.009537 | 0.009349 | RESOLVED |
+| p05 | 0.000002 | 0.000000 | 0.000000 | RESOLVED |
+| p06 | 0.054198 | 0.009749 | 0.010929 | RESOLVED |
+| p07 | 0.000021 | 0.000005 | 0.000000 | RESOLVED |
+| p08 | 0.007606 | 0.000000 | 0.042034 | RESOLVED |
+| p09 | 0.053227 | 0.040582 | 0.027405 | RESOLVED |
+| p10 | 0.000056 | 0.000059 | 0.000028 | RESOLVED |
+| p11 | 0.033149 | 0.013898 | 0.045464 | RESOLVED |
+| p12 | 0.024943 | 0.024249 | 0.015323 | RESOLVED |
+| p13 | 0.000159 | 0.000196 | 0.000024 | RESOLVED |
+| p14 | 0.000009 | 0.000002 | 0.000000 | RESOLVED |
+| p15 | 0.050086 | 0.014350 | 0.023178 | RESOLVED |
+| p16 | 0.000000 | 0.000001 | 0.000001 | RESOLVED |
+
+For 15 finite pairs, 4M→16M was **10 decreases / 5 increases**; 16M→64M **10 decreases / 4 increases / 1 tie**. Thus convergence is **not** monotone per position. `p08` increased to 0.042034 and `p11` to 0.045464 by 64M: both remain MULTIPLE but are closer to the hard 0.050 boundary. `p07` changed rank-1 from `S*7b` at 16M to `S*6a` at 64M; the two MULTIPLE good sets still intersect at `S*7b`, so the preregistered cross-budget rule returns RESOLVED. This is **structure-classification stability at 16M/64M, not exact-score convergence or identical move ranking**.
+
+This supplies strong **pilot-based grounds to consider** a §12 operational change from **4M/16M to 16M/64M**. It does **not** guarantee that the later 50-position holdout meets 10%, because all 16 are from five permanently excluded games. The run is an excluded-pilot **diagnostic**, not a new C1 PASS, a frozen Reference Authority or an approved amendment.
+
+## Played coverage feasibility: F2-adjusted upper bound, not final certainty
+
+The archived 200k v4 §E E0 source-compatibility upper bound was 13/16 for δ=0.000..0.045, or 6/16 at δ=0.050. The selected **F2** forbids definite played claims from a **large comparison inversion** `I > 0.050`, even when E0's independent source otherwise gives a definite class. In the frozen 200k evidence, `p06-ply-161` has `I=0.186286...` and is therefore `NOT_CLASSIFIABLE`, rather than a confirmed GOOD/MATCH. Three other 200k inversions (`p03`, `p11`, `p15`) are small and are eligible under the already adopted F2 rule without promoting VE1-B stability.
+
+The **F2-adjusted, E0-consistent 200k score-evidence upper bound** is therefore **12/16 = 75%** for δ=0.000..0.045 and **5/16 = 31.25%** at δ=0.050. This is a *necessary source+F2 filter* only. It still does **not** establish the final 70% played coverage because VE1-B upstream qualification/selection and the exact final C1 played-certainty mapping have not been operationally proven. In particular, C1 semantic `CONFIRMED` never promotes VE1-B `confirmedPV` or changes a nonqualifying VE1-B stability tier.
+
+Reproducible CI: feasibility grid rerun `42446834625`, code SHA `211738507c55408a184a14bd5abdb6261042cb5f`, **success**, artifact `13603424172`, digest `sha256:9b0a282d6ed53f3dbd0594b6c6cba997dd0933ff047d571a188a8c38020a761b`. The workflow fixes the original pilot result/evaluation SHAs, asserts E0 13/16, F2-adjusted 12/16 and the exact p06 abstention, and maintains the false-UNIQUE proxy. This is report-only and selects **no δ**.
+
+### Implication for §13.3 decision
+
+**Conditionally favor the Reference-budget amendment candidate, not its immediate adoption.** The unresolved-rate evidence moved from 3/16 to 0/16 without modifying the frozen scoring semantics. However the F2/E0 75% source-evidence ceiling is only slightly above the 70% holdout floor, and the full played-certainty/VE1-B stability gate could reduce that figure. Resolve the exact final played certainty semantics and outcome (under the frozen contract, without VE1-D inspection or δ selection) **before committing to a versioned amendment**. If a §12 change is chosen, increment C1 and rerun the same permanently excluded 16 positions from scratch under newly pinned 16M/64M Reference conditions, retain new raw/Swift parity/cohort evidence, recompute F/E from the preregistered rules, and only then consider final synthetic Freeze gate. In the meantime, original Reference **4M/16M remains the active frozen contract**.
+
 ## Explicit §13.3 disposition before VE1-D
 
 **Invoke `PILOT_FEASIBILITY_AMENDMENT_REQUIRED` as post-PASS feasibility assessment**. This is **not** `PILOT_HOLD`; all four execution-integrity PASS conditions remain satisfied. However **do not** proceed silently to synthetic/final Freeze candidate or VE1-D while these feasibility risks are undecided.
 
-- Track **(b), possible shallow 4M Reference**: compare **ALL 16 permanently excluded pilot positions**, not just the three originally DISPUTED cases, at freshly measured pinned 16M/64M with identical engine/NNUE/TT/MultiPV conditions. The 4M values come from the immutable pilot artifact; preserve the full 4M→16M→64M rank-2 loss trajectory and compare cross-budget DISPUTED/INSUFFICIENT rates over all 16. Code commit `f9897a6c06895f67ca6a5d9c3e455ff7135febe3`, independent action `42440362235` was started; **do not record a result until this run completes and the artifact is checked**. A justified §12 reference budget amendment would require C1 version increment and complete same-16 pilot rerun.
-- Track **played coverage with correct source availability**: 13/16 (81.25%) is the 200k E0 **upper bound** for δ 0..0.045 after excluding genuine conflicts; this corrects the former 3/16 claim. Confirm final played certainty, F2 and VE1-B stability and the holdout 70% denominator before Freeze. The §12 allowance does **not** authorize changing adopted E0, scoring semantics or sampling. No coverage-floor relaxation is approved.
+- **Reference all-16 diagnostic COMPLETE / SUCCESS**: run `42440362235`, evidence ZIP `13601594763` digest `sha256:5c09435f850db4f4ed3a134638cfa6204396cb6ee99707684746d220f24eb33d`. The original 4M/16M unresolved 3/16 became 16M/64M unresolved 0/16, with all 16 fresh 16M structures matching the frozen 16M. **16M/64M is a supported §12 candidate, not a formal amendment.** Rank-2 losses remain nonmonotonic, so do not claim numerical convergence. If formally adopted later, C1 version increment and full excluded-pilot rerun are mandatory.
+- **Played score-evidence feasibility separately**: the v4 §E E0 upper bound remains 13/16, but **F2 additionally abstains on p06's large 200k inversion**; the verified F2/E0 source-evidence upper bound is therefore **12/16 (75%)** at δ 0..0.045 (5/16 at δ=0.050). It is not yet the final certainty-aware 70% holdout coverage. Confirm VE1-B upstream stability/qualification and the exact C1 certainty mapping before any amendment decision; keep E0, F2, scoring semantics and the 70% floor unchanged.
 - The original hard 10% unresolved ceiling, 70% coverage floor, 4M/16M budgets and all thresholds **remain unchanged pending decision**. No amendments are approved in this record.
-- Next bounded actions: retrieve **ALL-16** pinned 16M/64M convergence diagnostic evidence; compute final certainty-aware played coverage separately from its 13/16 E0 upper bound; then decide **amendment with version+same-pilot rerun** or **unchanged contract with explicit HOLD risk** before final synthetic/Freeze. No VE1-D inspection.
+- Next bounded actions: finish the exact played-certainty/stability coverage mapping against the **12/16 F2/E0 evidence ceiling**, then decide **explicit §12 16M/64M candidate amendment plus C1 version increment/same-16 pilot rerun** or **unchanged 4M/16M with documented HOLD risk**. Do not select δ from this pilot, relax 10%/70%, run synthetic Freeze or inspect VE1-D before the decision.
 
 This document is report-only analysis and a **pre-Freeze review decision**, not a replacement for the single future C1 Freeze Authority.
