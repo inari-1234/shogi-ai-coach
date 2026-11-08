@@ -1,0 +1,150 @@
+name: Build19 VE1-C1 Reference Played 16M-64M Sharded Diagnostic
+
+on:
+  push:
+    branches:
+      - candidate/build19-ve1-c1-pilot
+    paths:
+      - "tools/engine-verify/ve1c1_reference_played_16m64m.py"
+      - "tools/engine-verify/ve1c1_reference_played_merge.py"
+      - ".github/workflows/build19-ve1-c1-reference-played-sharded-diagnostic.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: ve1c1-reference-played-targets-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  played-shard:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        shard: [0, 1, 2, 3]
+    env:
+      ENGINE_VERIFY_WORK: ${{ github.workspace }}/tools/engine-verify/.work
+      OUT: build/ve1c1-played-shard
+    steps:
+      - name: Checkout candidate; no VE1-D data
+        uses: actions/checkout@v4
+      - name: Fetch immutable 16-position natural pilot
+        uses: actions/download-artifact@v4
+        with:
+          name: Build19-VE1-C1-natural-16-pilot
+          repository: inari-1234/shogi-ai-coach
+          run-id: 42413155051
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/frozen-pilot
+      - name: Fetch all-16 original Reference 16M-64M roots
+        uses: actions/download-artifact@v4
+        with:
+          name: Build19-VE1-C1-Reference-16M-64M-Feasibility
+          repository: inari-1234/shogi-ai-coach
+          run-id: 42440362235
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/reference-16m64m
+      - name: Validate frozen source and prepare pinned NNUE engine
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 -m py_compile tools/engine-verify/ve1c1_reference_played_16m64m.py
+          python3 tools/engine-verify/ve1c1_natural_pilot_admission.py \
+            --repo-root . \
+            --output "$OUT/shard-${{ matrix.shard }}/admission.json"
+          sudo apt-get update
+          sudo apt-get install -y p7zip-full
+          bash tools/engine-verify/setup.sh AVX2
+      - name: Execute deterministic positions for this diagnostic shard
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p "$OUT/shard-${{ matrix.shard }}"
+          python3 -u tools/engine-verify/ve1c1_reference_played_16m64m.py \
+            --pilot-result build/frozen-pilot/pilot-result.json \
+            --reference-report build/reference-16m64m/report.json \
+            --work "$ENGINE_VERIFY_WORK" \
+            --shard ${{ matrix.shard }} \
+            --out "$OUT/shard-${{ matrix.shard }}" \
+            2>&1 | tee "$OUT/shard-${{ matrix.shard }}/execution.log"
+      - name: Preserve raw USI and partial failure evidence for each shard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build19-VE1-C1-Reference-played-targets-shard-${{ matrix.shard }}
+          path: build/ve1c1-played-shard/shard-${{ matrix.shard }}
+          if-no-files-found: warn
+          retention-days: 30
+
+  merge-evidence:
+    needs: played-shard
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download all four completed shards, preserving individual identity
+        uses: actions/download-artifact@v4
+        with:
+          pattern: Build19-VE1-C1-Reference-played-targets-shard-*
+          path: build/shards
+          merge-multiple: false
+      - name: Download immutable pilot and Reference root cohort
+        uses: actions/download-artifact@v4
+        with:
+          name: Build19-VE1-C1-natural-16-pilot
+          repository: inari-1234/shogi-ai-coach
+          run-id: 42413155051
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/frozen-pilot
+      - name: Download new Reference 16M-64M roots
+        uses: actions/download-artifact@v4
+        with:
+          name: Build19-VE1-C1-Reference-16M-64M-Feasibility
+          repository: inari-1234/shogi-ai-coach
+          run-id: 42440362235
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/reference-16m64m
+      - name: Download unchanged frozen Swift VE1-B stability classification
+        uses: actions/download-artifact@v4
+        with:
+          name: Build19-VE1-C1-frozen-Swift-stability
+          repository: inari-1234/shogi-ai-coach
+          run-id: 42452566184
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/frozen-stability
+      - name: Fail-closed merge with complete ordinals and all raw SHA256
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 -m py_compile tools/engine-verify/ve1c1_reference_played_merge.py
+          python3 tools/engine-verify/ve1c1_reference_played_merge.py \
+            --shards build/shards \
+            --pilot-result build/frozen-pilot/pilot-result.json \
+            --reference-report build/reference-16m64m/report.json \
+            --stability-report build/frozen-stability/report.json \
+            --output build/played-merged/report.json \
+            2>&1 | tee build/played-merged/merge.log
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("build/played-merged/report.json").read_text())
+          assert p["status"]=="DIAGNOSTIC_COMPLETE"
+          assert len(p["position_reports"])==16
+          assert p["reference_budgets"]==[16000000,64000000]
+          assert p["VE1BStableCount"]==4
+          assert p["amendment_approved"] is False
+          print("all_16_reference_played_membership_and_shard_merge=PASS")
+          PY
+      - name: Save merged evidence and H3 report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build19-VE1-C1-Reference-played-16M64M-merged
+          path: build/played-merged
+          if-no-files-found: warn
+          retention-days: 30
