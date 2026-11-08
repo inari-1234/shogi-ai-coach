@@ -33,6 +33,8 @@ jobs:
     steps:
       - name: Checkout candidate; no VE1-D data
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Fetch immutable 16-position natural pilot
         uses: actions/download-artifact@v4
         with:
