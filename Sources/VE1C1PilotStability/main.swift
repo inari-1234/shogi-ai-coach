@@ -82,9 +82,10 @@ struct PilotStability {
             let budget=[50000,100000,200000][i]
             let dis=discovery[i]
             let cmp=comparisons[i]
-            guard try int(dis["nodeBudget"],pid+":node")==budget &&
-                int(cmp["nodeBudget"] as Any, pid+":comparison_nodes") == budget else {
-                    throw Invalid.input(pid+":node_tiers")
+            let discoveryBudget=try int(dis["nodeBudget"],pid+":node")
+            let comparisonBudget=try int(cmp["nodeBudget"],pid+":comparison_nodes")
+            guard discoveryBudget == budget && comparisonBudget == budget else {
+                throw Invalid.input(pid+":node_tiers")
             }
             let d=try line(dis,pid+":dis")
             let bestSearch=try object(cmp["bestSearch"],pid+":best")
