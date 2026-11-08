@@ -1,0 +1,80 @@
+name: Build19 VE1-C1 Corrected Played Confusion Cell
+
+on:
+  push:
+    branches:
+      - candidate/build19-ve1-c1-pilot
+    paths:
+      - "tools/engine-verify/ve1c1_played_confusion_cell_report.py"
+      - ".github/workflows/build19-ve1-c1-played-confusion-cell.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  reinterpret-immutable-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download original immutable natural pilot result
+        uses: actions/download-artifact@v4
+        with:
+          name: Build19-VE1-C1-natural-16-pilot
+          repository: inari-1234/shogi-ai-coach
+          run-id: 42413155051
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/original-pilot
+      - name: Download original completed Reference played merger
+        uses: actions/download-artifact@v4
+        with:
+          name: Build19-VE1-C1-Reference-played-16M64M-merged
+          repository: inari-1234/shogi-ai-coach
+          run-id: 42453160640
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/original-merged
+      - name: Download frozen Swift VE1-B stability replay
+        uses: actions/download-artifact@v4
+        with:
+          name: Build19-VE1-C1-frozen-Swift-stability
+          repository: inari-1234/shogi-ai-coach
+          run-id: 42452566184
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/original-stability
+      - name: Reconcile historic H3-named field to report-only played confusion cell
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 -m py_compile tools/engine-verify/ve1c1_played_confusion_cell_report.py
+          python3 tools/engine-verify/ve1c1_played_confusion_cell_report.py \
+            --pilot-result build/original-pilot/pilot-result.json \
+            --pilot-evaluation build/original-pilot/pilot-evaluation.json \
+            --merged-report build/original-merged/report.json \
+            --stability-report build/original-stability/report.json \
+            --pilot-manifest Build19/BUILD19_VE1_C1_NATURAL_PILOT_MANIFEST_20261014.json \
+            --output build/confusion-cell/report.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path("build/confusion-cell/report.json").read_text())
+          assert r["status"]=="REPORT_ONLY_RECONCILED"
+          assert r["H3_formal_gate_assessed"] is False
+          assert r["H5_reference_BLUNDER_observed_denominator"]==0
+          assert r["H2_report_only_observed_GOOD_to_BLUNDER"]==0
+          assert len(r["delta_grid"])==11
+          assert all(x["referenceGOODtoAppSOMEWHAT_WORSE_count"]==3 for x in r["delta_grid"])
+          assert r["cases"][2]["position_id"]=="p09-ply-7"
+          assert r["cases"][2]["VE1B_stability"]=="stable"
+          assert r["amendment_approved"] is False and r["C1_freeze_approved"] is False
+          print("corrected_played_confusion_not_H3=PASS")
+          PY
+      - name: Preserve report-only corrected label evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Build19-VE1-C1-corrected-played-confusion-cell
+          path: build/confusion-cell
+          if-no-files-found: warn
+          retention-days: 30
