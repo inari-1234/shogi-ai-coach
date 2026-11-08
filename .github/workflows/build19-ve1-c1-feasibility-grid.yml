@@ -1,0 +1,62 @@
+name: Build19 VE1-C1 Report-Only Feasibility Grid
+
+on:
+  push:
+    branches:
+      - candidate/build19-ve1-c1-pilot
+    paths:
+      - "tools/engine-verify/ve1c1_pilot_feasibility_grid.py"
+      - ".github/workflows/build19-ve1-c1-feasibility-grid.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  report-only-grid:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+
+      - name: Fetch unchanged frozen 16-position pilot artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Build19-VE1-C1-natural-16-pilot
+          repository: inari-1234/shogi-ai-coach
+          run-id: 42413155051
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/ve1c1-frozen-pilot
+
+      - name: Verify v4 E0 source-availability and H1 H3 exposure grid
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 -m py_compile tools/engine-verify/ve1c1_pilot_feasibility_grid.py
+          python3 tools/engine-verify/ve1c1_pilot_feasibility_grid.py \
+            --pilot-result build/ve1c1-frozen-pilot/pilot-result.json \
+            --pilot-evaluation build/ve1c1-frozen-pilot/pilot-evaluation.json \
+            --output build/ve1c1-feasibility-grid/report.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path("build/ve1c1-feasibility-grid/report.json").read_text())
+          assert r["status"]=="REPORT_ONLY_RECONCILED" and r["selected_delta"] is None
+          assert len(r["grid"])==11 and r["denominator_positions"]==16
+          assert r["grid"][0]["playedE0ScoreSourceUpperBound"]==13
+          assert r["grid"][0]["h1h3ExposureRaw"]==[1,3,0]
+          assert r["grid"][0]["h1h3ExposureAfterCrossAxisGuard"]==[1,2,0]
+          assert r["grid"][-1]["playedE0ScoreSourceUpperBound"]==6
+          print("pilot_feasibility_grid_evidence=PASS")
+          PY
+
+      - name: Save report-only reproducibility artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build19-VE1-C1-pilot-report-only-feasibility-grid
+          path: build/ve1c1-feasibility-grid
+          if-no-files-found: warn
+          retention-days: 30
