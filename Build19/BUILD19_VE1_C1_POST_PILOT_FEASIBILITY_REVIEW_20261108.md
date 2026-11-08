@@ -143,9 +143,50 @@ A 16M/64M Reference change increases per-position cost. A single 6-hour hosted j
 - At the C1 primary App 200k tier, the false UNIQUE proxy (Reference 16M/64M **MULTIPLE_GOOD** but App **UNIQUE_GOOD** after the CROSS_AXIS_CONFLICT guard) is **0/15 across all 11 δ values**. The structure definitive counts `[16,15,15,14,14,13,10,10,9,8,1]` remain as in the old Reference analysis. With `δ_final=δ_min+0.010`, structure >=70% requires `δ_min<=0.015` in this pilot; this is compatibility evidence, not an invitation to choose δ using pilot outcomes.
 - **H3 adverse played exposure, distinct from H1:** `p04-ply-10` and `p09-ply-7` have the **actual move in the shared 16M∩64M Reference GOOD set**, yet the App 200k F2/E0 score-source classification is definitely `SOMEWHAT_WORSE` for every δ in the grid. The root-good membership is *affirmative evidence*. Thus there are **at least two H3-like candidate conflicts**. This must **not** be silently reported as H3=0 merely because H1=0. Formal H3 classification additionally requires independent Reference 16M/64M `searchmoves(rank1)` versus `searchmoves(actual)` and the C1 played-certainty mapping; absence from the root top3 is **not** a confirmed NONMEMBER.
 - Swift's **actual frozen VE1BStabilityReclassifier** replay on the exact same pilot was independently run: `42452566184` success; artifact `13605478876`, digest `sha256:bc515d8f74cf13613e39623ec776e104eb839ac5aff7755b2f50dedc34eed667`. **Stable=4/16: p08, p09, p10, p12**. In particular, p09 is stable upstream while p04 is not, but C1 `playedMoveCertainty` is **not** identical to VE1BStability and must be determined independently. Do not promote a non-stable VE1-B tier to confirmedPV because of any C1 semantic label.
-- To resolve the H3 uncertainty without using VE1-D holdout data, an all-16 **four-shard independent 16M/64M targeted played-search diagnostic** (rank1 + actual at both budgets) was submitted as workflow `build19-ve1-c1-reference-played-sharded-diagnostic.yml`; the owning GitHub Actions run is `42452851691`. A deterministic four-way pilot-only split, raw log SHA256 and fail-closed merger are being evaluated. The future §12 shard design for VE1-D remains separate and unapproved.
+- The previous pending pilot-only 4-shard diagnostic `42452851691` was superseded after the negative-mate `NO_SAVING_MOVE` rank1 root identity fix. Its validated successor `42453160640` on code SHA `b689b28c674760f5ca641c41a3f2fc8d9cb74242` **COMPLETED SUCCESS**, four independent shards and the fail-closed merger all succeeded. The future §12 shard design for VE1-D remains distinct, proposed and unapproved.
 
 **Uncertainty bound:** Zero observed Reference structure disputes out of 16 is evidence of feasibility, **not** proof that true unresolved probability is <=10%. The rule-of-three gives an approximate 95% upper risk near **3/16 ≈ 19%**. p08 and p11 still approach the 0.050 boundary at 64M. The hard **DISPUTED+INSUFFICIENT ceiling remains 10%** if any amendment is approved.
+
+## Completed all-16 independent Reference played-move audit — additional H3 evidence
+
+**Run `42453160640`: SUCCESS, 4/4 shards + merger SUCCESS, source SHA `b689b28c674760f5ca641c41a3f2fc8d9cb74242`.** Each shard is a strictly frozen pilot-only set of four positions, with Reference 16M and 64M independent one-target `searchmoves(rank1)` and `searchmoves(actual)` for each position. Results are **diagnostic**, not an amended 16M/64M pilot or VE1-E holdout.
+
+| Artifact | ID | ZIP SHA-256 |
+|---|---|---|
+| shard 0 | `13606234854` | `00654098524c434b6ca5c42abf044132967155d964ad8560fbbed1c092ab31b1` |
+| shard 1 | `13606483353` | `f9cb0ad4099a81fa40761c875b0fb75fdc34b6bbeac9ce454d1d3b36b2537a5d` |
+| shard 2 | `13607056946` | `2caa00cfc464195b887efb5e4ebe624069c07febfae82357a14a34336ca310d9` |
+| shard 3 | `13607146494` | `368a4b31d48465418076a6491223432f508552fe4c7eac36738f1d6f112a0ccc` |
+| merged | `13606144428` | `25f22d9750ed3dbb0702d316be119f108e8e2516624855d0184c821d72726c33` |
+
+**Independent saved-evidence inspection:** All five ZIP files were downloaded and their whole-file SHA-256 digests matched. Each shard reports `SHARD_COMPLETE` for its four exact position ordinals; merged report is `DIAGNOSTIC_COMPLETE` for 16/16. Across **64/64** raw USI logs, the SHA-256 agrees with the shard manifest, the requested `go nodes N searchmoves X` occurs in the raw transcript, terminal `bestmove` equals the requested move, the selected rank-1 PV root equals the requested move, and every search has `candidateBlockStatus=RESOLVED` and `selectedSnapshotEvidenceStatus=RESOLVED`. This inspection supports the reported fail-closed merger; it does not constitute a separate cross-language parser revalidation.
+
+**Reference played classification (independent 16M and 64M):**
+
+| Cross-budget Reference played result | Positions |
+|---|---:|
+| `CONFIRMED_GOOD` (both GOOD) | **15/16** |
+| `CONFIRMED_NON_GOOD` | **0/16** |
+| `DISPUTED` | **0/16** |
+| `INSUFFICIENT` | **1/16**, `p02-ply-156` negative mate `NO_SAVING_MOVE` |
+
+Distinguish these axes: **Reference root-structure** diagnostic is RESOLVED 16/16 with DISPUTED+INSUFFICIENT 0/16; **independent played** membership is GOOD 15/16 with INSUFFICIENT 1/16. The 10% unresolved target must retain its authority-defined denominator; neither status is silently dropped or merged into a favorable denominator.
+
+**Exact three H3-related adversarial positions under adopted App 200k F2/E0:**
+
+| Position | App 200k independent `comparisonLoss` | App semantic class | Reference played 16M / 64M `loss` | Reference verdict | Frozen VE1-B stability |
+|---|---:|---|---:|---|---|
+| `p01-ply-282` | 0.119460 | `SOMEWHAT_WORSE` | 0.000000 / 0.000000 | GOOD / GOOD | `unstable` |
+| `p04-ply-10` | 0.133525 | `SOMEWHAT_WORSE` | 0.037865 / 0.016234 | GOOD / GOOD | `unstable` |
+| `p09-ply-7` | 0.101027 | `SOMEWHAT_WORSE` | 0.021463 / 0.010985 | GOOD / GOOD | `stable` |
+
+At all 11 preregistered δ values, the merged report gives **3 H3-like played mismatches** with exact case IDs `[p01-ply-282, p04-ply-10, p09-ply-7]`. The App F2/E0 score-evidence classified denominator is **12/16** at δ=0.000–0.045, **5/16** at δ=0.050; these mismatch counts are report-only and do **not** use the denominator of all 15 Reference-good cases as an official H3 violation rate.
+
+**Critical evidence distinction:** `p04` and `p09` have their actual move in the 16M/64M root good-set intersection; `p01` does **not** have its actual move in the top-three root good-set intersection, yet is independently **GOOD at both budgets**. Omitting `p01` because it is outside top-three would be a false `NONMEMBER` and violate the pre-pilot §8 independent played-search rule. This is why the full 16-position targeted search was necessary.
+
+**Interpretation and decision gate:** At the C1 primary 200k tier, the observed **H1 false-UNIQUE proxy remains 0/15** over all δ and the structure definitive count at δ=0.025 remains 13/16 (81.25%). However the **H3 adverse played-evidence proxy is 3 cases on all δ**; deeper Reference resolves the former 4M/16M structure disputes but makes the strong App-vs-Reference played disagreement visible. In particular `p09` is *upstream VE1-B stable*, while C1 semantic certainty is independent of that state. Do **not** reclassify the three as official H3 violation verdicts until the exact strong-emission / `playedMoveCertainty` applicability rules are applied; **do not** report H3=0 or approve a §12 Reference budget change based on structure H1 alone.
+
+Any eventual §12 operational amendment may alter only permitted operational parameters (e.g. Reference budgets / recovery), not the meanings of H1/H3, F2/E0 or the threshold-based severity classifier. The tradeoff is thus open: 16M/64M gives the promising 0/16 root structural dispute rate but also **three C1 semantic H3-risk cases**. No changed budget, new δ, 70% floor, 10% ceiling or C1 Freeze is authorized by this diagnostic.
 
 ## Explicit §13.3 disposition before VE1-D
 
