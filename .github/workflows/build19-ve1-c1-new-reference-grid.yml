@@ -1,0 +1,72 @@
+name: Build19 VE1-C1 New Reference H1 H3 Feasibility Grid
+
+on:
+  push:
+    branches:
+      - candidate/build19-ve1-c1-pilot
+    paths:
+      - "tools/engine-verify/ve1c1_new_reference_feasibility_grid.py"
+      - ".github/workflows/build19-ve1-c1-new-reference-grid.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  new-reference-grid:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout frozen C1 pilot candidate
+        uses: actions/checkout@v4
+
+      - name: Fetch unmodified natural pilot evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: Build19-VE1-C1-natural-16-pilot
+          repository: inari-1234/shogi-ai-coach
+          run-id: 42413155051
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/natural-pilot
+
+      - name: Fetch independently measured complete 16M-64M Reference diagnostic
+        uses: actions/download-artifact@v4
+        with:
+          name: Build19-VE1-C1-Reference-16M-64M-Feasibility
+          repository: inari-1234/shogi-ai-coach
+          run-id: 42440362235
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/reference-16m64m
+
+      - name: Compute pre-VE1-D H1 and H3 exposure and 200k structure across frozen deltas
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 -m py_compile tools/engine-verify/ve1c1_new_reference_feasibility_grid.py
+          python3 tools/engine-verify/ve1c1_new_reference_feasibility_grid.py \
+            --pilot-result build/natural-pilot/pilot-result.json \
+            --pilot-evaluation build/natural-pilot/pilot-evaluation.json \
+            --reference-report build/reference-16m64m/report.json \
+            --output build/new-ref-feasibility-grid/report.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path("build/new-ref-feasibility-grid/report.json").read_text())
+          assert r["status"]=="REPORT_ONLY_RECONCILED" and r["delta_selected"] is None
+          assert len(r["grid"])==11
+          assert [x["appStructureDefinite200k"] for x in r["grid"]]==[16,15,15,14,14,13,10,10,9,8,1]
+          assert all(x["referenceCounts"]=={"MULTIPLE_GOOD":15,"UNIQUE_GOOD":0,"NO_SAVING_MOVE":1} for x in r["grid"])
+          assert all(x["h1FalseUniqueAfterCrossAxisGuardByTier"][2]==0 for x in r["grid"])
+          assert all(x["h3DefiniteExposureFromSharedGoodSet200k"]==2 for x in r["grid"])
+          print("new_reference_grid_gate=PASS")
+          PY
+
+      - name: Persist diagnostic grid and H3 uncertainty
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build19-VE1-C1-new-reference-H1-H3-grid
+          path: build/new-ref-feasibility-grid
+          if-no-files-found: warn
+          retention-days: 30
