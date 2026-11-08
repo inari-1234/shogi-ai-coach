@@ -121,6 +121,7 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
+          mkdir -p build/played-merged
           python3 -m py_compile tools/engine-verify/ve1c1_reference_played_merge.py
           python3 tools/engine-verify/ve1c1_reference_played_merge.py \
             --shards build/shards \
