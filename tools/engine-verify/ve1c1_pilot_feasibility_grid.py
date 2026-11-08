@@ -94,6 +94,8 @@ def evaluate_grid(raw: dict[str, Any], baseline: dict[str, Any]) -> dict[str, An
     if not isinstance(positions,list) or len(positions)!=16:
         raise ValueError("not_16_frozen_positions")
     references=[ev.cross_budget_structure(p["reference"]) for p in positions]
+    if baseline.get("F", {}).get("policy")!="F2" or baseline.get("E", {}).get("policy")!="E0":
+        raise ValueError("frozen_adopted_F2_E0_identity")
     if sum(x["status"]=="RESOLVED" for x in references)!=13:
         raise ValueError("frozen_reference_resolved_count")
     if sum(x["status"]=="RESOLVED" and x.get("label")=="MULTIPLE_GOOD" for x in references)!=12:
@@ -101,7 +103,11 @@ def evaluate_grid(raw: dict[str, Any], baseline: dict[str, Any]) -> dict[str, An
 
     grid=[]
     for delta in c.DELTA_GRID:
-        row={"delta":delta,"playedE0ScoreSourceUpperBound":0,"structureDefinite200k":0,
+        row={"delta":delta,"playedE0ScoreSourceUpperBound":0,
+             "playedF2E0ScoreEvidenceUpperBound":0,
+             "F2LargeInversionAbstainedPositions":[],
+             "F2SmallInversionConfirmedPositions":[],
+             "structureDefinite200k":0,
              "comparisonSingleton200k":0,"finiteDualSource200k":0,
              "E0TwoSourceAgree":0,"E0TwoSourceConflict":0,
              "independentOnlyDefinite":0,"h1h3ExposureRaw":[0,0,0],
@@ -113,6 +119,30 @@ def evaluate_grid(raw: dict[str, Any], baseline: dict[str, Any]) -> dict[str, An
             if definitive:row["structureDefinite200k"]+=1
             if status["status"]=="CLASSIFIABLE":
                 row["playedE0ScoreSourceUpperBound"]+=1
+                comparison = p["app"]["comparisons"][2]
+                if comparison.get("comparisonInversion") is True:
+                    # Frozen F2: small inversion is C1-semantically recoverable,
+                    # large inversion is NOT_CLASSIFIABLE. Neither makes the
+                    # original VE1-B tier stable or grants confirmedPV.
+                    scored = ev._score(ev._primary(comparison.get("bestSearch")))
+                    played = ev._score(ev._primary(comparison.get("actualSearch")))
+                    if scored is None or played is None:
+                        raise ValueError("F2_inversion_without_exact_scores")
+                    magnitude = ev._severity_class_from_scores(played,scored).get("loss")
+                    # This severity helper clamps negative loss; reverse-score
+                    # expected inversion needs direct E(cp) conversion.
+                    if scored[0] != "cp" or played[0] != "cp":
+                        raise ValueError("F2_mate_inversion_requires_independent_policy")
+                    inversion = c.expected_score(played[1])-c.expected_score(scored[1])
+                    if not inversion > 0:
+                        raise ValueError("invalid_F2_inversion_magnitude")
+                    if inversion > 0.050:
+                        row["F2LargeInversionAbstainedPositions"].append(p["position_id"])
+                    else:
+                        row["playedF2E0ScoreEvidenceUpperBound"]+=1
+                        row["F2SmallInversionConfirmedPositions"].append(p["position_id"])
+                else:
+                    row["playedF2E0ScoreEvidenceUpperBound"]+=1
                 if status["reason"]=="INDEPENDENT_ONLY_DEFINITE":
                     row["independentOnlyDefinite"]+=1
                 elif status["reason"]=="TWO_SOURCE_E0_MATCH":
@@ -139,6 +169,12 @@ def evaluate_grid(raw: dict[str, Any], baseline: dict[str, Any]) -> dict[str, An
             first["E0TwoSourceConflict"]==2 and first["finiteDualSource200k"]==5 and
             first["comparisonSingleton200k"]==15):
         raise ValueError("v4_E_source_coverage_reconciliation")
+    if not (
+        all(x["playedF2E0ScoreEvidenceUpperBound"]==12 for x in grid[:10])
+        and grid[10]["playedF2E0ScoreEvidenceUpperBound"]==5
+        and all(x["F2LargeInversionAbstainedPositions"]==["p06-ply-161"] for x in grid)
+    ):
+        raise ValueError("frozen_F2_E0_score_source_upper_bound_regression")
     if not all(x["h1h3ExposureRaw"][2]==0 for x in grid):
         raise ValueError("primary_200k_false_unique_unexpected")
     if not (grid[-1]["playedE0ScoreSourceUpperBound"]==6 and grid[-1]["structureDefinite200k"]==1):
@@ -154,6 +190,8 @@ def evaluate_grid(raw: dict[str, Any], baseline: dict[str, Any]) -> dict[str, An
         "principal_App_semantic_tier":200_000,
         "selected_delta":None,
         "played_certainty_including_F2_stability_evaluated":False,
+        "F2_large_inversion_exclusion_applied_to_score_source_upper_bound":True,
+        "VE1B_stability_and_upstream_PV_promotion_not_assessed":True,
         "definition":"v4_§E_independent_only_out_of_root_else_strict_two_source_E0",
         "h1_h3_exposure_not_full_formal_h1_h3_assertion":True,
         "grid":grid,
@@ -174,6 +212,7 @@ def main()->int:
     print(json.dumps({"status":doc["status"],
           "rows":[{"delta":r["delta"],"played":r["playedE0ScoreSourceUpperBound"],
                    "structure":r["structureDefinite200k"],
+                   "f2e0ScoreEvidenceUpper":r["playedF2E0ScoreEvidenceUpperBound"],
                    "h1h3raw":r["h1h3ExposureRaw"],"h1h3guarded":r["h1h3ExposureAfterCrossAxisGuard"]}
                   for r in doc["grid"]]},ensure_ascii=False))
     return 0
