@@ -1,0 +1,96 @@
+name: Build19 VE1-C1 Reference 16M-64M Feasibility Diagnostic
+
+on:
+  push:
+    branches:
+      - candidate/build19-ve1-c1-pilot
+    paths:
+      - "tools/engine-verify/ve1c1_reference_16m64m_convergence.py"
+      - ".github/workflows/build19-ve1-c1-reference-convergence.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: ve1c1-reference-16m64m-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  reference-convergence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    env:
+      ENGINE_VERIFY_WORK: ${{ github.workspace }}/tools/engine-verify/.work
+      OUT: build/ve1c1-reference-16m64m
+    steps:
+      - name: Checkout candidate and original freeze identity
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify post-freeze admission without modifying frozen data
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p "$OUT"
+          python3 -m py_compile tools/engine-verify/ve1c1_reference_16m64m_convergence.py
+          python3 tools/engine-verify/ve1c1_natural_pilot_admission.py \
+            --repo-root . --output "$OUT/admission.json"
+
+      - name: Retrieve exact original pilot evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: Build19-VE1-C1-natural-16-pilot
+          repository: inari-1234/shogi-ai-coach
+          run-id: 42413155051
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/ve1c1-frozen-pilot
+
+      - name: Validate 16-position frozen baseline before spending engine budget
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 tools/engine-verify/ve1c1_reference_16m64m_convergence.py \
+            --pilot-result build/ve1c1-frozen-pilot/pilot-result.json \
+            --pilot-evaluation build/ve1c1-frozen-pilot/pilot-evaluation.json \
+            --baseline-only --out "$OUT"
+
+      - name: Prepare pinned YaneuraOu and Suisho5 using original setup
+        shell: bash
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get install -y p7zip-full
+          bash tools/engine-verify/setup.sh AVX2
+
+      - name: Measure all 16 positions at independent 16M and 64M
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 -u tools/engine-verify/ve1c1_reference_16m64m_convergence.py \
+            --pilot-result build/ve1c1-frozen-pilot/pilot-result.json \
+            --pilot-evaluation build/ve1c1-frozen-pilot/pilot-evaluation.json \
+            --work "$ENGINE_VERIFY_WORK" --out "$OUT" \
+            2>&1 | tee "$OUT/execution.log"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path("build/ve1c1-reference-16m64m/report.json").read_text())
+          assert report["status"]=="DIAGNOSTIC_COMPLETE"
+          assert report["processed_positions"]==16
+          assert len(report["positions"])==16
+          assert all("fresh16M64M" in x for x in report["positions"])
+          print("reference_16m64m_full_16_evidence=PASS")
+          print("feasibility_decision=NOT_YET_MADE")
+          PY
+
+      - name: Upload all raw USI, provenance and partial failure stage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Build19-VE1-C1-Reference-16M-64M-Feasibility
+          path: build/ve1c1-reference-16m64m
+          if-no-files-found: warn
+          retention-days: 30
