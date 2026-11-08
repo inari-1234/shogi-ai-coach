@@ -54,6 +54,8 @@ At the primary App 200k node tier:
 
 ### H1/H3-oriented false-UNIQUE proxy by δ (report only)
 
+**Independent reproducibility:** GitHub Actions run `42440561106` at SHA `88450cc218f6ef49ed5c1aa8988077fb51bf1126` PASS; archived derived grid artifact `13601093583`, ZIP digest `sha256:60dfa1b37e100fe447d080c6e1354e644eb767af5ee339e2003b125cc3bb4029`. The script `tools/engine-verify/ve1c1_pilot_feasibility_grid.py` reads the immutable artifact and enforces original result/evaluation SHA identity, 16-position count, 13 Reference RESOLVED, 12 MULTIPLE, corrected 13/16 E0 at δ=0, 6/16 at δ=0.050, and the all-δ primary-200k false-UNIQUE absence. The derived artifact is report-only, not a changed pilot or selected δ.
+
 The frozen 4M/16M Reference cross-budget structure is RESOLVED for 13/16; **12 are MULTIPLE_GOOD**, one `NO_SAVING_MOVE`. Count each reference-resolved MULTIPLE_GOOD position where an App tier asserts `UNIQUE_GOOD` without C1's downstream cross-axis guard. These are *exposure counts* for H1/H3 analysis, **not** formal complete H1/H3 truth labels or a selected δ. The primary App 200k tier is the preregistered C1 semantic source, not the earlier exploration tiers.
 
 | δ | False UNIQUE at App 50k / 12 | App 100k / 12 | Primary App 200k / 12 |
@@ -69,6 +71,8 @@ The frozen 4M/16M Reference cross-budget structure is RESOLVED for 13/16; **12 a
 | 0.040 | 1 | 1 | 0 |
 | 0.045 | 1 | 1 | 0 |
 | 0.050 | 1 | 1 | 0 |
+
+**After the C1 CROSS_AXIS_CONFLICT guard**, the 100k raw exposure `p04-ply-10` is suppressed; the *confirmable false-UNIQUE* counts (50k / 100k / 200k) for δ=0.000–0.015 are `[1,2,0]`, at δ=0.020 `[1,1,0]`, and for δ=0.025–0.050 `[1,1,0]`. The raw/unfiltered candidates in the table above are diagnostic only. Full per-δ counts and position IDs are in the derived grid artifact.
 
 At 50k the repeatedly affected position is `p12-ply-126`; at 100k, `p04-ply-10`, `p08-ply-81`, `p12-ply-126` are exposed at δ<=0.015. At the **primary 200k tier** the false-UNIQUE proxy is **0/12 at every δ**. This is evidence of shallower-tier instability, but the pilot does **not** demonstrate a persisting primary-tier H1 failure. If H1/H3 formally require a different denominator/played membership evaluation, it must be evaluated independently, not silently equated to this proxy.
 
