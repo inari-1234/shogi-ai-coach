@@ -124,7 +124,7 @@ def main()->int:
             }
             for n in NODE_BUDGETS:
                 root=q["fresh"+str(n)]
-                best=root.get("rank1Move")
+                best=root.get("rank1Move") or (root.get("rank1Score") or {}).get("root")
                 require(isinstance(best,str) and best,"missing_root_rank1")
                 budget={"nodeBudget":n,"rootRank1Move":best,"actualMove":p["actual_move"]}
                 for kind,target in (("rank1",best),("actual",p["actual_move"])):

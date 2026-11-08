@@ -16,7 +16,7 @@ permissions:
 
 concurrency:
   group: ve1c1-reference-played-targets-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   played-shard:

@@ -132,7 +132,9 @@ def merge(shards:Path,pilot:dict[str,Any],diagnostic:dict[str,Any],stability:dic
             require(root["position_id"]==orig["position_id"],"root_position_id")
             require(root["fresh16M64M"]["status"]=="RESOLVED","root_reference_not_resolved")
             for bud in row["budget_reports"]:
-                require(bud["rootRank1Move"]==root["fresh"+str(bud["nodeBudget"])]["rank1Move"],"shard_ref_rank1")
+                root_summary=root["fresh"+str(bud["nodeBudget"])]
+                canonical_rank1=root_summary.get("rank1Move") or (root_summary.get("rank1Score") or {}).get("root")
+                require(bud["rootRank1Move"]==canonical_rank1,"shard_ref_rank1")
             parts.append(compare_budgets(orig,row,folder))
     require(len(parts)==16,"shards_not_all_16")
     require([p["position_id"] for p in parts]==[p["position_id"] for p in pilot["positions"]],"merged_order")
