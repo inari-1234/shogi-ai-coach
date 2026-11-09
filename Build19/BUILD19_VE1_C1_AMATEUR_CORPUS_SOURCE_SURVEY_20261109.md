@@ -46,6 +46,38 @@ Scope: Pre-corpus feasibility review under `BUILD19_VE1_C1_POST_PILOT_FEASIBILIT
 7. **Contamination/protected state:** keep all historical five pilot game hashes, previously exposed pool games and B6 SHA exclusions, original manifests, current candidate head and raw evidence as immutable historical references. Any new source corpus version must bind a new deterministic key/seed, source-receipt digests, partition manifest SHA, source allocation and explicit game-level separation. Do not run a new pilot until the successor corpus Authority and source-policy permission are approved.
 8. **Cost:** if 16M/64M Reference is selected in a **new** successor design, fix number of positions per shard, six root/target searches per position, <6-hour hosted job bound and complete raw SHA fail-closed merge before execution; shard status must never cause outcome-based sample replacement.
 
+## Small locally contributed corpus — supply-screening first (2026-11-09)
+
+**Priority updated:** the required game supply may be on the order of **60–100 human games**, not an inherently massive online database. This is a **provisional acquisition estimate**, not a frozen corpus size, promise of the later H5 denominator, or approval of a new source/sampling contract. Prefer contributor-controlled games (own records and informed consenting acquaintances); lishogi is **optional and supplementary** for missing strength strata, conditional on permissions. Weak-engine self-play remains a separate, labeled auxiliary option **only if necessary**, never a surrogate for human coverage.
+
+### Capacity and uncertainty
+
+The currently discussed VE1-D plan calls for **tuning ≥50 selected positions / ≥15 games** and **untouched holdout ≥50 selected positions / ≥15 games**, with **≤4 selected positions per game**. These two partitions alone therefore need **at least 30 distinct games**; pilot needs **at least four contributing games** (often 4–5), permanently excluded from subsequent corpus partitions; reserve and any selection failures add to that. The **60–100 game** working range may be adequate **only if the production Swift deep selector yields sufficient valid selected positions across the locked game-level partitions and skill strata**. It is not guaranteed by 4 moves/game maximum, and must not induce result-based game replacement. Avoid a fixed source quota now, before local supply is counted.
+
+Future H5 has a **minimum 10 eligible Reference BLUNDER opportunities**. Under a simplified, illustrative independent binomial assumption at *p*=30%, obtaining ≥10 from **35 eligible selected positions** has probability **0.6354** (not certainty), and from **50 positions**, probability **0.9598**. At 50 positions with *p*=20%, the same probability is **0.5563**. These numbers are illustrative only: the true *p* among production-selected human positions is unknown, and multiple positions per game, skill strata and contributors induce dependence. **Do not** infer an H5 pass rate from the raw count of games, or select games/positions after Reference `BLUNDER` labels. Even a 50-position holdout can fail the denominator requirement.
+
+### Pre-permission local inventory (metadata only; no KIF ingest)
+
+Record **estimates or counts**, without putting names, handles, full game records, direct identity links or private files in GitHub:
+
+| Inventory field | Purpose |
+|---|---|
+| Contributor-local pseudonym and relationship to the source | Distinguish contributors and preserve contributor/game-level independence, not publish identities |
+| Game count available / anticipated, source platform or fully local | Forecast eligible volume; flag additional platform policy restrictions even with user consent |
+| Permission state: self-owned local / consent pending / written consent / platform clearance pending | Keep permission and legal clearance distinct from availability; no acquisition from a site before authorized |
+| Skill indication and **source-specific** rating or broad level band; unknown allowed | Test whether the likely A-only corpus covers novice/intermediate/strong strata; do not treat dissimilar platform ratings as identical |
+| Time control bucket, standard-shogi variant status, completion/abandonment class | Predefine potential exclusions without Reference labels; specific thresholds come **after inventory and before sample selection** |
+| Approximate unique game SHA where local rights permit; no exposed personal data | Deduplicate and avoid accidental game overlap once new contract is authorized |
+| Count of likely eligible, rights-cleared games and the number of independent contributors | Assess concentration and whether enough games support pilot, tuning, holdout and reserve |
+| Unknown or possible assistance/bot contamination flag from available pre-Reference metadata | Record limits, not infer individual cheating or obtain hidden account data |
+
+### Decision from inventory (no evaluation-based resampling)
+
+1. **A-only provisional readiness:** Check whether rights-cleared and pre-Reference-eligible **human** games plausibly cover at least the fixed tuning/holdout unique-game floors, source skill bands, 16-position pilot and the proposed reserve. If the available human volume and strata suffice, choose an A-only successor *proposal* (not an automatic authorization). The cohort may remain small and localized; report limited external generalizability honestly.
+2. **Human supply shortfall:** First recruit additional consenting contributors within missing pre-Reference skill strata, or seek explicit permission for lishogi records, rather than immediately producing B games. Do not assume a platform data-export license.
+3. **C only if genuinely needed:** If suitable human games exist but are insufficient for some planned secondary stress/coverage objectives, propose B auxiliary with a **fixed allocation and human-only primary validation**. Never use B to manufacture the H5 denominator or to claim representative amateur-user success.
+4. **Authority boundary:** **Only after** counts and coverage are established, submit a separate versioned corpus/pre-pool successor with fixed strata thresholds, target game counts/ratios, seeded ordering, game-level splits, exclusions, provenance and rights. Choose Reference 16M/64M budgets jointly before the **new** 16-position pilot, then reselect F/E from precommitted rules. Prior engine-only pilot stays historical `PILOT_PASS`. No current source, quota, threshold or sample is approved.
+
 ## Platform-operator clarification matrix (no messages sent)
 
 **Lishogi:** Are user-public *standard human-vs-human* games downloadable via `/api/games/user/{username}` for a systematic, rate-limited research dataset? What technical throttles and written usage policy apply? Is third-party storage of game KIF and derived anonymous position/evaluation features permissible? Is research publication or redistribution of raw KIF allowed? Is there an official all-site licensed archive or approved bulk feed? Can rated/time-control/variant, normal completion, bot/assistance flags and rating-deviation data be accessed without retaining identifiable handles? Can a public API represent the desired country/skill population, or is this a source-bias limitation?
@@ -58,6 +90,6 @@ Scope: Pre-corpus feasibility review under `BUILD19_VE1_C1_POST_PILOT_FEASIBILIT
 
 ## §13.3 source decision recorded now
 
-**PREFERRED DESIGN: A human-amateur as primary; C as fallback only with actual A data and a precommitted B auxiliary ratio.** This is a priority recommendation, **not a selected/approved source**. No representative volume, permission, rating strata, official bulk archive or H5 denominator has been established. Lishogi is the first online candidate worth obtaining explicit operator clarification; 81Dojo/Wars require specific written permission for machine collection; Shogi Club 24 has no live source. No source is authorized for automated harvest by this memo.
+**PREFERRED DESIGN: inventory of own/consented human-amateur games first, A-only if adequate; C only as an explicit fixed-ratio supplemental proposal if A is available but insufficient.** Approximately 60–100 contributed games may cover the source requirement, contingent on the actual production selector, pre-Reference eligibility, distinct games and reserve. This is **not a selected/approved source or quota**. Lishogi operator clarification is **optional when contributor supply/skill strata are insufficient**, not on the critical path by default; 81Dojo/Wars remain permission-requiring for machine collection; Shogi Club 24 has no live source. H5 minimum 10, population validity and applicable online-platform terms are unchanged. No source is authorized for automated harvest by this memo.
 
 **NEXT:** Confirm rights and operator approval + obtain sample-count and rating/time-control metadata *without Reference labels*, approve distinct successor corpus/pre-pool contract, decide Reference budget and sharded execution, then run a **new** excluded 16-position pilot and reselect F/E using the existing preregistered rules. Historical engine pilot remains `PILOT_PASS`; C1 Freeze/VE1-D remain blocked.

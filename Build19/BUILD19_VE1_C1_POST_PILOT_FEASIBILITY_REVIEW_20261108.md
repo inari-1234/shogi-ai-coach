@@ -210,6 +210,14 @@ Population validity and algorithmic validity are different: parser parity, run i
 
 The public source/rights survey is recorded in `BUILD19_VE1_C1_AMATEUR_CORPUS_SOURCE_SURVEY_20261109.md` (2026-11-09). It documents lishogi API ambiguity, 81Dojo script-access prohibition, HEROZ's explicit 2026 restrictions and Shogi Club 24's 2025 closure. **Source due diligence is not acquisition authorization.**
 
+### Supply-sizing refinement (2026-11-09; no authorization)
+
+The human-amateur primary cohort may need **only ~60–100 contributed games** to supply the tuning/holdout selected-position quotas plus a new excluded pilot and reserve, rather than a massive online archive. This is a **contingent supply target**, not the required number of qualifying positions. Under the planned minimums, tuning/holdout together require ≥100 selected positions across ≥30 distinct games (≥15 each), with ≤4 selected positions per game. New pilot (≥4 games, 16 selected positions), reserve and zero-output/unusable games increase supply requirements; rights-cleared local records are not automatically eligible production-selector outputs.
+
+H5 uncertainty remains: a **hypothetical** 30% Reference BLUNDER rate among selected human positions yields only about **63.5%** chance of ≥10 in 35 under independent-binomial assumptions, vs **96.0%** with 50; actual rates and within-game dependence are unknown. No H5 guarantee, source outcome filtering or post-Reference supplementation is authorized. Before fixing source quotas/strata, gather a **metadata-only, consent-aware local inventory** by contributor, broad skill band, available game count, time-control/completion status and platform permissions. Do not upload private games or personal identities to GitHub. The related procedure is documented in `BUILD19_VE1_C1_AMATEUR_CORPUS_SOURCE_SURVEY_20261109.md`.
+
+**Priority adjustment:** A-only human contributor corpus if feasible; recruit additional consenting humans or seek lishogi permission only for missing strata/volume; weak-engine B remains optional secondary stress coverage with separate reporting, not an automatic H5 workaround. No corpus Authority is approved.
+
 ## §13.3 priority decision — mother-population redesign before budget selection (2026-11-09)
 
 **Priority: SOURCE-POPULATION CONTRACT REVIEW FIRST / REFERENCE 16M-64M SECOND. Decision status: REQUIRED_REVIEW, NOT APPROVED.** This note records the pre-corpus engineering decision order, **not** a third §13.3 disposition or an amendment to the frozen pre-pilot contract. Original §13.3 still permits only (i) an explicit §12 operational amendment and same-excluded-pilot rerun, or (ii) retaining the original contract with acknowledged HOLD risk. **Changing corpus source, population mix or sampling rules is outside §12 and needs a separate successor versioned corpus/pre-pool contract approved before looking at its candidate results.**
