@@ -1,6 +1,6 @@
 # Build19 VE1-C1 — Current Handoff
 
-Last updated: 2026-11-08
+Last updated: 2026-11-11
 State: VE1_C1_NATURAL_PILOT_PASS_F2_E0 / REFERENCE_16M64M_DIAGNOSTIC_PASS / §13.3_AMENDMENT_CANDIDATE_CONDITIONAL / PLAYED_CERTAINTY_PENDING; NOT_FROZEN
 
 ## Validated implementation and fixed authorities
@@ -81,9 +81,17 @@ The historical pilot is **engine-vs-engine Denryu-sen**, not human pro/amateur g
 
 The 2026-11-08 `PILOT_PASS` / F2,E0, all frozen engine-corpus and exclusion evidence remain intact as **historical engine-population reference evidence**; 16M/64M improved structure stability 3/16→0/16 but is **still only a budget candidate**. Current §13.3 remains open, no successor corpus approved, no budget amendment, no VE1-D and no C1 Freeze.
 
+## 2026-11-11 C1 rights/operational source screen — 81Dojo direct UI first
+
+- **Source research conclusion (NOT source approval):** Official 81Dojo Japanese terms, updated 2026-03-14, §5.2 permit all users to search/view/use public game records (private games excepted); §4.1 prohibits unofficial tools/scripts accessing dojo servers; §§6.1–6.2 require prior approval for commercial use. The **manually operated official UI → locally saved KIF → noncommercial, nonpublic offline Reference analysis** path is a *plausible interpretation of the general use permission*, not an explicit open-data/machine-learning/corpus license. Do not call server-side automation or browser scraping authorized.
+- Current KIF/ZIP official-UI export and supply of 60–100 eligible human amateur games are **not field-verified**. Third-party ShogiLab guidance (2026-04-27) documents ZIP export from the official search UI but is not a binding/current function guarantee. Registered account, D-mile/search cost, available rank/time-control filters, human-vs-COM_ exclusion, same-opponent concentration, completion/standard-rule eligibility and available game counts still need a **normal human-operated official-UI metadata-only screen**. No raw game download required for this first screen.
+- Illustrative 80-game rank-band split 25/30/25 is **not an adopted quota**; skill bands must be source-native, pre-Reference, and locked with game-level separation and deterministic selection in an **approved separate C1 successor corpus/pre-pool Authority**. Do not infer 50/50 selected tuning/holdout or H5 ≥10 BLUNDER opportunities from 80 game files.
+- Official Shogi Quest terms expressly allow other users' use of game records obtained from the service (§権利帰属(2)); official 10-minute Web game has an Export UI, but volume and third-party access remain unproven. It is a **conditional fallback**, not pre-counted supply. Shogigame.org curated TT ZIP still has distinct operator/origin-platform permission questions.
+- Source detail and first-/third-party URLs: `BUILD19_VE1_C1_AMATEUR_CORPUS_SOURCE_SURVEY_20261109.md`, 2026-11-11 follow-up. **Unchanged:** old engine natural pilot PASS/F2/E0, exclusion SHA, Reference budgets, 10%/70%, H1–H5, no successor authorization, no new pilot, no VE1-D, no C1 Freeze.
+
 ## Next bounded action
 
-1. **FIRST: validate human-amateur source eligibility**, rights/terms, privacy and quality, rating-band strata (if available), possible reference-engine ancestry confounding and H5 ≥10 opportunity feasibility **without querying VE1-D labels**. Record whether A human-only or C (A primary / fixed B auxiliary) can plausibly support representative validation. No source has been approved yet.
+1. **FIRST: official-UI metadata-only feasibility screen of 81Dojo direct public human games**, without API/script access or downloaded KIF: verify account access, current result/filter/export limits, KIF/ZIP, D-mile costs and candidate supply by preliminary source-native skill/time-control/completion buckets. Then validate human-amateur source eligibility, provenance/privacy and H5 opportunity feasibility **without querying VE1-D labels**. Shogi Quest is a conditional official-export fallback. No source has been approved yet.
 2. Prepare a **separately versioned corpus/pre-pool successor proposal** for explicit approval: source/partition proportions, deterministic manifest/seed SHA, game-level separation, prior-pilot exposure exclusions, fixed pre-Reference position selection, and all legal/sampling invariants. This is distinct from §12 permitted Reference operational amendments; do not silently modify `VE1-C1-SAMPLING-v1` or old frozen records.
 3. **THEN** decide Reference 16M/64M candidate jointly with the new source and preregistered ≤6-hour sharded search/merger execution. If original §12 operational contract is amended, perform its mandatory **same-original-16** rerun; a future **new-population** pilot is separate, must be full 16 natural positions, must recompute F0/F2 and E0/E1 mechanically and cannot inherit original F2/E0 merely by assertion.
 4. Retain the original pilot `PILOT_PASS` as historical engine-population evidence. Keep 10%/70%, H1–H5, H5 denominator ≥10, source-independent score semantics, all original artifacts and excluded hashes intact. No final synthetic/Freeze, VE1-D or product Errata #3 promotion until applicable gates/approvals. Eventually integrate the `searchmoves` fail-closed and `deepMovetimeMs >= 800` protected coupling into one C1 Freeze Authority.
